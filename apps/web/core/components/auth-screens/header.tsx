@@ -4,12 +4,11 @@
  * See the LICENSE file for details.
  */
 
-import React from "react";
+import type { ReactNode } from "react";
 import { observer } from "mobx-react";
 import Link from "next/link";
 import { AUTH_TRACKER_ELEMENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
-import { PlaneLockup } from "@plane/propel/icons";
 import { PageHead } from "@/components/core/page-title";
 import { EAuthModes } from "@/helpers/authentication.helper";
 import { useInstance } from "@/hooks/store/use-instance";
@@ -63,7 +62,7 @@ export const AuthHeader = observer(function AuthHeader({ type }: AuthHeaderProps
 
 type TAuthHeaderBase = {
   pageTitle: string;
-  additionalAction?: React.ReactNode;
+  additionalAction?: ReactNode;
 };
 
 export function AuthHeaderBase(props: TAuthHeaderBase) {
@@ -71,12 +70,9 @@ export function AuthHeaderBase(props: TAuthHeaderBase) {
   return (
     <>
       <PageHead title={pageTitle + " - Plane"} />
-      <div className="sticky top-0 flex w-full flex-shrink-0 items-center justify-between gap-6">
-        <Link href="/">
-          <PlaneLockup height={20} width={95} className="text-primary" />
-        </Link>
-        {additionalAction}
-      </div>
+      {additionalAction && (
+        <div className="sticky top-0 flex w-full flex-shrink-0 items-center justify-end gap-6">{additionalAction}</div>
+      )}
     </>
   );
 }
