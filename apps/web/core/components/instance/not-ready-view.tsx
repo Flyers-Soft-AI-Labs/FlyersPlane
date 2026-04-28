@@ -13,7 +13,7 @@ import { PlaneLockup } from "@plane/propel/icons";
 import { Button } from "@plane/propel/button";
 
 export function InstanceNotReady() {
-  const adminPortalUrl = GOD_MODE_URL || "https://flyers-plane-admin.vercel.app";
+  const adminPortalUrl = GOD_MODE_URL || "/god-mode";
 
   return (
     <DefaultLayout>
