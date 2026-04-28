@@ -27,7 +27,9 @@ SIGNATURE=$(echo "$HOSTNAME$MAC_ADDRESS$CPU_INFO$MEMORY_INFO$DISK_INFO" | sha256
 export MACHINE_SIGNATURE=$SIGNATURE
 
 # Register instance
-python manage.py register_instance "$MACHINE_SIGNATURE"
+if [ "${REGISTER_INSTANCE_ON_START:-1}" = "1" ]; then
+    python manage.py register_instance "$MACHINE_SIGNATURE"
+fi
 
 # Load the configuration variable
 python manage.py configure_instance
