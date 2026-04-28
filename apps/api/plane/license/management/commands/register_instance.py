@@ -38,6 +38,9 @@ class Command(BaseCommand):
             return "v0.1.0"
 
     def check_for_latest_version(self, fallback_version):
+        if os.environ.get("SKIP_VERSION_CHECK", "1") == "1":
+            return fallback_version
+
         try:
             response = requests.get(
                 "https://api.github.com/repos/makeplane/plane/releases/latest",
@@ -87,6 +90,10 @@ class Command(BaseCommand):
             instance.save()
 
         # Call the instance traces task
-        instance_traces.delay()
+        if os.environ.get("SKIP_INSTANCE_TRACES", "1") != "1":
+            try:
+                instance_traces.delay()
+            except Exception as e:
+                self.stdout.write(f"Error scheduling instance traces: {e}")
 
         return

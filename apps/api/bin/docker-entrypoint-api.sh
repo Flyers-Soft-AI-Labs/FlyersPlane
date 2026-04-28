@@ -10,15 +10,15 @@ fi
 # Wait for migrations
 python manage.py wait_for_migrations
 
-# Create the default bucket
-#!/bin/bash
-
 # Collect system information
 HOSTNAME=$(hostname)
-MAC_ADDRESS=$(ip link show | awk '/ether/ {print $2}' | head -n 1)
-CPU_INFO=$(cat /proc/cpuinfo)
-MEMORY_INFO=$(free -h)
-DISK_INFO=$(df -h)
+MAC_ADDRESS=""
+if command -v ip >/dev/null 2>&1; then
+    MAC_ADDRESS=$(ip link show | awk '/ether/ {print $2}' | head -n 1)
+fi
+CPU_INFO=$(cat /proc/cpuinfo 2>/dev/null || true)
+MEMORY_INFO=$(free -h 2>/dev/null || true)
+DISK_INFO=$(df -h 2>/dev/null || true)
 
 # Concatenate information and compute SHA-256 hash
 SIGNATURE=$(echo "$HOSTNAME$MAC_ADDRESS$CPU_INFO$MEMORY_INFO$DISK_INFO" | sha256sum | awk '{print $1}')
