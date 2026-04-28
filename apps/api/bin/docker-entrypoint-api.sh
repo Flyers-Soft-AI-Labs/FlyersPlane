@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 python manage.py wait_for_db
+
+# Apply migrations before any startup command touches database tables.
+python manage.py migrate --noinput
+
 # Wait for migrations
 python manage.py wait_for_migrations
 
