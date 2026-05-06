@@ -5,14 +5,18 @@
  */
 
 import { Outlet } from "react-router";
+import { useParams } from "next/navigation";
 import { AppHeader } from "@/components/core/app-header";
 import { ContentWrapper } from "@/components/core/content-wrapper";
 import { GlobalIssuesHeader } from "./header";
 
 export default function GlobalIssuesLayout() {
+  const { globalViewId } = useParams();
+  const isAllIssues = globalViewId?.toString() === "all-issues";
+
   return (
     <>
-      <AppHeader header={<GlobalIssuesHeader />} />
+      {!isAllIssues && <AppHeader header={<GlobalIssuesHeader />} />}
       <ContentWrapper>
         <Outlet />
       </ContentWrapper>

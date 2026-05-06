@@ -12,6 +12,8 @@ import { useOutsideClickDetector } from "@plane/hooks";
 import { ScrollArea } from "@plane/propel/scrollarea";
 // components
 import { FlyersLogo } from "@/components/common/flyers-logo";
+// plane-web components
+import { WorkspaceEditionBadge } from "@/plane-web/components/workspace/edition-badge";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
 import useSize from "@/hooks/use-window-size";

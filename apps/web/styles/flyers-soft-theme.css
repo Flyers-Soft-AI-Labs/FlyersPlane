@@ -6100,3 +6100,122 @@ body,
     padding-left: 76px;
   }
 }
+
+/* /workspace-views/all-issues: selected/open/focused rows must never use the dark surface. */
+.flyers-soft-all-issues-view-body
+  .flyers-soft-all-issues-ticket-row:is(
+    [data-selected="true"],
+    [data-active="true"],
+    [aria-selected="true"],
+    .flyers-soft-all-issues-ticket-row-active,
+    .selected,
+    .active,
+    .is-selected,
+    :active,
+    :focus,
+    :focus-within,
+    :focus-visible
+  ),
+.flyers-soft-all-issues-view-body
+  .flyers-soft-all-issues-ticket-row:is(
+    [data-selected="true"],
+    [data-active="true"],
+    [aria-selected="true"],
+    .flyers-soft-all-issues-ticket-row-active,
+    .selected,
+    .active,
+    .is-selected,
+    :active,
+    :focus,
+    :focus-within,
+    :focus-visible
+  ):hover {
+  background: #fffaf0 !important;
+  color: #111827 !important;
+  opacity: 1 !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-all-issues-view-body
+  .flyers-soft-all-issues-ticket-row:is(
+    [data-selected="true"],
+    [data-active="true"],
+    [aria-selected="true"],
+    .flyers-soft-all-issues-ticket-row-active,
+    .selected,
+    .active,
+    .is-selected,
+    :active,
+    :focus,
+    :focus-within,
+    :focus-visible
+  )
+  * {
+  color: #111827 !important;
+}
+
+.flyers-soft-all-issues-view-body
+  .flyers-soft-all-issues-ticket-row:is(
+    [data-selected="true"],
+    [data-active="true"],
+    [aria-selected="true"],
+    .flyers-soft-all-issues-ticket-row-active,
+    .selected,
+    .active,
+    .is-selected,
+    :active,
+    :focus,
+    :focus-within,
+    :focus-visible
+  )
+  :is(svg, span, p, button, [class*="text-"]) {
+  opacity: 1 !important;
+}
+
+.flyers-soft-all-issues-view-body
+  .flyers-soft-all-issues-ticket-row:is(
+    [data-selected="true"],
+    [data-active="true"],
+    [aria-selected="true"],
+    .flyers-soft-all-issues-ticket-row-active,
+    .selected,
+    .active,
+    .is-selected,
+    :active,
+    :focus,
+    :focus-within,
+    :focus-visible
+  )
+  :is([class*="bg-surface"], [class*="bg-layer"]) {
+  background: transparent !important;
+}
+/* FORCE REMOVE DARK HOVER EVERYWHERE */
+
+tr:hover,
+[role="row"]:hover {
+  background: #f9f6ef !important;
+  color: inherit !important;
+}
+
+/* Remove black selected row */
+tr[aria-selected="true"],
+[data-selected="true"] {
+  background: #f5f2ea !important;
+  color: inherit !important;
+}
+
+/* Remove focus/active dark styles */
+tr:focus,
+tr:active {
+  background: #f5f2ea !important;
+}
+
+/* Smooth transition */
+tr {
+  transition: background 0.15s ease;
+}
+/* Catch div-based rows (Plane list layout) */
+div[role="row"]:hover {
+  background: #f9f6ef !important;
+}

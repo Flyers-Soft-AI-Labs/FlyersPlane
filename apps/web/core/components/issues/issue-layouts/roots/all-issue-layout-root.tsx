@@ -130,6 +130,9 @@ export const AllIssueLayoutRoot = observer(function AllIssueLayoutRoot(props: Pr
   }
 
   if (!workspaceSlug || !globalViewId) return null;
+
+  const shouldRenderWorkItemFiltersRow = globalViewId !== "all-issues";
+
   return (
     <IssuesStoreContext.Provider value={EIssuesStoreType.GLOBAL}>
       <WorkspaceLevelWorkItemFiltersHOC
@@ -148,7 +151,7 @@ export const AllIssueLayoutRoot = observer(function AllIssueLayoutRoot(props: Pr
         {({ filter: globalWorkItemsFilter }) => (
           <div className="h-full overflow-hidden bg-surface-1">
             <div className="flex h-full w-full flex-col border-b border-strong">
-              {globalWorkItemsFilter && (
+              {globalWorkItemsFilter && shouldRenderWorkItemFiltersRow && (
                 <WorkItemFiltersRow
                   filter={globalWorkItemsFilter}
                   trackerElements={{

@@ -123,6 +123,8 @@ export const GlobalIssuesHeader = observer(function GlobalIssuesHeader() {
     return ISSUE_DISPLAY_FILTERS_BY_PAGE.my_issues.layoutOptions[layout];
   }, [activeLayout]);
 
+  if (isAllIssues) return null;
+
   return (
     <>
       <CreateUpdateWorkspaceViewModal isOpen={createViewModal} onClose={() => setCreateViewModal(false)} />
@@ -218,10 +220,7 @@ export const GlobalIssuesHeader = observer(function GlobalIssuesHeader() {
                 <WorkspaceViewQuickActions workspaceSlug={workspaceSlug?.toString()} view={viewDetails} />
               )}
               {isDefaultView && defaultViewDetails && (
-                <DefaultWorkspaceViewQuickActions
-                  workspaceSlug={workspaceSlug?.toString()}
-                  view={defaultViewDetails}
-                />
+                <DefaultWorkspaceViewQuickActions workspaceSlug={workspaceSlug?.toString()} view={defaultViewDetails} />
               )}
             </div>
           )}

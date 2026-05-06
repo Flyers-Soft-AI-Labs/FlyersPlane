@@ -11,10 +11,12 @@ import {
   ArrowRight,
   CheckCircle2,
   Clock3,
+  Copy,
   FolderOpen,
   ListChecks,
   MoreVertical,
   Plus,
+  RefreshCw,
   Sparkles,
   Ticket,
   Users,
@@ -25,24 +27,25 @@ import { useParams } from "next/navigation";
 import useSWR from "swr";
 // plane imports
 import { Button } from "@plane/propel/button";
+import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type {
   TActivityEntityData,
   THomeWidgetKeys,
   THomeWidgetProps,
-  TIssuesByStateGroupsWidgetResponse,
   TIssueEntityData,
-  TOverviewStatsWidgetResponse,
-  TWidgetStatsResponse,
+  TIssuesResponse,
+  TStateGroups,
   IUser,
 } from "@plane/types";
-import { calculateTimeAgo, cn, generateWorkItemLink } from "@plane/utils";
+import { calculateTimeAgo, cn, copyTextToClipboard, generateWorkItemLink } from "@plane/utils";
+import { CustomMenu } from "@plane/ui";
 // components
 import { ButtonAvatars } from "@/components/dropdowns/member/avatar";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useDashboard } from "@/hooks/store/use-dashboard";
 import { useProject } from "@/hooks/store/use-project";
 import { useProjectState } from "@/hooks/store/use-project-state";
+import { useAppRouter } from "@/hooks/use-app-router";
 // services
 import { WorkspaceService } from "@/services/workspace.service";
 
@@ -91,11 +94,14 @@ type TStatCard = {
   icon: LucideIcon;
   accent: "purple" | "blue" | "amber" | "green";
   isLoading?: boolean;
+  onRefresh: () => Promise<unknown> | unknown;
+  onViewTickets: () => void;
+  sparklineTotal: number | undefined;
+  sparklineValue: number | undefined;
 };
 
 const workspaceService = new WorkspaceService();
 
-const todayKey = () => new Date().toISOString().slice(0, 10);
 const DASHBOARD_SKELETON_ROW_KEYS = ["row-a", "row-b", "row-c", "row-d", "row-e"];
 const DASHBOARD_STAR_KEYS = [
   "star-a",
@@ -111,8 +117,90 @@ const DASHBOARD_STAR_KEYS = [
   "star-k",
 ];
 const DASHBOARD_BAR_KEYS = ["bar-a", "bar-b", "bar-c", "bar-d", "bar-e", "bar-f"];
+const DASHBOARD_COUNT_PARAMS = {
+  cursor: "1:0:0",
+  per_page: "1",
+};
 
-function StatCard({ accent, caption, icon: Icon, isLoading, label, value }: TStatCard) {
+const getIssueResponseCount = (response: TIssuesResponse | undefined) =>
+  response?.total_results ?? response?.total_count ?? response?.count ?? 0;
+
+const fetchWorkspaceIssueCount = async (
+  workspaceSlug: string,
+  params: Partial<{ state_group: TStateGroups; state_id__in: string }> = {}
+) => {
+  const response = await workspaceService.getViewIssues(workspaceSlug, {
+    ...DASHBOARD_COUNT_PARAMS,
+    ...params,
+  });
+
+  return getIssueResponseCount(response);
+};
+
+const isReviewStateName = (stateName: string | undefined) => /\breview\b/i.test(stateName ?? "");
+
+const getTicketsViewHref = (workspaceSlug: string, params: Record<string, string | undefined> = {}) => {
+  const searchParams = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) searchParams.set(key, value);
+  });
+  const queryString = searchParams.toString();
+
+  return `/${workspaceSlug}/workspace-views/all-issues/${queryString ? `?${queryString}` : ""}`;
+};
+
+function StatCard({
+  accent,
+  caption,
+  icon: Icon,
+  isLoading,
+  label,
+  onRefresh,
+  onViewTickets,
+  sparklineTotal,
+  sparklineValue,
+  value,
+}: TStatCard) {
+  const formattedValue = isLoading ? "..." : (value ?? 0).toLocaleString();
+  const statSummary = `${label}: ${isLoading ? "Loading" : formattedValue} tickets`;
+
+  const handleCopySummary = () => {
+    void copyTextToClipboard(statSummary)
+      .then(() =>
+        setToast({
+          type: TOAST_TYPE.SUCCESS,
+          title: "Summary copied",
+          message: statSummary,
+        })
+      )
+      .catch(() =>
+        setToast({
+          type: TOAST_TYPE.ERROR,
+          title: "Could not copy summary",
+          message: "Please try again.",
+        })
+      );
+  };
+
+  const handleRefresh = () => {
+    void Promise.resolve()
+      .then(onRefresh)
+      .then(() =>
+        setToast({
+          type: TOAST_TYPE.SUCCESS,
+          title: "Stats refreshed",
+          message: `${label} is up to date.`,
+        })
+      )
+      .catch(() =>
+        setToast({
+          type: TOAST_TYPE.ERROR,
+          title: "Could not refresh stats",
+          message: "Please try again.",
+        })
+      );
+  };
+
   return (
     <div className={cn("flyers-soft-dashboard-stat-card", `flyers-soft-dashboard-stat-${accent}`)}>
       <div className="flyers-soft-dashboard-stat-top">
@@ -121,26 +209,66 @@ function StatCard({ accent, caption, icon: Icon, isLoading, label, value }: TSta
         </span>
         <div className="flex min-w-0 flex-col gap-1">
           <span className="truncate text-12 font-medium text-tertiary">{label}</span>
-          <span className="text-24 font-semibold text-primary">
-            {isLoading ? "..." : (value ?? 0).toLocaleString()}
-          </span>
+          <span className="text-24 font-semibold text-primary">{formattedValue}</span>
         </div>
-        <MoreVertical className="flyers-soft-dashboard-stat-menu size-4" strokeWidth={2} />
+        <CustomMenu
+          customButton={<MoreVertical className="flyers-soft-dashboard-stat-menu size-4" strokeWidth={2} />}
+          customButtonClassName="grid size-5 place-items-center rounded-sm hover:bg-layer-transparent-hover"
+          placement="bottom-end"
+          closeOnSelect
+          ariaLabel={`${label} actions`}
+          optionsClassName="min-w-36"
+        >
+          <CustomMenu.MenuItem onClick={onViewTickets} className="flex items-center gap-2">
+            <ArrowRight className="size-3.5" strokeWidth={2} />
+            <span>View tickets</span>
+          </CustomMenu.MenuItem>
+          <CustomMenu.MenuItem onClick={handleCopySummary} className="flex items-center gap-2">
+            <Copy className="size-3.5" strokeWidth={2} />
+            <span>Copy summary</span>
+          </CustomMenu.MenuItem>
+          <CustomMenu.MenuItem onClick={handleRefresh} className="flex items-center gap-2">
+            <RefreshCw className="size-3.5" strokeWidth={2} />
+            <span>Refresh stats</span>
+          </CustomMenu.MenuItem>
+        </CustomMenu>
       </div>
       <p className="truncate text-11 text-placeholder">{caption}</p>
-      <Sparkline accent={accent} />
+      <Sparkline accent={accent} label={label} total={sparklineTotal} value={sparklineValue} />
     </div>
   );
 }
 
-function Sparkline({ accent }: { accent: TStatCard["accent"] }) {
+function Sparkline({
+  accent,
+  label,
+  total,
+  value,
+}: {
+  accent: TStatCard["accent"];
+  label: string;
+  total: number | undefined;
+  value: number | undefined;
+}) {
+  if (value === undefined || total === undefined || total <= 0) return null;
+
+  const width = 180;
+  const height = 34;
+  const padding = 3;
+  const clampedRatio = Math.min(Math.max(value / total, 0), 1);
+  const baseY = height - padding;
+  const endY = baseY - clampedRatio * (height - padding * 2);
+  const midY = baseY - clampedRatio * (height - padding * 3);
+  const path = `M${padding} ${baseY} C48 ${baseY} 70 ${midY} 96 ${midY} S136 ${endY} ${width - padding} ${endY}`;
+
   return (
     <svg
       className={cn("flyers-soft-dashboard-sparkline", `flyers-soft-dashboard-sparkline-${accent}`)}
-      viewBox="0 0 180 34"
-      aria-hidden="true"
+      viewBox={`0 0 ${width} ${height}`}
+      role="img"
+      aria-label={`${label}: ${value.toLocaleString()} of ${total.toLocaleString()} tickets`}
     >
-      <path d="M2 22 C18 18 24 29 40 23 C58 16 63 20 78 24 C96 29 99 10 119 11 C138 12 139 27 157 23 C166 20 173 18 178 21" />
+      <path d={path} vectorEffect="non-scaling-stroke" />
     </svg>
   );
 }
@@ -214,36 +342,45 @@ export const DashboardWidgets = observer(function DashboardWidgets(props: TDashb
   const { currentUser } = props;
   const { workspaceSlug } = useParams();
   const workspaceSlugString = workspaceSlug?.toString();
+  const router = useAppRouter();
   const { toggleCreateIssueModal } = useCommandPalette();
-  const { fetchHomeDashboardWidgets, fetchWidgetStats, homeDashboardId } = useDashboard();
-  const { joinedProjectIds, loader } = useProject();
-  const { getStateById } = useProjectState();
+  const { joinedProjectIds } = useProject();
+  const { fetchedMap, fetchWorkspaceStates, workspaceStates } = useProjectState();
+  const hasLoadedWorkspaceStates = !!(workspaceSlugString && fetchedMap[workspaceSlugString]);
 
-  const { data: dashboardResponse } = useSWR(
-    workspaceSlugString ? `FLYERS_HOME_DASHBOARD_${workspaceSlugString}` : null,
-    workspaceSlugString ? () => fetchHomeDashboardWidgets(workspaceSlugString) : null,
+  useSWR(
+    workspaceSlugString && !hasLoadedWorkspaceStates ? `FLYERS_HOME_WORKSPACE_STATES_${workspaceSlugString}` : null,
+    workspaceSlugString ? () => fetchWorkspaceStates(workspaceSlugString) : null,
     { revalidateOnFocus: false, shouldRetryOnError: false }
   );
 
-  const dashboardId = dashboardResponse?.dashboard.id ?? homeDashboardId;
-
-  const { data: overviewStats, isLoading: isOverviewLoading } = useSWR<TWidgetStatsResponse>(
-    workspaceSlugString && dashboardId ? `FLYERS_HOME_OVERVIEW_${workspaceSlugString}_${dashboardId}` : null,
-    workspaceSlugString && dashboardId
-      ? () => fetchWidgetStats(workspaceSlugString, dashboardId, { widget_key: "overview_stats" })
-      : null,
+  const {
+    data: totalTicketsCount,
+    isLoading: isTotalTicketsLoading,
+    mutate: mutateTotalTicketsCount,
+  } = useSWR<number>(
+    workspaceSlugString ? `FLYERS_HOME_TICKET_COUNT_TOTAL_${workspaceSlugString}` : null,
+    workspaceSlugString ? () => fetchWorkspaceIssueCount(workspaceSlugString) : null,
     { revalidateOnFocus: false, shouldRetryOnError: false }
   );
 
-  const { data: stateStats, isLoading: isStateStatsLoading } = useSWR<TWidgetStatsResponse>(
-    workspaceSlugString && dashboardId ? `FLYERS_HOME_STATE_STATS_${workspaceSlugString}_${dashboardId}` : null,
-    workspaceSlugString && dashboardId
-      ? () =>
-          fetchWidgetStats(workspaceSlugString, dashboardId, {
-            widget_key: "issues_by_state_groups",
-            target_date: todayKey(),
-          })
-      : null,
+  const {
+    data: inProgressTicketsCount,
+    isLoading: isInProgressTicketsLoading,
+    mutate: mutateInProgressTicketsCount,
+  } = useSWR<number>(
+    workspaceSlugString ? `FLYERS_HOME_TICKET_COUNT_STARTED_${workspaceSlugString}` : null,
+    workspaceSlugString ? () => fetchWorkspaceIssueCount(workspaceSlugString, { state_group: "started" }) : null,
+    { revalidateOnFocus: false, shouldRetryOnError: false }
+  );
+
+  const {
+    data: doneTicketsCount,
+    isLoading: isDoneTicketsLoading,
+    mutate: mutateDoneTicketsCount,
+  } = useSWR<number>(
+    workspaceSlugString ? `FLYERS_HOME_TICKET_COUNT_COMPLETED_${workspaceSlugString}` : null,
+    workspaceSlugString ? () => fetchWorkspaceIssueCount(workspaceSlugString, { state_group: "completed" }) : null,
     { revalidateOnFocus: false, shouldRetryOnError: false }
   );
 
@@ -259,53 +396,92 @@ export const DashboardWidgets = observer(function DashboardWidgets(props: TDashb
     { revalidateOnFocus: false, shouldRetryOnError: false }
   );
 
+  const reviewStateIds = (workspaceStates ?? [])
+    .filter((state) => isReviewStateName(state.name))
+    .map((state) => state.id);
+  const reviewStateIdsKey = reviewStateIds.join(",");
+  const {
+    data: reviewTicketsCount,
+    isLoading: isReviewTicketsLoading,
+    mutate: mutateReviewTicketsCount,
+  } = useSWR<number>(
+    hasLoadedWorkspaceStates && reviewStateIdsKey
+      ? `FLYERS_HOME_TICKET_COUNT_REVIEW_${workspaceSlugString}_${reviewStateIdsKey}`
+      : null,
+    workspaceSlugString && reviewStateIdsKey
+      ? () => fetchWorkspaceIssueCount(workspaceSlugString, { state_id__in: reviewStateIdsKey })
+      : null,
+    { revalidateOnFocus: false, shouldRetryOnError: false }
+  );
+
   if (!workspaceSlugString) return null;
 
-  const overview = overviewStats as TOverviewStatsWidgetResponse | undefined;
-  const states = Array.isArray(stateStats) ? (stateStats as TIssuesByStateGroupsWidgetResponse[]) : [];
-  const stateCount = (state: TIssuesByStateGroupsWidgetResponse["state"]) =>
-    states.filter((item) => item.state === state).reduce((sum, item) => sum + item.count, 0);
-  const stateTotal = states.reduce((sum, item) => sum + item.count, 0);
+  const resolvedReviewTicketsCount = hasLoadedWorkspaceStates && !reviewStateIdsKey ? 0 : reviewTicketsCount;
   const visibleRecentTickets = (recentTickets ?? []).filter(
     (activity) => activity.entity_name === "issue" && activity.entity_data
   );
-  const reviewCount = visibleRecentTickets.filter((activity) => {
-    const issue = (activity as TActivityEntityData).entity_data as TIssueEntityData;
-    return /review/i.test(getStateById(issue.state)?.name ?? "");
-  }).length;
+  const isReviewCountLoading =
+    !hasLoadedWorkspaceStates ||
+    (!!reviewStateIdsKey && (isReviewTicketsLoading || resolvedReviewTicketsCount === undefined));
+  const totalForSparkline = totalTicketsCount ?? 0;
+  const refreshDashboardStats = async () => {
+    await fetchWorkspaceStates(workspaceSlugString);
+    await Promise.all([
+      mutateTotalTicketsCount(),
+      mutateInProgressTicketsCount(),
+      mutateReviewTicketsCount(),
+      mutateDoneTicketsCount(),
+    ]);
+  };
 
   const stats: TStatCard[] = [
     {
       label: "Total Tickets",
-      value: stateTotal || overview?.created_issues_count || overview?.assigned_issues_count,
+      value: totalTicketsCount,
       caption: "Tracked across the workspace",
       icon: Ticket,
       accent: "purple",
-      isLoading: isOverviewLoading || isStateStatsLoading || loader !== "loaded",
+      isLoading: isTotalTicketsLoading || totalTicketsCount === undefined,
+      onViewTickets: () => router.push(getTicketsViewHref(workspaceSlugString)),
+      onRefresh: refreshDashboardStats,
+      sparklineValue: totalTicketsCount,
+      sparklineTotal: totalForSparkline,
     },
     {
       label: "In Progress",
-      value: stateCount("started") || overview?.pending_issues_count,
+      value: inProgressTicketsCount,
       caption: "Started or pending work",
       icon: Clock3,
       accent: "blue",
-      isLoading: isOverviewLoading || isStateStatsLoading,
+      isLoading: isInProgressTicketsLoading || inProgressTicketsCount === undefined,
+      onViewTickets: () => router.push(getTicketsViewHref(workspaceSlugString, { state_group: "started" })),
+      onRefresh: refreshDashboardStats,
+      sparklineValue: inProgressTicketsCount,
+      sparklineTotal: totalForSparkline,
     },
     {
       label: "In Review",
-      value: reviewCount,
+      value: resolvedReviewTicketsCount,
       caption: "Recent tickets in review states",
       icon: ListChecks,
       accent: "amber",
-      isLoading: isRecentTicketsLoading,
+      isLoading: isReviewCountLoading,
+      onViewTickets: () => router.push(getTicketsViewHref(workspaceSlugString, { state_id__in: reviewStateIdsKey })),
+      onRefresh: refreshDashboardStats,
+      sparklineValue: resolvedReviewTicketsCount,
+      sparklineTotal: totalForSparkline,
     },
     {
       label: "Done",
-      value: stateCount("completed") || overview?.completed_issues_count,
+      value: doneTicketsCount,
       caption: "Completed tickets",
       icon: CheckCircle2,
       accent: "green",
-      isLoading: isOverviewLoading || isStateStatsLoading,
+      isLoading: isDoneTicketsLoading || doneTicketsCount === undefined,
+      onViewTickets: () => router.push(getTicketsViewHref(workspaceSlugString, { state_group: "completed" })),
+      onRefresh: refreshDashboardStats,
+      sparklineValue: doneTicketsCount,
+      sparklineTotal: totalForSparkline,
     },
   ];
 

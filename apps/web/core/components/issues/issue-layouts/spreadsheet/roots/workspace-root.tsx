@@ -21,7 +21,7 @@ import { useWorkspaceIssueProperties } from "@/hooks/use-workspace-issue-propert
 // store
 import { IssueLayoutHOC } from "../../issue-layout-HOC";
 import type { TRenderQuickActions } from "../../list/list-view-types";
-import { MinimalTicketListView } from "../minimal-ticket-list-view";
+import { AllTicketsPageView } from "../all-tickets-page-view";
 import { SpreadsheetView } from "../spreadsheet-view";
 
 type Props = {
@@ -112,11 +112,11 @@ export const WorkspaceSpreadsheetRoot = observer(function WorkspaceSpreadsheetRo
   const issueIds = groupedIssueIds[ALL_ISSUES];
   const nextPageResults = getPaginationData(ALL_ISSUES, undefined)?.nextPageResults;
 
-  // all-issues → clean Linear-style list; all other workspace views → standard spreadsheet
+  // all-issues → dedicated AllTicketsPageView; other workspace views → standard spreadsheet
   if (globalViewId === "all-issues") {
     return (
       <IssueLayoutHOC layout={EIssueLayoutTypes.SPREADSHEET}>
-        <MinimalTicketListView
+        <AllTicketsPageView
           issueIds={Array.isArray(issueIds) ? issueIds : []}
           quickActions={renderQuickActions}
           updateIssue={updateIssue}
