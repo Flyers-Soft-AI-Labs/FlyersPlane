@@ -16,8 +16,8 @@ export function SidebarAddButton(props: Props) {
   return (
     <Button
       variant={"secondary"}
-      size={"xl"}
-      className="w-full justify-start"
+      size={"base"}
+      className="flyers-soft-sidebar-add-button w-full justify-start"
       onClick={onClick}
       disabled={disabled}
       {...rest}

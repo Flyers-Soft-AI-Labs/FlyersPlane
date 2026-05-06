@@ -41,7 +41,7 @@ export const BaseKanbanGroup = observer(function BaseKanbanGroup<T extends IBase
     <div
       ref={groupRef}
       className={cn(
-        "relative flex max-h-full w-[350px] flex-shrink-0 flex-col overflow-y-auto rounded-md border-[1px] border-transparent bg-layer-1 p-2 pt-0",
+        "flyers-soft-base-kanban-column relative flex max-h-full w-[350px] flex-shrink-0 flex-col overflow-y-auto rounded-md border-[1px] border-transparent bg-layer-1 p-2 pt-0",
         {
           "bg-layer-1": isDraggingOver,
         },
@@ -49,7 +49,7 @@ export const BaseKanbanGroup = observer(function BaseKanbanGroup<T extends IBase
       )}
     >
       {/* Group Header */}
-      <div className="sticky top-0 z-[2] w-full flex-shrink-0 cursor-pointer px-1 py-2">
+      <div className="flyers-soft-base-kanban-column-header sticky top-0 z-[2] w-full flex-shrink-0 cursor-pointer px-1 py-2">
         {renderGroupHeader ? (
           renderGroupHeader({ group, itemCount: itemIds.length, isCollapsed, onToggleGroup })
         ) : (

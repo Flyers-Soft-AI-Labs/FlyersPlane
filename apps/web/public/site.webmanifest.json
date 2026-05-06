@@ -1,13 +1,13 @@
 {
   "name": "Flyers Soft",
   "short_name": "Flyers Soft",
-  "description": "Flyers Soft helps you plan your work items, cycles, and product modules.",
+  "description": "Flyers Soft helps teams manage tickets, projects, reports, and delivery workflows.",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#f9fafb",
   "theme_color": "#6C2BD9",
   "icons": [
-    { "src": "/plane-logos/plane-mobile-pwa.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/plane-logos/plane-mobile-pwa.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "/flyers-logo.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/flyers-logo.png", "sizes": "512x512", "type": "image/png" }
   ]
 }

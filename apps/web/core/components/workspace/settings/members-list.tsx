@@ -4,15 +4,12 @@
  * See the LICENSE file for details.
  */
 
-import { useState } from "react";
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
-import { Disclosure } from "@headlessui/react";
 // plane imports
+import { EUserPermissions } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
-import { ChevronDownIcon } from "@plane/propel/icons";
-import { Collapsible } from "@plane/ui";
 // components
 import { CountChip } from "@/components/common/count-chip";
 import { MembersSettingsLoader } from "@/components/ui/loader/settings/members";
@@ -27,7 +24,6 @@ export const WorkspaceMembersList = observer(function WorkspaceMembersList(props
   isAdmin: boolean;
 }) {
   const { searchQuery, isAdmin } = props;
-  const [showPendingInvites, setShowPendingInvites] = useState<boolean>(true);
 
   // router
   const { workspaceSlug } = useParams();
@@ -45,6 +41,7 @@ export const WorkspaceMembersList = observer(function WorkspaceMembersList(props
     },
   } = useMember();
   const { t } = useTranslation();
+
   // fetching workspace invitations
   useSWR(
     workspaceSlug ? `WORKSPACE_MEMBERS_AND_MEMBER_INVITATIONS_${workspaceSlug.toString()}` : null,
@@ -70,40 +67,56 @@ export const WorkspaceMembersList = observer(function WorkspaceMembersList(props
       return 0;
     });
 
+  // stat counts (always from unfiltered totals)
+  const totalMembers = workspaceMemberIds?.length ?? 0;
+  const pendingInvites = workspaceMemberInvitationIds?.length ?? 0;
+  const adminCount =
+    workspaceMemberIds?.filter((id) => {
+      const d = getWorkspaceMemberDetails(id);
+      return d?.role === EUserPermissions.ADMIN;
+    }).length ?? 0;
+
   return (
     <>
-      <div className="divide-y-[0.5px] divide-subtle overflow-scroll">
+      {/* ── Stat cards ── */}
+      <div className="flyers-soft-teams-stats">
+        <div className="flyers-soft-teams-stat-card">
+          <span className="flyers-soft-teams-stat-label">Active Members</span>
+          <span className="flyers-soft-teams-stat-value">{totalMembers}</span>
+        </div>
+        <div className="flyers-soft-teams-stat-card">
+          <span className="flyers-soft-teams-stat-label">Pending Invites</span>
+          <span className="flyers-soft-teams-stat-value">{pendingInvites}</span>
+        </div>
+        <div className="flyers-soft-teams-stat-card">
+          <span className="flyers-soft-teams-stat-label">Admins</span>
+          <span className="flyers-soft-teams-stat-value">{adminCount}</span>
+        </div>
+      </div>
+
+      {/* ── Team Members card ── */}
+      <div className="flyers-soft-teams-members-panel">
         {searchedMemberIds?.length !== 0 && <WorkspaceMembersListItem memberDetails={memberDetails ?? []} />}
         {searchedInvitationsIds?.length === 0 && searchedMemberIds?.length === 0 && (
-          <h4 className="mt-16 text-center text-body-xs-regular text-placeholder">{t("no_matching_members")}</h4>
+          <h4 className="flyers-soft-teams-empty-state text-center text-body-xs-regular text-placeholder">
+            {t("no_matching_members")}
+          </h4>
         )}
       </div>
+
+      {/* ── Pending Invites card ── */}
       {isAdmin && searchedInvitationsIds && searchedInvitationsIds.length > 0 && (
-        <Collapsible
-          isOpen={showPendingInvites}
-          onToggle={() => setShowPendingInvites((prev) => !prev)}
-          buttonClassName="w-full"
-          className=""
-          title={
-            <div className="flex w-full items-center justify-between pt-4">
-              <div className="flex">
-                <h4 className="pt-2 pb-2 text-h5-medium">{t("workspace_settings.settings.members.pending_invites")}</h4>
-                {searchedInvitationsIds && (
-                  <CountChip count={searchedInvitationsIds.length} className="m-auto ml-2 h-5" />
-                )}
-              </div>{" "}
-              <ChevronDownIcon className={`h-5 w-5 transition-all ${showPendingInvites ? "rotate-180" : ""}`} />
-            </div>
-          }
-        >
-          <Disclosure.Panel>
-            <div className="ml-auto items-center gap-1.5 rounded-md bg-surface-1 py-1.5">
-              {searchedInvitationsIds?.map((invitationId) => (
-                <WorkspaceInvitationsListItem key={invitationId} invitationId={invitationId} />
-              ))}
-            </div>
-          </Disclosure.Panel>
-        </Collapsible>
+        <div className="flyers-soft-teams-invites-card">
+          <div className="flyers-soft-teams-invites-header">
+            <h4 className="text-13 font-semibold text-primary">Pending Invites</h4>
+            <CountChip count={searchedInvitationsIds.length} className="m-auto ml-2 h-5" />
+          </div>
+          <div className="flyers-soft-teams-invites-list">
+            {searchedInvitationsIds.map((invitationId) => (
+              <WorkspaceInvitationsListItem key={invitationId} invitationId={invitationId} />
+            ))}
+          </div>
+        </div>
       )}
     </>
   );

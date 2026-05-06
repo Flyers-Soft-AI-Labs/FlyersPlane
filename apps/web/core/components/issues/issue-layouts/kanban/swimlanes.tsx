@@ -4,7 +4,7 @@
  * See the LICENSE file for details.
  */
 
-import type { MutableRefObject } from "react";
+import type { CSSProperties, MutableRefObject } from "react";
 import { observer } from "mobx-react";
 // plane imports
 import type {
@@ -31,6 +31,8 @@ import { getGroupByColumns, isWorkspaceLevel } from "../utils";
 import { KanBan } from "./default";
 import { HeaderGroupByCard } from "./headers/group-by-card";
 import { HeaderSubGroupByCard } from "./headers/sub-group-by-card";
+
+const KANBAN_SWIMLANE_COLUMN_ACCENTS = ["#6c2bd9", "#38bdf8", "#f59e0b", "#22c55e", "#f97316", "#8b5cf6"];
 
 interface ISubGroupSwimlaneHeader {
   collapsedGroups: TIssueKanbanFilters;
@@ -72,10 +74,10 @@ const SubGroupSwimlaneHeader = observer(function SubGroupSwimlaneHeader({
   const { getIsWorkflowWorkItemCreationDisabled } = useWorkFlowFDragNDrop(group_by, sub_group_by);
 
   return (
-    <div className="relative flex h-max min-h-full w-full items-center gap-4">
+    <div className="flyers-soft-kanban-swimlane-header relative flex h-max min-h-full w-full items-center gap-4">
       {list &&
         list.length > 0 &&
-        list.map((_list: IGroupByColumn) => {
+        list.map((_list: IGroupByColumn, groupIndex) => {
           const groupCount = getGroupIssueCount(_list?.id, undefined, false) ?? 0;
 
           const subGroupByVisibilityToggle = visibilitySubGroupByGroupCount(groupCount, showEmptyGroup);
@@ -83,7 +85,16 @@ const SubGroupSwimlaneHeader = observer(function SubGroupSwimlaneHeader({
           if (subGroupByVisibilityToggle === false) return <></>;
 
           return (
-            <div key={`${sub_group_by}_${_list.id}`} className="flex w-[350px] flex-shrink-0 flex-col">
+            <div
+              key={`${sub_group_by}_${_list.id}`}
+              className="flyers-soft-kanban-column flex w-[350px] flex-shrink-0 flex-col"
+              style={
+                {
+                  "--flyers-column-accent":
+                    KANBAN_SWIMLANE_COLUMN_ACCENTS[groupIndex % KANBAN_SWIMLANE_COLUMN_ACCENTS.length],
+                } as CSSProperties
+              }
+            >
               <HeaderGroupByCard
                 sub_group_by={sub_group_by}
                 group_by={group_by}
@@ -183,7 +194,7 @@ const SubGroupSwimlane = observer(function SubGroupSwimlane(props: ISubGroupSwim
           if (subGroupByVisibilityToggle.showGroup === false) return <></>;
           return (
             <div key={_list.id} className="flex flex-shrink-0 flex-col">
-              <div className="sticky top-[50px] z-[3] flex w-full items-center border-y-[0.5px] border-subtle bg-layer-1 py-1">
+              <div className="flyers-soft-kanban-swimlane-subheader sticky top-[50px] z-[3] flex w-full items-center border-y-[0.5px] border-subtle bg-layer-1 py-1">
                 <Row className="sticky left-0 flex-shrink-0">
                   <HeaderSubGroupByCard
                     column_id={_list.id}
@@ -307,7 +318,7 @@ export const KanBanSwimLanes = observer(function KanBanSwimLanes(props: IKanBanS
 
   return (
     <div className="relative">
-      <Row className="sticky top-0 z-[4] h-[50px] bg-surface-2">
+      <Row className="flyers-soft-kanban-swimlane-header-row sticky top-0 z-[4] h-[50px] bg-surface-2">
         <SubGroupSwimlaneHeader
           getGroupIssueCount={getGroupIssueCount}
           group_by={group_by}

@@ -77,13 +77,13 @@ export const HeaderGroupByCard = observer(function HeaderGroupByCard(props: IHea
       setToast({
         type: TOAST_TYPE.SUCCESS,
         title: "Success!",
-        message: "Work items added to the cycle successfully.",
+        message: "Tickets added to the cycle successfully.",
       });
     } catch (_error) {
       setToast({
         type: TOAST_TYPE.ERROR,
         title: "Error!",
-        message: "Selected work items could not be added to the cycle. Please try again.",
+        message: "Selected tickets could not be added to the cycle. Please try again.",
       });
     }
   };
@@ -112,7 +112,7 @@ export const HeaderGroupByCard = observer(function HeaderGroupByCard(props: IHea
         />
       )}
       <div
-        className={`relative flex flex-shrink-0 gap-1 py-1.5 ${
+        className={`flyers-soft-kanban-header-card relative flex flex-shrink-0 gap-1 py-1.5 ${
           verticalAlignPosition ? `w-[44px] flex-col items-center` : `w-full flex-row items-center`
         }`}
       >
@@ -169,14 +169,14 @@ export const HeaderGroupByCard = observer(function HeaderGroupByCard(props: IHea
                   setIsOpen(true);
                 }}
               >
-                <span className="flex items-center justify-start gap-2">Create work item</span>
+                <span className="flex items-center justify-start gap-2">Create Ticket</span>
               </CustomMenu.MenuItem>
               <CustomMenu.MenuItem
                 onClick={() => {
                   setOpenExistingIssueListModal(true);
                 }}
               >
-                <span className="flex items-center justify-start gap-2">Add an existing work item</span>
+                <span className="flex items-center justify-start gap-2">Add an existing ticket</span>
               </CustomMenu.MenuItem>
             </CustomMenu>
           ) : (

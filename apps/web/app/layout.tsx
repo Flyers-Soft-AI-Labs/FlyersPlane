@@ -14,13 +14,6 @@ import { SITE_DESCRIPTION, SITE_NAME } from "@plane/constants";
 // helpers
 import { cn } from "@plane/utils";
 
-// assets
-import favicon16 from "@/app/assets/favicon/favicon-16x16.png?url";
-import favicon32 from "@/app/assets/favicon/favicon-32x32.png?url";
-import faviconIco from "@/app/assets/favicon/favicon.ico?url";
-import icon180 from "@/app/assets/icons/icon-180x180.png?url";
-import icon512 from "@/app/assets/icons/icon-512x512.png?url";
-
 // local
 import { AppProvider } from "./provider";
 
@@ -30,7 +23,7 @@ export const meta = () => [
   {
     name: "keywords",
     content:
-      "software development, plan, ship, software, accelerate, code management, release management, project management, work item tracking, agile, scrum, kanban, collaboration",
+      "ticket tracking, project management, reports, kanban, collaboration, agile, support tickets, workflows",
   },
   {
     name: "viewport",
@@ -40,16 +33,16 @@ export const meta = () => [
   { property: "og:title", content: "Flyers Soft | Simple, extensible, open-source project management tool." },
   {
     property: "og:description",
-    content: "Open-source project management tool to manage work items, cycles, and product roadmaps easily",
+    content: "Flyers Soft helps teams manage tickets, projects, reports, and delivery workflows.",
   },
-  { property: "og:url", content: "https://app.plane.so/" },
-  { property: "og:image", content: "https://app.plane.so/og-image.png" },
+  { property: "og:url", content: "https://flyerssoft.com/" },
+  { property: "og:image", content: "/flyers-logo.png" },
   { property: "og:image:width", content: "1200" },
   { property: "og:image:height", content: "630" },
   { property: "og:image:alt", content: "Flyers Soft - Modern project management" },
-  { name: "twitter:site", content: "@planepowers" },
+  { name: "twitter:site", content: "Flyers Soft" },
   { name: "twitter:card", content: "summary_large_image" },
-  { name: "twitter:image", content: "https://app.plane.so/og-image.png" },
+  { name: "twitter:image", content: "/flyers-logo.png" },
   { name: "twitter:image:width", content: "1200" },
   { name: "twitter:image:height", content: "630" },
   { name: "twitter:image:alt", content: "Flyers Soft - Modern project management" },
@@ -62,10 +55,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <head>
         <meta name="theme-color" content="#fff" />
-        <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />
-        <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />
+        <link rel="icon" type="image/png" href="/flyers-logo.png" />
         <link rel="manifest" href="/site.webmanifest.json" />
-        <link rel="shortcut icon" href={faviconIco} />
+        <link rel="shortcut icon" href="/flyers-logo.png" />
         {/* Meta info for PWA */}
         <meta name="application-name" content="Flyers Soft" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -73,9 +65,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-title" content={SITE_NAME} />
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <link rel="apple-touch-icon" href={icon512} />
-        <link rel="apple-touch-icon" sizes="180x180" href={icon180} />
-        <link rel="apple-touch-icon" sizes="512x512" href={icon512} />
+        <link rel="apple-touch-icon" href="/flyers-logo.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/flyers-logo.png" />
+        <link rel="apple-touch-icon" sizes="512x512" href="/flyers-logo.png" />
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body>

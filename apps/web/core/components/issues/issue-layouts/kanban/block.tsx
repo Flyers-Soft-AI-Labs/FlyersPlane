@@ -4,7 +4,7 @@
  * See the LICENSE file for details.
  */
 
-import type { MutableRefObject } from "react";
+import type { CSSProperties, MutableRefObject } from "react";
 import { useEffect, useRef, useState } from "react";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
@@ -22,6 +22,7 @@ import { EIssueServiceType } from "@plane/types";
 import { ControlLink, DropIndicator } from "@plane/ui";
 import { cn, generateWorkItemLink } from "@plane/utils";
 // components
+import { ButtonAvatars } from "@/components/dropdowns/member/avatar";
 import RenderIfVisible from "@/components/core/render-if-visible-HOC";
 import { HIGHLIGHT_CLASS, getIssueBlockId } from "@/components/issues/issue-layouts/utils";
 // helpers
@@ -29,6 +30,7 @@ import { HIGHLIGHT_CLASS, getIssueBlockId } from "@/components/issues/issue-layo
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useKanbanView } from "@/hooks/store/use-kanban-view";
 import { useProject } from "@/hooks/store/use-project";
+import { useProjectState } from "@/hooks/store/use-project-state";
 import useIssuePeekOverviewRedirection from "@/hooks/use-issue-peek-overview-redirection";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 // plane web components
@@ -66,6 +68,38 @@ interface IssueDetailsBlockProps {
   isEpic?: boolean;
 }
 
+const PRIORITY_LABELS: Record<string, string> = {
+  urgent: "Urgent",
+  high: "High",
+  medium: "Medium",
+  low: "Low",
+};
+
+function PriorityBadge({ priority }: { priority: TIssue["priority"] }) {
+  const priorityKey = `${priority ?? ""}`.toLowerCase();
+
+  if (!priorityKey || priorityKey === "none") return null;
+
+  return (
+    <span className={cn("flyers-soft-priority-pill", `flyers-soft-priority-${priorityKey}`)}>
+      {PRIORITY_LABELS[priorityKey] ?? priorityKey}
+    </span>
+  );
+}
+
+function StatusBadge({ color, name }: { color: string | undefined; name: string | undefined }) {
+  if (!name) return null;
+
+  return (
+    <span
+      className="flyers-soft-status-pill"
+      style={color ? ({ "--flyers-status-color": color } as CSSProperties) : undefined}
+    >
+      {name}
+    </span>
+  );
+}
+
 const KanbanIssueDetailsBlock = observer(function KanbanIssueDetailsBlock(props: IssueDetailsBlockProps) {
   const { cardRef, issue, updateIssue, quickActions, isReadOnly, displayProperties, isEpic = false } = props;
   // refs
@@ -74,6 +108,7 @@ const KanbanIssueDetailsBlock = observer(function KanbanIssueDetailsBlock(props:
   const [isMenuActive, setIsMenuActive] = useState(false);
   // hooks
   const { isMobile } = usePlatformOS();
+  const { getStateById } = useProjectState();
 
   const customActionButton = (
     <div
@@ -89,6 +124,7 @@ const KanbanIssueDetailsBlock = observer(function KanbanIssueDetailsBlock(props:
 
   // derived values
   const subIssueCount = issue?.sub_issues_count ?? 0;
+  const stateDetails = getStateById(issue.state_id);
 
   const handleEventPropagation = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -100,15 +136,21 @@ const KanbanIssueDetailsBlock = observer(function KanbanIssueDetailsBlock(props:
   return (
     <>
       <div className="relative">
-        {issue.project_id && (
-          <IssueIdentifier
-            issueId={issue.id}
-            projectId={issue.project_id}
-            size="xs"
-            variant="tertiary"
-            displayProperties={displayProperties}
-          />
-        )}
+        <div className="flyers-soft-kanban-card-meta flex items-start justify-between gap-2 pr-8">
+          {issue.project_id && (
+            <IssueIdentifier
+              issueId={issue.id}
+              projectId={issue.project_id}
+              size="xs"
+              variant="tertiary"
+              displayProperties={displayProperties}
+            />
+          )}
+          <div className="flex min-w-0 flex-shrink-0 flex-wrap items-center justify-end gap-1.5">
+            <StatusBadge color={stateDetails?.color} name={stateDetails?.name} />
+            <PriorityBadge priority={issue.priority} />
+          </div>
+        </div>
         <div
           className={cn("absolute -top-1 right-0", {
             "hidden group-hover/kanban-block:block": !isMobile,
@@ -125,20 +167,25 @@ const KanbanIssueDetailsBlock = observer(function KanbanIssueDetailsBlock(props:
       </div>
 
       <Tooltip tooltipContent={issue.name} isMobile={isMobile} renderByDefault={false}>
-        <div className="line-clamp-1 w-full text-body-sm-medium text-primary">
+        <div className="flyers-soft-kanban-card-title line-clamp-2 w-full text-body-sm-medium text-primary">
           <span>{issue.name}</span>
         </div>
       </Tooltip>
 
-      <IssueProperties
-        className="flex flex-wrap items-center gap-2 pt-1.5 whitespace-nowrap text-tertiary"
-        issue={issue}
-        displayProperties={displayProperties}
-        activeLayout="Kanban"
-        updateIssue={updateIssue}
-        isReadOnly={isReadOnly}
-        isEpic={isEpic}
-      />
+      <div className="flyers-soft-kanban-card-footer flex min-w-0 items-center justify-between gap-3 pt-1">
+        <div className="flyers-soft-ticket-assignees flex min-w-[28px] items-center">
+          <ButtonAvatars showTooltip userIds={issue.assignee_ids} size="sm" />
+        </div>
+        <IssueProperties
+          className="flyers-soft-issue-properties flex min-w-0 flex-wrap items-center justify-end gap-2 whitespace-nowrap text-tertiary"
+          issue={issue}
+          displayProperties={displayProperties}
+          activeLayout="Kanban"
+          updateIssue={updateIssue}
+          isReadOnly={isReadOnly}
+          isEpic={isEpic}
+        />
+      </div>
 
       {isEpic && displayProperties && (
         <WithDisplayPropertiesHOC
@@ -262,9 +309,9 @@ export const KanbanIssueBlock = observer(function KanbanIssueBlock(props: IssueB
           else {
             setToast({
               type: TOAST_TYPE.WARNING,
-              title: "Cannot move work item",
+              title: "Cannot move ticket",
               message: !canEditIssueProperties
-                ? "You are not allowed to move this work item"
+                ? "You are not allowed to move this ticket"
                 : "Drag and drop is disabled for the current grouping",
             });
           }
@@ -275,7 +322,7 @@ export const KanbanIssueBlock = observer(function KanbanIssueBlock(props: IssueB
           href={workItemLink}
           ref={cardRef}
           className={cn(
-            "block w-full rounded-lg border border-subtle bg-layer-2 p-3 text-13 shadow-raised-100 outline-[0.5px] outline-transparent transition-all hover:border-strong hover:shadow-raised-200",
+            "flyers-soft-kanban-card block w-full rounded-lg border border-subtle bg-layer-2 p-4 text-13 shadow-raised-100 outline-[0.5px] outline-transparent transition-all hover:border-strong hover:shadow-raised-200",
             { "hover:cursor-pointer": isDragAllowed },
             { "border border-accent-strong hover:border-accent-strong": getIsIssuePeeked(issue.id) },
             { "z-[100] bg-layer-1": isCurrentBlockDragging }
@@ -284,7 +331,7 @@ export const KanbanIssueBlock = observer(function KanbanIssueBlock(props: IssueB
           disabled={!!issue?.tempId}
         >
           <RenderIfVisible
-            classNames="space-y-2"
+            classNames="flyers-soft-kanban-card-body space-y-3"
             root={scrollableContainerRef}
             defaultHeight="100px"
             horizontalOffset={100}

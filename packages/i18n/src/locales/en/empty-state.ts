@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023-present Plane Software, Inc. and contributors
+ * Copyright (c) 2023-present Flyers Soft Software, Inc. and contributors
  * SPDX-License-Identifier: AGPL-3.0-only
  * See the LICENSE file for details.
  */
@@ -8,7 +8,7 @@ export default {
   common_empty_state: {
     progress: {
       title: "There're no progress metrics to show yet.",
-      description: "Start setting property values in work items to see progress metrics here.",
+      description: "Start setting property values in tickets to see progress metrics here.",
     },
     updates: {
       title: "No updates yet.",
@@ -20,7 +20,7 @@ export default {
     },
     not_found: {
       title: "Oops! Something seems wrong",
-      description: "We are unable to fetch your plane account currently. This might be a network error.",
+      description: "We are unable to fetch your Flyers Soft account currently. This might be a network error.",
       cta_primary: "Try reloading",
     },
     server_error: {
@@ -42,10 +42,10 @@ export default {
       description: "The project you are looking for does not exist.",
     },
     work_items: {
-      title: "Start with your first work item.",
+      title: "Start with your first ticket.",
       description:
-        "Work items are the building blocks of your project — assign owners, set priorities, and track progress easily.",
-      cta_primary: "Create your first work item",
+        "Tickets are the building blocks of your project — assign owners, set priorities, and track progress easily.",
+      cta_primary: "Create your first ticket",
     },
     cycles: {
       title: "Group and timebox your work in Cycles.",
@@ -54,23 +54,23 @@ export default {
       cta_primary: "Set your first cycle",
     },
     cycle_work_items: {
-      title: "No work items to show in this cycle",
+      title: "No tickets to show in this cycle",
       description:
-        "Create work items to begin monitoring your team's progress this cycle and achieve your goals on time.",
-      cta_primary: "Create work item",
-      cta_secondary: "Add existing work item",
+        "Create Tickets to begin monitoring your team's progress this cycle and achieve your goals on time.",
+      cta_primary: "Create Ticket",
+      cta_secondary: "Add existing ticket",
     },
     modules: {
       title: "Map your project goals to Modules and track easily.",
       description:
-        "Modules are made up of interconnected work items. They assist in monitoring progress through project phases, each with specific deadlines and analytics to indicate how close you are to achieving those phases.",
+        "Modules are made up of interconnected tickets. They assist in monitoring progress through project phases, each with specific deadlines and analytics to indicate how close you are to achieving those phases.",
       cta_primary: "Set your first module",
     },
     module_work_items: {
-      title: "No work items to show in this Module",
-      description: "Create work items to begin monitoring this module.",
-      cta_primary: "Create work item",
-      cta_secondary: "Add existing work item",
+      title: "No tickets to show in this Module",
+      description: "Create Tickets to begin monitoring this module.",
+      cta_primary: "Create Ticket",
+      cta_secondary: "Add existing ticket",
     },
     views: {
       title: "Save custom views for your project",
@@ -79,19 +79,19 @@ export default {
       cta_primary: "Create view",
     },
     no_work_items_in_project: {
-      title: "No work items in the project yet",
-      description: "Add work items to your project and slice your work into trackable pieces with views.",
-      cta_primary: "Add work item",
+      title: "No tickets in the project yet",
+      description: "Create Tickets to your project and slice your work into trackable pieces with views.",
+      cta_primary: "Create Ticket",
     },
     work_item_filter: {
-      title: "No work items found",
+      title: "No tickets found",
       description: "Your current filter didn't return any results. Try changing the filters.",
-      cta_primary: "Add work item",
+      cta_primary: "Create Ticket",
     },
     pages: {
       title: "Document everything — from notes to PRDs",
       description:
-        "Pages let you capture and organize information in one place. Write meeting notes, project documentation, and PRDs, embed work items, and structure them with ready-to-use components.",
+        "Pages let you capture and organize information in one place. Write meeting notes, project documentation, and PRDs, embed tickets, and structure them with ready-to-use components.",
       cta_primary: "Create your first Page",
     },
     archive_pages: {
@@ -104,14 +104,14 @@ export default {
       cta_primary: "Create Intake request",
     },
     intake_main: {
-      title: "Select an Intake work item to view its details",
+      title: "Select an Intake ticket to view its details",
     },
   },
   workspace_empty_state: {
     archive_work_items: {
-      title: "No archived work items yet",
+      title: "No archived tickets yet",
       description:
-        "Manually or through automation, you can archive work items that are completed or cancelled. Find them here once archived.",
+        "Manually or through automation, you can archive tickets that are completed or cancelled. Find them here once archived.",
       cta_primary: "Set automation",
     },
     archive_cycles: {
@@ -126,27 +126,27 @@ export default {
       title: "Keep important references, resources, or docs handy for your work",
     },
     inbox_sidebar_all: {
-      title: "Updates for your subscribed work items will appear here",
+      title: "Updates for your subscribed tickets will appear here",
     },
     inbox_sidebar_mentions: {
-      title: "Mentions for your work items will appear here",
+      title: "Mentions for your tickets will appear here",
     },
     your_work_by_priority: {
-      title: "No work item assigned yet",
+      title: "No ticket assigned yet",
     },
     your_work_by_state: {
-      title: "No work item assigned yet",
+      title: "No ticket assigned yet",
     },
     views: {
       title: "No Views yet",
-      description: "Add work items to your project and use views to filter, sort, and monitor progress effortlessly.",
-      cta_primary: "Add work item",
+      description: "Create Tickets to your project and use views to filter, sort, and monitor progress effortlessly.",
+      cta_primary: "Create Ticket",
     },
     drafts: {
-      title: "Half-written work items",
+      title: "Half-written tickets",
       description:
-        "To try this out, start adding a work item and leave it mid-way or create your first draft below. 😉",
-      cta_primary: "Create draft work item",
+        "To try this out, start adding a ticket and leave it mid-way or create your first draft below. 😉",
+      cta_primary: "Create draft ticket",
     },
     projects_archived: {
       title: "No projects archived",
@@ -157,7 +157,7 @@ export default {
     },
     analytics_work_items: {
       title:
-        "Create projects with work items and assignees to start tracking performance, progress, and team impact here.",
+        "Create projects with tickets and assignees to start tracking performance, progress, and team impact here.",
     },
     analytics_no_cycle: {
       title: "Create cycles to organise work into time-bound phases and track progress across sprints.",
@@ -172,12 +172,12 @@ export default {
   settings_empty_state: {
     estimates: {
       title: "No estimates yet",
-      description: "Define how your team measures effort and track it consistently across all work items.",
+      description: "Define how your team measures effort and track it consistently across all tickets.",
       cta_primary: "Add estimate system",
     },
     labels: {
       title: "No labels yet",
-      description: "Create personalized labels to effectively categorize and manage your work items.",
+      description: "Create personalized labels to effectively categorize and manage your tickets.",
       cta_primary: "Create your first label",
     },
     exports: {

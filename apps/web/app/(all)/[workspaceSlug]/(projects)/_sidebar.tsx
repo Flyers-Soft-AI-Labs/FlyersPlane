@@ -18,6 +18,12 @@ import { useAppTheme } from "@/hooks/store/use-app-theme";
 import { ExtendedAppSidebar } from "./extended-sidebar";
 import { AppSidebar } from "./sidebar";
 
+const FLYERS_SOFT_SIDEBAR_WIDTH = 256;
+const FLYERS_SOFT_MIN_SIDEBAR_WIDTH = 232;
+const FLYERS_SOFT_MAX_SIDEBAR_WIDTH = 288;
+const resolveSidebarWidth = (width?: number | null) =>
+  Math.min(Math.max(width ?? FLYERS_SOFT_SIDEBAR_WIDTH, FLYERS_SOFT_MIN_SIDEBAR_WIDTH), FLYERS_SOFT_MAX_SIDEBAR_WIDTH);
+
 export const ProjectAppSidebar = observer(function ProjectAppSidebar() {
   // store hooks
   const {
@@ -28,9 +34,9 @@ export const ProjectAppSidebar = observer(function ProjectAppSidebar() {
     isExtendedSidebarOpened,
     isAnySidebarDropdownOpen,
   } = useAppTheme();
-  const { storedValue, setValue } = useLocalStorage("sidebarWidth", SIDEBAR_WIDTH);
+  const { storedValue, setValue } = useLocalStorage<number>("sidebarWidth", SIDEBAR_WIDTH);
   // states
-  const [sidebarWidth, setSidebarWidth] = useState<number>(storedValue ?? SIDEBAR_WIDTH);
+  const [sidebarWidth, setSidebarWidth] = useState<number>(resolveSidebarWidth(storedValue));
   // routes
   const { workspaceSlug } = useParams();
   const pathname = usePathname();
@@ -48,9 +54,11 @@ export const ProjectAppSidebar = observer(function ProjectAppSidebar() {
     <>
       <ResizableSidebar
         showPeek={sidebarPeek}
-        defaultWidth={storedValue ?? 250}
+        defaultWidth={resolveSidebarWidth(storedValue)}
         width={sidebarWidth}
         setWidth={setSidebarWidth}
+        minWidth={FLYERS_SOFT_MIN_SIDEBAR_WIDTH}
+        maxWidth={FLYERS_SOFT_MAX_SIDEBAR_WIDTH}
         defaultCollapsed={sidebarCollapsed}
         peekDuration={1500}
         onWidthChange={handleWidthChange}

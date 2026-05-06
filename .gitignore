@@ -111,3 +111,4 @@ build/
 .react-router/
 temp/
 scripts/
+*.log

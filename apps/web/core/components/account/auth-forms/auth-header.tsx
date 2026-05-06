@@ -27,30 +27,30 @@ type TAuthHeader = {
 const Titles = {
   [EAuthModes.SIGN_IN]: {
     [EAuthSteps.EMAIL]: {
-      header: "Clarity for every moving part.",
-      subHeader: "Welcome back to FlyersPlane.",
+      header: "Work in all dimensions.",
+      subHeader: "Welcome back to Plane.",
     },
     [EAuthSteps.PASSWORD]: {
-      header: "Clarity for every moving part.",
-      subHeader: "Welcome back to FlyersPlane.",
+      header: "Work in all dimensions.",
+      subHeader: "Welcome back to Flyers Soft.",
     },
     [EAuthSteps.UNIQUE_CODE]: {
-      header: "Clarity for every moving part.",
-      subHeader: "Welcome back to FlyersPlane.",
+      header: "Work in all dimensions.",
+      subHeader: "Welcome back to Plane.",
     },
   },
   [EAuthModes.SIGN_UP]: {
     [EAuthSteps.EMAIL]: {
-      header: "Clarity for every moving part.",
-      subHeader: "Create your FlyersPlane account.",
+      header: "Work in all dimensions.",
+      subHeader: "Create your Plane account.",
     },
     [EAuthSteps.PASSWORD]: {
-      header: "Clarity for every moving part.",
-      subHeader: "Create your FlyersPlane account.",
+      header: "Work in all dimensions.",
+      subHeader: "Create your Plane account.",
     },
     [EAuthSteps.UNIQUE_CODE]: {
-      header: "Clarity for every moving part.",
-      subHeader: "Create your FlyersPlane account.",
+      header: "Work in all dimensions.",
+      subHeader: "Create your Plane account.",
     },
   },
 };

@@ -5,38 +5,28 @@
  */
 
 import { observer } from "mobx-react";
-// plane imports
-import { WORKSPACE_SETTINGS } from "@plane/constants";
-import { useTranslation } from "@plane/i18n";
-import { Breadcrumbs } from "@plane/ui";
-// components
-import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
-import { SettingsPageHeader } from "@/components/settings/page-header";
-import { WORKSPACE_SETTINGS_ICONS } from "@/components/settings/workspace/sidebar/item-icon";
+import { Button } from "@plane/propel/button";
 
-export const MembersWorkspaceSettingsHeader = observer(function MembersWorkspaceSettingsHeader() {
-  // plane hooks
-  const { t } = useTranslation();
-  // derived values
-  const settingsDetails = WORKSPACE_SETTINGS.members;
-  const Icon = WORKSPACE_SETTINGS_ICONS.members;
+type Props = {
+  onInviteClick?: () => void;
+  canInvite?: boolean;
+};
 
+export const MembersWorkspaceSettingsHeader = observer(function MembersWorkspaceSettingsHeader({
+  onInviteClick,
+  canInvite,
+}: Props) {
   return (
-    <SettingsPageHeader
-      leftItem={
-        <div className="flex items-center gap-2">
-          <Breadcrumbs>
-            <Breadcrumbs.Item
-              component={
-                <BreadcrumbLink
-                  label={t(settingsDetails.i18n_label)}
-                  icon={<Icon className="size-4 text-tertiary" />}
-                />
-              }
-            />
-          </Breadcrumbs>
-        </div>
-      }
-    />
+    <div className="flyers-soft-teams-page-header flex w-full items-center justify-between">
+      <div className="flex flex-col gap-1">
+        <h1 className="flyers-soft-teams-page-title">Teams</h1>
+        <p className="flyers-soft-teams-page-subtitle">Manage members, roles, and invites</p>
+      </div>
+      {canInvite && onInviteClick && (
+        <Button variant="primary" size="sm" className="flyers-soft-teams-add-button shrink-0" onClick={onInviteClick}>
+          Add Team Member
+        </Button>
+      )}
+    </div>
   );
 });
