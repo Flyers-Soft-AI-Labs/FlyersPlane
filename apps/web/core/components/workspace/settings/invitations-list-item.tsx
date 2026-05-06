@@ -121,22 +121,23 @@ export const WorkspaceInvitationsListItem = observer(function WorkspaceInvitatio
         }}
         onSubmit={handleRemoveInvitation}
       />
-      <div className="group flex h-full w-full items-center justify-between px-3 py-4 hover:bg-layer-transparent-hover">
-        <div className="flex items-center gap-x-4 gap-y-2">
-          <span className="relative flex h-10 w-10 items-center justify-center rounded-sm bg-layer-3 p-4 text-tertiary capitalize">
+      <div className="flyers-soft-team-invite-row group flex h-full w-full items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-x-3 gap-y-2">
+          <span className="flyers-soft-team-invite-avatar relative flex h-8 w-8 items-center justify-center rounded-full bg-layer-3 text-tertiary capitalize">
             {(invitationDetails.email ?? "?")[0]}
           </span>
-          <div>
-            <h4 className="cursor-default text-body-xs-regular">{invitationDetails.email}</h4>
+          <div className="min-w-0">
+            <h4 className="cursor-default truncate text-13 font-medium text-primary">{invitationDetails.email}</h4>
+            <p className="text-11 text-tertiary">Invitation sent</p>
           </div>
         </div>
-        <div className="flex items-center gap-2 text-11">
-          <div className="flex items-center justify-center rounded-sm bg-label-yellow-bg-strong/20 px-2.5 py-1 text-center text-caption-sm-medium text-label-yellow-text">
+        <div className="flyers-soft-team-invite-meta flex items-center gap-2 text-11">
+          <div className="flyers-soft-team-pending-badge flex items-center justify-center rounded-sm bg-label-yellow-bg-strong/20 px-2.5 py-1 text-center text-caption-sm-medium text-label-yellow-text">
             <p>{t("common.pending")}</p>
           </div>
           <CustomSelect
             customButton={
-              <div className="item-center flex gap-1 rounded-sm px-2 py-0.5">
+              <div className="flyers-soft-team-invite-role item-center flex gap-1 rounded-sm px-2 py-0.5">
                 <span
                   className={`flex items-center rounded-sm text-caption-sm-medium ${
                     hasRoleChangeAccess ? "" : "text-placeholder"

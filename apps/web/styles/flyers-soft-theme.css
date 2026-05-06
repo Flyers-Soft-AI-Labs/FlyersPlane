@@ -1,0 +1,6102 @@
+:root,
+:host {
+  --flyers-soft-purple: #ffd54f;
+  --flyers-soft-purple-light: #ffb300;
+  --flyers-soft-purple-soft: #fff1c2;
+  --flyers-soft-sidebar-bg: #fff4cc;
+  --flyers-soft-sidebar-panel: #ffe8a3;
+  --flyers-soft-sidebar-border: #f3e5ab;
+  --flyers-soft-sidebar-hover: #fff1c2;
+  --flyers-soft-sidebar-active: #fff1c2;
+  --flyers-soft-sidebar-text: #2c2c2c;
+  --flyers-soft-sidebar-muted: #6b7280;
+  --flyers-soft-board-bg: #fffbf2;
+  --flyers-soft-column-bg: #fff8e1;
+  --flyers-soft-card-bg: #ffffff;
+  --flyers-soft-card-border: #f3e5ab;
+  --flyers-soft-card-shadow: 0 4px 12px rgba(255, 204, 0, 0.08);
+  --flyers-soft-header-shadow: 0 4px 12px rgba(255, 204, 0, 0.08);
+  --brand-100: oklch(0.981 0.0054 297.73);
+  --brand-200: oklch(0.9421 0.0162 293.74);
+  --brand-300: oklch(0.8808 0.0343 293.03);
+  --brand-400: oklch(0.779 0.0639 293.01);
+  --brand-500: oklch(0.6978 0.0888 291.44);
+  --brand-600: oklch(0.6139 0.1164 290.19);
+  --brand-700: oklch(0.5527 0.1361 288.8);
+  --brand-900: oklch(0.42 0.1303 287.25);
+  --brand-1000: oklch(0.3617 0.1077 287.53);
+  --brand-1100: oklch(0.2861 0.0795 287.41);
+  --brand-1200: oklch(0.219 0.0552 288.93);
+  --brand-default: oklch(0.4895 0.157 286.65);
+}
+
+[data-theme*="dark"] {
+  --flyers-soft-purple-soft: #fff1c2;
+  --flyers-soft-board-bg: #fffbf2;
+  --flyers-soft-column-bg: #fff8e1;
+  --flyers-soft-card-bg: #ffffff;
+  --flyers-soft-card-border: #f3e5ab;
+  --flyers-soft-card-shadow: 0 4px 12px rgba(255, 204, 0, 0.08);
+  --flyers-soft-header-shadow: 0 4px 12px rgba(255, 204, 0, 0.08);
+  --brand-default: #ffd54f;
+}
+
+.flyers-logo {
+  display: block;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.flyers-logo-spinner {
+  animation: flyers-soft-spin 900ms linear infinite;
+}
+
+@keyframes flyers-soft-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#main-sidebar,
+.flyers-soft-sidebar-peek {
+  background: var(--flyers-soft-sidebar-bg) !important;
+  color: var(--flyers-soft-sidebar-text);
+  border-color: var(--flyers-soft-sidebar-border) !important;
+}
+
+#main-sidebar .flyers-soft-main-sidebar-panel,
+.flyers-soft-sidebar-peek {
+  background:
+    linear-gradient(180deg, rgba(108, 43, 217, 0.08), rgba(108, 43, 217, 0) 180px), var(--flyers-soft-sidebar-panel) !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-shell,
+.flyers-soft-sidebar-peek .flyers-soft-sidebar-shell {
+  color: var(--flyers-soft-sidebar-muted);
+}
+
+#main-sidebar .flyers-logo,
+.flyers-soft-sidebar-peek .flyers-logo,
+#main-sidebar .text-primary,
+.flyers-soft-sidebar-peek .text-primary {
+  color: var(--flyers-soft-sidebar-text) !important;
+}
+
+#main-sidebar .text-secondary,
+#main-sidebar .text-tertiary,
+#main-sidebar .text-placeholder,
+.flyers-soft-sidebar-peek .text-secondary,
+.flyers-soft-sidebar-peek .text-tertiary,
+.flyers-soft-sidebar-peek .text-placeholder {
+  color: var(--flyers-soft-sidebar-muted) !important;
+}
+
+.flyers-soft-sidebar-brand {
+  min-height: 44px;
+}
+
+.flyers-soft-sidebar-title {
+  color: var(--flyers-soft-sidebar-muted);
+  letter-spacing: 0.03em;
+}
+
+.flyers-soft-sidebar-nav-item {
+  min-height: 36px;
+  border-radius: 6px !important;
+  color: var(--flyers-soft-sidebar-muted);
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.flyers-soft-sidebar-nav-item:hover {
+  background: var(--flyers-soft-sidebar-hover) !important;
+  color: var(--flyers-soft-sidebar-text) !important;
+}
+
+.flyers-soft-sidebar-nav-item[class*="bg-layer-transparent-active"] {
+  background: var(--flyers-soft-sidebar-active) !important;
+  color: var(--flyers-soft-sidebar-text) !important;
+  box-shadow: inset 3px 0 0 var(--flyers-soft-purple-light);
+}
+
+.flyers-soft-sidebar-nav-item svg {
+  color: inherit !important;
+}
+
+.flyers-soft-sidebar-add-button {
+  border: 1px solid rgba(139, 92, 246, 0.38) !important;
+  background: rgba(108, 43, 217, 0.18) !important;
+  color: var(--flyers-soft-sidebar-text) !important;
+}
+
+.flyers-soft-sidebar-footer {
+  border-color: var(--flyers-soft-sidebar-border) !important;
+  background: rgba(255, 248, 225, 0.92) !important;
+}
+
+.flyers-soft-issues-header {
+  min-height: 58px;
+  border-bottom: 1px solid var(--border-color-subtle);
+  background: var(--background-color-surface-1) !important;
+  box-shadow: var(--flyers-soft-header-shadow);
+  padding-inline: 14px;
+}
+
+.flyers-soft-app-header {
+  background: var(--background-color-surface-1) !important;
+  box-shadow: var(--flyers-soft-header-shadow);
+}
+
+.flyers-soft-work-area {
+  background: var(--flyers-soft-board-bg) !important;
+}
+
+.flyers-soft-filters-shell {
+  border-bottom: 1px solid var(--border-color-subtle);
+  background: var(--background-color-surface-1) !important;
+}
+
+.flyers-soft-filters-row {
+  border: 1px solid var(--border-color-subtle);
+  background: var(--background-color-layer-2) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42);
+}
+
+[data-theme*="dark"] .flyers-soft-filters-row {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.flyers-soft-top-search {
+  height: 36px;
+  min-width: 300px;
+  border: 1px solid var(--border-color-subtle);
+  background: var(--background-color-layer-2);
+  color: var(--text-color-secondary);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+[data-theme*="dark"] .flyers-soft-top-search {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.flyers-soft-top-search:hover {
+  border-color: var(--border-color-accent-subtle);
+  color: var(--text-color-primary);
+}
+
+.flyers-soft-top-search kbd {
+  border: 1px solid var(--border-color-subtle);
+  background: var(--background-color-surface-1);
+}
+
+.flyers-soft-kanban-root {
+  background: var(--flyers-soft-board-bg) !important;
+  padding: 0 12px 12px;
+}
+
+.flyers-soft-kanban-board {
+  background: transparent !important;
+}
+
+.flyers-soft-kanban-columns {
+  gap: 10px !important;
+  padding-top: 10px !important;
+}
+
+.flyers-soft-kanban-column {
+  min-height: calc(100% - 8px);
+  overflow: hidden;
+  border: 1px solid var(--border-color-subtle);
+  border-radius: 8px;
+  background: var(--flyers-soft-column-bg);
+}
+
+.flyers-soft-kanban-column-header {
+  border-top: 3px solid var(--flyers-column-accent, var(--flyers-soft-purple-light));
+  border-bottom: 1px solid var(--border-color-subtle);
+  background: var(--background-color-surface-1) !important;
+  padding: 8px 10px !important;
+}
+
+.flyers-soft-kanban-header-card {
+  min-height: 32px;
+  padding-block: 0 !important;
+}
+
+.flyers-soft-kanban-swimlane-header-row {
+  border-bottom: 1px solid var(--border-color-subtle);
+  background: var(--flyers-soft-board-bg) !important;
+}
+
+.flyers-soft-kanban-swimlane-header .flyers-soft-kanban-column {
+  min-height: auto;
+  border-top: 3px solid var(--flyers-column-accent, var(--flyers-soft-purple-light));
+  background: var(--background-color-surface-1);
+  padding: 8px 10px;
+}
+
+.flyers-soft-kanban-swimlane-subheader {
+  border-color: var(--border-color-subtle) !important;
+  background: var(--background-color-surface-1) !important;
+  box-shadow: var(--flyers-soft-header-shadow);
+}
+
+.flyers-soft-kanban-header-card button,
+.flyers-soft-kanban-header-card [role="button"] {
+  border-radius: 6px !important;
+}
+
+.flyers-soft-kanban-group {
+  padding: 10px;
+}
+
+.flyers-soft-kanban-card {
+  border-color: var(--flyers-soft-card-border) !important;
+  background: var(--flyers-soft-card-bg) !important;
+  box-shadow: var(--flyers-soft-card-shadow) !important;
+}
+
+.flyers-soft-kanban-card:hover {
+  border-color: var(--border-color-accent-subtle) !important;
+  transform: translateY(-1px);
+}
+
+.flyers-soft-kanban-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+.flyers-soft-kanban-card-body {
+  min-height: 86px;
+}
+
+.flyers-soft-priority-pill {
+  display: inline-flex;
+  max-width: 92px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  padding: 3px 7px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.flyers-soft-priority-urgent {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.flyers-soft-priority-high {
+  background: rgba(249, 115, 22, 0.14);
+  color: #f97316;
+}
+
+.flyers-soft-priority-medium {
+  background: rgba(245, 158, 11, 0.16);
+  color: #d97706;
+}
+
+.flyers-soft-priority-low {
+  background: rgba(34, 197, 94, 0.14);
+  color: #16a34a;
+}
+
+.flyers-soft-issue-properties {
+  gap: 7px !important;
+}
+
+.flyers-soft-issue-properties button,
+.flyers-soft-issue-properties [role="button"] {
+  min-height: 22px;
+  border-radius: 6px !important;
+  background: var(--background-color-layer-1);
+}
+
+.flyers-soft-kanban-quick-add {
+  background: linear-gradient(180deg, rgba(244, 246, 251, 0), var(--flyers-soft-column-bg) 28%) !important;
+  padding: 6px 0 0 !important;
+}
+
+[data-theme*="dark"] .flyers-soft-kanban-quick-add {
+  background: linear-gradient(180deg, rgba(255, 251, 242, 0), var(--flyers-soft-column-bg) 28%) !important;
+}
+
+.flyers-soft-base-kanban-layout {
+  background: var(--flyers-soft-board-bg);
+  gap: 10px !important;
+}
+
+.flyers-soft-base-kanban-column {
+  border-color: var(--border-color-subtle) !important;
+  border-radius: 8px !important;
+  background: var(--flyers-soft-column-bg) !important;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+}
+
+.flyers-soft-base-kanban-column-header {
+  margin-inline: -8px;
+  border-top: 3px solid var(--flyers-soft-purple-light);
+  border-bottom: 1px solid var(--border-color-subtle);
+  background: var(--background-color-surface-1);
+  padding-inline: 10px !important;
+}
+
+.flyers-soft-base-kanban-item > * {
+  border-color: var(--flyers-soft-card-border) !important;
+  border-radius: 8px !important;
+  background: var(--flyers-soft-card-bg) !important;
+  box-shadow: var(--flyers-soft-card-shadow);
+}
+
+/* Flyers Soft ticket-board redesign overrides for the real Plane app shell. */
+.flyers-soft-sidebar-brand {
+  min-height: 60px;
+  padding-top: 8px;
+}
+
+#main-sidebar .flyers-soft-sidebar-brand .flyers-logo,
+.flyers-soft-sidebar-peek .flyers-soft-sidebar-brand .flyers-logo {
+  height: 40px !important;
+  max-height: 44px;
+  width: auto;
+  object-fit: contain;
+}
+
+.flyers-soft-sidebar-brand-text {
+  color: var(--flyers-soft-sidebar-text) !important;
+  letter-spacing: 0;
+}
+
+.flyers-soft-sidebar-title {
+  color: rgba(184, 194, 210, 0.78) !important;
+}
+
+.flyers-soft-sidebar-nav-group {
+  padding-top: 4px;
+}
+
+.flyers-soft-sidebar-simple-item {
+  min-height: 42px;
+  border: 1px solid transparent;
+  background: transparent !important;
+}
+
+.flyers-soft-sidebar-simple-item:hover {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.flyers-soft-sidebar-simple-item[class*="bg-layer-transparent-active"],
+.flyers-soft-sidebar-simple-item:has(a.text-primary) {
+  border-color: rgba(139, 92, 246, 0.34);
+  background: linear-gradient(90deg, rgba(108, 43, 217, 0.32), rgba(108, 43, 217, 0.1)) !important;
+}
+
+.flyers-soft-sidebar-simple-item a {
+  color: inherit !important;
+}
+
+.flyers-soft-sidebar-simple-item svg {
+  color: rgba(218, 226, 241, 0.92) !important;
+}
+
+.flyers-soft-sidebar-add-button {
+  min-height: 42px;
+  border-radius: 8px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.flyers-soft-sidebar-footer {
+  color: var(--flyers-soft-sidebar-muted);
+}
+
+.flyers-soft-app-header {
+  position: relative;
+  z-index: 24;
+  min-height: 76px;
+  overflow: visible;
+}
+
+.flyers-soft-issues-header {
+  min-height: 76px;
+  overflow: visible;
+  border-bottom: 1px solid var(--border-color-subtle);
+  background: color-mix(in srgb, var(--background-color-surface-1) 94%, var(--flyers-soft-purple-soft)) !important;
+}
+
+.flyers-soft-breadcrumb-line {
+  min-height: 20px;
+}
+
+.flyers-soft-issues-title {
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+.flyers-soft-issues-header-actions {
+  min-height: 44px;
+}
+
+.flyers-soft-top-search {
+  height: 42px;
+  min-width: min(420px, 38vw);
+  max-width: 520px;
+  border-radius: 8px !important;
+  border-color: color-mix(in srgb, var(--border-color-subtle) 68%, var(--flyers-soft-purple-light)) !important;
+  background: var(--background-color-layer-2);
+}
+
+.flyers-soft-top-search:hover,
+.flyers-soft-top-search:focus-visible {
+  border-color: var(--flyers-soft-purple-light) !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.14);
+}
+
+.flyers-soft-filters-shell {
+  min-height: 52px;
+  padding-block: 8px !important;
+}
+
+.flyers-soft-filters-row {
+  min-height: 40px;
+  border-radius: 8px !important;
+}
+
+.flyers-soft-kanban-root {
+  padding: 16px 18px 18px;
+}
+
+.flyers-soft-kanban-columns {
+  gap: 14px !important;
+  padding-top: 14px !important;
+}
+
+.flyers-soft-kanban-column {
+  border-radius: 8px;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+}
+
+.flyers-soft-kanban-column-header {
+  border-top-width: 4px;
+  padding: 10px 12px !important;
+}
+
+.flyers-soft-kanban-header-card {
+  min-height: 36px;
+}
+
+.flyers-soft-kanban-group {
+  padding: 12px;
+}
+
+.flyers-soft-kanban-card {
+  border-radius: 8px !important;
+  padding: 14px !important;
+}
+
+.flyers-soft-kanban-card-meta {
+  min-height: 24px;
+}
+
+.flyers-soft-kanban-card-title {
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.flyers-soft-kanban-card-footer {
+  border-top: 1px solid color-mix(in srgb, var(--border-color-subtle) 74%, transparent);
+  padding-top: 10px !important;
+}
+
+.flyers-soft-status-pill {
+  --flyers-status-color: var(--flyers-soft-purple-light);
+  display: inline-flex;
+  max-width: 110px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--flyers-status-color) 42%, transparent);
+  background: color-mix(in srgb, var(--flyers-status-color) 13%, transparent);
+  color: color-mix(in srgb, var(--flyers-status-color) 82%, var(--text-color-primary));
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.flyers-soft-priority-pill {
+  border-radius: 999px;
+  padding-inline: 8px;
+}
+
+.flyers-soft-ticket-assignees {
+  color: var(--text-color-tertiary);
+}
+
+.flyers-soft-issue-properties {
+  row-gap: 6px !important;
+}
+
+.flyers-soft-issue-properties button,
+.flyers-soft-issue-properties [role="button"] {
+  min-height: 24px;
+  border: 1px solid var(--border-color-subtle);
+}
+
+.flyers-soft-list-ticket-row {
+  border-color: var(--flyers-soft-card-border) !important;
+  background: var(--flyers-soft-card-bg) !important;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+}
+
+.flyers-soft-list-ticket-row:hover {
+  border-color: var(--border-color-accent-subtle) !important;
+  box-shadow: var(--flyers-soft-card-shadow);
+}
+
+.flyers-soft-list-ticket-title {
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+[data-theme*="dark"] .flyers-soft-issues-header {
+  background: #fffbf2 !important;
+}
+
+[data-theme*="dark"] .flyers-soft-list-ticket-row,
+[data-theme*="dark"] .flyers-soft-kanban-card {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme*="dark"] .flyers-soft-status-pill {
+  background: color-mix(in srgb, var(--flyers-status-color) 18%, transparent);
+  color: color-mix(in srgb, var(--flyers-status-color) 76%, #ffffff);
+}
+
+/* Compact Jira/Linear-inspired sidebar pass. */
+#main-sidebar .flyers-soft-sidebar-shell > div:first-child,
+.flyers-soft-sidebar-peek .flyers-soft-sidebar-shell > div:first-child {
+  gap: 10px !important;
+  padding-inline: 10px !important;
+}
+
+.flyers-soft-sidebar-nav-group {
+  gap: 4px !important;
+  padding-top: 2px !important;
+}
+
+.flyers-soft-sidebar-simple-item {
+  min-height: 38px !important;
+  border-radius: 7px !important;
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-sidebar-simple-link {
+  min-height: 38px !important;
+  gap: 10px !important;
+  padding: 7px 10px !important;
+  font-size: 13px !important;
+  line-height: 1.2;
+}
+
+.flyers-soft-sidebar-simple-item:hover {
+  border-color: rgba(255, 255, 255, 0.07) !important;
+  background: rgba(255, 255, 255, 0.045) !important;
+}
+
+.flyers-soft-sidebar-simple-item[class*="bg-layer-transparent-active"],
+.flyers-soft-sidebar-simple-item:has(a.text-primary) {
+  border-color: rgba(139, 92, 246, 0.2) !important;
+  background: rgba(139, 92, 246, 0.12) !important;
+  box-shadow: inset 2px 0 0 rgba(139, 92, 246, 0.75) !important;
+}
+
+.flyers-soft-sidebar-simple-item svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.flyers-soft-sidebar-add-button {
+  min-height: 36px !important;
+  border-radius: 7px !important;
+  border-color: rgba(139, 92, 246, 0.36) !important;
+  background: rgba(139, 92, 246, 0.2) !important;
+  padding-inline: 10px !important;
+  font-size: 13px !important;
+}
+
+.flyers-soft-sidebar-add-button:hover {
+  background: rgba(139, 92, 246, 0.28) !important;
+}
+
+/* Workspace dashboard redesign. */
+.flyers-soft-app-header.flyers-soft-dashboard-app-header {
+  min-height: 64px !important;
+  align-items: center !important;
+  background: #fffbf2 !important;
+  border-color: rgba(148, 163, 184, 0.18) !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-dashboard-header {
+  min-height: 72px;
+  padding: 24px 22px 10px !important;
+  background: #fffbf2 !important;
+  border-bottom: 0 !important;
+}
+
+.flyers-soft-dashboard-header [aria-current="page"],
+.flyers-soft-dashboard-header .text-primary {
+  color: #2c2c2c !important;
+}
+
+.flyers-soft-dashboard-create-button {
+  min-height: 32px !important;
+  border-radius: 7px !important;
+  padding-inline: 12px !important;
+}
+
+.flyers-soft-home-content-wrapper {
+  background: #fffbf2 !important;
+}
+
+.flyers-soft-home-surface {
+  --background-color-surface-1: #fffbf2;
+  --background-color-layer-1: #fff8e1;
+  --background-color-layer-2: #ffffff;
+  --border-color-subtle: rgba(148, 163, 184, 0.14);
+  --text-color-primary: #2c2c2c;
+  --text-color-secondary: #cbd5e1;
+  --text-color-tertiary: #6b7280;
+  --text-color-placeholder: #6b7280;
+  background: linear-gradient(180deg, rgba(255, 213, 79, 0.22), rgba(255, 251, 242, 0) 220px), #fffbf2 !important;
+  color: #cbd5e1;
+  padding-top: 28px !important;
+  padding-bottom: 32px !important;
+}
+
+.flyers-soft-dashboard-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.flyers-soft-dashboard-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 8px;
+  background: rgba(21, 26, 35, 0.86);
+  padding: 18px;
+}
+
+.flyers-soft-dashboard-link {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  gap: 6px;
+  border-radius: 7px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  padding: 0 11px;
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.flyers-soft-dashboard-link:hover {
+  border-color: rgba(139, 92, 246, 0.45);
+  color: #2c2c2c;
+}
+
+.flyers-soft-dashboard-stat-card,
+.flyers-soft-dashboard-panel {
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 8px;
+  background: rgba(21, 26, 35, 0.92);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+}
+
+.flyers-soft-dashboard-stat-card {
+  display: flex;
+  min-height: 118px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+}
+
+.flyers-soft-dashboard-stat-icon {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 7px;
+  background: rgba(148, 163, 184, 0.12);
+  color: #cbd5e1;
+}
+
+.flyers-soft-dashboard-stat-purple .flyers-soft-dashboard-stat-icon {
+  background: rgba(139, 92, 246, 0.16);
+  color: #a78bfa;
+}
+
+.flyers-soft-dashboard-stat-blue .flyers-soft-dashboard-stat-icon {
+  background: rgba(56, 189, 248, 0.13);
+  color: #38bdf8;
+}
+
+.flyers-soft-dashboard-stat-amber .flyers-soft-dashboard-stat-icon {
+  background: rgba(245, 158, 11, 0.14);
+  color: #fbbf24;
+}
+
+.flyers-soft-dashboard-stat-green .flyers-soft-dashboard-stat-icon {
+  background: rgba(34, 197, 94, 0.13);
+  color: #4ade80;
+}
+
+.flyers-soft-dashboard-panel {
+  min-height: 280px;
+  padding: 16px;
+}
+
+.flyers-soft-dashboard-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.flyers-soft-dashboard-ticket-row,
+.flyers-soft-dashboard-activity-row,
+.flyers-soft-dashboard-skeleton-row {
+  display: flex;
+  min-height: 54px;
+  align-items: center;
+  gap: 12px;
+  border-radius: 7px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  background: rgba(255, 241, 194, 0.72);
+  padding: 10px 12px;
+}
+
+.flyers-soft-dashboard-ticket-row:hover {
+  border-color: rgba(139, 92, 246, 0.28);
+  background: rgba(139, 92, 246, 0.07);
+}
+
+.flyers-soft-dashboard-ticket-key {
+  flex-shrink: 0;
+  border-radius: 6px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(148, 163, 184, 0.08);
+  padding: 4px 7px;
+  color: #cbd5e1;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.flyers-soft-status-dot {
+  --flyers-status-color: #8b5cf6;
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--flyers-status-color);
+}
+
+.flyers-soft-dashboard-activity-row {
+  align-items: flex-start;
+}
+
+.flyers-soft-dashboard-activity-dot {
+  margin-top: 5px;
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: #8b5cf6;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.12);
+}
+
+.flyers-soft-dashboard-empty {
+  display: flex;
+  min-height: 170px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-radius: 8px;
+  border: 1px dashed rgba(148, 163, 184, 0.2);
+  background: rgba(255, 241, 194, 0.64);
+  padding: 18px;
+}
+
+.flyers-soft-dashboard-skeleton-row {
+  animation: flyers-soft-pulse 1.3s ease-in-out infinite;
+}
+
+@keyframes flyers-soft-pulse {
+  50% {
+    opacity: 0.52;
+  }
+}
+
+@media (max-width: 768px) {
+  .flyers-soft-dashboard-hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+/* Compact Tickets list for /workspace-views/all-issues. */
+.flyers-soft-app-header:has(.flyers-soft-tickets-header) {
+  min-height: 82px !important;
+  align-items: center !important;
+  border-bottom-color: rgba(148, 163, 184, 0.12) !important;
+  background: #fffbf2 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-tickets-header {
+  min-height: 74px !important;
+  align-items: center !important;
+  padding: 20px 24px 12px !important;
+  border-bottom: 0 !important;
+  background: #fffbf2 !important;
+}
+
+.flyers-soft-tickets-header .text-primary {
+  color: #2c2c2c !important;
+}
+
+.flyers-soft-tickets-header-actions {
+  gap: 7px !important;
+}
+
+.flyers-soft-tickets-header-actions button,
+.flyers-soft-tickets-header-actions [role="button"] {
+  min-height: 30px !important;
+  height: 30px !important;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+}
+
+.flyers-soft-tickets-create-button {
+  padding-inline: 11px !important;
+  background: #8b5cf6 !important;
+}
+
+.flyers-soft-tickets-view-body {
+  --background-color-surface-1: #fffbf2;
+  --background-color-layer-1: #fffbf2;
+  --background-color-layer-2: #fff8e1;
+  --border-color-subtle: rgba(148, 163, 184, 0.13);
+  --border-color-strong: rgba(148, 163, 184, 0.16);
+  --text-color-primary: #2c2c2c;
+  --text-color-secondary: #cbd5e1;
+  --text-color-tertiary: #6b7280;
+  --text-color-placeholder: #6b7280;
+  background: #fffbf2 !important;
+}
+
+.flyers-soft-tickets-view-body > div {
+  border-bottom: 0 !important;
+}
+
+.flyers-soft-tickets-view-body .flyers-soft-filters-shell {
+  min-height: 44px !important;
+  border-bottom-color: rgba(148, 163, 184, 0.1) !important;
+  background: #fffbf2 !important;
+  padding: 6px 18px !important;
+}
+
+.flyers-soft-tickets-view-body .flyers-soft-filters-row {
+  min-height: 34px !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+  background: rgba(21, 26, 35, 0.72) !important;
+  padding: 6px 8px !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-tickets-list-view {
+  background: #fffbf2 !important;
+  padding: 10px 18px 20px !important;
+}
+
+.flyers-soft-tickets-list-view .vertical-scrollbar {
+  background: transparent !important;
+}
+
+.flyers-soft-tickets-table {
+  table-layout: fixed;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  background: transparent !important;
+}
+
+.flyers-soft-tickets-table-head {
+  display: none !important;
+}
+
+.flyers-soft-tickets-table tr,
+.flyers-soft-tickets-table td,
+.flyers-soft-tickets-table th {
+  border-right: 0 !important;
+  border-left: 0 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-tickets-list-row-shell {
+  height: 44px !important;
+}
+
+.flyers-soft-tickets-row-placeholder {
+  height: 44px !important;
+  border: 0 !important;
+}
+
+.flyers-soft-ticket-list-cell {
+  height: 44px !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+.flyers-soft-ticket-list-row {
+  min-height: 44px !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1) !important;
+  background: transparent !important;
+  padding: 0 10px !important;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease;
+}
+
+.flyers-soft-ticket-list-row:hover {
+  border-bottom-color: rgba(139, 92, 246, 0.24) !important;
+  background: rgba(139, 92, 246, 0.055) !important;
+}
+
+.flyers-soft-ticket-list-row-active,
+.flyers-soft-ticket-list-row-selected {
+  background: rgba(255, 213, 79, 0.22) !important;
+}
+
+.flyers-soft-ticket-list-key {
+  min-width: 72px;
+  flex-shrink: 0;
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.flyers-soft-ticket-list-title {
+  color: #2c2c2c;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.flyers-soft-ticket-list-meta {
+  max-width: 45%;
+}
+
+.flyers-soft-ticket-inline-properties button,
+.flyers-soft-ticket-inline-properties [role="button"] {
+  min-height: 22px !important;
+  height: 22px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: rgba(148, 163, 184, 0.09) !important;
+  padding: 0 7px !important;
+  color: #cbd5e1 !important;
+  font-size: 11px !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-ticket-inline-properties button:hover,
+.flyers-soft-ticket-inline-properties [role="button"]:hover {
+  background: rgba(148, 163, 184, 0.14) !important;
+  color: #2c2c2c !important;
+}
+
+.flyers-soft-ticket-list-actions button {
+  min-height: 24px !important;
+  height: 24px !important;
+  border-radius: 6px !important;
+}
+
+/* Final compact sidebar pass. */
+.flyers-soft-sidebar-nav-group {
+  gap: 2px !important;
+}
+
+.flyers-soft-sidebar-simple-item {
+  min-height: 34px !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-sidebar-simple-link {
+  min-height: 34px !important;
+  gap: 9px !important;
+  padding: 6px 9px !important;
+  font-size: 12px !important;
+}
+
+.flyers-soft-sidebar-simple-item:hover {
+  background: rgba(148, 163, 184, 0.07) !important;
+}
+
+.flyers-soft-sidebar-simple-item[class*="bg-layer-transparent-active"],
+.flyers-soft-sidebar-simple-item:has(a.text-primary) {
+  background: rgba(139, 92, 246, 0.085) !important;
+  box-shadow: inset 2px 0 0 rgba(139, 92, 246, 0.72) !important;
+}
+
+.flyers-soft-sidebar-simple-item svg {
+  width: 15px !important;
+  height: 15px !important;
+}
+
+.flyers-soft-sidebar-add-button {
+  min-height: 32px !important;
+  border-color: rgba(139, 92, 246, 0.24) !important;
+  background: rgba(139, 92, 246, 0.12) !important;
+  padding-inline: 9px !important;
+  font-size: 12px !important;
+  box-shadow: none !important;
+}
+
+/* Project Tickets page: compact Jira/Linear-style issue list. */
+.flyers-soft-project-tickets-app-row {
+  min-height: 90px !important;
+  align-items: stretch !important;
+  border-bottom-color: rgba(148, 163, 184, 0.11) !important;
+  background: #fffbf2 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-project-tickets-header {
+  min-height: 86px !important;
+  align-items: center !important;
+  border-bottom: 0 !important;
+  background: #fffbf2 !important;
+  padding: 22px 22px 12px !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-project-tickets-header .flyers-soft-breadcrumb-line {
+  min-height: 20px;
+  color: #6b7280 !important;
+}
+
+.flyers-soft-project-tickets-header .flyers-soft-issues-title {
+  color: #2c2c2c !important;
+  font-size: 20px !important;
+  line-height: 1.2 !important;
+}
+
+.flyers-soft-project-ticket-search {
+  width: min(360px, 34vw) !important;
+  min-width: 240px !important;
+  height: 32px !important;
+  border-color: rgba(148, 163, 184, 0.16) !important;
+  background: rgba(21, 26, 35, 0.84) !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-project-ticket-create-button {
+  height: 30px !important;
+  min-height: 30px !important;
+  border-radius: 7px !important;
+  background: #8b5cf6 !important;
+  padding-inline: 12px !important;
+  font-size: 12px !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-project-tickets-header-actions {
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.flyers-soft-project-tickets-header-actions button,
+.flyers-soft-project-tickets-header-actions [role="button"] {
+  min-height: 28px !important;
+  height: 28px !important;
+  border-radius: 7px !important;
+  box-shadow: none !important;
+  font-size: 12px !important;
+}
+
+.flyers-soft-project-tickets-content,
+.flyers-soft-project-tickets-root,
+.flyers-soft-project-tickets-work-area,
+.flyers-soft-project-ticket-list-root,
+.flyers-soft-project-ticket-scroll {
+  --background-color-surface-1: #fffbf2;
+  --background-color-surface-2: #fffbf2;
+  --background-color-layer-1: #fffbf2;
+  --background-color-layer-2: #fff8e1;
+  --background-color-layer-transparent-hover: rgba(139, 92, 246, 0.055);
+  --border-color-subtle: rgba(148, 163, 184, 0.11);
+  --border-color-strong: rgba(148, 163, 184, 0.18);
+  --text-color-primary: #2c2c2c;
+  --text-color-secondary: #cbd5e1;
+  --text-color-tertiary: #6b7280;
+  --text-color-placeholder: #6b7280;
+  background: #fffbf2 !important;
+}
+
+.flyers-soft-project-tickets-root .flyers-soft-filters-shell {
+  min-height: 42px !important;
+  border-bottom-color: rgba(148, 163, 184, 0.09) !important;
+  background: #fffbf2 !important;
+  padding: 5px 18px !important;
+}
+
+.flyers-soft-project-tickets-root .flyers-soft-filters-row {
+  min-height: 32px !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+  background: rgba(21, 26, 35, 0.68) !important;
+  padding: 5px 7px !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-project-tickets-root .flyers-soft-filters-row button,
+.flyers-soft-project-tickets-root .flyers-soft-filters-row [role="button"] {
+  min-height: 24px !important;
+  height: 24px !important;
+  border-radius: 6px !important;
+  font-size: 11px !important;
+}
+
+.flyers-soft-project-ticket-list-root {
+  overflow: hidden;
+}
+
+.flyers-soft-project-ticket-scroll {
+  padding: 28px 18px 24px !important;
+}
+
+.flyers-soft-project-ticket-group-row {
+  min-height: 34px !important;
+  border-bottom-color: rgba(148, 163, 184, 0.08) !important;
+  background: #fffbf2 !important;
+  padding: 0 8px !important;
+}
+
+.flyers-soft-project-ticket-group-row:hover {
+  background: #fffbf2 !important;
+}
+
+.flyers-soft-project-ticket-group-header {
+  min-height: 34px !important;
+  padding-block: 5px !important;
+  gap: 8px !important;
+}
+
+.flyers-soft-project-ticket-group-icon svg {
+  width: 13px !important;
+  height: 13px !important;
+  color: #6b7280 !important;
+}
+
+.flyers-soft-project-ticket-group-title {
+  color: #2c2c2c !important;
+  font-size: 12px !important;
+  text-transform: none;
+}
+
+.flyers-soft-project-ticket-group-count {
+  padding-left: 6px !important;
+  color: #6b7280 !important;
+  font-size: 11px !important;
+}
+
+.flyers-soft-project-ticket-group-tree {
+  padding-inline: 6px !important;
+}
+
+.flyers-soft-project-ticket-group-add {
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 6px !important;
+  color: #6b7280 !important;
+}
+
+.flyers-soft-project-ticket-group-add:hover {
+  background: rgba(139, 92, 246, 0.1) !important;
+  color: #2c2c2c !important;
+}
+
+.flyers-soft-project-ticket-block-shell {
+  border-bottom: 0 !important;
+}
+
+.flyers-soft-project-ticket-row {
+  min-height: 48px !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.095) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-project-ticket-row:hover {
+  border-bottom-color: rgba(139, 92, 246, 0.22) !important;
+  background: rgba(139, 92, 246, 0.055) !important;
+}
+
+.flyers-soft-project-ticket-row-selected,
+.flyers-soft-project-ticket-row-active,
+.flyers-soft-project-ticket-row-peeked {
+  background: rgba(139, 92, 246, 0.085) !important;
+  box-shadow: inset 2px 0 0 rgba(139, 92, 246, 0.72) !important;
+}
+
+.flyers-soft-project-ticket-main {
+  min-width: 0;
+}
+
+.flyers-soft-project-ticket-key {
+  min-width: 78px;
+  flex-shrink: 0;
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.flyers-soft-project-ticket-title {
+  min-width: 0;
+  color: #2c2c2c !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+}
+
+.flyers-soft-project-ticket-meta {
+  max-width: 44%;
+}
+
+.flyers-soft-project-ticket-properties button,
+.flyers-soft-project-ticket-properties [role="button"] {
+  min-height: 22px !important;
+  height: 22px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: rgba(148, 163, 184, 0.09) !important;
+  padding: 0 7px !important;
+  color: #cbd5e1 !important;
+  font-size: 11px !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-project-ticket-properties button:hover,
+.flyers-soft-project-ticket-properties [role="button"]:hover {
+  background: rgba(139, 92, 246, 0.12) !important;
+  color: #2c2c2c !important;
+}
+
+.flyers-soft-project-ticket-properties svg {
+  width: 13px !important;
+  height: 13px !important;
+}
+
+.flyers-soft-project-ticket-properties [class*="avatar"],
+.flyers-soft-project-ticket-properties img {
+  width: 22px !important;
+  height: 22px !important;
+}
+
+.flyers-soft-project-ticket-actions button,
+.flyers-soft-project-ticket-actions [role="button"] {
+  width: 26px !important;
+  min-width: 26px !important;
+  height: 26px !important;
+  min-height: 26px !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  color: #6b7280 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-project-ticket-actions button:hover,
+.flyers-soft-project-ticket-actions [role="button"]:hover {
+  background: rgba(148, 163, 184, 0.11) !important;
+  color: #2c2c2c !important;
+}
+
+.flyers-soft-project-ticket-quick-add {
+  border-top: 0 !important;
+  background: #fffbf2 !important;
+}
+
+.flyers-soft-project-ticket-quick-add-button {
+  min-height: 42px !important;
+  padding: 0 10px !important;
+  color: #6b7280 !important;
+  font-size: 12px !important;
+}
+
+.flyers-soft-project-ticket-quick-add-button:hover {
+  background: rgba(139, 92, 246, 0.055) !important;
+  color: #2c2c2c !important;
+}
+
+.flyers-soft-project-ticket-quick-add-form form {
+  min-height: 44px !important;
+  border-color: rgba(148, 163, 184, 0.1) !important;
+  background: #fffbf2 !important;
+}
+
+.flyers-soft-project-ticket-quick-add-form input {
+  padding-block: 10px !important;
+  color: #2c2c2c !important;
+}
+
+@media (max-width: 960px) {
+  .flyers-soft-project-ticket-search {
+    display: none !important;
+  }
+
+  .flyers-soft-project-ticket-meta {
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 720px) {
+  .flyers-soft-project-ticket-row {
+    min-height: 56px !important;
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    padding-block: 8px !important;
+  }
+
+  .flyers-soft-project-ticket-meta {
+    max-width: 100%;
+    width: 100%;
+    justify-content: flex-start;
+    padding-left: 34px;
+  }
+}
+
+/* ================================================================
+   Teams / Members settings page — Jira/Linear-style redesign
+   ================================================================ */
+
+.flyers-soft-teams-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 32px;
+}
+
+/* ── Toolbar ── */
+.flyers-soft-teams-toolbar {
+  align-items: center;
+}
+
+.flyers-soft-teams-search {
+  height: 32px;
+  border-radius: 7px;
+}
+
+.flyers-soft-teams-add-button {
+  height: 32px !important;
+  min-height: 32px !important;
+  border-radius: 7px !important;
+  background: #8b5cf6 !important;
+  padding-inline: 12px !important;
+  font-size: 13px !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-teams-add-button:hover {
+  background: #7c3aed !important;
+}
+
+/* ── 3-column stat cards ── */
+.flyers-soft-teams-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.flyers-soft-teams-stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 8px;
+  background: rgba(21, 26, 35, 0.92);
+  padding: 14px 16px;
+}
+
+.flyers-soft-teams-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.flyers-soft-teams-stat-value {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  color: #2c2c2c;
+}
+
+/* ── Members card ── */
+.flyers-soft-teams-members-panel {
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 8px;
+  background: rgba(21, 26, 35, 0.92);
+  overflow: hidden;
+}
+
+.flyers-soft-teams-members-table-card {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Column header row */
+.flyers-soft-teams-col-header {
+  display: grid;
+  grid-template-columns: minmax(160px, 2fr) minmax(140px, 2fr) 130px 96px 44px;
+  align-items: center;
+  padding: 0 14px;
+  height: 34px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  background: rgba(255, 241, 194, 0.58);
+}
+
+.flyers-soft-teams-col-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Member rows */
+.flyers-soft-teams-member-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 2fr) minmax(140px, 2fr) 130px 96px 44px;
+  align-items: center;
+  padding: 0 14px;
+  min-height: 48px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+  transition: background-color 140ms ease;
+}
+
+.flyers-soft-teams-member-row:last-child {
+  border-bottom: 0;
+}
+
+.flyers-soft-teams-member-row:hover {
+  background: rgba(139, 92, 246, 0.045);
+}
+
+/* Email cell */
+.flyers-soft-teams-email {
+  font-size: 12px;
+  color: #6b7280;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Avatar */
+.flyers-soft-team-avatar {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  flex-shrink: 0;
+  border-radius: 50% !important;
+  font-size: 11px;
+}
+
+/* Status badges */
+.flyers-soft-team-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.flyers-soft-team-status-active {
+  background: rgba(34, 197, 94, 0.12);
+  color: #4ade80;
+}
+
+.flyers-soft-team-status-suspended {
+  background: rgba(148, 163, 184, 0.1);
+  color: #6b7280;
+}
+
+/* Actions button — reveal on row hover */
+.flyers-soft-team-actions-button {
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+
+.flyers-soft-teams-member-row:hover .flyers-soft-team-actions-button,
+.flyers-soft-team-invite-row:hover .flyers-soft-team-actions-button {
+  opacity: 1;
+}
+
+.flyers-soft-team-actions-empty {
+  display: block;
+  width: 44px;
+  text-align: center;
+  color: transparent;
+}
+
+/* Empty state */
+.flyers-soft-teams-empty-state {
+  padding: 32px;
+}
+
+/* ── Pending invites card ── */
+.flyers-soft-teams-invites-card {
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 8px;
+  background: rgba(21, 26, 35, 0.92);
+  overflow: hidden;
+}
+
+.flyers-soft-teams-invites-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  background: rgba(255, 241, 194, 0.58);
+}
+
+.flyers-soft-teams-invites-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Individual invite row */
+.flyers-soft-team-invite-row {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+  transition: background-color 140ms ease;
+}
+
+.flyers-soft-team-invite-row:last-child {
+  border-bottom: 0;
+}
+
+.flyers-soft-team-invite-row:hover {
+  background: rgba(139, 92, 246, 0.04);
+}
+
+.flyers-soft-team-invite-avatar {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  font-size: 11px !important;
+}
+
+/* Pending badge — structural anchor (coloring done inline) */
+.flyers-soft-team-pending-badge {
+  flex-shrink: 0;
+}
+
+/* Invite role selector */
+.flyers-soft-team-invite-role {
+  font-size: 12px;
+}
+
+/* ================================================================
+   Settings sidebar — Teams page (/settings/members/)
+   Scoped to .flyers-soft-teams-settings-sidebar so other settings
+   pages are untouched.
+   ================================================================ */
+
+/* ── Root sidebar shell ── */
+.flyers-soft-teams-settings-sidebar {
+  width: 228px !important;
+  background: #fffbf2 !important;
+  border-right-color: rgba(148, 163, 184, 0.11) !important;
+  /* force dark token overrides inside this panel */
+  --background-color-surface-1: #fffbf2;
+  --background-color-layer-1: #fff8e1;
+  --background-color-layer-transparent-selected: rgba(139, 92, 246, 0.1);
+  --background-color-layer-transparent-hover: rgba(148, 163, 184, 0.07);
+  --text-color-primary: #2c2c2c;
+  --text-color-secondary: #cbd5e1;
+  --text-color-tertiary: #6b7280;
+  --border-color-subtle: rgba(148, 163, 184, 0.12);
+}
+
+/* ── Workspace card / header block ── */
+.flyers-soft-teams-settings-sidebar-header {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+/* Back-navigation row */
+.flyers-soft-teams-settings-back-row {
+  min-height: 36px;
+}
+
+.flyers-soft-teams-settings-back-row p {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2c2c2c;
+}
+
+/* Ghost back button — keep compact */
+.flyers-soft-teams-settings-back-row button {
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px !important;
+  min-height: 26px !important;
+  color: #6b7280 !important;
+}
+
+.flyers-soft-teams-settings-back-row button:hover {
+  color: #2c2c2c !important;
+  background: rgba(148, 163, 184, 0.08) !important;
+}
+
+/* Compact workspace card */
+.flyers-soft-teams-settings-workspace-card {
+  min-height: 36px;
+  margin-bottom: 18px;
+}
+
+.flyers-soft-teams-settings-workspace-card p:first-child {
+  font-size: 12px;
+  font-weight: 600;
+  color: #2c2c2c;
+  line-height: 1.2;
+}
+
+.flyers-soft-teams-settings-workspace-card p:last-child {
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 1.2;
+}
+
+/* ── Nav list ── */
+.flyers-soft-teams-settings-nav {
+  padding-inline: 14px !important;
+  gap: 8px !important;
+  margin-top: 16px !important;
+  padding-top: 0 !important;
+}
+
+/* Every nav link/button */
+.flyers-soft-teams-settings-nav a,
+.flyers-soft-teams-settings-nav button {
+  min-height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+  padding: 0 10px !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #6b7280 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transition:
+    background-color 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease !important;
+}
+
+/* Hover */
+.flyers-soft-teams-settings-nav a:hover,
+.flyers-soft-teams-settings-nav button:hover {
+  background: rgba(148, 163, 184, 0.07) !important;
+  color: #e2e8f0 !important;
+}
+
+/* Active item — muted purple bg + left border accent */
+.flyers-soft-teams-settings-nav a[class*="bg-layer-transparent"],
+.flyers-soft-teams-settings-nav button[class*="bg-layer-transparent"] {
+  background: rgba(255, 213, 79, 0.22) !important;
+  color: #2c2c2c !important;
+  box-shadow: inset 3px 0 0 rgba(139, 92, 246, 0.55) !important;
+}
+
+/* Icon container — centered */
+.flyers-soft-teams-settings-nav a span:first-child,
+.flyers-soft-teams-settings-nav button span:first-child {
+  display: grid !important;
+  place-items: center !important;
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0 !important;
+}
+
+.flyers-soft-teams-settings-nav svg {
+  width: 14px !important;
+  height: 14px !important;
+  color: inherit !important;
+}
+
+/* ================================================================
+   Content scroll area top padding — consistent 28px breathing room
+   below the AppHeader for Tickets (workspace-views) and Projects list.
+   ContentWrapper applies className to its inner scroll div.
+   ================================================================ */
+
+.flyers-soft-global-content-scroll,
+.flyers-soft-projects-list-scroll {
+  padding-top: 28px !important;
+}
+
+/* ================================================================
+   Teams page header — pure div, no Plane Header/Row
+   The .flyers-soft-teams-page-header div is the direct child of
+   ExtendedAppHeader's <div className="w-full">.
+   :has() scopes every override to /settings/members/ only.
+   ================================================================ */
+
+/* Rewrite the AppHeader Row appearance */
+.flyers-soft-app-header:has(.flyers-soft-teams-page-header) {
+  min-height: auto !important;
+  padding: 28px 32px 20px !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08) !important;
+  align-items: stretch !important;
+  background: var(--background-color-surface-1) !important;
+}
+
+/* The pure-div header fills the Row's w-full wrapper */
+.flyers-soft-teams-page-header {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Title */
+.flyers-soft-teams-page-title {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.018em;
+  color: var(--text-color-primary, #2c2c2c);
+}
+
+/* Subtitle */
+.flyers-soft-teams-page-subtitle {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--text-color-tertiary, #6b7280);
+  margin-top: 3px;
+}
+
+/* Add Team Member button */
+.flyers-soft-teams-page-header .flyers-soft-teams-add-button {
+  height: 34px !important;
+  min-height: 34px !important;
+  border-radius: 7px !important;
+  background: #8b5cf6 !important;
+  padding-inline: 14px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.flyers-soft-teams-page-header .flyers-soft-teams-add-button:hover {
+  background: #7c3aed !important;
+}
+
+/* ================================================================
+   Flyers Soft yellow product redesign
+   ================================================================ */
+
+:root,
+:host {
+  --flyers-soft-yellow: #ffc400;
+  --flyers-soft-yellow-strong: #f5b700;
+  --flyers-soft-yellow-soft: #fff4bf;
+  --flyers-soft-ink: #111111;
+  --flyers-soft-muted: #63666d;
+  --flyers-soft-line: #ece4d0;
+  --flyers-soft-cream: #fffaf0;
+  --flyers-soft-panel: #ffffff;
+  --flyers-soft-card-shadow: 0 10px 24px rgba(17, 17, 17, 0.045);
+  --flyers-soft-header-shadow: 0 8px 24px rgba(17, 17, 17, 0.035);
+  --brand-100: #fffdf5;
+  --brand-200: #fff7d6;
+  --brand-300: #ffeda1;
+  --brand-400: #ffdb4d;
+  --brand-500: #ffc400;
+  --brand-600: #e6a700;
+  --brand-700: #b98100;
+  --brand-900: #7a5400;
+  --brand-default: #ffc400;
+}
+
+.flyers-soft-dashboard-header,
+.flyers-soft-dashboard-header *,
+.flyers-soft-home-surface,
+.flyers-soft-home-surface *,
+.flyers-soft-sidebar-shell,
+.flyers-soft-sidebar-shell * {
+  letter-spacing: 0 !important;
+}
+
+#main-sidebar,
+.flyers-soft-sidebar-peek {
+  border-right-color: #eee1c1 !important;
+  background: #fff8e5 !important;
+  color: var(--flyers-soft-ink) !important;
+}
+
+#main-sidebar .flyers-soft-main-sidebar-panel,
+.flyers-soft-sidebar-peek .flyers-soft-main-sidebar-panel,
+.flyers-soft-sidebar-peek {
+  background:
+    radial-gradient(circle at 30px 18px, rgba(255, 196, 0, 0.18), transparent 150px),
+    linear-gradient(180deg, #fffaf0 0%, #fffef8 58%, #fff9e8 100%) !important;
+}
+
+#main-sidebar .text-primary,
+.flyers-soft-sidebar-peek .text-primary {
+  color: var(--flyers-soft-ink) !important;
+}
+
+#main-sidebar .text-secondary,
+#main-sidebar .text-tertiary,
+#main-sidebar .text-placeholder,
+.flyers-soft-sidebar-peek .text-secondary,
+.flyers-soft-sidebar-peek .text-tertiary,
+.flyers-soft-sidebar-peek .text-placeholder {
+  color: #4f5258 !important;
+}
+
+.flyers-soft-sidebar-brand {
+  min-height: 80px !important;
+  padding: 18px 6px 8px !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-brand .flyers-logo,
+.flyers-soft-sidebar-peek .flyers-soft-sidebar-brand .flyers-logo {
+  height: 42px !important;
+  max-height: 42px !important;
+}
+
+.flyers-soft-sidebar-brand-text {
+  color: #111111 !important;
+  font-size: 21px !important;
+  font-weight: 750 !important;
+  line-height: 1.05 !important;
+}
+
+.flyers-soft-sidebar-title {
+  color: #6f737b !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+}
+
+.flyers-soft-sidebar-add-button {
+  min-height: 50px !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  background: linear-gradient(180deg, #ffd21a 0%, #ffc400 100%) !important;
+  color: #111111 !important;
+  font-size: 16px !important;
+  font-weight: 650 !important;
+  box-shadow: 0 8px 18px rgba(255, 196, 0, 0.28) !important;
+}
+
+.flyers-soft-sidebar-add-button:hover {
+  background: linear-gradient(180deg, #ffda3b 0%, #ffc400 100%) !important;
+  transform: translateY(-1px);
+}
+
+.flyers-soft-sidebar-add-button svg {
+  color: #111111 !important;
+}
+
+.flyers-soft-sidebar-nav-group {
+  gap: 16px !important;
+  padding-top: 14px !important;
+}
+
+.flyers-soft-sidebar-simple-item {
+  min-height: 50px !important;
+  border-radius: 8px !important;
+}
+
+.flyers-soft-sidebar-simple-link {
+  min-height: 50px !important;
+  gap: 18px !important;
+  padding: 0 16px !important;
+  font-size: 17px !important;
+  font-weight: 500 !important;
+}
+
+.flyers-soft-sidebar-simple-item svg {
+  width: 22px !important;
+  height: 22px !important;
+  color: #4f5258 !important;
+}
+
+.flyers-soft-sidebar-simple-item:hover {
+  border-color: rgba(255, 196, 0, 0.35) !important;
+  background: rgba(255, 196, 0, 0.12) !important;
+}
+
+.flyers-soft-sidebar-simple-item[class*="bg-layer-transparent-active"],
+.flyers-soft-sidebar-simple-item:has(a.text-primary) {
+  border-color: rgba(255, 196, 0, 0.52) !important;
+  background: linear-gradient(90deg, rgba(255, 196, 0, 0.28), rgba(255, 235, 141, 0.62)) !important;
+  box-shadow: inset 3px 0 0 #ffc400 !important;
+}
+
+.flyers-soft-sidebar-simple-item[class*="bg-layer-transparent-active"] svg,
+.flyers-soft-sidebar-simple-item:has(a.text-primary) svg {
+  color: #f5b700 !important;
+}
+
+.flyers-soft-sidebar-promo {
+  position: relative;
+  flex-shrink: 0;
+  min-height: 154px;
+  margin: 18px 24px 34px;
+  overflow: hidden;
+  border: 1px solid #ece1c6;
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 90% 18%, rgba(255, 196, 0, 0.22), transparent 70px),
+    linear-gradient(160deg, #ffffff 0%, #fff9e7 100%);
+  padding: 42px 28px 22px;
+  color: #111111;
+  box-shadow: 0 10px 24px rgba(17, 17, 17, 0.045);
+}
+
+.flyers-soft-sidebar-promo p:first-of-type {
+  color: #eda900;
+}
+
+.flyers-soft-sidebar-promo-rocket {
+  position: absolute;
+  top: -8px;
+  right: 22px;
+  width: 48px;
+  height: 74px;
+  transform: rotate(42deg);
+}
+
+.flyers-soft-sidebar-promo-rocket::before {
+  position: absolute;
+  inset: 8px 12px;
+  content: "";
+  border-radius: 80% 80% 48% 48%;
+  background: linear-gradient(135deg, #ffd21a, #f4a900);
+  box-shadow: inset -8px -8px 0 rgba(193, 130, 0, 0.18);
+}
+
+.flyers-soft-sidebar-promo-rocket::after {
+  position: absolute;
+  left: 18px;
+  bottom: -6px;
+  width: 12px;
+  height: 30px;
+  content: "";
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 196, 0, 0.9), rgba(255, 255, 255, 0));
+}
+
+.flyers-soft-app-header.flyers-soft-dashboard-app-header {
+  min-height: 96px !important;
+  align-items: center !important;
+  border-bottom: 1px solid #eeeeee !important;
+  background: #ffffff !important;
+  box-shadow: var(--flyers-soft-header-shadow) !important;
+}
+
+.flyers-soft-dashboard-header {
+  display: grid;
+  width: 100%;
+  min-height: 96px !important;
+  grid-template-columns: minmax(120px, 180px) minmax(300px, 600px) minmax(420px, 1fr);
+  align-items: center;
+  gap: 24px;
+  border-bottom: 0 !important;
+  background: #ffffff !important;
+  padding: 0 34px !important;
+}
+
+.flyers-soft-dashboard-main-tab {
+  display: flex;
+  align-self: stretch;
+  align-items: center;
+}
+
+.flyers-soft-dashboard-home-tab {
+  position: relative;
+  display: inline-flex;
+  height: 100%;
+  align-items: center;
+  gap: 14px;
+  color: #111111;
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.flyers-soft-dashboard-home-tab::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 38px;
+  height: 3px;
+  content: "";
+  border-radius: 999px 999px 0 0;
+  background: #ffc400;
+}
+
+.flyers-soft-dashboard-search {
+  display: flex;
+  height: 52px;
+  min-width: 0;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 0 16px;
+  color: #9ca0a8;
+  font-size: 15px;
+  box-shadow: inset 0 1px 0 rgba(17, 17, 17, 0.02);
+}
+
+.flyers-soft-dashboard-search span {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flyers-soft-dashboard-search kbd {
+  flex-shrink: 0;
+  border: 1px solid #ffe08a;
+  border-radius: 7px;
+  background: #fffaf0;
+  padding: 4px 9px;
+  color: #c98600;
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 600;
+}
+
+.flyers-soft-dashboard-search:hover {
+  border-color: #ffd75c;
+  box-shadow: 0 0 0 4px rgba(255, 196, 0, 0.12);
+}
+
+.flyers-soft-dashboard-header-actions {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+}
+
+.flyers-soft-dashboard-icon-button,
+.flyers-soft-dashboard-notification,
+.flyers-soft-dashboard-avatar {
+  display: inline-grid;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 999px;
+  color: #111111;
+}
+
+.flyers-soft-dashboard-icon-button {
+  color: #f5b700;
+}
+
+.flyers-soft-dashboard-notification {
+  position: relative;
+  border: 1px solid #eeeeee;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(17, 17, 17, 0.045);
+}
+
+.flyers-soft-dashboard-notification span {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  display: grid;
+  min-width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 999px;
+  background: #ffc400;
+  color: #111111;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.flyers-soft-dashboard-create-button,
+.flyers-soft-dashboard-hero-actions button,
+.flyers-soft-dashboard-empty-tickets button {
+  display: inline-flex !important;
+  min-height: 48px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  background: linear-gradient(180deg, #ffd21a 0%, #ffc400 100%) !important;
+  padding: 0 20px !important;
+  color: #111111 !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 10px 22px rgba(255, 196, 0, 0.28) !important;
+}
+
+.flyers-soft-dashboard-create-button:hover,
+.flyers-soft-dashboard-hero-actions button:hover,
+.flyers-soft-dashboard-empty-tickets button:hover {
+  background: linear-gradient(180deg, #ffda3b 0%, #ffc400 100%) !important;
+  transform: translateY(-1px);
+}
+
+.flyers-soft-dashboard-avatar {
+  background: #ffc400;
+  color: #111111;
+  font-size: 18px;
+  font-weight: 750;
+}
+
+.flyers-soft-home-content-wrapper {
+  background: #ffffff !important;
+}
+
+.flyers-soft-home-surface {
+  --background-color-surface-1: #ffffff;
+  --background-color-layer-1: #fffaf0;
+  --background-color-layer-2: #ffffff;
+  --border-color-subtle: #ece4d0;
+  --text-color-primary: #111111;
+  --text-color-secondary: #42454d;
+  --text-color-tertiary: #63666d;
+  --text-color-placeholder: #8a8e97;
+  background: #ffffff !important;
+  color: #42454d;
+  padding: 26px 32px 34px !important;
+}
+
+.flyers-soft-dashboard-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.flyers-soft-dashboard-hero {
+  position: relative;
+  display: flex;
+  min-height: 240px;
+  overflow: hidden;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  border: 1px solid #f0d990;
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 28% 0%, rgba(255, 196, 0, 0.12), transparent 260px),
+    linear-gradient(105deg, #fffdf7 0%, #ffffff 48%, #fff6cc 100%);
+  padding: 40px 46px;
+}
+
+.flyers-soft-dashboard-hero::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  background-image: radial-gradient(rgba(255, 196, 0, 0.25) 1px, transparent 1px);
+  background-position: 58% 42%;
+  background-size: 14px 14px;
+  mask-image: linear-gradient(90deg, transparent 0%, #ffffff 48%, transparent 82%);
+}
+
+.flyers-soft-dashboard-hero-copy {
+  position: relative;
+  z-index: 1;
+}
+
+.flyers-soft-dashboard-hero-copy p:first-child {
+  color: #f0ad00 !important;
+  font-size: 14px !important;
+}
+
+.flyers-soft-dashboard-hero h1 {
+  max-width: 640px;
+  color: #111111 !important;
+  font-size: 34px !important;
+  line-height: 1.12 !important;
+  font-weight: 760 !important;
+}
+
+.flyers-soft-dashboard-hero h1 span {
+  color: #e5a600;
+}
+
+.flyers-soft-dashboard-hero p {
+  color: #42454d !important;
+  font-size: 17px !important;
+  line-height: 1.55 !important;
+}
+
+.flyers-soft-dashboard-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 26px;
+}
+
+.flyers-soft-dashboard-link,
+.flyers-soft-dashboard-view-all {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid #f2cc5a;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 0 18px;
+  color: #c98600;
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.flyers-soft-dashboard-link:hover,
+.flyers-soft-dashboard-view-all:hover {
+  border-color: #ffc400;
+  background: #fffaf0;
+  color: #9b6500;
+}
+
+.flyers-soft-dashboard-hero-art {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  width: min(42%, 500px);
+  height: 100%;
+  min-width: 390px;
+}
+
+.flyers-soft-dashboard-hero-bars {
+  position: absolute;
+  right: 34px;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  height: 178px;
+  opacity: 0.78;
+}
+
+.flyers-soft-dashboard-hero-bars span {
+  display: block;
+  width: 20px;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(180deg, #ffe696, rgba(255, 196, 0, 0.2));
+}
+
+.flyers-soft-dashboard-hero-bars span:nth-child(1) {
+  height: 76px;
+}
+
+.flyers-soft-dashboard-hero-bars span:nth-child(2) {
+  height: 104px;
+}
+
+.flyers-soft-dashboard-hero-bars span:nth-child(3) {
+  height: 128px;
+}
+
+.flyers-soft-dashboard-hero-bars span:nth-child(4) {
+  height: 158px;
+}
+
+.flyers-soft-dashboard-hero-bars span:nth-child(5) {
+  height: 190px;
+}
+
+.flyers-soft-dashboard-hero-bars span:nth-child(6) {
+  height: 86px;
+}
+
+.flyers-soft-dashboard-cloud {
+  position: absolute;
+  bottom: 0;
+  border-radius: 999px 999px 0 0;
+  background: linear-gradient(180deg, rgba(255, 211, 42, 0.78), rgba(255, 246, 204, 0.82));
+  filter: drop-shadow(0 -4px 18px rgba(255, 196, 0, 0.22));
+}
+
+.flyers-soft-dashboard-cloud::before,
+.flyers-soft-dashboard-cloud::after {
+  position: absolute;
+  content: "";
+  border-radius: 999px;
+  background: inherit;
+}
+
+.flyers-soft-dashboard-cloud.cloud-one {
+  right: 150px;
+  bottom: -14px;
+  width: 210px;
+  height: 72px;
+}
+
+.flyers-soft-dashboard-cloud.cloud-one::before {
+  left: 42px;
+  bottom: 38px;
+  width: 76px;
+  height: 76px;
+}
+
+.flyers-soft-dashboard-cloud.cloud-one::after {
+  right: 16px;
+  bottom: 22px;
+  width: 62px;
+  height: 62px;
+}
+
+.flyers-soft-dashboard-cloud.cloud-two {
+  right: 42px;
+  bottom: -18px;
+  width: 250px;
+  height: 82px;
+  opacity: 0.52;
+}
+
+.flyers-soft-dashboard-cloud.cloud-two::before {
+  left: 64px;
+  bottom: 36px;
+  width: 90px;
+  height: 90px;
+}
+
+.flyers-soft-dashboard-cloud.cloud-three {
+  right: -44px;
+  bottom: -28px;
+  width: 190px;
+  height: 96px;
+  opacity: 0.44;
+}
+
+.flyers-soft-dashboard-rocket {
+  position: absolute;
+  top: 54px;
+  right: 170px;
+  width: 118px;
+  transform: rotate(14deg);
+  filter: drop-shadow(0 18px 18px rgba(198, 137, 0, 0.22));
+}
+
+.flyers-soft-dashboard-rocket path:first-child {
+  fill: #ffc400;
+  stroke: #d99800;
+  stroke-width: 2;
+}
+
+.flyers-soft-dashboard-rocket path:nth-child(2) {
+  fill: #ffe17a;
+  stroke: #efb600;
+  stroke-width: 2;
+}
+
+.flyers-soft-dashboard-rocket circle {
+  fill: #252525;
+}
+
+.flyers-soft-dashboard-rocket path:last-child {
+  fill: none;
+  stroke: #f5b700;
+  stroke-linecap: round;
+  stroke-width: 5;
+}
+
+.flyers-soft-dashboard-hero-stars span {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+}
+
+.flyers-soft-dashboard-hero-stars span::before,
+.flyers-soft-dashboard-hero-stars span::after {
+  position: absolute;
+  content: "";
+  border-radius: 999px;
+  background: #ffc400;
+}
+
+.flyers-soft-dashboard-hero-stars span::before {
+  top: 3px;
+  left: 0;
+  width: 8px;
+  height: 2px;
+}
+
+.flyers-soft-dashboard-hero-stars span::after {
+  top: 0;
+  left: 3px;
+  width: 2px;
+  height: 8px;
+}
+
+.flyers-soft-dashboard-hero-stars span:nth-child(1) {
+  top: 44px;
+  left: 26px;
+}
+
+.flyers-soft-dashboard-hero-stars span:nth-child(2) {
+  top: 80px;
+  left: 110px;
+}
+
+.flyers-soft-dashboard-hero-stars span:nth-child(3) {
+  top: 36px;
+  left: 208px;
+}
+
+.flyers-soft-dashboard-hero-stars span:nth-child(4) {
+  top: 118px;
+  left: 230px;
+}
+
+.flyers-soft-dashboard-hero-stars span:nth-child(5) {
+  top: 76px;
+  right: 102px;
+}
+
+.flyers-soft-dashboard-hero-stars span:nth-child(6) {
+  top: 126px;
+  right: 42px;
+}
+
+.flyers-soft-dashboard-hero-stars span:nth-child(7) {
+  top: 26px;
+  right: 318px;
+}
+
+.flyers-soft-dashboard-hero-stars span:nth-child(8) {
+  top: 114px;
+  right: 342px;
+}
+
+.flyers-soft-dashboard-hero-stars span:nth-child(9) {
+  top: 70px;
+  right: 264px;
+}
+
+.flyers-soft-dashboard-hero-stars span:nth-child(10) {
+  top: 160px;
+  right: 220px;
+}
+
+.flyers-soft-dashboard-hero-stars span:nth-child(11) {
+  top: 172px;
+  right: 92px;
+}
+
+.flyers-soft-dashboard-stat-card,
+.flyers-soft-dashboard-panel {
+  border: 1px solid #e9e9e9 !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  box-shadow: var(--flyers-soft-card-shadow) !important;
+}
+
+.flyers-soft-dashboard-stat-card {
+  min-height: 190px !important;
+  padding: 20px 22px 18px !important;
+}
+
+.flyers-soft-dashboard-stat-top {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) 20px;
+  align-items: start;
+  gap: 14px;
+}
+
+.flyers-soft-dashboard-stat-icon {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  border-radius: 999px;
+  background: #fff3c4 !important;
+  color: #e5a600 !important;
+}
+
+.flyers-soft-dashboard-stat-card .text-12 {
+  color: #4f5258 !important;
+  font-size: 14px !important;
+}
+
+.flyers-soft-dashboard-stat-card .text-24 {
+  color: #111111 !important;
+  font-size: 31px !important;
+  line-height: 1 !important;
+  font-weight: 760 !important;
+}
+
+.flyers-soft-dashboard-stat-card p {
+  color: #63666d !important;
+  font-size: 14px !important;
+}
+
+.flyers-soft-dashboard-stat-menu {
+  color: #8a8e97;
+}
+
+.flyers-soft-dashboard-sparkline {
+  width: 100%;
+  height: 34px;
+  overflow: visible;
+}
+
+.flyers-soft-dashboard-sparkline path {
+  fill: none;
+  stroke: #f5b700;
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.flyers-soft-dashboard-panel {
+  min-height: 318px !important;
+  padding: 18px 22px !important;
+}
+
+.flyers-soft-dashboard-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.flyers-soft-dashboard-panel-title {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+}
+
+.flyers-soft-dashboard-panel-title span {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  place-items: center;
+  color: #e5a600;
+}
+
+.flyers-soft-dashboard-panel-title h2 {
+  color: #111111 !important;
+  font-size: 20px !important;
+  line-height: 1.2 !important;
+  font-weight: 720 !important;
+}
+
+.flyers-soft-dashboard-view-all {
+  min-height: 38px;
+  flex-shrink: 0;
+  padding-inline: 16px;
+  font-size: 15px;
+}
+
+.flyers-soft-dashboard-ticket-row,
+.flyers-soft-dashboard-activity-row,
+.flyers-soft-dashboard-skeleton-row {
+  min-height: 58px !important;
+  border: 0 !important;
+  border-bottom: 1px solid #eeeeee !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 10px 0 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-dashboard-ticket-row:hover {
+  background: #fffaf0 !important;
+}
+
+.flyers-soft-dashboard-ticket-key {
+  border-color: #ffe08a !important;
+  background: #fff7d6 !important;
+  color: #b77900 !important;
+}
+
+.flyers-soft-dashboard-activity-avatar {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 999px;
+  background: #ffc400;
+  color: #111111;
+  font-size: 14px;
+  font-weight: 760;
+}
+
+.flyers-soft-dashboard-activity-name {
+  color: #b77900;
+  font-weight: 760;
+}
+
+.flyers-soft-dashboard-activity-time {
+  flex-shrink: 0;
+  color: #8a8e97;
+  font-size: 13px;
+}
+
+.flyers-soft-dashboard-empty {
+  min-height: 230px !important;
+  flex-direction: column;
+  border: 0 !important;
+  background: transparent !important;
+  color: #111111 !important;
+  text-align: center;
+}
+
+.flyers-soft-dashboard-empty-folder {
+  position: relative;
+  color: #ffc400;
+}
+
+.flyers-soft-dashboard-empty-folder svg:first-child {
+  fill: #fff3c4;
+  stroke: #e5a600;
+}
+
+.flyers-soft-dashboard-empty-sparkle {
+  position: absolute;
+  top: -4px;
+  right: -18px;
+  color: #ffc400;
+}
+
+.flyers-soft-dashboard-empty-tickets button {
+  min-height: 46px !important;
+  margin-top: 4px;
+}
+
+.flyers-soft-priority-urgent {
+  background: #ffe2df !important;
+  color: #cf2f24 !important;
+}
+
+.flyers-soft-priority-high {
+  background: #ffe9d6 !important;
+  color: #c65f00 !important;
+}
+
+.flyers-soft-priority-medium {
+  background: #fff3c4 !important;
+  color: #9b6500 !important;
+}
+
+.flyers-soft-priority-low {
+  background: #dcfce7 !important;
+  color: #15803d !important;
+}
+
+.flyers-soft-status-dot,
+.flyers-soft-dashboard-activity-dot {
+  background: #ffc400 !important;
+}
+
+.flyers-soft-status-pill {
+  --flyers-status-color: #ffc400;
+}
+
+.flyers-soft-app-header:has(.flyers-soft-tickets-header),
+.flyers-soft-app-header:has(.flyers-soft-teams-page-header) {
+  background: #ffffff !important;
+  border-bottom-color: #eeeeee !important;
+  box-shadow: var(--flyers-soft-header-shadow) !important;
+}
+
+.flyers-soft-tickets-header,
+.flyers-soft-issues-header {
+  background: #ffffff !important;
+  border-bottom-color: #eeeeee !important;
+}
+
+.flyers-soft-tickets-header .text-primary,
+.flyers-soft-issues-header .text-primary,
+.flyers-soft-teams-page-title {
+  color: #111111 !important;
+}
+
+.flyers-soft-tickets-view-body,
+.flyers-soft-work-area,
+.flyers-soft-kanban-root,
+.flyers-soft-base-kanban-layout,
+.flyers-soft-project-tickets-work-area {
+  background: #fffdf7 !important;
+}
+
+.flyers-soft-kanban-column,
+.flyers-soft-base-kanban-column {
+  border-color: #efe3c4 !important;
+  background: #fff8e5 !important;
+}
+
+.flyers-soft-kanban-column-header,
+.flyers-soft-base-kanban-column-header {
+  border-top-color: #ffc400 !important;
+  background: #ffffff !important;
+}
+
+.flyers-soft-kanban-card,
+.flyers-soft-list-ticket-row,
+.flyers-soft-base-kanban-item > *,
+.flyers-soft-project-ticket-row {
+  border-color: #eeeeee !important;
+  background: #ffffff !important;
+  color: #111111 !important;
+  box-shadow: 0 8px 20px rgba(17, 17, 17, 0.035) !important;
+}
+
+.flyers-soft-kanban-card:hover,
+.flyers-soft-list-ticket-row:hover,
+.flyers-soft-project-ticket-row:hover {
+  border-color: #ffd75c !important;
+  background: #fffaf0 !important;
+}
+
+.flyers-soft-project-ticket-list-root,
+.flyers-soft-project-ticket-group-row,
+.flyers-soft-project-ticket-quick-add,
+.flyers-soft-project-ticket-quick-add-form form {
+  background: #fffdf7 !important;
+}
+
+.flyers-soft-project-ticket-title,
+.flyers-soft-project-ticket-group-title {
+  color: #111111 !important;
+}
+
+.flyers-soft-project-ticket-key,
+.flyers-soft-project-ticket-group-count {
+  color: #8a8e97 !important;
+}
+
+.flyers-soft-project-ticket-row-selected,
+.flyers-soft-project-ticket-row-active,
+.flyers-soft-project-ticket-row-peeked {
+  background: #fff3c4 !important;
+  box-shadow: inset 3px 0 0 #ffc400 !important;
+}
+
+.flyers-soft-teams-page,
+.flyers-soft-teams-settings-sidebar {
+  background: #fffdf7 !important;
+  color: #111111 !important;
+}
+
+.flyers-soft-teams-stat-card,
+.flyers-soft-teams-members-panel,
+.flyers-soft-teams-invites-card {
+  border-color: #eeeeee !important;
+  background: #ffffff !important;
+}
+
+.flyers-soft-teams-stat-value,
+.flyers-soft-teams-settings-back-row p,
+.flyers-soft-teams-settings-workspace-card p:first-child {
+  color: #111111 !important;
+}
+
+.flyers-soft-teams-add-button {
+  background: #ffc400 !important;
+  color: #111111 !important;
+}
+
+.flyers-soft-teams-add-button:hover {
+  background: #ffd21a !important;
+}
+
+@media (max-width: 1220px) {
+  .flyers-soft-dashboard-header {
+    grid-template-columns: auto minmax(240px, 1fr) auto;
+  }
+
+  .flyers-soft-dashboard-create-button span {
+    display: none;
+  }
+
+  .flyers-soft-dashboard-create-button {
+    width: 48px;
+    padding-inline: 0 !important;
+  }
+}
+
+@media (max-width: 960px) {
+  .flyers-soft-dashboard-header {
+    min-height: auto !important;
+    grid-template-columns: 1fr auto;
+    padding: 18px !important;
+  }
+
+  .flyers-soft-dashboard-search {
+    order: 3;
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .flyers-soft-dashboard-header-actions {
+    gap: 8px;
+  }
+
+  .flyers-soft-dashboard-hero {
+    min-height: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 30px;
+  }
+
+  .flyers-soft-dashboard-hero-art {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    height: 160px;
+  }
+}
+
+@media (max-width: 720px) {
+  .flyers-soft-home-surface {
+    padding: 18px !important;
+  }
+
+  .flyers-soft-dashboard-icon-button {
+    display: none;
+  }
+
+  .flyers-soft-dashboard-hero h1 {
+    white-space: normal;
+    font-size: 28px !important;
+  }
+
+  .flyers-soft-dashboard-stat-top {
+    grid-template-columns: 52px minmax(0, 1fr) 20px;
+  }
+
+  .flyers-soft-dashboard-stat-icon {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* ================================================================
+   Create Ticket modal — Linear/Jira compact style
+   Scoped to .flyers-soft-ticket-modal-* classes added in form.tsx
+   and .flyers-soft-ticket-modal-core added to base.tsx ModalCore.
+   ================================================================ */
+
+/* Dialog.Panel: cap width to 620px, override sm:max-w-4xl (896px) */
+.flyers-soft-ticket-modal-core {
+  max-width: 620px !important;
+  width: min(95vw, 620px) !important;
+}
+
+/* Form shell — rounded card, dark background, no extra padding */
+.flyers-soft-ticket-modal {
+  border-radius: 10px;
+  background: var(--background-color-surface-1);
+  overflow: hidden;
+}
+
+/* Context bar: project + type + template selectors */
+.flyers-soft-ticket-modal-context {
+  min-height: 42px;
+  background: color-mix(in srgb, var(--background-color-layer-1, #fff8e1) 60%, transparent);
+}
+
+.flyers-soft-ticket-modal-context button,
+.flyers-soft-ticket-modal-context [role="button"] {
+  height: 28px !important;
+  min-height: 28px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  padding: 0 8px !important;
+  box-shadow: none !important;
+}
+
+/* Title area — large, unboxed input */
+.flyers-soft-ticket-modal-title {
+  /* wrapper only — input inside controls its own appearance */
+}
+
+.flyers-soft-ticket-modal-title input,
+.flyers-soft-ticket-modal-title textarea {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+}
+
+/* Description — minimum visible height */
+.flyers-soft-ticket-modal-desc {
+  min-height: 72px;
+}
+
+/* Metadata row: horizontal, compact, no-wrap with hidden scrollbar */
+.flyers-soft-ticket-modal-meta {
+  background: color-mix(in srgb, var(--background-color-layer-1, #fff8e1) 40%, transparent);
+}
+
+.flyers-soft-ticket-modal-meta > div {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  scrollbar-width: none !important;
+  gap: 4px !important;
+  align-items: center !important;
+}
+
+.flyers-soft-ticket-modal-meta > div::-webkit-scrollbar {
+  display: none;
+}
+
+/* Compact property pills inside metadata row */
+.flyers-soft-ticket-modal-meta button,
+.flyers-soft-ticket-modal-meta [role="button"] {
+  height: 26px !important;
+  min-height: 26px !important;
+  border-radius: 5px !important;
+  font-size: 12px !important;
+  padding: 0 8px !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Footer row */
+.flyers-soft-ticket-modal-footer {
+  min-height: 50px;
+  background: color-mix(in srgb, var(--background-color-layer-1, #fff8e1) 30%, transparent);
+}
+
+/* Cancel / Save buttons — compact sm size */
+.flyers-soft-ticket-modal-footer > div > div > button,
+.flyers-soft-ticket-modal-footer button {
+  height: 30px !important;
+  min-height: 30px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  padding: 0 12px !important;
+  box-shadow: none !important;
+}
+
+/* ================================================================
+   Tickets pages: final yellow/light theme pass
+   ================================================================ */
+
+.flyers-soft-app-header:has(.flyers-soft-tickets-header),
+.flyers-soft-project-tickets-app-row {
+  min-height: 96px !important;
+  align-items: center !important;
+  border-bottom: 1px solid #eeeeee !important;
+  background: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(17, 17, 17, 0.035) !important;
+}
+
+.flyers-soft-tickets-header,
+.flyers-soft-project-tickets-header {
+  display: flex !important;
+  min-height: 96px !important;
+  align-items: center !important;
+  gap: 18px !important;
+  border-bottom: 0 !important;
+  background: #ffffff !important;
+  padding: 0 32px !important;
+  color: #111111 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-tickets-header-left,
+.flyers-soft-issues-header-left {
+  min-width: 0;
+  align-items: center !important;
+  gap: 22px !important;
+}
+
+.flyers-soft-tickets-header .text-primary,
+.flyers-soft-project-tickets-header .text-primary,
+.flyers-soft-project-tickets-header .flyers-soft-issues-title,
+.flyers-soft-tickets-header [aria-current="page"] {
+  color: #111111 !important;
+}
+
+.flyers-soft-tickets-header svg,
+.flyers-soft-project-tickets-header svg {
+  color: #f5b700 !important;
+}
+
+.flyers-soft-tickets-header .text-tertiary,
+.flyers-soft-tickets-header .text-placeholder,
+.flyers-soft-project-tickets-header .text-tertiary,
+.flyers-soft-project-tickets-header .text-placeholder,
+.flyers-soft-project-tickets-header .flyers-soft-breadcrumb-line {
+  color: #6f737b !important;
+}
+
+.flyers-soft-tickets-header .breadcrumbs,
+.flyers-soft-project-tickets-header .breadcrumbs {
+  min-width: 0;
+}
+
+.flyers-soft-tickets-header .flyers-soft-tickets-header-left > div,
+.flyers-soft-project-tickets-header .flyers-soft-issues-header-left > div {
+  min-width: 0;
+}
+
+.flyers-soft-tickets-header .flyers-soft-tickets-header-left,
+.flyers-soft-project-tickets-header .flyers-soft-issues-header-left {
+  flex: 1 1 auto !important;
+}
+
+.flyers-soft-tickets-search,
+.flyers-soft-project-ticket-search {
+  display: flex !important;
+  width: min(600px, 38vw) !important;
+  min-width: 280px !important;
+  height: 52px !important;
+  align-items: center !important;
+  gap: 14px !important;
+  border: 1px solid #e5e5e5 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  padding: 0 16px !important;
+  color: #9ca0a8 !important;
+  font-size: 15px !important;
+  box-shadow: inset 0 1px 0 rgba(17, 17, 17, 0.02) !important;
+}
+
+.flyers-soft-tickets-search span,
+.flyers-soft-project-ticket-search span {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flyers-soft-tickets-search kbd,
+.flyers-soft-project-ticket-search kbd {
+  flex-shrink: 0;
+  border: 1px solid #ffe08a !important;
+  border-radius: 7px !important;
+  background: #fffaf0 !important;
+  padding: 4px 9px !important;
+  color: #c98600 !important;
+  font-size: 13px !important;
+  font-family: inherit;
+  font-weight: 650 !important;
+}
+
+.flyers-soft-tickets-search:hover,
+.flyers-soft-project-ticket-search:hover {
+  border-color: #ffd75c !important;
+  box-shadow: 0 0 0 4px rgba(255, 196, 0, 0.12) !important;
+}
+
+.flyers-soft-tickets-header-actions,
+.flyers-soft-project-tickets-header-actions {
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.flyers-soft-tickets-header-actions button,
+.flyers-soft-tickets-header-actions [role="button"],
+.flyers-soft-project-tickets-header-actions button,
+.flyers-soft-project-tickets-header-actions [role="button"] {
+  min-height: 38px !important;
+  height: 38px !important;
+  border-color: #ece4d0 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  color: #42454d !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-tickets-header-actions button:hover,
+.flyers-soft-tickets-header-actions [role="button"]:hover,
+.flyers-soft-project-tickets-header-actions button:hover,
+.flyers-soft-project-tickets-header-actions [role="button"]:hover {
+  border-color: #ffd75c !important;
+  background: #fffaf0 !important;
+  color: #111111 !important;
+}
+
+.flyers-soft-tickets-create-button,
+.flyers-soft-project-ticket-create-button {
+  display: inline-flex !important;
+  min-height: 48px !important;
+  height: 48px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  background: linear-gradient(180deg, #ffd21a 0%, #ffc400 100%) !important;
+  padding: 0 20px !important;
+  color: #111111 !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 10px 22px rgba(255, 196, 0, 0.28) !important;
+}
+
+.flyers-soft-tickets-create-button:hover,
+.flyers-soft-project-ticket-create-button:hover {
+  background: linear-gradient(180deg, #ffda3b 0%, #ffc400 100%) !important;
+  transform: translateY(-1px);
+}
+
+.flyers-soft-tickets-view-body,
+.flyers-soft-project-tickets-content,
+.flyers-soft-project-tickets-root,
+.flyers-soft-project-tickets-work-area,
+.flyers-soft-project-ticket-list-root,
+.flyers-soft-project-ticket-scroll,
+.flyers-soft-tickets-list-view {
+  --background-color-surface-1: #fffdf7;
+  --background-color-surface-2: #fff8e5;
+  --background-color-layer-1: #fffdf7;
+  --background-color-layer-2: #ffffff;
+  --background-color-layer-transparent-hover: rgba(255, 196, 0, 0.12);
+  --background-color-layer-transparent-active: rgba(255, 196, 0, 0.2);
+  --border-color-subtle: #ece4d0;
+  --border-color-strong: #e6d7b5;
+  --text-color-primary: #111111;
+  --text-color-secondary: #42454d;
+  --text-color-tertiary: #6f737b;
+  --text-color-placeholder: #8a8e97;
+  background: #fffdf7 !important;
+  color: #42454d !important;
+}
+
+.flyers-soft-tickets-view-body > div,
+.flyers-soft-project-tickets-root > div {
+  border-color: #ece4d0 !important;
+}
+
+.flyers-soft-tickets-view-body .flyers-soft-filters-shell,
+.flyers-soft-project-tickets-root .flyers-soft-filters-shell {
+  min-height: 62px !important;
+  border-bottom: 1px solid #efe3c4 !important;
+  background: #fffdf7 !important;
+  padding: 10px 24px !important;
+}
+
+.flyers-soft-tickets-view-body .flyers-soft-filters-row,
+.flyers-soft-project-tickets-root .flyers-soft-filters-row {
+  min-height: 42px !important;
+  border: 1px solid #efe3c4 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  padding: 6px 10px !important;
+  box-shadow: 0 8px 18px rgba(17, 17, 17, 0.035) !important;
+}
+
+.flyers-soft-tickets-view-body .flyers-soft-filters-row button,
+.flyers-soft-tickets-view-body .flyers-soft-filters-row [role="button"],
+.flyers-soft-project-tickets-root .flyers-soft-filters-row button,
+.flyers-soft-project-tickets-root .flyers-soft-filters-row [role="button"] {
+  min-height: 28px !important;
+  height: 28px !important;
+  border: 1px solid transparent !important;
+  border-radius: 7px !important;
+  background: transparent !important;
+  color: #42454d !important;
+  font-size: 12px !important;
+}
+
+.flyers-soft-tickets-view-body .flyers-soft-filters-row button:hover,
+.flyers-soft-tickets-view-body .flyers-soft-filters-row [role="button"]:hover,
+.flyers-soft-project-tickets-root .flyers-soft-filters-row button:hover,
+.flyers-soft-project-tickets-root .flyers-soft-filters-row [role="button"]:hover {
+  border-color: #ffe08a !important;
+  background: #fffaf0 !important;
+  color: #111111 !important;
+}
+
+.flyers-soft-tickets-list-view {
+  padding: 18px 24px 24px !important;
+}
+
+.flyers-soft-tickets-table {
+  table-layout: fixed;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  overflow: hidden;
+  border: 1px solid #ece4d0 !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  box-shadow: 0 10px 24px rgba(17, 17, 17, 0.045) !important;
+}
+
+.flyers-soft-tickets-table-head {
+  display: table-header-group !important;
+  background: #fff8e5 !important;
+}
+
+.flyers-soft-tickets-title-header,
+.flyers-soft-tickets-property-header {
+  border-color: #ece4d0 !important;
+  background: #fff8e5 !important;
+  color: #6f737b !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+.flyers-soft-tickets-table tr,
+.flyers-soft-tickets-table td,
+.flyers-soft-tickets-table th {
+  border-right-color: #f0e5c9 !important;
+  border-left: 0 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-tickets-list-row-shell,
+.flyers-soft-tickets-row-placeholder,
+.flyers-soft-ticket-list-cell {
+  height: 54px !important;
+}
+
+.flyers-soft-ticket-list-row,
+.flyers-soft-project-ticket-row {
+  min-height: 54px !important;
+  border: 0 !important;
+  border-bottom: 1px solid #eeeeee !important;
+  border-radius: 0 !important;
+  background: #ffffff !important;
+  padding: 0 14px !important;
+  color: #111111 !important;
+  box-shadow: none !important;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease !important;
+}
+
+.flyers-soft-ticket-list-row:hover,
+.flyers-soft-project-ticket-row:hover {
+  border-bottom-color: #ffd75c !important;
+  background: #fffaf0 !important;
+}
+
+.flyers-soft-ticket-list-row-active,
+.flyers-soft-ticket-list-row-selected,
+.flyers-soft-project-ticket-row-selected,
+.flyers-soft-project-ticket-row-active,
+.flyers-soft-project-ticket-row-peeked {
+  background: #fff3c4 !important;
+  box-shadow: inset 3px 0 0 #ffc400 !important;
+}
+
+.flyers-soft-ticket-list-key,
+.flyers-soft-project-ticket-key {
+  min-width: 78px;
+  flex-shrink: 0;
+  color: #b77900 !important;
+  font-size: 12px !important;
+  font-weight: 750 !important;
+  line-height: 1;
+}
+
+.flyers-soft-ticket-list-title,
+.flyers-soft-project-ticket-title,
+.flyers-soft-tickets-view-body .text-primary,
+.flyers-soft-project-tickets-root .text-primary {
+  color: #111111 !important;
+}
+
+.flyers-soft-ticket-list-title,
+.flyers-soft-project-ticket-title {
+  font-size: 14px !important;
+  font-weight: 650 !important;
+  line-height: 1.3 !important;
+}
+
+.flyers-soft-ticket-list-meta,
+.flyers-soft-project-ticket-meta {
+  max-width: 48%;
+}
+
+.flyers-soft-ticket-inline-properties button,
+.flyers-soft-ticket-inline-properties [role="button"],
+.flyers-soft-project-ticket-properties button,
+.flyers-soft-project-ticket-properties [role="button"],
+.flyers-soft-tickets-property-cell button,
+.flyers-soft-tickets-property-cell [role="button"] {
+  min-height: 24px !important;
+  height: 24px !important;
+  border: 1px solid #efe3c4 !important;
+  border-radius: 999px !important;
+  background: #fffaf0 !important;
+  padding: 0 8px !important;
+  color: #42454d !important;
+  font-size: 12px !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-ticket-inline-properties button:hover,
+.flyers-soft-ticket-inline-properties [role="button"]:hover,
+.flyers-soft-project-ticket-properties button:hover,
+.flyers-soft-project-ticket-properties [role="button"]:hover,
+.flyers-soft-tickets-property-cell button:hover,
+.flyers-soft-tickets-property-cell [role="button"]:hover {
+  border-color: #ffd75c !important;
+  background: #fff3c4 !important;
+  color: #111111 !important;
+}
+
+.flyers-soft-ticket-list-actions button,
+.flyers-soft-project-ticket-actions button,
+.flyers-soft-project-ticket-actions [role="button"] {
+  min-width: 28px !important;
+  width: 28px !important;
+  min-height: 28px !important;
+  height: 28px !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+  background: transparent !important;
+  color: #8a8e97 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-ticket-list-actions button:hover,
+.flyers-soft-project-ticket-actions button:hover,
+.flyers-soft-project-ticket-actions [role="button"]:hover {
+  background: #fff3c4 !important;
+  color: #111111 !important;
+}
+
+.flyers-soft-project-ticket-scroll {
+  padding: 22px 24px 28px !important;
+}
+
+.flyers-soft-project-ticket-group-row {
+  min-height: 44px !important;
+  border: 1px solid #ece4d0 !important;
+  border-right: 0 !important;
+  border-left: 0 !important;
+  background: #fff8e5 !important;
+  padding: 0 12px !important;
+}
+
+.flyers-soft-project-ticket-group-row:hover {
+  background: #fff3c4 !important;
+}
+
+.flyers-soft-project-ticket-group-header {
+  min-height: 44px !important;
+  gap: 10px !important;
+  padding-block: 8px !important;
+}
+
+.flyers-soft-project-ticket-group-icon svg {
+  width: 16px !important;
+  height: 16px !important;
+  color: #f5b700 !important;
+}
+
+.flyers-soft-project-ticket-group-title {
+  color: #111111 !important;
+  font-size: 14px !important;
+  font-weight: 720 !important;
+}
+
+.flyers-soft-project-ticket-group-count {
+  color: #8a8e97 !important;
+  font-size: 12px !important;
+}
+
+.flyers-soft-project-ticket-group-add {
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 7px !important;
+  color: #b77900 !important;
+}
+
+.flyers-soft-project-ticket-group-add:hover {
+  background: #ffc400 !important;
+  color: #111111 !important;
+}
+
+.flyers-soft-project-ticket-quick-add {
+  border-top: 0 !important;
+  background: #fffdf7 !important;
+}
+
+.flyers-soft-project-ticket-quick-add-button {
+  min-height: 46px !important;
+  padding: 0 14px !important;
+  color: #b77900 !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+}
+
+.flyers-soft-project-ticket-quick-add-button:hover {
+  background: #fff3c4 !important;
+  color: #111111 !important;
+}
+
+.flyers-soft-project-ticket-quick-add-form form {
+  min-height: 48px !important;
+  border-color: #efe3c4 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+}
+
+.flyers-soft-project-ticket-quick-add-form input {
+  color: #111111 !important;
+}
+
+.flyers-soft-kanban-root,
+.flyers-soft-kanban-board,
+.flyers-soft-base-kanban-layout {
+  background: #fffdf7 !important;
+}
+
+.flyers-soft-kanban-root {
+  padding: 22px 24px 24px !important;
+}
+
+.flyers-soft-kanban-columns {
+  gap: 16px !important;
+}
+
+.flyers-soft-kanban-column,
+.flyers-soft-base-kanban-column {
+  overflow: hidden;
+  border: 1px solid #ece4d0 !important;
+  border-radius: 10px !important;
+  background: #fff8e5 !important;
+  box-shadow: 0 8px 18px rgba(17, 17, 17, 0.035) !important;
+}
+
+.flyers-soft-kanban-column-header,
+.flyers-soft-base-kanban-column-header {
+  border-top: 4px solid #ffc400 !important;
+  border-bottom: 1px solid #ece4d0 !important;
+  background: #ffffff !important;
+  padding: 10px 12px !important;
+}
+
+.flyers-soft-kanban-header-card {
+  color: #111111 !important;
+}
+
+.flyers-soft-kanban-group {
+  padding: 12px !important;
+}
+
+.flyers-soft-kanban-card,
+.flyers-soft-base-kanban-item > * {
+  border: 1px solid #ece4d0 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  color: #111111 !important;
+  box-shadow: 0 10px 22px rgba(17, 17, 17, 0.045) !important;
+}
+
+.flyers-soft-kanban-card:hover,
+.flyers-soft-base-kanban-item > *:hover {
+  border-color: #ffd75c !important;
+  background: #fffaf0 !important;
+}
+
+.flyers-soft-kanban-card-title {
+  color: #111111 !important;
+}
+
+.flyers-soft-status-pill {
+  --flyers-status-color: #ffc400;
+  border-color: #ffe08a !important;
+  background: #fff7d6 !important;
+  color: #9b6500 !important;
+}
+
+.flyers-soft-priority-none {
+  background: #f5f5f5 !important;
+  color: #6f737b !important;
+}
+
+@media (max-width: 1100px) {
+  .flyers-soft-tickets-search,
+  .flyers-soft-project-ticket-search {
+    width: min(420px, 34vw) !important;
+    min-width: 220px !important;
+  }
+}
+
+@media (max-width: 960px) {
+  .flyers-soft-tickets-header {
+    min-height: auto !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 18px !important;
+  }
+
+  .flyers-soft-project-tickets-header {
+    height: 96px !important;
+    min-height: 0 !important;
+    max-height: 96px !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    padding: 0 12px !important;
+  }
+
+  .flyers-soft-tickets-search,
+  .flyers-soft-project-ticket-search {
+    display: flex !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .flyers-soft-tickets-header-actions {
+    justify-content: flex-start !important;
+    overflow-x: auto;
+  }
+
+  .flyers-soft-project-tickets-header-actions {
+    align-items: center !important;
+    justify-content: flex-end !important;
+    overflow: visible !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .flyers-soft-tickets-list-view,
+  .flyers-soft-project-ticket-scroll,
+  .flyers-soft-kanban-root {
+    padding: 14px !important;
+  }
+
+  .flyers-soft-ticket-list-row,
+  .flyers-soft-project-ticket-row {
+    min-height: 64px !important;
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    padding: 10px 12px !important;
+  }
+
+  .flyers-soft-ticket-list-meta,
+  .flyers-soft-project-ticket-meta {
+    width: 100%;
+    max-width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+/* ================================================================
+   Whole-app pastel yellow normalization
+   ================================================================ */
+
+:root,
+:host,
+[data-theme*="dark"],
+[data-theme*="light"],
+[data-theme*="custom"] {
+  --flyers-app-bg: #fffbf2;
+  --flyers-header-bg: #fff8e1;
+  --flyers-sidebar-top: #fff4cc;
+  --flyers-sidebar-bottom: #ffe8a3;
+  --flyers-primary-yellow: #ffd54f;
+  --flyers-primary-yellow-hover: #ffe082;
+  --flyers-soft-yellow-hover: #fff1c2;
+  --flyers-card-bg: #ffffff;
+  --flyers-border: #f3e5ab;
+  --flyers-text: #2c2c2c;
+  --flyers-muted: #6b7280;
+  --flyers-active-border: #ffb300;
+  --flyers-card-shadow: 0 4px 12px rgba(255, 204, 0, 0.08);
+  --background-color-canvas: #fffbf2;
+  --background-color-surface-1: #fffbf2;
+  --background-color-surface-2: #fff8e1;
+  --background-color-layer-1: #ffffff;
+  --background-color-layer-2: #ffffff;
+  --background-color-layer-3: #fff8e1;
+  --background-color-layer-transparent-hover: rgba(255, 241, 194, 0.72);
+  --background-color-layer-transparent-active: #fff1c2;
+  --background-color-layer-transparent-selected: #fff1c2;
+  --background-color-accent-primary: #ffd54f;
+  --text-color-primary: #2c2c2c;
+  --text-color-secondary: #4b5563;
+  --text-color-tertiary: #6b7280;
+  --text-color-placeholder: #9ca3af;
+  --text-color-on-color: #1a1a1a;
+  --border-color-subtle: #f3e5ab;
+  --border-color-strong: #e7cf73;
+  --border-color-accent-subtle: #ffd54f;
+  --border-color-accent-strong: #ffb300;
+  --brand-default: #ffd54f;
+}
+
+html,
+body,
+.desktop-app-container,
+.bg-canvas,
+.bg-surface-1,
+.bg-surface-2,
+.bg-layer-1,
+.bg-layer-2,
+.bg-layer-3,
+main,
+#full-screen-portal,
+.flyers-soft-home-content-wrapper,
+.flyers-soft-home-surface,
+.flyers-soft-global-content-scroll,
+.flyers-soft-projects-list-scroll,
+.flyers-soft-project-tickets-content,
+.flyers-soft-project-tickets-root,
+.flyers-soft-project-tickets-work-area,
+.flyers-soft-tickets-view-body,
+.flyers-soft-teams-page,
+.flyers-soft-work-area,
+.flyers-soft-kanban-root,
+.flyers-soft-kanban-board,
+.flyers-soft-base-kanban-layout,
+[class*="analytics"],
+[class*="settings"] {
+  background-color: #fffbf2 !important;
+  color: #2c2c2c !important;
+}
+
+.desktop-app-container > main > div,
+.desktop-app-container main > div[class*="rounded-lg"],
+.relative.flex.h-full.w-full.flex-col,
+.relative.flex.size-full,
+.size-full.overflow-hidden,
+.w-full.bg-surface-1 {
+  background: #fffbf2 !important;
+  border-color: #f3e5ab !important;
+}
+
+#main-sidebar,
+.flyers-soft-sidebar-peek,
+#main-sidebar .flyers-soft-main-sidebar-panel,
+.flyers-soft-sidebar-peek .flyers-soft-main-sidebar-panel {
+  background: linear-gradient(180deg, #fff4cc 0%, #ffe8a3 100%) !important;
+  border-color: #f3e5ab !important;
+  color: #2c2c2c !important;
+}
+
+#main-sidebar .text-primary,
+#main-sidebar .text-secondary,
+#main-sidebar .text-tertiary,
+#main-sidebar .text-placeholder,
+.flyers-soft-sidebar-peek .text-primary,
+.flyers-soft-sidebar-peek .text-secondary,
+.flyers-soft-sidebar-peek .text-tertiary,
+.flyers-soft-sidebar-peek .text-placeholder {
+  color: #2c2c2c !important;
+}
+
+.flyers-soft-sidebar-brand-text,
+.flyers-soft-sidebar-simple-link,
+.flyers-soft-sidebar-simple-item,
+.flyers-soft-sidebar-simple-item a {
+  color: #2c2c2c !important;
+}
+
+.flyers-soft-sidebar-title,
+#main-sidebar .flyers-soft-sidebar-title {
+  color: #6b7280 !important;
+}
+
+.flyers-soft-sidebar-simple-item:hover {
+  background: #fff1c2 !important;
+  border-color: #f3e5ab !important;
+}
+
+.flyers-soft-sidebar-simple-item[class*="bg-layer-transparent-active"],
+.flyers-soft-sidebar-simple-item:has(a.text-primary),
+.flyers-soft-sidebar-nav-item[class*="bg-layer-transparent-active"] {
+  background: #fff1c2 !important;
+  border-left: 3px solid #ffb300 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-sidebar-simple-item[class*="bg-layer-transparent-active"] svg,
+.flyers-soft-sidebar-simple-item:has(a.text-primary) svg,
+.flyers-soft-sidebar-simple-item svg {
+  color: #ffb300 !important;
+}
+
+.flyers-soft-sidebar-add-button,
+.flyers-soft-dashboard-create-button,
+.flyers-soft-dashboard-hero-actions button,
+.flyers-soft-dashboard-empty-tickets button,
+.flyers-soft-tickets-create-button,
+.flyers-soft-project-ticket-create-button,
+.flyers-soft-teams-add-button,
+button[class*="bg-accent"],
+[class*="button"][class*="primary"] {
+  border-color: #ffd54f !important;
+  background: #ffd54f !important;
+  color: #1a1a1a !important;
+  box-shadow: 0 4px 12px rgba(255, 204, 0, 0.08) !important;
+}
+
+.flyers-soft-sidebar-add-button:hover,
+.flyers-soft-dashboard-create-button:hover,
+.flyers-soft-dashboard-hero-actions button:hover,
+.flyers-soft-dashboard-empty-tickets button:hover,
+.flyers-soft-tickets-create-button:hover,
+.flyers-soft-project-ticket-create-button:hover,
+.flyers-soft-teams-add-button:hover,
+button[class*="bg-accent"]:hover,
+[class*="button"][class*="primary"]:hover {
+  background: #ffe082 !important;
+  color: #1a1a1a !important;
+}
+
+.flyers-soft-app-header,
+.flyers-soft-dashboard-app-header,
+.flyers-soft-dashboard-header,
+.flyers-soft-tickets-header,
+.flyers-soft-project-tickets-app-row,
+.flyers-soft-project-tickets-header,
+.flyers-soft-issues-header,
+.flyers-soft-teams-page-header,
+.flyers-soft-teams-settings-sidebar-header,
+.flyers-soft-filters-shell,
+header,
+[class*="top-navigation"],
+[class*="topbar"],
+[class*="navbar"] {
+  background: #fff8e1 !important;
+  border-color: #f3e5ab !important;
+  color: #2c2c2c !important;
+  box-shadow: 0 4px 12px rgba(255, 204, 0, 0.08) !important;
+}
+
+.flyers-soft-dashboard-search,
+.flyers-soft-tickets-search,
+.flyers-soft-project-ticket-search,
+.flyers-soft-top-search,
+.flyers-soft-teams-search,
+input,
+textarea,
+[role="searchbox"] {
+  border-color: #f3e5ab !important;
+  background: #ffffff !important;
+  color: #2c2c2c !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-dashboard-search:hover,
+.flyers-soft-tickets-search:hover,
+.flyers-soft-project-ticket-search:hover,
+.flyers-soft-top-search:hover,
+.flyers-soft-teams-search:hover,
+input:hover,
+textarea:hover,
+input:focus,
+textarea:focus {
+  border-color: #ffd54f !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(255, 213, 79, 0.22) !important;
+}
+
+.flyers-soft-dashboard-search kbd,
+.flyers-soft-tickets-search kbd,
+.flyers-soft-project-ticket-search kbd,
+.flyers-soft-top-search kbd {
+  border-color: #f3e5ab !important;
+  background: #fff1c2 !important;
+  color: #8a5a00 !important;
+}
+
+.flyers-soft-dashboard-stat-card,
+.flyers-soft-dashboard-panel,
+.flyers-soft-tickets-table,
+.flyers-soft-kanban-card,
+.flyers-soft-base-kanban-item > *,
+.flyers-soft-kanban-column,
+.flyers-soft-base-kanban-column,
+.flyers-soft-list-ticket-row,
+.flyers-soft-ticket-list-row,
+.flyers-soft-project-ticket-row,
+.flyers-soft-teams-stat-card,
+.flyers-soft-teams-members-panel,
+.flyers-soft-teams-invites-card,
+.flyers-soft-ticket-modal,
+.flyers-soft-ticket-modal-core,
+.flyers-soft-sidebar-promo,
+[role="dialog"],
+[role="menu"],
+[role="listbox"],
+[data-headlessui-state],
+[class*="dropdown"],
+[class*="popover"],
+[class*="modal"],
+[class*="card"],
+table,
+tbody,
+thead,
+tr,
+td,
+th {
+  border-color: #f3e5ab !important;
+  background-color: #ffffff !important;
+  color: #2c2c2c !important;
+  box-shadow: 0 4px 12px rgba(255, 204, 0, 0.08) !important;
+}
+
+.flyers-soft-kanban-column,
+.flyers-soft-base-kanban-column,
+.flyers-soft-project-ticket-group-row,
+.flyers-soft-tickets-table-head,
+.flyers-soft-tickets-title-header,
+.flyers-soft-tickets-property-header,
+thead,
+th {
+  background: #fff8e1 !important;
+}
+
+.flyers-soft-dashboard-hero {
+  border-color: #f3e5ab !important;
+  background:
+    radial-gradient(circle at 84% 24%, rgba(255, 213, 79, 0.28), transparent 240px),
+    linear-gradient(105deg, #fffbf2 0%, #ffffff 52%, #fff1c2 100%) !important;
+}
+
+.flyers-soft-dashboard-hero h1,
+.flyers-soft-dashboard-hero p,
+.flyers-soft-dashboard-panel-title h2,
+.flyers-soft-tickets-header .text-primary,
+.flyers-soft-project-tickets-header .text-primary,
+.flyers-soft-project-tickets-header .flyers-soft-issues-title,
+.flyers-soft-teams-page-title,
+.flyers-soft-teams-stat-value,
+.flyers-soft-ticket-list-title,
+.flyers-soft-project-ticket-title,
+.flyers-soft-kanban-card-title,
+.text-primary {
+  color: #2c2c2c !important;
+}
+
+.text-secondary,
+.text-tertiary,
+.text-placeholder,
+.flyers-soft-dashboard-activity-time,
+.flyers-soft-teams-page-subtitle,
+.flyers-soft-teams-stat-label,
+.flyers-soft-ticket-list-key,
+.flyers-soft-project-ticket-key {
+  color: #6b7280 !important;
+}
+
+.flyers-soft-ticket-list-row:hover,
+.flyers-soft-project-ticket-row:hover,
+.flyers-soft-kanban-card:hover,
+.flyers-soft-list-ticket-row:hover,
+[role="menuitem"]:hover,
+[role="option"]:hover {
+  background: #fff1c2 !important;
+  border-color: #ffd54f !important;
+}
+
+.flyers-soft-ticket-list-row-active,
+.flyers-soft-ticket-list-row-selected,
+.flyers-soft-project-ticket-row-selected,
+.flyers-soft-project-ticket-row-active,
+.flyers-soft-project-ticket-row-peeked,
+.selected-issue-row,
+[aria-selected="true"] {
+  background: #fff1c2 !important;
+  border-left: 3px solid #ffb300 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-status-pill,
+.flyers-soft-priority-pill,
+.flyers-soft-ticket-inline-properties button,
+.flyers-soft-ticket-inline-properties [role="button"],
+.flyers-soft-project-ticket-properties button,
+.flyers-soft-project-ticket-properties [role="button"],
+.flyers-soft-tickets-property-cell button,
+.flyers-soft-tickets-property-cell [role="button"],
+.flyers-soft-filters-row button,
+.flyers-soft-filters-row [role="button"] {
+  border-color: #f3e5ab !important;
+  background: #fff8e1 !important;
+  color: #2c2c2c !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-status-pill:hover,
+.flyers-soft-priority-pill:hover,
+.flyers-soft-ticket-inline-properties button:hover,
+.flyers-soft-ticket-inline-properties [role="button"]:hover,
+.flyers-soft-project-ticket-properties button:hover,
+.flyers-soft-project-ticket-properties [role="button"]:hover,
+.flyers-soft-tickets-property-cell button:hover,
+.flyers-soft-tickets-property-cell [role="button"]:hover,
+.flyers-soft-filters-row button:hover,
+.flyers-soft-filters-row [role="button"]:hover {
+  background: #fff1c2 !important;
+  border-color: #ffd54f !important;
+}
+
+.flyers-soft-ticket-modal-context,
+.flyers-soft-ticket-modal-meta,
+.flyers-soft-ticket-modal-footer {
+  border-color: #f3e5ab !important;
+  background: #fff8e1 !important;
+}
+
+[class*="bg-black"],
+[class*="bg-dark"],
+[class*="dark:bg"],
+[class*="bg-slate"],
+[class*="bg-zinc"],
+[class*="bg-neutral"],
+[class*="bg-gray-9"],
+[class*="bg-gray-8"] {
+  background: #fffbf2 !important;
+  color: #2c2c2c !important;
+}
+
+[data-theme*="dark"] .flyers-soft-app-header,
+[data-theme*="dark"] .flyers-soft-dashboard-header,
+[data-theme*="dark"] .flyers-soft-tickets-header,
+[data-theme*="dark"] .flyers-soft-project-tickets-header,
+[data-theme*="dark"] .flyers-soft-teams-settings-sidebar,
+[data-theme*="dark"] .flyers-soft-tickets-view-body,
+[data-theme*="dark"] .flyers-soft-project-tickets-root,
+[data-theme*="dark"] .flyers-soft-home-surface,
+[data-theme*="dark"] .flyers-soft-work-area,
+[data-theme*="dark"] [class*="dark:"] {
+  background: #fffbf2 !important;
+  color: #2c2c2c !important;
+  border-color: #f3e5ab !important;
+}
+
+[data-theme*="dark"] .flyers-soft-app-header,
+[data-theme*="dark"] .flyers-soft-dashboard-header,
+[data-theme*="dark"] .flyers-soft-tickets-header,
+[data-theme*="dark"] .flyers-soft-project-tickets-header {
+  background: #fff8e1 !important;
+}
+
+svg {
+  color: inherit;
+}
+
+/* ================================================================
+   Flyers Soft compact density pass
+   ================================================================ */
+
+:root,
+:host,
+[data-theme*="dark"],
+[data-theme*="light"],
+[data-theme*="custom"] {
+  --flyers-density-font: 14px;
+  --flyers-density-small: 12px;
+  --flyers-density-header-height: 56px;
+  --flyers-density-control-height: 36px;
+  --flyers-density-radius: 8px;
+  --flyers-density-card-padding: 16px;
+  --flyers-density-section-gap: 16px;
+}
+
+html,
+body,
+.desktop-app-container,
+.desktop-app-container input,
+.desktop-app-container button,
+.desktop-app-container select,
+.desktop-app-container textarea {
+  font-size: var(--flyers-density-font) !important;
+  line-height: 1.4 !important;
+}
+
+.desktop-app-container .text-11,
+.desktop-app-container .text-12,
+.desktop-app-container .text-body-xs-regular,
+.flyers-soft-sidebar-title,
+.flyers-soft-teams-stat-label,
+.flyers-soft-teams-col-label,
+.flyers-soft-ticket-list-key,
+.flyers-soft-project-ticket-key,
+.flyers-soft-project-ticket-group-count,
+.flyers-soft-dashboard-ticket-key,
+.flyers-soft-dashboard-activity-time,
+.flyers-soft-status-pill,
+.flyers-soft-priority-pill {
+  font-size: var(--flyers-density-small) !important;
+  line-height: 1.3 !important;
+}
+
+.desktop-app-container .text-13,
+.desktop-app-container .text-14,
+.desktop-app-container .text-15,
+.desktop-app-container .text-16,
+.flyers-soft-sidebar-simple-link,
+.flyers-soft-ticket-list-title,
+.flyers-soft-project-ticket-title,
+.flyers-soft-dashboard-stat-card p,
+.flyers-soft-dashboard-hero p {
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+}
+
+.desktop-app-container .text-20,
+.desktop-app-container .text-h4-medium,
+.flyers-soft-dashboard-panel-title h2,
+.flyers-soft-project-tickets-header .flyers-soft-issues-title {
+  font-size: 17px !important;
+  line-height: 1.25 !important;
+}
+
+.flyers-soft-project-tickets-header .flyers-soft-issues-title {
+  font-size: 16px !important;
+}
+
+.desktop-app-container .text-24,
+.flyers-soft-teams-page-title,
+.flyers-soft-dashboard-stat-card .text-24 {
+  font-size: 20px !important;
+  line-height: 1.15 !important;
+}
+
+.flyers-soft-dashboard-hero h1 {
+  font-size: 28px !important;
+  line-height: 1.16 !important;
+}
+
+.flyers-soft-app-header,
+.flyers-soft-app-header.flyers-soft-dashboard-app-header,
+.flyers-soft-app-header:has(.flyers-soft-tickets-header),
+.flyers-soft-app-header:has(.flyers-soft-teams-page-header),
+.flyers-soft-project-tickets-app-row {
+  min-height: var(--flyers-density-header-height) !important;
+  max-height: var(--flyers-density-header-height);
+  align-items: center !important;
+  padding: 0 !important;
+}
+
+.flyers-soft-dashboard-header,
+.flyers-soft-tickets-header,
+.flyers-soft-project-tickets-header,
+.flyers-soft-issues-header,
+.flyers-soft-teams-page-header {
+  min-height: var(--flyers-density-header-height) !important;
+  gap: 8px !important;
+  padding: 8px 16px !important;
+}
+
+.flyers-soft-dashboard-header {
+  grid-template-columns: minmax(92px, 132px) minmax(220px, 460px) minmax(280px, 1fr) !important;
+}
+
+.flyers-soft-dashboard-home-tab {
+  gap: 8px !important;
+  font-size: 14px !important;
+}
+
+.flyers-soft-dashboard-home-tab::after {
+  left: 24px !important;
+  height: 2px !important;
+}
+
+.flyers-soft-dashboard-header-actions,
+.flyers-soft-tickets-header-actions,
+.flyers-soft-project-tickets-header-actions,
+.flyers-soft-teams-actions {
+  gap: 8px !important;
+}
+
+.flyers-soft-issues-header-left > div {
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.flyers-soft-breadcrumb-line {
+  min-height: 0 !important;
+  gap: 6px !important;
+}
+
+.flyers-soft-dashboard-search,
+.flyers-soft-tickets-search,
+.flyers-soft-project-ticket-search,
+.flyers-soft-top-search,
+.flyers-soft-teams-search,
+.desktop-app-container input:not([type="checkbox"]):not([type="radio"]) {
+  min-height: 36px !important;
+  height: 36px !important;
+  border-radius: var(--flyers-density-radius) !important;
+  gap: 8px !important;
+  padding: 0 12px !important;
+  font-size: 14px !important;
+}
+
+.flyers-soft-dashboard-search,
+.flyers-soft-tickets-search,
+.flyers-soft-project-ticket-search {
+  width: min(460px, 34vw) !important;
+  min-width: 220px !important;
+}
+
+.flyers-soft-dashboard-search kbd,
+.flyers-soft-tickets-search kbd,
+.flyers-soft-project-ticket-search kbd,
+.flyers-soft-top-search kbd {
+  border-radius: 6px !important;
+  padding: 2px 6px !important;
+  font-size: 12px !important;
+}
+
+.flyers-soft-sidebar-brand {
+  min-height: 56px !important;
+  padding: 8px 4px 6px !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-brand .flyers-logo,
+.flyers-soft-sidebar-peek .flyers-soft-sidebar-brand .flyers-logo {
+  height: 32px !important;
+  max-height: 32px !important;
+}
+
+.flyers-soft-sidebar-brand-text {
+  font-size: 17px !important;
+  line-height: 1.1 !important;
+}
+
+.flyers-soft-sidebar-title {
+  font-size: 12px !important;
+}
+
+.flyers-soft-sidebar-nav-group {
+  gap: 6px !important;
+  padding-top: 8px !important;
+}
+
+.flyers-soft-sidebar-nav-item,
+.flyers-soft-sidebar-simple-item,
+.flyers-soft-sidebar-simple-link {
+  min-height: 38px !important;
+  border-radius: var(--flyers-density-radius) !important;
+}
+
+.flyers-soft-sidebar-nav-item,
+.flyers-soft-sidebar-simple-link {
+  gap: 10px !important;
+  padding: 8px 12px !important;
+  font-size: 14px !important;
+}
+
+.flyers-soft-sidebar-simple-item {
+  border-left: 3px solid transparent !important;
+}
+
+.flyers-soft-sidebar-simple-item[class*="bg-layer-transparent-active"],
+.flyers-soft-sidebar-simple-item:has(a.text-primary),
+.flyers-soft-sidebar-nav-item[class*="bg-layer-transparent-active"] {
+  border-left-color: #ffb300 !important;
+}
+
+.flyers-soft-sidebar-add-button,
+.flyers-soft-dashboard-create-button,
+.flyers-soft-dashboard-hero-actions button,
+.flyers-soft-dashboard-empty-tickets button,
+.flyers-soft-tickets-create-button,
+.flyers-soft-project-ticket-create-button,
+.flyers-soft-teams-add-button,
+.flyers-soft-dashboard-link,
+.flyers-soft-dashboard-view-all,
+.flyers-soft-ticket-modal-footer button,
+.flyers-soft-ticket-modal-context button,
+.flyers-soft-ticket-modal-meta button {
+  min-height: var(--flyers-density-control-height) !important;
+  height: var(--flyers-density-control-height) !important;
+  border-radius: var(--flyers-density-radius) !important;
+  gap: 8px !important;
+  padding: 8px 14px !important;
+  font-size: 14px !important;
+  box-shadow: 0 4px 12px rgba(255, 204, 0, 0.08) !important;
+}
+
+.flyers-soft-dashboard-icon-button,
+.flyers-soft-dashboard-notification,
+.flyers-soft-dashboard-avatar,
+.flyers-soft-ticket-list-actions button,
+.flyers-soft-project-ticket-actions button,
+.flyers-soft-project-ticket-actions [role="button"],
+.flyers-soft-project-ticket-group-add,
+.flyers-soft-team-actions-button {
+  width: 36px !important;
+  min-width: 36px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+}
+
+.flyers-soft-dashboard-avatar {
+  font-size: 14px !important;
+}
+
+.flyers-soft-sidebar-promo {
+  min-height: 104px !important;
+  margin: 12px 16px 16px !important;
+  padding: 30px 16px 14px !important;
+}
+
+.flyers-soft-sidebar-promo p:first-of-type {
+  font-size: 12px !important;
+}
+
+.flyers-soft-sidebar-promo p:last-of-type {
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+}
+
+.flyers-soft-sidebar-promo-rocket {
+  right: 16px !important;
+  width: 36px !important;
+  height: 54px !important;
+}
+
+.flyers-soft-home-surface,
+.flyers-soft-global-content-scroll,
+.flyers-soft-projects-list-scroll,
+.flyers-soft-tickets-list-view,
+.flyers-soft-project-ticket-scroll,
+.flyers-soft-kanban-root,
+.flyers-soft-teams-page {
+  padding: 16px 20px 20px !important;
+}
+
+.flyers-soft-dashboard-shell,
+.flyers-soft-teams-page,
+.flyers-soft-teams-stats,
+.flyers-soft-dashboard-hero-actions,
+.flyers-soft-dashboard-panel-header,
+.flyers-soft-dashboard-panel-title,
+.flyers-soft-kanban-columns {
+  gap: var(--flyers-density-section-gap) !important;
+}
+
+.flyers-soft-dashboard-shell > section {
+  gap: var(--flyers-density-section-gap) !important;
+}
+
+.flyers-soft-dashboard-hero {
+  min-height: 176px !important;
+  gap: 16px !important;
+  border-radius: var(--flyers-density-radius) !important;
+  padding: 20px 24px !important;
+}
+
+.flyers-soft-dashboard-hero-copy p:first-child {
+  font-size: 12px !important;
+}
+
+.flyers-soft-dashboard-hero-actions {
+  margin-top: 16px !important;
+}
+
+.flyers-soft-dashboard-hero-art {
+  width: min(34%, 360px) !important;
+  min-width: 280px !important;
+}
+
+.flyers-soft-dashboard-hero-bars {
+  right: 20px !important;
+  gap: 10px !important;
+  height: 126px !important;
+}
+
+.flyers-soft-dashboard-hero-bars span {
+  width: 12px !important;
+}
+
+.flyers-soft-dashboard-rocket {
+  top: 36px !important;
+  right: 116px !important;
+  width: 78px !important;
+}
+
+.flyers-soft-dashboard-cloud.cloud-one {
+  right: 112px !important;
+  width: 150px !important;
+  height: 52px !important;
+}
+
+.flyers-soft-dashboard-cloud.cloud-two {
+  width: 180px !important;
+  height: 58px !important;
+}
+
+.flyers-soft-dashboard-stat-card,
+.flyers-soft-dashboard-panel,
+.flyers-soft-teams-stat-card,
+.flyers-soft-teams-members-panel,
+.flyers-soft-teams-invites-card,
+.flyers-soft-kanban-card,
+.flyers-soft-base-kanban-item > *,
+.flyers-soft-tickets-table,
+.flyers-soft-ticket-modal,
+[role="dialog"],
+[role="menu"],
+[role="listbox"],
+[class*="dropdown"],
+[class*="popover"] {
+  border-radius: var(--flyers-density-radius) !important;
+}
+
+.flyers-soft-dashboard-stat-card,
+.flyers-soft-teams-stat-card,
+.flyers-soft-kanban-card,
+.flyers-soft-base-kanban-item > *,
+[role="dialog"],
+[role="menu"],
+[role="listbox"],
+[class*="dropdown"],
+[class*="popover"] {
+  padding: var(--flyers-density-card-padding) !important;
+}
+
+.flyers-soft-dashboard-stat-card {
+  min-height: 128px !important;
+}
+
+.flyers-soft-dashboard-stat-top {
+  grid-template-columns: 42px minmax(0, 1fr) 18px !important;
+  gap: 10px !important;
+}
+
+.flyers-soft-dashboard-stat-icon {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.flyers-soft-dashboard-sparkline {
+  height: 24px !important;
+}
+
+.flyers-soft-dashboard-panel {
+  min-height: 252px !important;
+  padding: var(--flyers-density-card-padding) !important;
+}
+
+.flyers-soft-dashboard-panel-title span {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.flyers-soft-dashboard-ticket-row,
+.flyers-soft-dashboard-activity-row,
+.flyers-soft-dashboard-skeleton-row,
+.flyers-soft-ticket-list-row,
+.flyers-soft-project-ticket-row,
+.flyers-soft-team-invite-row {
+  min-height: 44px !important;
+  padding: 8px 12px !important;
+}
+
+.flyers-soft-dashboard-activity-avatar,
+.flyers-soft-team-avatar,
+.flyers-soft-team-invite-avatar {
+  width: 28px !important;
+  min-width: 28px !important;
+  height: 28px !important;
+  font-size: 12px !important;
+}
+
+.flyers-soft-dashboard-empty {
+  min-height: 156px !important;
+  gap: 12px !important;
+  padding: 16px !important;
+}
+
+.flyers-soft-app-header:has(.flyers-soft-tickets-header),
+.flyers-soft-project-tickets-app-row {
+  min-height: var(--flyers-density-header-height) !important;
+  max-height: var(--flyers-density-header-height);
+}
+
+.flyers-soft-tickets-view-body .flyers-soft-filters-shell,
+.flyers-soft-project-tickets-root .flyers-soft-filters-shell {
+  min-height: 44px !important;
+  padding: 6px 16px !important;
+}
+
+.flyers-soft-tickets-view-body .flyers-soft-filters-row,
+.flyers-soft-project-tickets-root .flyers-soft-filters-row {
+  min-height: 34px !important;
+  padding: 4px 8px !important;
+}
+
+.flyers-soft-tickets-view-body .flyers-soft-filters-row button,
+.flyers-soft-tickets-view-body .flyers-soft-filters-row [role="button"],
+.flyers-soft-project-tickets-root .flyers-soft-filters-row button,
+.flyers-soft-project-tickets-root .flyers-soft-filters-row [role="button"],
+.flyers-soft-ticket-inline-properties button,
+.flyers-soft-ticket-inline-properties [role="button"],
+.flyers-soft-project-ticket-properties button,
+.flyers-soft-project-ticket-properties [role="button"],
+.flyers-soft-tickets-property-cell button,
+.flyers-soft-tickets-property-cell [role="button"] {
+  min-height: 24px !important;
+  height: 24px !important;
+  border-radius: 6px !important;
+  padding: 0 8px !important;
+  font-size: 12px !important;
+}
+
+.flyers-soft-tickets-list-row-shell,
+.flyers-soft-tickets-row-placeholder,
+.flyers-soft-ticket-list-cell {
+  height: 44px !important;
+}
+
+.flyers-soft-ticket-list-meta,
+.flyers-soft-project-ticket-meta {
+  gap: 6px !important;
+  max-width: 46% !important;
+}
+
+.flyers-soft-project-ticket-scroll {
+  padding: 16px 20px 20px !important;
+}
+
+.flyers-soft-project-ticket-group-row,
+.flyers-soft-project-ticket-group-header {
+  min-height: 36px !important;
+  gap: 8px !important;
+  padding-block: 6px !important;
+}
+
+.flyers-soft-project-ticket-quick-add-button,
+.flyers-soft-project-ticket-quick-add-form form {
+  min-height: 40px !important;
+}
+
+.flyers-soft-kanban-root {
+  padding: 16px 20px 20px !important;
+}
+
+.flyers-soft-kanban-column-header,
+.flyers-soft-base-kanban-column-header,
+.flyers-soft-kanban-group {
+  padding: 8px 12px !important;
+}
+
+.flyers-soft-teams-page-header {
+  gap: 12px !important;
+}
+
+.flyers-soft-teams-page-subtitle {
+  margin-top: 2px !important;
+  font-size: 12px !important;
+  line-height: 1.2 !important;
+}
+
+.flyers-soft-teams-stat-card {
+  gap: 4px !important;
+}
+
+.flyers-soft-teams-stat-value {
+  font-size: 22px !important;
+}
+
+.flyers-soft-teams-col-header {
+  height: 32px !important;
+  padding: 0 12px !important;
+}
+
+.flyers-soft-teams-member-row {
+  min-height: 44px !important;
+  padding: 0 12px !important;
+}
+
+.flyers-soft-teams-empty-state {
+  padding: 20px !important;
+}
+
+.flyers-soft-teams-invites-header,
+.flyers-soft-team-invite-row {
+  padding: 8px 12px !important;
+}
+
+.flyers-soft-teams-settings-sidebar {
+  width: 216px !important;
+}
+
+.flyers-soft-teams-settings-workspace-card {
+  min-height: 34px !important;
+  margin-bottom: 10px !important;
+}
+
+.flyers-soft-teams-settings-nav {
+  gap: 6px !important;
+  margin-top: 10px !important;
+  padding-inline: 10px !important;
+}
+
+.flyers-soft-teams-settings-nav a,
+.flyers-soft-teams-settings-nav button {
+  min-height: 36px !important;
+  gap: 8px !important;
+  padding: 0 10px !important;
+  border-radius: var(--flyers-density-radius) !important;
+  font-size: 14px !important;
+}
+
+.flyers-soft-ticket-modal-core {
+  max-width: 600px !important;
+}
+
+.flyers-soft-ticket-modal-context,
+.flyers-soft-ticket-modal-footer {
+  min-height: 44px !important;
+}
+
+.flyers-soft-ticket-modal-title input,
+.flyers-soft-ticket-modal-title textarea {
+  font-size: 16px !important;
+}
+
+.flyers-soft-ticket-modal-desc {
+  min-height: 64px !important;
+}
+
+.flyers-soft-dashboard-header svg:not(.flyers-soft-dashboard-rocket):not(.flyers-soft-dashboard-sparkline),
+.flyers-soft-sidebar-shell svg,
+.flyers-soft-tickets-header svg,
+.flyers-soft-project-tickets-header svg,
+.flyers-soft-teams-page svg,
+.flyers-soft-teams-settings-sidebar svg,
+.flyers-soft-kanban-root svg,
+.flyers-soft-tickets-view-body svg,
+.flyers-soft-project-tickets-root svg {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.flyers-soft-dashboard-stat-icon svg,
+.flyers-soft-dashboard-panel-title svg,
+.flyers-soft-project-ticket-group-icon svg,
+.flyers-soft-ticket-inline-properties svg,
+.flyers-soft-project-ticket-properties svg,
+.flyers-soft-tickets-property-cell svg,
+.flyers-soft-teams-search svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+@media (max-width: 960px) {
+  .flyers-soft-app-header,
+  .flyers-soft-app-header.flyers-soft-dashboard-app-header,
+  .flyers-soft-app-header:has(.flyers-soft-tickets-header),
+  .flyers-soft-app-header:has(.flyers-soft-teams-page-header),
+  .flyers-soft-project-tickets-app-row {
+    max-height: none;
+  }
+
+  .flyers-soft-dashboard-header,
+  .flyers-soft-tickets-header,
+  .flyers-soft-project-tickets-header {
+    padding: 12px !important;
+  }
+
+  .flyers-soft-dashboard-search,
+  .flyers-soft-tickets-search,
+  .flyers-soft-project-ticket-search {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .flyers-soft-dashboard-hero {
+    padding: 18px !important;
+  }
+
+  .flyers-soft-dashboard-hero-art {
+    height: 128px !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .flyers-soft-home-surface,
+  .flyers-soft-global-content-scroll,
+  .flyers-soft-projects-list-scroll,
+  .flyers-soft-tickets-list-view,
+  .flyers-soft-project-ticket-scroll,
+  .flyers-soft-kanban-root,
+  .flyers-soft-teams-page {
+    padding: 12px !important;
+  }
+
+  .flyers-soft-dashboard-hero h1 {
+    font-size: 24px !important;
+  }
+
+  .flyers-soft-ticket-list-row,
+  .flyers-soft-project-ticket-row {
+    min-height: 52px !important;
+    padding: 8px 10px !important;
+  }
+}
+
+/* Flyers Soft tickets header polish: compact Linear/Jira-style toolbar. */
+.flyers-soft-app-header:has(.flyers-soft-tickets-header),
+.flyers-soft-app-header:has(.flyers-soft-project-tickets-header) {
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  padding-top: 0 !important;
+}
+
+.flyers-soft-project-tickets-app-row {
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  align-items: stretch !important;
+  overflow: visible !important;
+  padding-top: 0 !important;
+}
+
+.flyers-soft-tickets-header,
+.flyers-soft-project-tickets-header {
+  align-items: center !important;
+  overflow: visible !important;
+  border-bottom: 1px solid #f3e5ab !important;
+  background: #fff8e1 !important;
+  box-shadow: 0 3px 10px rgba(255, 204, 0, 0.06) !important;
+}
+
+.flyers-soft-tickets-header {
+  min-height: 58px !important;
+  gap: 10px !important;
+  padding: 8px 16px !important;
+}
+
+.flyers-soft-project-tickets-header {
+  display: flex !important;
+  height: 96px !important;
+  min-height: 0 !important;
+  max-height: 96px !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-direction: row !important;
+  gap: 8px !important;
+  padding: 0 16px !important;
+}
+
+.flyers-soft-work-items-header {
+  display: flex !important;
+  height: 96px !important;
+  min-height: 0 !important;
+  max-height: 96px !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  overflow: visible !important;
+  row-gap: 0 !important;
+}
+
+.header-actions-row,
+.flyers-soft-work-items-actions-row {
+  display: flex !important;
+  width: 100% !important;
+  height: 96px !important;
+  min-height: 0 !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  overflow: visible !important;
+}
+
+.flyers-soft-work-items-header-left {
+  display: flex !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  flex: 1 1 360px !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 12px !important;
+  overflow: visible !important;
+}
+
+.flyers-soft-tickets-header-left,
+.flyers-soft-issues-header-left,
+.flyers-soft-project-tickets-header .flyers-soft-issues-header-left {
+  align-items: center !important;
+  gap: 10px !important;
+  overflow: visible !important;
+}
+
+.flyers-soft-project-tickets-header .flyers-soft-issues-header-left > div {
+  justify-content: center !important;
+  gap: 4px !important;
+  overflow: visible !important;
+  padding-top: 0 !important;
+}
+
+.flyers-soft-breadcrumb-line,
+.flyers-soft-project-tickets-header .flyers-soft-breadcrumb-line {
+  min-height: 30px !important;
+  height: 30px !important;
+  align-items: center !important;
+  gap: 6px !important;
+  overflow: visible !important;
+}
+
+.flyers-soft-tickets-header .flyers-soft-breadcrumb-line > div > div,
+.flyers-soft-project-tickets-header .flyers-soft-breadcrumb-line > div > div {
+  height: 30px !important;
+  align-items: center !important;
+}
+
+.flyers-soft-tickets-header .flyers-soft-breadcrumb-line button,
+.flyers-soft-project-tickets-header .flyers-soft-breadcrumb-line button,
+.flyers-soft-tickets-header .flyers-soft-breadcrumb-line a > div,
+.flyers-soft-project-tickets-header .flyers-soft-breadcrumb-line a > div {
+  min-height: 30px !important;
+  height: 30px !important;
+  align-items: center !important;
+  gap: 6px !important;
+  border: 1px solid #f3e5ab !important;
+  border-radius: 8px !important;
+  background: #fffdf5 !important;
+  padding: 4px 10px !important;
+  color: #6b7280 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-tickets-header .flyers-soft-breadcrumb-line button:hover,
+.flyers-soft-project-tickets-header .flyers-soft-breadcrumb-line button:hover,
+.flyers-soft-tickets-header .flyers-soft-breadcrumb-line a > div:hover,
+.flyers-soft-project-tickets-header .flyers-soft-breadcrumb-line a > div:hover {
+  border-color: #ffd54f !important;
+  background: #fff8e1 !important;
+  color: #2c2c2c !important;
+}
+
+.flyers-soft-tickets-header .flyers-soft-breadcrumb-line svg,
+.flyers-soft-project-tickets-header .flyers-soft-breadcrumb-line svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.flyers-soft-project-tickets-header .flyers-soft-issues-title {
+  display: flex !important;
+  min-height: 24px !important;
+  align-items: center !important;
+  overflow: visible !important;
+  color: #2c2c2c !important;
+  font-size: 19px !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+  transform: none;
+}
+
+.flyers-soft-work-items-title {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  letter-spacing: 0 !important;
+}
+
+.flyers-soft-tickets-search,
+.flyers-soft-project-ticket-search {
+  height: 34px !important;
+  min-height: 34px !important;
+  gap: 8px !important;
+  border-color: #f3e5ab !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  padding: 0 11px !important;
+  font-size: 14px !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-work-items-search {
+  width: min(360px, 32vw) !important;
+  min-width: 180px !important;
+  max-width: 420px !important;
+  flex: 0 1 360px !important;
+}
+
+.flyers-soft-tickets-header-actions,
+.flyers-soft-project-tickets-header-actions,
+.flyers-soft-issues-header-actions {
+  min-height: 36px !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.flyers-soft-work-items-toolbar {
+  display: flex !important;
+  flex: 0 0 auto !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  margin-left: auto !important;
+  min-width: max-content !important;
+  overflow: visible !important;
+  column-gap: 8px !important;
+  row-gap: 0 !important;
+}
+
+.flyers-soft-work-items-toolbar-filters {
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  overflow: visible !important;
+}
+
+.flyers-soft-tickets-header-actions > div,
+.flyers-soft-project-tickets-header-actions > div,
+.flyers-soft-issues-header-actions > div {
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.flyers-soft-tickets-header-actions button,
+.flyers-soft-tickets-header-actions [role="button"],
+.flyers-soft-project-tickets-header-actions button,
+.flyers-soft-project-tickets-header-actions [role="button"],
+.flyers-soft-issues-header-actions button,
+.flyers-soft-issues-header-actions [role="button"] {
+  width: auto !important;
+  min-width: 34px !important;
+  max-width: max-content !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  border: 1px solid #f3e5ab !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  padding: 6px 10px !important;
+  color: #4b5563 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-tickets-header-actions button:has(svg):not(:has(span)),
+.flyers-soft-tickets-header-actions [role="button"]:has(svg):not(:has(span)),
+.flyers-soft-project-tickets-header-actions button:has(svg):not(:has(span)),
+.flyers-soft-project-tickets-header-actions [role="button"]:has(svg):not(:has(span)),
+.flyers-soft-issues-header-actions button:has(svg):not(:has(span)),
+.flyers-soft-issues-header-actions [role="button"]:has(svg):not(:has(span)) {
+  width: 34px !important;
+  min-width: 34px !important;
+  padding: 6px !important;
+}
+
+.flyers-soft-tickets-header-actions button:has(span),
+.flyers-soft-project-tickets-header-actions button:has(span),
+.flyers-soft-issues-header-actions button:has(span),
+.flyers-soft-tickets-header-actions button:has(div),
+.flyers-soft-project-tickets-header-actions button:has(div),
+.flyers-soft-issues-header-actions button:has(div) {
+  min-width: 0 !important;
+  padding: 6px 12px !important;
+}
+
+.flyers-soft-tickets-header-actions .bg-layer-3,
+.flyers-soft-project-tickets-header-actions .bg-layer-3,
+.flyers-soft-issues-header-actions .bg-layer-3 {
+  height: 36px !important;
+  align-items: center !important;
+  gap: 2px !important;
+  border: 1px solid #f3e5ab !important;
+  border-radius: 8px !important;
+  background: #fffdf5 !important;
+  padding: 2px !important;
+}
+
+.flyers-soft-tickets-header-actions .bg-layer-3 button,
+.flyers-soft-project-tickets-header-actions .bg-layer-3 button,
+.flyers-soft-issues-header-actions .bg-layer-3 button {
+  width: 32px !important;
+  min-width: 32px !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  border: 0 !important;
+  background: transparent !important;
+  padding: 6px !important;
+}
+
+.flyers-soft-tickets-header-actions button:hover,
+.flyers-soft-tickets-header-actions [role="button"]:hover,
+.flyers-soft-project-tickets-header-actions button:hover,
+.flyers-soft-project-tickets-header-actions [role="button"]:hover,
+.flyers-soft-issues-header-actions button:hover,
+.flyers-soft-issues-header-actions [role="button"]:hover {
+  border-color: #ffd54f !important;
+  background: #fff8e1 !important;
+  color: #2c2c2c !important;
+}
+
+.flyers-soft-tickets-create-button,
+.flyers-soft-project-ticket-create-button,
+.create-ticket-button {
+  width: auto !important;
+  min-width: 140px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  flex-shrink: 0 !important;
+  gap: 8px !important;
+  border: 0 !important;
+  overflow: visible !important;
+  padding: 6px 14px !important;
+  color: #111111 !important;
+  font-size: 14px !important;
+  white-space: nowrap !important;
+  box-shadow: 0 4px 12px rgba(255, 204, 0, 0.12) !important;
+}
+
+.create-ticket-row,
+.flyers-soft-create-ticket-row {
+  display: flex !important;
+  width: 100% !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  margin-top: 0 !important;
+  overflow: visible !important;
+  position: static !important;
+}
+
+.flyers-soft-project-ticket-create-button *,
+.flyers-soft-tickets-create-button *,
+.create-ticket-button * {
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+.flyers-soft-work-items-toolbar button:has(div),
+.flyers-soft-work-items-toolbar button:has(span) {
+  width: auto !important;
+  min-width: max-content !important;
+  max-width: max-content !important;
+}
+
+.flyers-soft-display-action button,
+.flyers-soft-analytics-action {
+  width: auto !important;
+  min-width: max-content !important;
+  max-width: max-content !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 6px 12px !important;
+  font-size: 14px !important;
+}
+
+.flyers-soft-view-mode-action {
+  flex: 0 0 auto !important;
+}
+
+.flyers-soft-view-mode-action .bg-layer-3 {
+  max-width: 178px !important;
+}
+
+@media (max-width: 1180px) {
+  .flyers-soft-work-items-search {
+    width: min(280px, 28vw) !important;
+    min-width: 160px !important;
+  }
+
+  .flyers-soft-view-mode-action {
+    display: none !important;
+  }
+}
+
+.flyers-soft-priority-pill.flyers-soft-priority-none,
+.flyers-soft-priority-none {
+  min-height: 22px !important;
+  border: 1px solid #f3e5ab !important;
+  border-radius: 999px !important;
+  background: #fff8e1 !important;
+  padding: 2px 8px !important;
+  color: #6b7280 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 960px) {
+  .flyers-soft-project-tickets-app-row,
+  .flyers-soft-app-header:has(.flyers-soft-project-tickets-header),
+  .flyers-soft-app-header:has(.flyers-soft-tickets-header) {
+    max-height: none !important;
+  }
+
+  .flyers-soft-project-tickets-header {
+    height: 96px !important;
+    min-height: 0 !important;
+    max-height: 96px !important;
+    padding: 0 12px !important;
+  }
+
+  .flyers-soft-tickets-header {
+    min-height: auto !important;
+    padding: 10px 12px !important;
+  }
+
+  .flyers-soft-work-items-header-left,
+  .flyers-soft-work-items-toolbar {
+    flex: 0 1 auto !important;
+  }
+
+  .flyers-soft-work-items-search {
+    width: min(100%, 360px) !important;
+    min-width: 0 !important;
+  }
+}
+
+/* Tickets section: full dashboard/table redesign. */
+.flyers-soft-project-tickets-app-row {
+  min-height: 72px !important;
+  align-items: center !important;
+  border-bottom: 1px solid #f1dfae !important;
+  background: rgba(255, 251, 242, 0.96) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.78) !important;
+}
+
+.flyers-soft-project-tickets-header {
+  width: 100%;
+  min-height: 72px !important;
+  height: 72px !important;
+  border-bottom: 0 !important;
+  background: transparent !important;
+  padding: 0 24px !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-work-items-actions-row {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.flyers-soft-work-items-header-left {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 28px;
+}
+
+.flyers-soft-project-tickets-header .flyers-soft-issues-title {
+  color: #111827 !important;
+  font-size: 22px !important;
+  font-weight: 750 !important;
+  line-height: 1.1 !important;
+}
+
+.flyers-soft-project-ticket-search {
+  width: min(420px, 38vw) !important;
+  min-width: 260px !important;
+  height: 46px !important;
+  border: 1px solid #f0ddad !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  color: #566176 !important;
+  box-shadow: 0 10px 24px rgba(24, 39, 75, 0.04) !important;
+}
+
+.flyers-soft-project-ticket-search kbd {
+  border: 0 !important;
+  border-radius: 6px !important;
+  background: #fff4d6 !important;
+  color: #b77900 !important;
+}
+
+.flyers-soft-project-tickets-header-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.flyers-soft-project-tickets-header-actions button,
+.flyers-soft-project-tickets-header-actions [role="button"] {
+  min-height: 44px !important;
+  height: 44px !important;
+  border-radius: 9px !important;
+  border-color: #edf0f5 !important;
+  background: #ffffff !important;
+  color: #253047 !important;
+  font-size: 14px !important;
+  box-shadow: 0 10px 24px rgba(24, 39, 75, 0.04) !important;
+}
+
+.flyers-soft-project-ticket-create-button,
+#main-sidebar .flyers-soft-sidebar-add-button,
+.flyers-soft-sidebar-peek .flyers-soft-sidebar-add-button {
+  border: 0 !important;
+  background: linear-gradient(180deg, #ffd84c 0%, #ffc426 100%) !important;
+  color: #111827 !important;
+  box-shadow: 0 10px 20px rgba(245, 158, 11, 0.18) !important;
+}
+
+.flyers-soft-project-ticket-create-button:hover,
+#main-sidebar .flyers-soft-sidebar-add-button:hover,
+.flyers-soft-sidebar-peek .flyers-soft-sidebar-add-button:hover {
+  background: linear-gradient(180deg, #ffdf63 0%, #ffc21a 100%) !important;
+}
+
+.flyers-soft-project-tickets-content,
+.flyers-soft-project-tickets-root,
+.flyers-soft-project-tickets-work-area,
+.flyers-soft-project-ticket-list-root,
+.flyers-soft-project-ticket-scroll {
+  --background-color-surface-1: #fffbf2;
+  --background-color-surface-2: #fffbf2;
+  --background-color-layer-1: #ffffff;
+  --background-color-layer-2: #ffffff;
+  --background-color-layer-transparent-hover: #fff8ea;
+  --border-color-subtle: #e9edf4;
+  --border-color-strong: #d9e1ec;
+  --text-color-primary: #111827;
+  --text-color-secondary: #253047;
+  --text-color-tertiary: #566176;
+  --text-color-placeholder: #8b95a7;
+  background: #fffbf2 !important;
+}
+
+.flyers-soft-project-ticket-stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(148px, 1fr));
+  gap: 16px;
+  padding: 24px 24px 18px;
+}
+
+.flyers-soft-project-ticket-stat-card {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid #edf0f5;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 18px 20px;
+  box-shadow: 0 12px 26px rgba(24, 39, 75, 0.06);
+}
+
+.flyers-soft-project-ticket-stat-icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  place-items: center;
+  border-radius: 999px;
+}
+
+.flyers-soft-project-ticket-stat-neutral {
+  background: #f2f4f7;
+  color: #667085;
+}
+
+.flyers-soft-project-ticket-stat-amber {
+  background: #fff2cc;
+  color: #f5a400;
+}
+
+.flyers-soft-project-ticket-stat-blue {
+  background: #e8f2ff;
+  color: #1677ff;
+}
+
+.flyers-soft-project-ticket-stat-green {
+  background: #e8f8ef;
+  color: #099268;
+}
+
+.flyers-soft-project-ticket-stat-rose {
+  background: #ffecef;
+  color: #e11d48;
+}
+
+.flyers-soft-project-ticket-stat-copy {
+  min-width: 0;
+}
+
+.flyers-soft-project-ticket-stat-label,
+.flyers-soft-project-ticket-stat-caption {
+  margin: 0;
+  color: #566176;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.flyers-soft-project-ticket-stat-label {
+  color: #384154;
+  font-weight: 600;
+}
+
+.flyers-soft-project-ticket-stat-value {
+  margin: 8px 0 10px;
+  color: #050816;
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.flyers-soft-project-ticket-control-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 24px 24px;
+}
+
+.flyers-soft-project-ticket-tabs {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.flyers-soft-project-ticket-tab {
+  min-height: 44px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  padding: 0 18px;
+  color: #111827;
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.flyers-soft-project-ticket-tab-active {
+  background: #fff0c2;
+  color: #b77900;
+}
+
+.flyers-soft-project-ticket-filter-row {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.flyers-soft-project-ticket-filter-row .flyers-soft-filters-shell {
+  min-height: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.flyers-soft-project-ticket-filter-row .flyers-soft-filters-row {
+  min-height: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-project-ticket-filter-row .flyers-soft-filters-row > div {
+  width: auto !important;
+}
+
+.flyers-soft-project-ticket-filter-row .flyers-soft-filters-row button,
+.flyers-soft-project-ticket-filter-chip,
+.flyers-soft-project-ticket-clear-button {
+  min-height: 44px !important;
+  height: 44px !important;
+  border: 1px solid #edf0f5 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  padding: 0 16px !important;
+  color: #111827 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 10px 24px rgba(24, 39, 75, 0.04) !important;
+}
+
+.flyers-soft-project-ticket-clear-button {
+  border-color: transparent !important;
+  background: transparent !important;
+  color: #253047 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-project-ticket-scroll {
+  padding: 0 24px 22px !important;
+}
+
+.flyers-soft-project-ticket-table-card {
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 14px 34px rgba(24, 39, 75, 0.06);
+}
+
+.flyers-soft-project-ticket-table-header,
+.flyers-soft-project-ticket-row {
+  display: grid !important;
+  grid-template-columns: minmax(340px, 1.7fr) minmax(116px, 0.62fr) minmax(126px, 0.62fr) minmax(154px, 0.72fr) minmax(96px, 0.44fr) 48px;
+  align-items: center;
+  column-gap: 12px;
+}
+
+.flyers-soft-project-ticket-table-header {
+  min-height: 64px;
+  border-bottom: 1px solid #e5eaf1;
+  padding: 0 20px;
+  color: #566176;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.flyers-soft-project-ticket-table-ticket-heading {
+  padding-left: 72px;
+}
+
+.flyers-soft-project-ticket-table-settings::before {
+  content: "";
+  display: block;
+  width: 18px;
+  height: 18px;
+  margin-left: auto;
+  border-radius: 5px;
+  background:
+    linear-gradient(#566176, #566176) 2px 4px / 14px 1.5px no-repeat,
+    linear-gradient(#566176, #566176) 2px 13px / 14px 1.5px no-repeat,
+    radial-gradient(circle, #ffffff 0 2px, #566176 2.5px 3.5px, transparent 4px) 4px 1px / 8px 8px no-repeat,
+    radial-gradient(circle, #ffffff 0 2px, #566176 2.5px 3.5px, transparent 4px) 9px 10px / 8px 8px no-repeat;
+}
+
+.flyers-soft-project-ticket-row {
+  min-height: 67px !important;
+  border-bottom: 1px solid #e8edf4 !important;
+  background: #ffffff !important;
+  padding: 0 20px !important;
+  color: #253047;
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.flyers-soft-project-ticket-row:last-child {
+  border-bottom-color: transparent !important;
+}
+
+.flyers-soft-project-ticket-row:hover {
+  background: #fff9ec !important;
+  box-shadow: inset 3px 0 0 #ffc21a !important;
+}
+
+.flyers-soft-project-ticket-row-selected,
+.flyers-soft-project-ticket-row-active,
+.flyers-soft-project-ticket-row-peeked {
+  background: #fff4d6 !important;
+  box-shadow: inset 3px 0 0 #f6b800 !important;
+}
+
+.flyers-soft-project-ticket-table-cell {
+  min-width: 0;
+}
+
+.flyers-soft-project-ticket-main {
+  gap: 12px;
+}
+
+.flyers-soft-project-ticket-select {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.flyers-soft-project-ticket-select-control {
+  pointer-events: auto !important;
+  opacity: 1 !important;
+}
+
+.flyers-soft-project-ticket-star,
+.flyers-soft-project-ticket-chevron {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #738198;
+}
+
+.flyers-soft-project-ticket-star:hover,
+.flyers-soft-project-ticket-chevron:hover {
+  background: #f5f7fb;
+  color: #111827;
+}
+
+.flyers-soft-project-ticket-key {
+  min-width: 82px;
+  flex: 0 0 82px;
+  color: #253047;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.flyers-soft-project-ticket-title {
+  color: #050816 !important;
+  font-size: 15px !important;
+  font-weight: 750 !important;
+  line-height: 1.3 !important;
+}
+
+.flyers-soft-status-pill {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  gap: 7px;
+  border: 0 !important;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--flyers-status-color, #94a3b8) 12%, #ffffff) !important;
+  padding: 4px 12px;
+  color: #111827 !important;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.flyers-soft-status-pill::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  border-radius: 999px;
+  background: var(--flyers-status-color, #94a3b8);
+}
+
+.flyers-soft-project-ticket-priority {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  gap: 8px;
+  color: #253047;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.flyers-soft-project-ticket-priority-high,
+.flyers-soft-project-ticket-priority-urgent {
+  color: #ef233c;
+}
+
+.flyers-soft-project-ticket-priority-medium {
+  color: #f97316;
+}
+
+.flyers-soft-project-ticket-priority-low {
+  color: #10b981;
+}
+
+.flyers-soft-project-ticket-priority-none {
+  color: #8b95a7;
+}
+
+.flyers-soft-project-ticket-assignee-cell {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  color: #253047;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.flyers-soft-project-ticket-assignee-cell span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flyers-soft-project-ticket-unassigned,
+.flyers-soft-project-ticket-updated-cell {
+  color: #566176;
+  font-size: 14px;
+  font-weight: 550;
+}
+
+.flyers-soft-project-ticket-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.flyers-soft-project-ticket-actions button,
+.flyers-soft-project-ticket-actions [role="button"] {
+  width: 34px !important;
+  min-width: 34px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  color: #566176 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-project-ticket-actions button:hover,
+.flyers-soft-project-ticket-actions [role="button"]:hover {
+  background: #f5f7fb !important;
+  color: #111827 !important;
+}
+
+.flyers-soft-project-ticket-table-footer {
+  display: flex;
+  min-height: 58px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid #e8edf4;
+  padding: 10px 22px;
+  color: #384154;
+  font-size: 14px;
+}
+
+.flyers-soft-project-ticket-pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.flyers-soft-project-ticket-pagination button {
+  min-width: 38px;
+  height: 38px;
+  border: 1px solid #e5eaf1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #111827;
+  font-weight: 650;
+}
+
+.flyers-soft-project-ticket-pagination .flyers-soft-project-ticket-page-active {
+  border-color: #ffc21a;
+  background: #ffc928;
+}
+
+.flyers-soft-project-ticket-pagination .flyers-soft-project-ticket-page-size {
+  min-width: 96px;
+}
+
+.flyers-soft-project-ticket-quick-add {
+  border-bottom-color: #e8edf4 !important;
+  background: #ffffff !important;
+}
+
+.flyers-soft-project-ticket-quick-add-button {
+  min-height: 50px !important;
+  color: #566176 !important;
+}
+
+.flyers-soft-project-ticket-loading-cell {
+  display: flex;
+  align-items: center;
+}
+
+#main-sidebar,
+.flyers-soft-sidebar-peek {
+  background: #fff6dc !important;
+  border-color: #f1dfae !important;
+}
+
+#main-sidebar .flyers-soft-main-sidebar-panel,
+.flyers-soft-sidebar-peek .flyers-soft-main-sidebar-panel {
+  background: linear-gradient(180deg, #fff7df 0%, #fffaf0 46%, #fff3cf 100%) !important;
+}
+
+.flyers-soft-sidebar-brand {
+  padding-top: 10px;
+}
+
+.flyers-soft-sidebar-simple-item[class*="bg-layer-transparent-active"],
+.flyers-soft-sidebar-simple-item:has(a.text-primary) {
+  background: #fff0c2 !important;
+  box-shadow: inset 3px 0 0 #ffb300 !important;
+}
+
+.flyers-soft-sidebar-simple-item svg,
+.flyers-soft-sidebar-simple-item:has(a.text-primary) svg,
+.flyers-soft-sidebar-simple-link:hover svg {
+  color: #f5a400 !important;
+}
+
+.flyers-soft-sidebar-promo {
+  margin: auto 24px 24px;
+  border: 1px solid #f2e2b8;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.82);
+  padding: 20px 22px;
+  color: #384154;
+  box-shadow: 0 14px 30px rgba(245, 158, 11, 0.08);
+}
+
+.flyers-soft-sidebar-promo p:first-of-type {
+  color: #f5a400;
+}
+
+@media (max-width: 1240px) {
+  .flyers-soft-project-ticket-stats {
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+  }
+
+  .flyers-soft-project-ticket-control-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .flyers-soft-project-ticket-filter-row {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 1080px) {
+  .flyers-soft-project-ticket-table-header,
+  .flyers-soft-project-ticket-row {
+    grid-template-columns: minmax(280px, 1.5fr) minmax(108px, 0.6fr) minmax(112px, 0.58fr) minmax(132px, 0.65fr) 44px;
+  }
+
+  .flyers-soft-project-ticket-table-header > div:nth-child(5),
+  .flyers-soft-project-ticket-updated-cell {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .flyers-soft-project-ticket-stats {
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+    padding-inline: 16px;
+  }
+
+  .flyers-soft-project-tickets-header {
+    height: auto !important;
+    min-height: 96px !important;
+    padding: 12px 16px !important;
+  }
+
+  .flyers-soft-work-items-actions-row,
+  .flyers-soft-work-items-header-left,
+  .flyers-soft-project-tickets-header-actions {
+    align-items: flex-start !important;
+    flex-wrap: wrap;
+  }
+
+  .flyers-soft-project-ticket-search {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .flyers-soft-project-ticket-control-row,
+  .flyers-soft-project-ticket-scroll {
+    padding-inline: 16px !important;
+  }
+
+  .flyers-soft-project-ticket-table-card {
+    overflow-x: auto;
+  }
+
+  .flyers-soft-project-ticket-table-header,
+  .flyers-soft-project-ticket-row {
+    min-width: 760px;
+  }
+}
+
+@media (max-width: 640px) {
+  .flyers-soft-project-ticket-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .flyers-soft-project-ticket-table-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+/* /workspace-views/all-issues: compact dark Flyers Soft ticket list. */
+.flyers-soft-app-header:has(.flyers-soft-tickets-header) {
+  min-height: 70px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: #0d111a !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-tickets-header {
+  min-height: 70px !important;
+  height: 70px !important;
+  align-items: center !important;
+  border-bottom: 0 !important;
+  background: #0d111a !important;
+  padding: 0 22px !important;
+}
+
+.flyers-soft-tickets-header-left {
+  display: flex;
+  min-width: 0;
+  max-width: none !important;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 22px;
+}
+
+.flyers-soft-tickets-title {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 21px;
+  font-weight: 750;
+  line-height: 1.1;
+}
+
+.flyers-soft-tickets-search {
+  display: flex;
+  width: min(430px, 42vw);
+  min-width: 240px;
+  height: 38px;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 8px;
+  background: #141a25;
+  padding: 0 11px;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.flyers-soft-tickets-search span {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flyers-soft-tickets-search kbd {
+  flex: 0 0 auto;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  background: #202838;
+  padding: 2px 6px;
+  color: #cbd5e1;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.flyers-soft-tickets-header-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.flyers-soft-tickets-header-actions button,
+.flyers-soft-tickets-header-actions [role="button"] {
+  min-height: 34px !important;
+  height: 34px !important;
+  border-radius: 7px !important;
+  border-color: rgba(255, 255, 255, 0.09) !important;
+  background: #141a25 !important;
+  color: #dbe3ef !important;
+  font-size: 13px !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-tickets-header-actions .flyers-soft-tickets-create-button {
+  border-color: transparent !important;
+  background: #f6c037 !important;
+  color: #111827 !important;
+  font-weight: 700 !important;
+}
+
+.flyers-soft-tickets-view-body,
+.flyers-soft-tickets-view-shell,
+.flyers-soft-tickets-list-view {
+  --background-color-surface-1: #0d111a;
+  --background-color-surface-2: #0d111a;
+  --background-color-layer-1: #0d111a;
+  --background-color-layer-2: #141a25;
+  --background-color-layer-transparent-hover: rgba(255, 255, 255, 0.035);
+  --border-color-subtle: rgba(255, 255, 255, 0.07);
+  --border-color-strong: rgba(255, 255, 255, 0.1);
+  --text-color-primary: #f8fafc;
+  --text-color-secondary: #cbd5e1;
+  --text-color-tertiary: #94a3b8;
+  --text-color-placeholder: #64748b;
+  background: #0d111a !important;
+  color: #cbd5e1;
+}
+
+.flyers-soft-tickets-view-shell {
+  border-bottom: 0 !important;
+}
+
+.flyers-soft-tickets-view-body .flyers-soft-filters-shell {
+  min-height: 42px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  background: #0d111a !important;
+  padding: 6px 18px !important;
+}
+
+.flyers-soft-tickets-view-body .flyers-soft-filters-row {
+  min-height: 30px !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-tickets-view-body .flyers-soft-filters-row button,
+.flyers-soft-tickets-view-body .flyers-soft-filters-row [role="button"] {
+  min-height: 28px !important;
+  height: 28px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 6px !important;
+  background: #141a25 !important;
+  color: #cbd5e1 !important;
+  font-size: 12px !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-tickets-list-view {
+  padding: 8px 18px 20px !important;
+}
+
+.flyers-soft-tickets-list-view .vertical-scrollbar,
+.flyers-soft-tickets-list-view .horizontal-scrollbar {
+  background: transparent !important;
+}
+
+.flyers-soft-tickets-table {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse !important;
+  background: transparent !important;
+}
+
+.flyers-soft-tickets-table tbody {
+  display: table-row-group;
+}
+
+.flyers-soft-tickets-table tr,
+.flyers-soft-tickets-table td,
+.flyers-soft-tickets-table th {
+  border-right: 0 !important;
+  border-left: 0 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-tickets-table-head {
+  display: none !important;
+}
+
+.flyers-soft-tickets-list-row-shell {
+  height: 42px !important;
+  background: transparent !important;
+}
+
+.flyers-soft-tickets-row-placeholder,
+.flyers-soft-ticket-list-cell {
+  height: 42px !important;
+  border: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.flyers-soft-ticket-list-row {
+  min-height: 42px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.055) !important;
+  background: transparent !important;
+  padding: 0 8px !important;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease;
+}
+
+.flyers-soft-ticket-list-row:hover {
+  border-bottom-color: rgba(255, 255, 255, 0.09) !important;
+  background: rgba(255, 255, 255, 0.035) !important;
+}
+
+.flyers-soft-ticket-list-row-active,
+.flyers-soft-ticket-list-row-selected {
+  background: rgba(246, 192, 55, 0.08) !important;
+}
+
+.flyers-soft-ticket-list-key {
+  min-width: 76px;
+  flex: 0 0 76px;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.flyers-soft-ticket-list-title {
+  color: #e5edf8 !important;
+  font-size: 13px;
+  font-weight: 620;
+  line-height: 1.25;
+}
+
+.flyers-soft-ticket-list-meta {
+  max-width: min(46%, 480px);
+  gap: 8px !important;
+}
+
+.flyers-soft-ticket-inline-properties button,
+.flyers-soft-ticket-inline-properties [role="button"] {
+  min-height: 24px !important;
+  height: 24px !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border-radius: 999px !important;
+  background: #141a25 !important;
+  padding: 0 8px !important;
+  color: #cbd5e1 !important;
+  font-size: 12px !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-ticket-inline-properties button:hover,
+.flyers-soft-ticket-inline-properties [role="button"]:hover {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  background: #192132 !important;
+  color: #f8fafc !important;
+}
+
+.flyers-soft-ticket-list-actions button,
+.flyers-soft-ticket-list-actions [role="button"] {
+  min-width: 26px !important;
+  width: 26px !important;
+  min-height: 26px !important;
+  height: 26px !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  color: #94a3b8 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-ticket-list-actions button:hover,
+.flyers-soft-ticket-list-actions [role="button"]:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #f8fafc !important;
+}
+
+@media (max-width: 900px) {
+  .flyers-soft-tickets-header {
+    height: auto !important;
+    min-height: 92px !important;
+    padding: 12px 16px !important;
+  }
+
+  .flyers-soft-tickets-header-left,
+  .flyers-soft-tickets-header-actions {
+    flex-wrap: wrap;
+  }
+
+  .flyers-soft-tickets-search {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .flyers-soft-tickets-list-view {
+    padding-inline: 12px !important;
+  }
+
+  .flyers-soft-ticket-list-meta {
+    max-width: 52%;
+  }
+}
+
+@media (max-width: 640px) {
+  .flyers-soft-ticket-list-row {
+    min-height: 56px !important;
+    align-items: flex-start !important;
+    flex-direction: column;
+    justify-content: center !important;
+    gap: 5px !important;
+    padding-block: 7px !important;
+  }
+
+  .flyers-soft-ticket-list-meta {
+    max-width: 100%;
+    width: 100%;
+    padding-left: 76px;
+  }
+}

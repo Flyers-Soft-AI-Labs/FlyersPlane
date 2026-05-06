@@ -41,7 +41,7 @@ export const BaseKanbanItem = observer(function BaseKanbanItem<T extends IBaseLa
   const renderedItem = renderItem(item, groupId);
 
   return (
-    <div ref={itemRef} className="cursor-pointer">
+    <div ref={itemRef} className="flyers-soft-base-kanban-item cursor-pointer">
       {renderedItem}
     </div>
   );

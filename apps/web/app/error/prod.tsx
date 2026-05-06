@@ -17,17 +17,17 @@ const linkMap = [
   {
     key: "mail_to",
     label: "Contact Support",
-    value: "mailto:support@plane.so",
+    value: "mailto:support@flyerssoft.com",
   },
   {
     key: "status",
     label: "Status Page",
-    value: "https://status.plane.so/",
+    value: "https://flyerssoft.com/",
   },
   {
     key: "twitter_handle",
-    label: "@planepowers",
-    value: "https://x.com/planepowers",
+    label: "Flyers Soft",
+    value: "https://flyerssoft.com/",
   },
 ];
 

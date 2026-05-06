@@ -4,21 +4,17 @@
  * See the LICENSE file for details.
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { ChevronDown } from "lucide-react";
 import { observer } from "mobx-react";
 // plane helpers
 import { useOutsideClickDetector } from "@plane/hooks";
-import { PreferencesIcon } from "@plane/propel/icons";
 import { ScrollArea } from "@plane/propel/scrollarea";
 // components
-import { CustomizeNavigationDialog } from "@/components/navigation/customize-navigation-dialog";
+import { FlyersLogo } from "@/components/common/flyers-logo";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
 import useSize from "@/hooks/use-window-size";
-// plane web components
-import { WorkspaceEditionBadge } from "@/plane-web/components/workspace/edition-badge";
-import { AppSidebarToggleButton } from "./sidebar-toggle-button";
-import { IconButton } from "@plane/propel/icon-button";
 
 type TSidebarWrapperProps = {
   title: string;
@@ -28,8 +24,6 @@ type TSidebarWrapperProps = {
 
 export const SidebarWrapper = observer(function SidebarWrapper(props: TSidebarWrapperProps) {
   const { title, children, quickActions } = props;
-  // state
-  const [isCustomizeNavDialogOpen, setIsCustomizeNavDialogOpen] = useState(false);
   // store hooks
   const { toggleSidebar, sidebarCollapsed } = useAppTheme();
   const windowSize = useSize();
@@ -49,23 +43,22 @@ export const SidebarWrapper = observer(function SidebarWrapper(props: TSidebarWr
 
   return (
     <>
-      <CustomizeNavigationDialog isOpen={isCustomizeNavDialogOpen} onClose={() => setIsCustomizeNavDialogOpen(false)} />
-      <div ref={ref} className="flex h-full w-full animate-fade-in flex-col">
+      <div ref={ref} className="flyers-soft-sidebar-shell flex h-full w-full animate-fade-in flex-col">
         <div className="flex flex-col gap-3 px-3">
           {/* Workspace switcher and settings */}
 
-          <div className="flex items-center justify-between gap-2 px-2">
-            <span className="pt-1 text-16 font-medium text-primary">{title}</span>
-            <div className="flex items-center gap-2">
-              {title === "Projects" && (
-                <IconButton
-                  size="base"
-                  variant="ghost"
-                  icon={PreferencesIcon}
-                  onClick={() => setIsCustomizeNavDialogOpen(true)}
-                />
-              )}
-              <AppSidebarToggleButton />
+          <div className="flyers-soft-sidebar-brand flex items-start justify-between gap-2 px-2">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <FlyersLogo className="h-10 max-w-[120px] min-w-0 object-contain" />
+              <div className="min-w-0">
+                <span className="flyers-soft-sidebar-brand-text text-15 block min-w-0 truncate font-semibold text-primary">
+                  Flyers Soft
+                </span>
+                <span className="flyers-soft-sidebar-title flex min-w-0 items-center gap-1 text-13">
+                  <span className="truncate">{title}</span>
+                  <ChevronDown className="size-3.5 flex-shrink-0" strokeWidth={2} />
+                </span>
+              </div>
             </div>
           </div>
           {/* Quick actions */}
@@ -81,14 +74,10 @@ export const SidebarWrapper = observer(function SidebarWrapper(props: TSidebarWr
         >
           {children}
         </ScrollArea>
-        {/* Help Section */}
-        <div className="flex h-12 items-center justify-between border-t border-subtle bg-surface-1 p-3">
-          <WorkspaceEditionBadge />
-          {/* TODO: To be checked if we need this */}
-          {/* <div className="flex items-center gap-2">
-          {!shouldRenderAppRail && <HelpMenu />}
-          {!isAppRailEnabled && <AppSidebarToggleButton />}
-        </div> */}
+        <div className="flyers-soft-sidebar-promo">
+          <div className="flyers-soft-sidebar-promo-rocket" aria-hidden="true" />
+          <p className="text-13 font-semibold uppercase">Flyers Soft</p>
+          <p className="mt-2 text-14 leading-5">Making work first smarter.</p>
         </div>
       </div>
     </>

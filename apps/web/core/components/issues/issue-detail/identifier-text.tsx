@@ -35,12 +35,12 @@ export function IdentifierText(props: TIdentifierTextProps) {
         .then(() => {
           setToast({
             type: TOAST_TYPE.SUCCESS,
-            title: "Work item ID copied to clipboard",
+            title: "Ticket ID copied to clipboard",
           });
           return;
         })
         .catch(() => {
-          console.error("Failed to copy work item ID");
+          console.error("Failed to copy ticket ID");
         });
     }
   };

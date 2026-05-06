@@ -34,7 +34,7 @@ export const SUBSCRIPTION_WITH_BILLING_FREQUENCY = [
 export const PLANE_COMMUNITY_PRODUCTS: Record<string, IPaymentProduct> = {
   [EProductSubscriptionEnum.PRO]: {
     id: EProductSubscriptionEnum.PRO,
-    name: "Plane Pro",
+    name: "Flyers Soft Pro",
     description:
       "More views, more cycles powers, more pages features, new reports, and better dashboards are waiting to be unlocked.",
     type: "PRO",
@@ -61,9 +61,9 @@ export const PLANE_COMMUNITY_PRODUCTS: Record<string, IPaymentProduct> = {
   },
   [EProductSubscriptionEnum.BUSINESS]: {
     id: EProductSubscriptionEnum.BUSINESS,
-    name: "Plane Business",
+    name: "Flyers Soft Business",
     description:
-      "The earliest packaging of Business at $10 a seat a month billed annually, $12 a seat a month billed monthly for Plane Cloud",
+      "The earliest packaging of Business at $10 a seat a month billed annually, $12 a seat a month billed monthly for Flyers Soft Cloud",
     type: "BUSINESS",
     prices: [
       {
@@ -88,7 +88,7 @@ export const PLANE_COMMUNITY_PRODUCTS: Record<string, IPaymentProduct> = {
   },
   [EProductSubscriptionEnum.ENTERPRISE]: {
     id: EProductSubscriptionEnum.ENTERPRISE,
-    name: "Plane Enterprise",
+    name: "Flyers Soft Enterprise",
     description: "",
     type: "ENTERPRISE",
     prices: [
@@ -117,7 +117,7 @@ export const PLANE_COMMUNITY_PRODUCTS: Record<string, IPaymentProduct> = {
 /**
  * URL for the "Talk to Sales" page where users can contact sales team
  */
-export const TALK_TO_SALES_URL = "https://plane.so/talk-to-sales";
+export const TALK_TO_SALES_URL = "https://flyerssoft.com/talk-to-sales";
 
 /**
  * Mapping of subscription types to their respective upgrade/redirection URLs based on billing frequency

@@ -6,13 +6,19 @@
 
 import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
+import { EIssuesStoreType } from "@plane/types";
+import { cn } from "@plane/utils";
+import { useIssueStoreType } from "@/hooks/use-issue-layout-store";
 import type { TQuickAddIssueForm } from "../root";
 
 export const ListQuickAddIssueForm = observer(function ListQuickAddIssueForm(props: TQuickAddIssueForm) {
   const { ref, projectDetail, register, onSubmit, isEpic } = props;
   const { t } = useTranslation();
+  const storeType = useIssueStoreType();
+  const isProjectTicketsList = storeType === EIssuesStoreType.PROJECT && !isEpic;
+
   return (
-    <div className="shadow-raised-200">
+    <div className={cn("shadow-raised-200", { "flyers-soft-project-ticket-quick-add-form": isProjectTicketsList })}>
       <form
         ref={ref}
         onSubmit={onSubmit}
@@ -23,7 +29,7 @@ export const ListQuickAddIssueForm = observer(function ListQuickAddIssueForm(pro
           <input
             type="text"
             autoComplete="off"
-            placeholder={isEpic ? t("epic.title.label") : t("issue.title.label")}
+            placeholder={isEpic ? t("epic.title.label") : isProjectTicketsList ? "Ticket title" : t("issue.title.label")}
             {...register("name", {
               required: isEpic ? t("epic.title.required") : t("issue.title.required"),
             })}

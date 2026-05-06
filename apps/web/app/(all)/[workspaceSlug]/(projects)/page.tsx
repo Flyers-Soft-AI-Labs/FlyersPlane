@@ -24,8 +24,8 @@ function WorkspaceDashboardPage() {
 
   return (
     <>
-      <AppHeader header={<WorkspaceDashboardHeader />} />
-      <ContentWrapper>
+      <AppHeader header={<WorkspaceDashboardHeader />} rowClassName="flyers-soft-dashboard-app-header" />
+      <ContentWrapper className="flyers-soft-home-content-wrapper">
         <PageHead title={pageTitle} />
         <WorkspaceHomeView />
       </ContentWrapper>

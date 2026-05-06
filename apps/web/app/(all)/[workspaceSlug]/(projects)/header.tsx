@@ -5,49 +5,85 @@
  */
 
 import { observer } from "mobx-react";
-import { Shapes } from "lucide-react";
+import { Bell, Home, Plus, Search, Sun } from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useTheme } from "next-themes";
+import useSWR from "swr";
 // plane imports
-import { useTranslation } from "@plane/i18n";
-import { Button } from "@plane/propel/button";
-import { HomeIcon } from "@plane/propel/icons";
-import { Breadcrumbs, Header } from "@plane/ui";
-// components
-import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
+import { getNumberCount } from "@plane/utils";
 // hooks
-import { useHome } from "@/hooks/store/use-home";
+import { useCommandPalette } from "@/hooks/store/use-command-palette";
+import { useWorkspaceNotifications } from "@/hooks/store/notifications";
+import { usePowerK } from "@/hooks/store/use-power-k";
+import { useUser } from "@/hooks/store/user";
 
 export const WorkspaceDashboardHeader = observer(function WorkspaceDashboardHeader() {
-  // plane hooks
-  const { t } = useTranslation();
+  const { workspaceSlug } = useParams();
   // hooks
-  const { toggleWidgetSettings } = useHome();
+  const { toggleCreateIssueModal } = useCommandPalette();
+  const { togglePowerKModal } = usePowerK();
+  const { setTheme } = useTheme();
+  const { data: currentUser } = useUser();
+  const { unreadNotificationsCount, getUnreadNotificationsCount } = useWorkspaceNotifications();
+
+  const workspaceSlugString = workspaceSlug?.toString();
+  const userName = currentUser?.first_name || currentUser?.display_name || currentUser?.email || "Shalini";
+  const userInitial = userName.charAt(0).toUpperCase();
+  const totalNotifications =
+    unreadNotificationsCount.mention_unread_notifications_count > 0
+      ? unreadNotificationsCount.mention_unread_notifications_count
+      : unreadNotificationsCount.total_unread_notifications_count;
+
+  useSWR(
+    workspaceSlugString ? "WORKSPACE_UNREAD_NOTIFICATION_COUNT" : null,
+    workspaceSlugString ? () => getUnreadNotificationsCount(workspaceSlugString) : null
+  );
 
   return (
-    <>
-      <Header>
-        <Header.LeftItem>
-          <div className="flex items-center gap-2">
-            <Breadcrumbs>
-              <Breadcrumbs.Item
-                component={
-                  <BreadcrumbLink label={t("home.title")} icon={<HomeIcon className="h-4 w-4 text-tertiary" />} />
-                }
-              />
-            </Breadcrumbs>
-          </div>
-        </Header.LeftItem>
-        <Header.RightItem>
-          <Button
-            variant="secondary"
-            size="lg"
-            onClick={() => toggleWidgetSettings(true)}
-            className="my-auto mb-0"
-            prependIcon={<Shapes />}
-          >
-            <div className="hidden sm:hidden md:block">{t("home.manage_widgets")}</div>
-          </Button>
-        </Header.RightItem>
-      </Header>
-    </>
+    <div className="flyers-soft-dashboard-header">
+      <nav className="flyers-soft-dashboard-main-tab" aria-label="Primary">
+        <Link href={workspaceSlugString ? `/${workspaceSlugString}` : "#"} className="flyers-soft-dashboard-home-tab">
+          <Home className="size-4" strokeWidth={2} />
+          <span>Home</span>
+        </Link>
+      </nav>
+
+      <button type="button" className="flyers-soft-dashboard-search" onClick={() => togglePowerKModal(true)}>
+        <Search className="size-4" strokeWidth={2} />
+        <span>Search tickets, projects, teams...</span>
+        <kbd>Ctrl + K</kbd>
+      </button>
+
+      <div className="flyers-soft-dashboard-header-actions">
+        <button
+          type="button"
+          className="flyers-soft-dashboard-icon-button"
+          onClick={() => setTheme("light")}
+          aria-label="Use light theme"
+        >
+          <Sun className="size-4" strokeWidth={2.2} />
+        </button>
+        <Link
+          href={workspaceSlugString ? `/${workspaceSlugString}/notifications` : "#"}
+          className="flyers-soft-dashboard-notification"
+          aria-label="Notifications"
+        >
+          <Bell className="size-4" strokeWidth={2} />
+          {totalNotifications > 0 && <span>{getNumberCount(totalNotifications)}</span>}
+        </Link>
+        <button
+          type="button"
+          className="flyers-soft-dashboard-create-button"
+          onClick={() => toggleCreateIssueModal(true)}
+        >
+          <Plus className="size-4" strokeWidth={2} />
+          <span>Create Ticket</span>
+        </button>
+        <div className="flyers-soft-dashboard-avatar" aria-label={userName}>
+          {userInitial}
+        </div>
+      </div>
+    </div>
   );
 });

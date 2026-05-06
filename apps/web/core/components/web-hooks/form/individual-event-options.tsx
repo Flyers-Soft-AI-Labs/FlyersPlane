@@ -26,8 +26,8 @@ export const INDIVIDUAL_WEBHOOK_OPTIONS: {
   },
   {
     key: "issue",
-    label: "Work items",
-    description: "Work item created, updated, deleted, added to a cycle or module",
+    label: "Tickets",
+    description: "Ticket created, updated, deleted, added to a cycle or module",
   },
   {
     key: "module",
@@ -36,7 +36,7 @@ export const INDIVIDUAL_WEBHOOK_OPTIONS: {
   },
   {
     key: "issue_comment",
-    label: "Work item comments",
+    label: "Ticket comments",
     description: "Comment posted, updated, or deleted",
   },
 ];

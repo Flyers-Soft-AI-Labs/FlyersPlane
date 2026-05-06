@@ -256,15 +256,15 @@ export const BaseKanBanRoot = observer(function BaseKanBanRoot(props: IBaseKanBa
             isDragOverDelete ? "bg-danger-primary blur-2xl" : ""
           } transition duration-300`}
         >
-          Drop here to delete the work item.
+          Drop here to delete the ticket.
         </div>
       </div>
       <IssueLayoutHOC layout={EIssueLayoutTypes.KANBAN}>
         <div
-          className={`horizontal-scrollbar relative flex scrollbar-lg h-full w-full bg-surface-2 ${sub_group_by ? "vertical-scrollbar overflow-y-auto" : "overflow-x-auto overflow-y-hidden"}`}
+          className={`flyers-soft-kanban-root horizontal-scrollbar relative flex scrollbar-lg h-full w-full bg-surface-2 ${sub_group_by ? "vertical-scrollbar overflow-y-auto" : "overflow-x-auto overflow-y-hidden"}`}
           ref={scrollableContainerRef}
         >
-          <div className="relative h-full w-max min-w-full bg-surface-2">
+          <div className="flyers-soft-kanban-board relative h-full w-max min-w-full bg-surface-2">
             <div className="h-full w-max">
               <KanBanView
                 issuesMap={issueMap}

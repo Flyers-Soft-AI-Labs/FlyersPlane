@@ -4,8 +4,68 @@
  * See the LICENSE file for details.
  */
 
-import sanitizeHtml from "sanitize-html";
 import type { Content, JSONContent } from "@plane/types";
+
+const NON_TEXT_HTML_TAGS = ["script", "style", "textarea", "option"];
+
+const removeNonTextHtmlContent = (htmlString: string) =>
+  htmlString.replace(/<(script|style|textarea|option)\b[^>]*>[\s\S]*?<\/\1>/gi, "");
+
+const decodeHtmlEntities = (text: string) => {
+  if (typeof document !== "undefined") {
+    const textarea = document.createElement("textarea");
+    textarea.innerHTML = text;
+    return textarea.value;
+  }
+
+  const entityMap: Record<string, string> = {
+    amp: "&",
+    apos: "'",
+    gt: ">",
+    lt: "<",
+    nbsp: " ",
+    quot: '"',
+  };
+
+  return text.replace(/&(#(\d+)|#x([\da-f]+)|[a-z]+);/gi, (match, entity, decimal, hexadecimal) => {
+    if (decimal) return String.fromCodePoint(Number.parseInt(decimal, 10));
+    if (hexadecimal) return String.fromCodePoint(Number.parseInt(hexadecimal, 16));
+
+    return entityMap[entity.toLowerCase()] ?? match;
+  });
+};
+
+const stripHtmlToText = (htmlString: string) => {
+  if (!htmlString) return "";
+
+  if (typeof document !== "undefined") {
+    const template = document.createElement("template");
+    template.innerHTML = htmlString;
+    template.content.querySelectorAll(NON_TEXT_HTML_TAGS.join(",")).forEach((element) => element.remove());
+
+    return template.content.textContent ?? "";
+  }
+
+  return decodeHtmlEntities(removeNonTextHtmlContent(htmlString).replace(/<[^>]*>/g, ""));
+};
+
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const hasAllowedHtmlTag = (htmlString: string, allowedHTMLTags: string[]) => {
+  const allowedTags = new Set(allowedHTMLTags.map((tag) => tag.toLowerCase()));
+  if (allowedTags.size === 0) return false;
+
+  if (typeof document !== "undefined") {
+    const template = document.createElement("template");
+    template.innerHTML = htmlString;
+
+    return Array.from(template.content.querySelectorAll("*")).some((element) =>
+      allowedTags.has(element.tagName.toLowerCase())
+    );
+  }
+
+  return allowedHTMLTags.some((tag) => new RegExp(`<\\s*${escapeRegExp(tag)}(?:\\s|/|>)`, "i").test(htmlString));
+};
 
 /**
  * @description Adds space between camelCase words
@@ -126,7 +186,7 @@ const text = stripHTML(html);
 console.log(text); // Some text
  */
 export const sanitizeHTML = (htmlString: string) => {
-  const sanitizedText = sanitizeHtml(htmlString, { allowedTags: [] }); // sanitize the string to remove all HTML tags
+  const sanitizedText = stripHtmlToText(htmlString); // sanitize the string to remove all HTML tags
   return sanitizedText.trim(); // trim the string to remove leading and trailing whitespaces
 };
 
@@ -161,10 +221,8 @@ export const checkEmailValidity = (email: string): boolean => {
 };
 
 export const isEmptyHtmlString = (htmlString: string, allowedHTMLTags: string[] = []) => {
-  // Remove HTML tags using sanitize-html
-  const cleanText = sanitizeHtml(htmlString, { allowedTags: allowedHTMLTags });
-  // Trim the string and check if it's empty
-  return cleanText.trim() === "";
+  const cleanText = stripHtmlToText(htmlString);
+  return cleanText.trim() === "" && !hasAllowedHtmlTag(htmlString, allowedHTMLTags);
 };
 
 /**

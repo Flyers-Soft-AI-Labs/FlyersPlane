@@ -8,9 +8,9 @@ import { USER_TRACKER_ELEMENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 // ui
 import { getButtonStyling } from "@plane/propel/button";
-import { PlaneLogo } from "@plane/propel/icons";
 // helpers
 import { cn } from "@plane/utils";
+import { FlyersLogo } from "@/components/common/flyers-logo";
 
 export function ProductUpdatesFooter() {
   const { t } = useTranslation();
@@ -69,8 +69,8 @@ export function ProductUpdatesFooter() {
         )}
         rel="noreferrer"
       >
-        <PlaneLogo className="h-4 w-auto text-primary" />
-        {t("powered_by_plane_pages")}
+        <FlyersLogo className="h-4 max-w-24 object-contain" />
+        Powered by Flyers Soft Pages
       </a>
     </div>
   );

@@ -16,7 +16,7 @@ export default function ProjectListLayout() {
   return (
     <>
       <AppHeader header={<ProjectsListHeader />} mobileHeader={<ProjectsListMobileHeader />} />
-      <ContentWrapper>
+      <ContentWrapper className="flyers-soft-projects-list-scroll">
         <Outlet />
       </ContentWrapper>
     </>

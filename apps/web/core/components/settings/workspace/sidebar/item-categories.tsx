@@ -8,7 +8,12 @@ import { observer } from "mobx-react";
 import { usePathname } from "next/navigation";
 import { useParams } from "react-router";
 // plane imports
-import { EUserPermissionsLevel, GROUPED_WORKSPACE_SETTINGS, WORKSPACE_SETTINGS_CATEGORIES } from "@plane/constants";
+import {
+  EUserPermissionsLevel,
+  GROUPED_WORKSPACE_SETTINGS,
+  WORKSPACE_SETTINGS,
+  WORKSPACE_SETTINGS_CATEGORIES,
+} from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { joinUrlPath } from "@plane/utils";
 // components
@@ -18,6 +23,15 @@ import { useUserPermissions } from "@/hooks/store/user";
 // local imports
 import { WORKSPACE_SETTINGS_ICONS } from "./item-icon";
 
+const TEAMS_SETTINGS_KEYS = ["general", "members", "billing-and-plans", "export"] as const;
+
+const TEAMS_SETTINGS_LABELS: Record<(typeof TEAMS_SETTINGS_KEYS)[number], string> = {
+  general: "General",
+  members: "Teams",
+  "billing-and-plans": "Billing",
+  export: "Exports",
+};
+
 export const WorkspaceSettingsSidebarItemCategories = observer(function WorkspaceSettingsSidebarItemCategories() {
   // params
   const { workspaceSlug } = useParams();
@@ -26,6 +40,35 @@ export const WorkspaceSettingsSidebarItemCategories = observer(function Workspac
   const { allowPermissions } = useUserPermissions();
   // translation
   const { t } = useTranslation();
+  const isTeamsSettingsPage = /\/settings\/members\/?$/.test(pathname ?? "");
+
+  if (isTeamsSettingsPage) {
+    const visibleItems = TEAMS_SETTINGS_KEYS.map((key) => WORKSPACE_SETTINGS[key]).filter((item) =>
+      allowPermissions(item.access, EUserPermissionsLevel.WORKSPACE, workspaceSlug)
+    );
+
+    return (
+      <div className="flyers-soft-teams-settings-nav mt-3 flex flex-col gap-1 px-3">
+        {visibleItems.map((item) => {
+          const isItemActive =
+            item.href === "/settings"
+              ? pathname === `/${workspaceSlug}${item.href}/`
+              : new RegExp(`^/${workspaceSlug}${item.href}/`).test(pathname);
+
+          return (
+            <SettingsSidebarItem
+              key={item.key}
+              as="link"
+              href={joinUrlPath(workspaceSlug ?? "", item.href)}
+              isActive={isItemActive}
+              icon={WORKSPACE_SETTINGS_ICONS[item.key]}
+              label={TEAMS_SETTINGS_LABELS[item.key as (typeof TEAMS_SETTINGS_KEYS)[number]]}
+            />
+          );
+        })}
+      </div>
+    );
+  }
 
   return (
     <div className="mt-3 flex flex-col divide-y divide-subtle px-3">

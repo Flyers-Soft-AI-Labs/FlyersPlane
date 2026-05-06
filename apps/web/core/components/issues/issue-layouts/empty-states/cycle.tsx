@@ -59,14 +59,14 @@ export const CycleEmptyState = observer(function CycleEmptyState() {
         setToast({
           type: TOAST_TYPE.SUCCESS,
           title: "Success!",
-          message: "Work items added to the cycle successfully.",
+          message: "Tickets added to the cycle successfully.",
         })
       )
       .catch(() =>
         setToast({
           type: TOAST_TYPE.ERROR,
           title: "Error!",
-          message: "Selected work items could not be added to the cycle. Please try again.",
+          message: "Selected tickets could not be added to the cycle. Please try again.",
         })
       );
   };

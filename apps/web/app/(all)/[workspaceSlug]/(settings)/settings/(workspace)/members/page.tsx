@@ -9,7 +9,6 @@ import { observer } from "mobx-react";
 // types
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
-import { Button } from "@plane/propel/button";
 import { SearchIcon } from "@plane/propel/icons";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { IWorkspaceBulkInviteFormData } from "@plane/types";
@@ -25,8 +24,7 @@ import { useMember } from "@/hooks/store/use-member";
 import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useUserPermissions } from "@/hooks/store/user";
 // plane web components
-import { BillingActionsButton } from "@/plane-web/components/workspace/billing/billing-actions-button";
-import { SendWorkspaceInvitationModal, MembersActivityButton } from "@/plane-web/components/workspace/members";
+import { SendWorkspaceInvitationModal } from "@/plane-web/components/workspace/members";
 import { SettingsContentWrapper } from "@/components/settings/content-wrapper";
 // local imports
 import type { Route } from "./+types/page";
@@ -92,7 +90,7 @@ const WorkspaceMembersSettingsPage = observer(function WorkspaceMembersSettingsP
   };
 
   // derived values
-  const pageTitle = currentWorkspace?.name ? `${currentWorkspace.name} - Members` : undefined;
+  const pageTitle = currentWorkspace?.name ? `${currentWorkspace.name} - Teams` : undefined;
   const appliedRoleFilters = filtersStore.filters?.roles || [];
 
   // if user is not authorized to view this page
@@ -101,7 +99,15 @@ const WorkspaceMembersSettingsPage = observer(function WorkspaceMembersSettingsP
   }
 
   return (
-    <SettingsContentWrapper header={<MembersWorkspaceSettingsHeader />} hugging>
+    <SettingsContentWrapper
+      header={
+        <MembersWorkspaceSettingsHeader
+          onInviteClick={() => setInviteModal(true)}
+          canInvite={canPerformWorkspaceAdminActions}
+        />
+      }
+      hugging
+    >
       <PageHead title={pageTitle} />
       <SendWorkspaceInvitationModal
         isOpen={inviteModal}
@@ -109,23 +115,28 @@ const WorkspaceMembersSettingsPage = observer(function WorkspaceMembersSettingsP
         onSubmit={handleWorkspaceInvite}
       />
       <section
-        className={cn("size-full", {
+        className={cn("flyers-soft-teams-page size-full", {
           "opacity-60": !canPerformWorkspaceMemberActions,
         })}
       >
-        <div className="flex items-center justify-between gap-4 pb-3.5">
-          <h4 className="flex items-center gap-2.5 text-h3-medium">
-            {t("workspace_settings.settings.members.title")}
+        <div className="flyers-soft-teams-toolbar flex items-center justify-between gap-4 pb-3.5">
+          <div className="min-w-0">
+            <h4 className="flyers-soft-teams-section-title flex items-center gap-2.5 text-h4-medium">
+              Team Members
             {workspaceMemberIds && workspaceMemberIds.length > 0 && (
               <CountChip count={workspaceMemberIds.length} className="m-auto h-5" />
             )}
-          </h4>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 rounded-md border border-subtle bg-surface-1 px-2.5 py-1.5">
+            </h4>
+            <p className="flyers-soft-teams-section-copy mt-1 text-12 text-tertiary">
+              Active teammates and invited collaborators for this workspace.
+            </p>
+          </div>
+          <div className="flyers-soft-teams-actions flex items-center gap-2">
+            <div className="flyers-soft-teams-search flex items-center gap-1.5 rounded-md border border-subtle bg-surface-1 px-2.5 py-1.5">
               <SearchIcon className="h-3.5 w-3.5 text-placeholder" />
               <input
                 className="w-full max-w-[234px] border-none bg-transparent text-body-xs-regular outline-none placeholder:text-placeholder"
-                placeholder={`${t("search")}...`}
+                placeholder="Search teams..."
                 value={searchQuery}
                 // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus
@@ -137,13 +148,6 @@ const WorkspaceMembersSettingsPage = observer(function WorkspaceMembersSettingsP
               handleUpdate={handleRoleFilterUpdate}
               memberType="workspace"
             />
-            <MembersActivityButton workspaceSlug={workspaceSlug} />
-            {canPerformWorkspaceAdminActions && (
-              <Button variant="primary" size="lg" onClick={() => setInviteModal(true)}>
-                {t("workspace_settings.settings.members.add_member")}
-              </Button>
-            )}
-            <BillingActionsButton canPerformWorkspaceAdminActions={canPerformWorkspaceAdminActions} />
           </div>
         </div>
         <WorkspaceMembersList searchQuery={searchQuery} isAdmin={canPerformWorkspaceAdminActions} />

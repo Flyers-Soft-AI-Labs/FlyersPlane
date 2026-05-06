@@ -23,11 +23,16 @@ export const AppHeader = observer(function AppHeader(props: AppHeaderProps) {
   const { header, mobileHeader, className, rowClassName } = props;
 
   return (
-    <div className={cn("z-[18]", className)}>
-      <Row className={cn("flex h-11 w-full items-center gap-2 border-b border-subtle bg-surface-1", rowClassName)}>
+    <div className={cn("relative z-[24]", className)}>
+      <Row
+        className={cn(
+          "flyers-soft-app-header flex min-h-[56px] w-full items-stretch gap-2 border-b border-subtle bg-surface-1",
+          rowClassName
+        )}
+      >
         <ExtendedAppHeader header={header} />
       </Row>
-      {mobileHeader && mobileHeader}
+      {mobileHeader}
     </div>
   );
 });

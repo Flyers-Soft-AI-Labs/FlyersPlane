@@ -8,18 +8,11 @@ import type { ReactNode } from "react";
 import Script from "next/script";
 import { Links, Meta, Outlet, Scripts } from "react-router";
 import type { LinksFunction } from "react-router";
-import { ThemeProvider, useTheme } from "next-themes";
+import { ThemeProvider } from "next-themes";
 // plane imports
 import { SITE_DESCRIPTION, SITE_NAME } from "@plane/constants";
 import { cn } from "@plane/utils";
 // types
-// assets
-import favicon16 from "@/app/assets/favicon/favicon-16x16.png?url";
-import favicon32 from "@/app/assets/favicon/favicon-32x32.png?url";
-import faviconIco from "@/app/assets/favicon/favicon.ico?url";
-import icon180 from "@/app/assets/icons/icon-180x180.png?url";
-import icon512 from "@/app/assets/icons/icon-512x512.png?url";
-import ogImage from "@/app/assets/og-image.png?url";
 import globalStyles from "@/styles/globals.css?url";
 import type { Route } from "./+types/root";
 // components
@@ -36,13 +29,12 @@ import "@fontsource/ibm-plex-mono";
 const APP_TITLE = "Flyers Soft | Simple, extensible, open-source project management tool.";
 
 export const links: LinksFunction = () => [
-  { rel: "icon", type: "image/png", sizes: "32x32", href: favicon32 },
-  { rel: "icon", type: "image/png", sizes: "16x16", href: favicon16 },
-  { rel: "shortcut icon", href: faviconIco },
+  { rel: "icon", type: "image/png", href: "/flyers-logo.png" },
+  { rel: "shortcut icon", href: "/flyers-logo.png" },
   { rel: "manifest", href: "/site.webmanifest.json" },
-  { rel: "apple-touch-icon", href: icon512 },
-  { rel: "apple-touch-icon", sizes: "180x180", href: icon180 },
-  { rel: "apple-touch-icon", sizes: "512x512", href: icon512 },
+  { rel: "apple-touch-icon", href: "/flyers-logo.png" },
+  { rel: "apple-touch-icon", sizes: "180x180", href: "/flyers-logo.png" },
+  { rel: "apple-touch-icon", sizes: "512x512", href: "/flyers-logo.png" },
   { rel: "manifest", href: "/manifest.json" },
   { rel: "stylesheet", href: globalStyles },
   {
@@ -100,21 +92,21 @@ export const meta: Route.MetaFunction = () => [
   { property: "og:title", content: APP_TITLE },
   {
     property: "og:description",
-    content: "Open-source project management tool to manage work items, cycles, and product roadmaps easily",
+    content: "Flyers Soft helps teams manage tickets, projects, reports, and delivery workflows.",
   },
-  { property: "og:url", content: "https://app.plane.so/" },
-  { property: "og:image", content: ogImage },
+  { property: "og:url", content: "https://flyerssoft.com/" },
+  { property: "og:image", content: "/flyers-logo.png" },
   { property: "og:image:width", content: "1200" },
   { property: "og:image:height", content: "630" },
   { property: "og:image:alt", content: "Flyers Soft - Modern project management" },
   {
     name: "keywords",
     content:
-      "software development, plan, ship, software, accelerate, code management, release management, project management, work item tracking, agile, scrum, kanban, collaboration",
+      "ticket tracking, project management, reports, kanban, collaboration, agile, support tickets, workflows",
   },
-  { name: "twitter:site", content: "@planepowers" },
+  { name: "twitter:site", content: "Flyers Soft" },
   { name: "twitter:card", content: "summary_large_image" },
-  { name: "twitter:image", content: ogImage },
+  { name: "twitter:image", content: "/flyers-logo.png" },
   { name: "twitter:image:width", content: "1200" },
   { name: "twitter:image:height", content: "630" },
   { name: "twitter:image:alt", content: "Flyers Soft - Modern project management" },
@@ -133,11 +125,6 @@ export default function Root() {
 }
 
 export function HydrateFallback() {
-  const { resolvedTheme } = useTheme();
-
-  // if we are on the server or the theme is not resolved, return an empty div
-  if (typeof window === "undefined" || resolvedTheme === undefined) return <div />;
-
   return (
     <div className="relative flex h-screen w-full items-center justify-center bg-canvas">
       <LogoSpinner />

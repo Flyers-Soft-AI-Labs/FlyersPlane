@@ -76,7 +76,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
     features: [
       {
         title: "Projects",
-        description: "Add projects to house work items, cycles, and modules.",
+        description: "Add projects to house tickets, cycles, and modules.",
         cloud: {
           free: true,
           one: true,
@@ -86,8 +86,8 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
         },
       },
       {
-        title: "Work items",
-        description: "Add work via work items, set properties for tracking, and add to\ncycles or modules.",
+        title: "Tickets",
+        description: "Add work via tickets, set properties for tracking, and add to\ncycles or modules.",
         cloud: {
           free: true,
           one: true,
@@ -98,7 +98,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Comments",
-        description: "Respond to work items, @mention members, and brainstorm\ntogether without leaving Plane.",
+        description: "Respond to tickets, @mention members, and brainstorm\ntogether without leaving Flyers Soft.",
         cloud: {
           free: true,
           one: true,
@@ -160,7 +160,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
     features: [
       {
         title: "Bulk Ops",
-        description: "Add several work items to cycles or modules, transfer\nthem, or edit their properties.",
+        description: "Add several tickets to cycles or modules, transfer\nthem, or edit their properties.",
         cloud: {
           free: false,
           one: "Limited props",
@@ -168,20 +168,20 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
           business: (
             <span className="flex flex-col items-end gap-1 lg:items-center">
               <ComingSoonBadge />
-              Work item transfers and conversions
+              Ticket transfers and conversions
             </span>
           ),
           enterprise: (
             <span className="flex flex-col items-end gap-1 lg:items-center">
               <ComingSoonBadge />
-              Work item transfers and conversions
+              Ticket transfers and conversions
             </span>
           ),
         },
       },
       {
         title: "Time Tracking + Worklogs",
-        description: "Track time per work item, see aggregated reports, and\nfilter by need.",
+        description: "Track time per ticket, see aggregated reports, and\nfilter by need.",
         cloud: {
           free: false,
           one: "Basic",
@@ -202,8 +202,8 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
         },
       },
       {
-        title: "Work item Types",
-        description: "Create your own work item types with your own\nproperties.",
+        title: "Ticket Types",
+        description: "Create your own ticket types with your own\nproperties.",
         cloud: {
           free: false,
           one: false,
@@ -225,7 +225,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Dependencies in Gantt",
-        description: "Adjust timelines for dependent work items visually on\nour Gantt layout.",
+        description: "Adjust timelines for dependent tickets visually on\nour Gantt layout.",
         cloud: {
           free: false,
           one: false,
@@ -235,8 +235,8 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
         },
       },
       {
-        title: "Work item Transfers",
-        description: "Move a work item from a project or a cycle to\nanother.",
+        title: "Ticket Transfers",
+        description: "Move a ticket from a project or a cycle to\nanother.",
         cloud: {
           free: false,
           one: false,
@@ -246,9 +246,9 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
         },
       },
       {
-        title: "Auto-transfer Cycle Work items",
+        title: "Auto-transfer Cycle Tickets",
         description:
-          "Transfer incomplete work items from a completed cycle\nto the next cycle or to the default project state. ",
+          "Transfer incomplete tickets from a completed cycle\nto the next cycle or to the default project state. ",
         cloud: {
           free: false,
           one: false,
@@ -259,7 +259,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Epics",
-        description: "Organize long-term work in epics that house work items,\ncycles, and modules.",
+        description: "Organize long-term work in epics that house tickets,\ncycles, and modules.",
         cloud: {
           free: false,
           one: false,
@@ -306,7 +306,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Auto-assignment In Modules",
-        description: "Choose assignment rules for work items in a\nmodule including Linear, Round Robin, or Capacity.",
+        description: "Choose assignment rules for tickets in a\nmodule including Linear, Round Robin, or Capacity.",
         cloud: {
           free: false,
           one: false,
@@ -365,9 +365,9 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       //   },
       // },
       {
-        title: "Pre-defined work item Templates",
+        title: "Pre-defined ticket Templates",
         description:
-          "Choose from our available work item templates that\ncustomize work item types and properties for several\nuse cases.",
+          "Choose from our available ticket templates that\ncustomize ticket types and properties for several\nuse cases.",
         comingSoon: true,
         cloud: {
           free: false,
@@ -423,7 +423,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Intake Assignees",
-        description: "Assign approved Intake work items to a member by\ndefault.",
+        description: "Assign approved Intake tickets to a member by\ndefault.",
         cloud: {
           free: false,
           one: false,
@@ -434,7 +434,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Custom SLAs",
-        description: "Set SLA matrices for time-sensitive work items.",
+        description: "Set SLA matrices for time-sensitive tickets.",
         cloud: {
           free: false,
           one: false,
@@ -445,7 +445,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Intake Forms",
-        description: "Take Intake work items from externally accessible web\nforms.",
+        description: "Take Intake tickets from externally accessible web\nforms.",
         cloud: {
           free: false,
           one: false,
@@ -456,7 +456,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Emails For Intake",
-        description: "Get an email address for reporting work items\ndirectly into a project's Intake.",
+        description: "Get an email address for reporting tickets\ndirectly into a project's Intake.",
         comingSoon: true,
         cloud: {
           free: false,
@@ -475,7 +475,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       {
         title: "Layouts",
         description:
-          "Choose from the List, the Board, the Calendar, the\nGantt, or the Spreadsheet layout for your work items.",
+          "Choose from the List, the Board, the Calendar, the\nGantt, or the Spreadsheet layout for your tickets.",
         cloud: {
           free: true,
           one: true,
@@ -537,7 +537,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       {
         title: "Progress Charts",
         description:
-          "Track progress in cycles, modules, and overviews\nthroughout Plane without switching to dashboards\nor Analytics.",
+          "Track progress in cycles, modules, and overviews\nthroughout Flyers Soft without switching to dashboards\nor Analytics.",
         cloud: {
           free: false,
           one: false,
@@ -613,7 +613,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
     features: [
       {
         title: "Power K",
-        description: "Access a keyboard-first gateway to almost anything\nin Plane.",
+        description: "Access a keyboard-first gateway to almost anything\nin Flyers Soft.",
         cloud: {
           free: true,
           one: true,
@@ -657,7 +657,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       {
         title: "PQL",
         description:
-          "Write Plane Query Language in search with support\nfor Boolean operators. Soon, you can write natural\nlanguage queries.",
+          "Write Flyers Soft Query Language in search with support\nfor Boolean operators. Soon, you can write natural\nlanguage queries.",
         cloud: {
           free: false,
           one: false,
@@ -704,7 +704,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Guests",
-        description: "Let some users see everything or just their work items in\na project.",
+        description: "Let some users see everything or just their tickets in\na project.",
         cloud: {
           free: false,
           one: "5 per paid member",
@@ -715,7 +715,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Approvals",
-        description: "Set workspace, project, and work item type approvals to\ndesignated admins.",
+        description: "Set workspace, project, and ticket type approvals to\ndesignated admins.",
         comingSoon: true,
         cloud: {
           free: false,
@@ -749,7 +749,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "API-enabled Audit Logs",
-        description: "See a full-workspace audit log and use APIs to flag\nPlane activity in compliance systems.",
+        description: "See a full-workspace audit log and use APIs to flag\nFlyers Soft activity in compliance systems.",
         comingSoon: true,
         cloud: {
           free: false,
@@ -828,8 +828,8 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
         },
       },
       {
-        title: "Work item Embeds",
-        description: "Embed work items from any project you are a member\nof.",
+        title: "Ticket Embeds",
+        description: "Embed tickets from any project you are a member\nof.",
         cloud: {
           free: false,
           one: true,
@@ -839,8 +839,8 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
         },
       },
       {
-        title: "Link-to-work items",
-        description: "Link pages in work items in a separate section in work item\ndetails.",
+        title: "Link-to-tickets",
+        description: "Link pages in tickets in a separate section in ticket\ndetails.",
         cloud: {
           free: false,
           one: true,
@@ -938,7 +938,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
     features: [
       {
         title: "Jira",
-        description: "Import your work items and members from Jira.",
+        description: "Import your tickets and members from Jira.",
         cloud: {
           free: "Without custom props",
           one: "Without custom props",
@@ -949,7 +949,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "GitHub",
-        description: "Import your work items and members from GitHub.",
+        description: "Import your tickets and members from GitHub.",
         cloud: {
           free: "Without custom props",
           one: "Without custom props",
@@ -968,7 +968,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       {
         title: "GitHub",
         description:
-          "Sync Plane work items and states to GitHub work items and\nstates. Update GitHub automatically with activity\nfrom Plane and vice-versa.",
+          "Sync Flyers Soft tickets and states to GitHub tickets and\nstates. Update GitHub automatically with activity\nfrom Flyers Soft and vice-versa.",
         cloud: {
           free: false,
           one: false,
@@ -979,7 +979,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Slack",
-        description: "Get Plane activity in Slack and use / commands in\nSlack to make changes in Plane.",
+        description: "Get Flyers Soft activity in Slack and use / commands in\nSlack to make changes in Flyers Soft.",
         cloud: {
           free: false,
           one: false,
@@ -1001,7 +1001,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Zendesk",
-        description: "Create Plane work items from Zendesk tickets.",
+        description: "Create Flyers Soft tickets from Zendesk tickets.",
         cloud: {
           free: false,
           one: false,
@@ -1012,7 +1012,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Freshdesk",
-        description: "Create Plane work items from Freshdesk tickets.",
+        description: "Create Flyers Soft tickets from Freshdesk tickets.",
         cloud: {
           free: false,
           one: false,
@@ -1058,7 +1058,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
     features: [
       {
         title: "SAML",
-        description: "Get the officially supported SAML implementation\nand make Plane secure with any IdP.",
+        description: "Get the officially supported SAML implementation\nand make Flyers Soft secure with any IdP.",
         cloud: {
           free: false,
           one: true,
@@ -1069,7 +1069,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "OIDC",
-        description: "Get the officially supported OIDC implementation\nand make Plane secure with any IdP.",
+        description: "Get the officially supported OIDC implementation\nand make Flyers Soft secure with any IdP.",
         selfHostedOnly: true,
         cloud: {
           free: false,
@@ -1082,7 +1082,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       {
         title: "Domain Security",
         description:
-          "Choose other domains that can authenticate into\nyour Plane workspace or restrict all but one domain.",
+          "Choose other domains that can authenticate into\nyour Flyers Soft workspace or restrict all but one domain.",
         cloud: {
           free: false,
           one: false,
@@ -1093,7 +1093,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "Two-factor authentication and passkeys",
-        description: "Secure your Plane workspace with device-\ndependent two-factor authentication and passkeys. ",
+        description: "Secure your Flyers Soft workspace with device-\ndependent two-factor authentication and passkeys. ",
         cloud: {
           free: false,
           one: false,
@@ -1115,7 +1115,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "LDAP",
-        description: "Get our official LDAP implementation and secure\nyour Plane workspace with your LDAP server.",
+        description: "Get our official LDAP implementation and secure\nyour Flyers Soft workspace with your LDAP server.",
         comingSoon: true,
         cloud: {
           free: false,
@@ -1134,7 +1134,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
     features: [
       {
         title: "God Mode",
-        description: "Manage your self-hosted Plane instance better with\nan instance admin interface.",
+        description: "Manage your self-hosted Flyers Soft instance better with\nan instance admin interface.",
         cloud: {
           free: true,
           one: true,
@@ -1145,7 +1145,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
       },
       {
         title: "One-click Deployment",
-        description: "Install and deploy your self-hosted Plane to any\nprivate cloud with a single-line command.",
+        description: "Install and deploy your self-hosted Flyers Soft to any\nprivate cloud with a single-line command.",
         cloud: {
           free: false,
           one: true,
@@ -1235,7 +1235,7 @@ export const PLANS_COMPARISON_LIST: TPlansComparisonDetails[] = [
         title: "SLA",
         description: (
           <>
-            Get business-friendly SLAs with higher plans. SLAs are by priority of work item and tiers{" "}
+            Get business-friendly SLAs with higher plans. SLAs are by priority of ticket and tiers{" "}
             <a href="https://plane.so/talk-to-sales" target="_blank" rel="noopener noreferrer" className="underline">
               can be requested
             </a>
@@ -1303,7 +1303,7 @@ export const PLANE_PLANS: PlanePlans = {
   planHighlights: {
     free: ["Upto 12 users", "Pages", "Unlimited projects", "Unlimited cycles and modules"],
     one: ["Upto 50 users", "OIDC and SAML", "Active cycles", "Limited time tracking"],
-    pro: ["Unlimited users", "Custom work items + Properties", "Work item templates", "Full Time Tracking"],
+    pro: ["Unlimited users", "Custom tickets + Properties", "Ticket templates", "Full Time Tracking"],
     business: ["RBAC", "Project Templates", "Baselines And Deviations", "Custom Reports"],
     enterprise: ["Private + managed deployments", "GAC", "LDAP support", "Databases + Formulas"],
   },

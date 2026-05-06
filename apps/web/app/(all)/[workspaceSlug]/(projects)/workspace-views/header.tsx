@@ -20,6 +20,8 @@ import { ViewsIcon } from "@plane/propel/icons";
 import type { IIssueDisplayFilterOptions, IIssueDisplayProperties, ICustomSearchSelectOption } from "@plane/types";
 import { EIssuesStoreType, EIssueLayoutTypes } from "@plane/types";
 import { Breadcrumbs, Header, BreadcrumbNavigationSearchDropdown } from "@plane/ui";
+// issue creation modal
+import { CreateUpdateIssueModal } from "@/components/issues/issue-modal/modal";
 // components
 import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
 import { SwitcherLabel } from "@/components/common/switcher-label";
@@ -37,6 +39,7 @@ import { GlobalViewLayoutSelection } from "@/plane-web/components/views/helper";
 export const GlobalIssuesHeader = observer(function GlobalIssuesHeader() {
   // states
   const [createViewModal, setCreateViewModal] = useState(false);
+  const [createTicketModal, setCreateTicketModal] = useState(false);
   // router
   const router = useAppRouter();
   const { workspaceSlug, globalViewId: routerGlobalViewId } = useParams();
@@ -90,6 +93,7 @@ export const GlobalIssuesHeader = observer(function GlobalIssuesHeader() {
   );
 
   const isLocked = viewDetails?.is_locked;
+  const isAllIssues = globalViewId === "all-issues";
 
   const isDefaultView = DEFAULT_GLOBAL_VIEWS_LIST.find((view) => view.key === globalViewId);
 
@@ -122,36 +126,60 @@ export const GlobalIssuesHeader = observer(function GlobalIssuesHeader() {
   return (
     <>
       <CreateUpdateWorkspaceViewModal isOpen={createViewModal} onClose={() => setCreateViewModal(false)} />
+      <CreateUpdateIssueModal isOpen={createTicketModal} onClose={() => setCreateTicketModal(false)} />
       <Header>
         <Header.LeftItem>
-          <Breadcrumbs>
-            <Breadcrumbs.Item
-              component={<BreadcrumbLink label={t("views")} icon={<ViewsIcon className="h-4 w-4 text-tertiary" />} />}
-            />
-            <Breadcrumbs.Item
-              component={
-                <BreadcrumbNavigationSearchDropdown
-                  selectedItem={globalViewId?.toString() || ""}
-                  navigationItems={switcherOptions}
-                  onChange={(value: string) => {
-                    router.push(`/${workspaceSlug}/workspace-views/${value}`);
-                  }}
-                  title={viewDetails?.name ?? t(defaultViewDetails?.i18n_label ?? "")}
-                  icon={
-                    <Breadcrumbs.Icon>
-                      <ViewsIcon className="size-4 flex-shrink-0 text-tertiary" />
-                    </Breadcrumbs.Icon>
-                  }
-                  isLast
-                />
-              }
-              isLast
-            />
-          </Breadcrumbs>
+          {isAllIssues ? (
+            /* Tickets > All Tickets — static breadcrumb for the all-issues view */
+            <Breadcrumbs>
+              <Breadcrumbs.Item
+                component={<BreadcrumbLink label="Tickets" icon={<ViewsIcon className="h-4 w-4 text-tertiary" />} />}
+              />
+              <Breadcrumbs.Item
+                component={
+                  <BreadcrumbLink
+                    label="All Tickets"
+                    icon={
+                      <Breadcrumbs.Icon>
+                        <ViewsIcon className="size-4 flex-shrink-0 text-tertiary" />
+                      </Breadcrumbs.Icon>
+                    }
+                  />
+                }
+                isLast
+              />
+            </Breadcrumbs>
+          ) : (
+            /* Standard Views > <view name> breadcrumb for all other workspace views */
+            <Breadcrumbs>
+              <Breadcrumbs.Item
+                component={<BreadcrumbLink label={t("views")} icon={<ViewsIcon className="h-4 w-4 text-tertiary" />} />}
+              />
+              <Breadcrumbs.Item
+                component={
+                  <BreadcrumbNavigationSearchDropdown
+                    selectedItem={globalViewId?.toString() || ""}
+                    navigationItems={switcherOptions}
+                    onChange={(value: string) => {
+                      router.push(`/${workspaceSlug}/workspace-views/${value}`);
+                    }}
+                    title={viewDetails?.name ?? t(defaultViewDetails?.i18n_label ?? "")}
+                    icon={
+                      <Breadcrumbs.Icon>
+                        <ViewsIcon className="size-4 flex-shrink-0 text-tertiary" />
+                      </Breadcrumbs.Icon>
+                    }
+                    isLast
+                  />
+                }
+                isLast
+              />
+            </Breadcrumbs>
+          )}
         </Header.LeftItem>
 
         <Header.RightItem className="items-center">
-          {!isLocked && (
+          {!isAllIssues && !isLocked && (
             <GlobalViewLayoutSelection
               onChange={handleLayoutChange}
               selectedLayout={activeLayout ?? EIssueLayoutTypes.SPREADSHEET}
@@ -159,7 +187,7 @@ export const GlobalIssuesHeader = observer(function GlobalIssuesHeader() {
             />
           )}
           {globalViewId && <WorkItemFiltersToggle entityType={EIssuesStoreType.GLOBAL} entityId={globalViewId} />}
-          {!isLocked && (
+          {!isAllIssues && !isLocked && (
             <FiltersDropdown title={t("common.display")} placement="bottom-end">
               <DisplayFiltersSelection
                 layoutDisplayFiltersOptions={currentLayoutFilters}
@@ -170,20 +198,33 @@ export const GlobalIssuesHeader = observer(function GlobalIssuesHeader() {
               />
             </FiltersDropdown>
           )}
-          <Button
-            variant="primary"
-            size="lg"
-            data-ph-element={GLOBAL_VIEW_TRACKER_ELEMENTS.RIGHT_HEADER_ADD_BUTTON}
-            onClick={() => setCreateViewModal(true)}
-          >
-            {t("workspace_views.add_view")}
-          </Button>
-          <div className="hidden md:block">
-            {viewDetails && <WorkspaceViewQuickActions workspaceSlug={workspaceSlug?.toString()} view={viewDetails} />}
-            {isDefaultView && defaultViewDetails && (
-              <DefaultWorkspaceViewQuickActions workspaceSlug={workspaceSlug?.toString()} view={defaultViewDetails} />
-            )}
-          </div>
+          {isAllIssues ? (
+            <Button variant="primary" size="lg" onClick={() => setCreateTicketModal(true)}>
+              Create Ticket
+            </Button>
+          ) : (
+            <Button
+              variant="primary"
+              size="lg"
+              data-ph-element={GLOBAL_VIEW_TRACKER_ELEMENTS.RIGHT_HEADER_ADD_BUTTON}
+              onClick={() => setCreateViewModal(true)}
+            >
+              {t("workspace_views.add_view")}
+            </Button>
+          )}
+          {!isAllIssues && (
+            <div className="hidden md:block">
+              {viewDetails && (
+                <WorkspaceViewQuickActions workspaceSlug={workspaceSlug?.toString()} view={viewDetails} />
+              )}
+              {isDefaultView && defaultViewDetails && (
+                <DefaultWorkspaceViewQuickActions
+                  workspaceSlug={workspaceSlug?.toString()}
+                  view={defaultViewDetails}
+                />
+              )}
+            </div>
+          )}
         </Header.RightItem>
       </Header>
     </>

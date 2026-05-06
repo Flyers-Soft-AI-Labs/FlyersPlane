@@ -9,7 +9,7 @@ import { observer } from "mobx-react";
 import Link from "next/link";
 import { AUTH_TRACKER_ELEMENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
-import { PlaneLockup } from "@plane/propel/icons";
+import { FlyersLogo } from "@/components/common/flyers-logo";
 import { PageHead } from "@/components/core/page-title";
 import { EAuthModes } from "@/helpers/authentication.helper";
 import { useInstance } from "@/hooks/store/use-instance";
@@ -70,10 +70,10 @@ export function AuthHeaderBase(props: TAuthHeaderBase) {
   const { pageTitle, additionalAction } = props;
   return (
     <>
-      <PageHead title={pageTitle + " - Plane"} />
+      <PageHead title={pageTitle + " - Flyers Soft"} />
       <div className="sticky top-0 flex w-full flex-shrink-0 items-center justify-between gap-6">
         <Link href="/">
-          <PlaneLockup height={20} width={95} className="text-primary" />
+          <FlyersLogo className="h-10 max-w-[180px] object-contain" />
         </Link>
         {additionalAction}
       </div>

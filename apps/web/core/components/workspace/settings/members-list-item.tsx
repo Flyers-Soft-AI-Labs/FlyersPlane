@@ -10,7 +10,6 @@ import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { IWorkspaceMember } from "@plane/types";
-import { Table } from "@plane/ui";
 // components
 import { MembersLayoutLoader } from "@/components/ui/loader/layouts/members-layout-loader";
 import { ConfirmWorkspaceMemberRemove } from "@/components/workspace/confirm-workspace-member-remove";
@@ -41,7 +40,6 @@ export const WorkspaceMembersListItem = observer(function WorkspaceMembersListIt
   const { getWorkspaceRedirectionUrl } = useWorkspace();
   const { fetchCurrentUserSettings } = useUserSettings();
   const { t } = useTranslation();
-  // derived values
 
   const handleLeaveWorkspace = async () => {
     if (!workspaceSlug || !currentUser) return;
@@ -80,18 +78,12 @@ export const WorkspaceMembersListItem = observer(function WorkspaceMembersListIt
     else await handleRemoveMember(memberId);
   };
 
-  // is the member current logged in user
-  // const isCurrentUser = memberDetails?.member.id === currentUser?.id;
-  // is the current logged in user admin
-  // role change access-
-  // 1. user cannot change their own role
-  // 2. only admin or member can change role
-  // 3. user cannot change role of higher role
-
   if (isEmpty(columns)) return <MembersLayoutLoader />;
 
+  const filteredMembers = memberDetails.filter((m): m is IWorkspaceMember => m !== null);
+
   return (
-    <div className="grid border-t border-subtle">
+    <div className="flyers-soft-teams-members-table-card">
       {removeMemberModal && (
         <ConfirmWorkspaceMemberRemove
           isOpen={removeMemberModal.member.id.length > 0}
@@ -103,18 +95,27 @@ export const WorkspaceMembersListItem = observer(function WorkspaceMembersListIt
           onSubmit={() => handleRemove(removeMemberModal.member.id)}
         />
       )}
-      <Table<RowData>
-        columns={columns ?? []}
-        data={
-          (memberDetails?.filter((member): member is IWorkspaceMember => member !== null) ?? []) as unknown as RowData[]
-        }
-        keyExtractor={(rowData) => rowData?.member.id ?? ""}
-        tHeadClassName="border-b border-subtle"
-        thClassName="text-left font-medium divide-x-0 text-placeholder"
-        tBodyClassName="divide-y-0"
-        tBodyTrClassName="divide-x-0 p-4 h-10 text-secondary"
-        tHeadTrClassName="divide-x-0"
-      />
+
+      {/* Column header */}
+      <div className="flyers-soft-teams-col-header">
+        {columns.map((col) => (
+          <span key={col.key} className="flyers-soft-teams-col-label">
+            {col.content}
+          </span>
+        ))}
+      </div>
+
+      {/* Member rows */}
+      {filteredMembers.map((member) => {
+        const rowData = member as unknown as RowData;
+        return (
+          <div key={rowData.member.id} className="flyers-soft-teams-member-row">
+            {columns.map((col) => (
+              <div key={col.key}>{col.tdRender(rowData)}</div>
+            ))}
+          </div>
+        );
+      })}
     </div>
   );
 });
