@@ -135,9 +135,20 @@ TEMPLATES = [
 
 # CORS Settings
 CORS_ALLOW_CREDENTIALS = True
-cors_origins_raw = os.environ.get("CORS_ALLOWED_ORIGINS", "")
-# filter out empty strings
-cors_allowed_origins = [origin.strip() for origin in cors_origins_raw.split(",") if origin.strip()]
+cors_origin_sources = [
+    os.environ.get("CORS_ALLOWED_ORIGINS", ""),
+    os.environ.get("WEB_URL", ""),
+    os.environ.get("APP_BASE_URL", ""),
+    os.environ.get("ADMIN_BASE_URL", ""),
+    os.environ.get("SPACE_BASE_URL", ""),
+    os.environ.get("LIVE_BASE_URL", ""),
+]
+cors_allowed_origins = []
+for origin_source in cors_origin_sources:
+    for origin in origin_source.split(","):
+        cleaned_origin = origin.strip().rstrip("/")
+        if cleaned_origin and cleaned_origin not in cors_allowed_origins:
+            cors_allowed_origins.append(cleaned_origin)
 if cors_allowed_origins:
     CORS_ALLOWED_ORIGINS = cors_allowed_origins
     secure_origins = False if [origin for origin in cors_allowed_origins if "http:" in origin] else True
@@ -198,7 +209,14 @@ if os.environ.get("ENABLE_READ_REPLICA", "0") == "1":
 REDIS_URL = os.environ.get("REDIS_URL")
 REDIS_SSL = REDIS_URL and "rediss" in REDIS_URL
 
-if REDIS_SSL:
+if not REDIS_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "flyersplane-cache",
+        }
+    }
+elif REDIS_SSL:
     CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
@@ -330,6 +348,7 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = int(os.environ.get("FILE_SIZE_LIMIT", 5242880))
 # Cookie Settings
 SESSION_COOKIE_SECURE = secure_origins
 SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = os.environ.get("SESSION_COOKIE_SAMESITE", "Lax")
 SESSION_ENGINE = "plane.db.models.session"
 SESSION_COOKIE_AGE = int(os.environ.get("SESSION_COOKIE_AGE", 604800))
 SESSION_COOKIE_NAME = os.environ.get("SESSION_COOKIE_NAME", "session-id")
@@ -343,6 +362,7 @@ ADMIN_SESSION_COOKIE_AGE = int(os.environ.get("ADMIN_SESSION_COOKIE_AGE", 3600))
 # CSRF cookies
 CSRF_COOKIE_SECURE = secure_origins
 CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = os.environ.get("CSRF_COOKIE_SAMESITE", "Lax")
 CSRF_TRUSTED_ORIGINS = cors_allowed_origins
 CSRF_COOKIE_DOMAIN = os.environ.get("COOKIE_DOMAIN", None)
 CSRF_FAILURE_VIEW = "plane.authentication.views.common.csrf_failure"

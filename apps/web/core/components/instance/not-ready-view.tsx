@@ -4,7 +4,6 @@
  * See the LICENSE file for details.
  */
 
-import Link from "next/link";
 import { GOD_MODE_URL } from "@plane/constants";
 // assets
 import GradientBgLogo from "@/app/assets/auth/gradient-bg-logo.webp?url";
@@ -13,6 +12,8 @@ import DefaultLayout from "@/layouts/default-layout";
 import { Button } from "@plane/propel/button";
 
 export function InstanceNotReady() {
+  const adminPortalUrl = GOD_MODE_URL || "/god-mode";
+
   return (
     <DefaultLayout>
       <div className="relative z-10 flex h-screen w-screen overflow-hidden">
@@ -36,15 +37,16 @@ export function InstanceNotReady() {
           </div>
           <div className="flex h-full w-full flex-col items-center justify-center gap-7">
             <div className="flex flex-col items-center gap-11">
+              <img src={GradientLogo} className="h-24 w-40 object-contain" alt="FlyersPlane Logo" />
               <FlyersLogo className="h-16 max-w-56 object-contain" />
               <div className="flex max-w-124 flex-col items-center gap-3">
-                <h1 className="text-h2-semibold text-primary">Welcome to Flyers Soft</h1>
+                <h1 className="text-h2-semibold text-primary">Welcome to Plane</h1>
                 <p className="text-center text-body-md-regular text-secondary">
-                  Set up your instance and create your first workspace to begin managing projects and work.
+                  Set up your FlyersPlane instance and create your first workspace to begin managing projects and work.
                 </p>
               </div>
             </div>
-            <a href={GOD_MODE_URL} className="w-72">
+            <a href={adminPortalUrl} className="w-72">
               <Button variant="primary" className="w-full" size="xl">
                 Get started
               </Button>

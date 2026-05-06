@@ -74,10 +74,14 @@ export const SidebarWrapper = observer(function SidebarWrapper(props: TSidebarWr
         >
           {children}
         </ScrollArea>
-        <div className="flyers-soft-sidebar-promo">
-          <div className="flyers-soft-sidebar-promo-rocket" aria-hidden="true" />
-          <p className="text-13 font-semibold uppercase">Flyers Soft</p>
-          <p className="mt-2 text-14 leading-5">Making work first smarter.</p>
+        {/* Help Section */}
+        <div className="flex h-12 items-center justify-between border-t border-subtle bg-surface-1 p-3">
+          <WorkspaceEditionBadge />
+          {/* TODO: To be checked if we need this */}
+          {/* <div className="flex items-center gap-2">
+          {!shouldRenderAppRail && <HelpMenu />}
+          {!isAppRailEnabled && <AppSidebarToggleButton />}
+        </div> */}
         </div>
       </div>
     </>
