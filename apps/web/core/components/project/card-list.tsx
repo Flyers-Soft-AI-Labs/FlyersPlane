@@ -9,7 +9,6 @@ import { observer } from "mobx-react";
 import { EUserPermissionsLevel, EUserPermissions } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { EmptyStateDetailed } from "@plane/propel/empty-state";
-import { ContentWrapper } from "@plane/ui";
 // components
 import { calculateTotalFilters } from "@plane/utils";
 import { ProjectsLoader } from "@/components/ui/loader/projects-loader";
@@ -101,14 +100,15 @@ export const ProjectCardList = observer(function ProjectCardList(props: TProject
     );
 
   return (
-    <ContentWrapper>
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+    <section className="rounded-2xl border border-[#f1e4b8] bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.045)]">
+      <h2 className="text-base mb-4 font-semibold text-[#111827]">All Projects</h2>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-[repeat(3,minmax(0,1fr))]">
         {filteredProjectIds.map((projectId) => {
           const projectDetails = getProjectById(projectId);
           if (!projectDetails) return;
           return <ProjectCard key={projectDetails.id} project={projectDetails} />;
         })}
       </div>
-    </ContentWrapper>
+    </section>
   );
 });

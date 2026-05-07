@@ -162,7 +162,7 @@ export const AccountTypeColumn = observer(function AccountTypeColumn(props: Acco
   return (
     <>
       {isSuspended || isRoleNonEditable ? (
-        <div className={cn("flex w-32", { "text-placeholder": isSuspended })}>
+        <div className={cn("flyers-soft-team-role-badge", { "text-placeholder": isSuspended })}>
           <span>{ROLE[rowData.role]}</span>
         </div>
       ) : (
@@ -191,11 +191,11 @@ export const AccountTypeColumn = observer(function AccountTypeColumn(props: Acco
                 }
               }}
               label={
-                <div className="flex">
+                <div className="flyers-soft-team-role-badge">
                   <span>{ROLE[rowData.role]}</span>
                 </div>
               }
-              buttonClassName={`!px-0 !justify-start hover:bg-surface-1 ${errors.role ? "border-danger-strong" : "border-none"}`}
+              buttonClassName={`flyers-soft-team-role-select !justify-start ${errors.role ? "border-danger-strong" : "border-none"}`}
               className="w-32 rounded-md p-0"
               input
             >

@@ -5,10 +5,9 @@
  */
 
 import { useState } from "react";
+import { ListFilter } from "lucide-react";
 import { observer } from "mobx-react";
 // plane imports
-import { Button } from "@plane/propel/button";
-import { ChevronDownIcon } from "@plane/propel/icons";
 import { EUserProjectRoles, EUserWorkspaceRoles } from "@plane/types";
 // plane ui
 import { CustomMenu } from "@plane/ui";
@@ -100,16 +99,13 @@ export const MemberListFiltersDropdown = observer(function MemberListFiltersDrop
   return (
     <CustomMenu
       customButton={
-        <div className="relative">
-          <Button variant="secondary" size="lg" className="flex items-center gap-2">
-            <span>Filters</span>
-            <ChevronDownIcon className="h-3 w-3" />
-          </Button>
-          {appliedFiltersCount > 0 && (
-            <div className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-accent-primary" />
-          )}
-        </div>
+        <>
+          <ListFilter className="h-3.5 w-3.5" />
+          <span>Filters</span>
+          {appliedFiltersCount > 0 && <span className="flyers-soft-member-filter-count">{appliedFiltersCount}</span>}
+        </>
       }
+      customButtonClassName="flyers-soft-member-filter-button flex h-8 items-center gap-2 rounded border border-subtle bg-surface-1 px-3 text-12 font-medium text-secondary outline-none hover:bg-surface-2"
       placement="bottom-start"
     >
       <MemberListFilters appliedFilters={appliedFilters} handleUpdate={handleUpdate} memberType={memberType} />

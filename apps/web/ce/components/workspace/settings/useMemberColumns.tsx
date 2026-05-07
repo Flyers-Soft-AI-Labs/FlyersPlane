@@ -7,6 +7,7 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
+import { renderFormattedDate } from "@plane/utils";
 import type { RowData } from "@/components/workspace/settings/member-columns";
 import {
   AccountTypeColumn,
@@ -56,6 +57,15 @@ export const useMemberColumns = () => {
       key: "Status",
       content: "Status",
       tdRender: (rowData: RowData) => <MemberStatusColumn rowData={rowData} />,
+    },
+    {
+      key: "Joined",
+      content: "Joined",
+      tdRender: (rowData: RowData) => (
+        <div className="flyers-soft-teams-joined truncate">
+          {rowData.member.joining_date ? renderFormattedDate(rowData.member.joining_date) : "-"}
+        </div>
+      ),
     },
     {
       key: "Actions",

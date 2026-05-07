@@ -1630,12 +1630,6 @@ export default {
           },
         },
       },
-      billing_and_plans: {
-        title: "청구 및 플랜",
-        current_plan: "현재 플랜",
-        free_plan: "현재 무료 플랜을 사용 중입니다",
-        view_plans: "플랜 보기",
-      },
       exports: {
         title: "내보내기",
         exporting: "내보내기 중",

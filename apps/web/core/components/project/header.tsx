@@ -8,13 +8,10 @@ import { observer } from "mobx-react";
 import { usePathname } from "next/navigation";
 // i18n
 import { EUserPermissions, EUserPermissionsLevel, PROJECT_TRACKER_ELEMENTS } from "@plane/constants";
-import { useTranslation } from "@plane/i18n";
 // ui
 import { Button } from "@plane/propel/button";
-import { ProjectIcon } from "@plane/propel/icons";
-import { Breadcrumbs, Header } from "@plane/ui";
-// components
-import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
+import { PlusIcon } from "@plane/propel/icons";
+import { Header } from "@plane/ui";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useUserPermissions } from "@/hooks/store/user";
@@ -24,8 +21,6 @@ import HeaderFilters from "./filters";
 import { ProjectSearch } from "./search-projects";
 
 export const ProjectsBaseHeader = observer(function ProjectsBaseHeader() {
-  // i18n
-  const { t } = useTranslation();
   // store hooks
   const { toggleCreateProjectModal } = useCommandPalette();
   const { allowPermissions } = useUserPermissions();
@@ -41,17 +36,12 @@ export const ProjectsBaseHeader = observer(function ProjectsBaseHeader() {
   return (
     <Header>
       <Header.LeftItem>
-        <Breadcrumbs>
-          <Breadcrumbs.Item
-            component={
-              <BreadcrumbLink
-                label={t("workspace_projects.label", { count: 2 })}
-                icon={<ProjectIcon className="h-4 w-4 text-tertiary" />}
-              />
-            }
-          />
-          {isArchived && <Breadcrumbs.Item component={<BreadcrumbLink label="Archived" />} />}
-        </Breadcrumbs>
+        <div className="flex flex-col gap-0.5 py-3">
+          <h1 className="text-2xl tracking-normal font-semibold text-primary">
+            {isArchived ? "Archived Projects" : "Projects"}
+          </h1>
+          <p className="text-13 text-secondary">Manage and collaborate on your team&apos;s projects</p>
+        </div>
       </Header.LeftItem>
       <Header.RightItem>
         <ProjectSearch />
@@ -66,10 +56,11 @@ export const ProjectsBaseHeader = observer(function ProjectsBaseHeader() {
               toggleCreateProjectModal(true);
             }}
             data-ph-element={PROJECT_TRACKER_ELEMENTS.CREATE_HEADER_BUTTON}
-            className="items-center gap-1"
+            className="h-10 items-center gap-1 rounded-lg bg-accent-primary px-4 !text-primary shadow-[0_10px_24px_rgba(255,193,7,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-accent-primary"
           >
-            <span className="hidden sm:inline-block">{t("workspace_projects.create.label")}</span>
-            <span className="inline-block sm:hidden">{t("workspace_projects.label", { count: 1 })}</span>
+            <PlusIcon className="h-3.5 w-3.5" strokeWidth={2} />
+            <span className="hidden sm:inline-block">Add Project</span>
+            <span className="inline-block sm:hidden">Project</span>
           </Button>
         ) : (
           <></>

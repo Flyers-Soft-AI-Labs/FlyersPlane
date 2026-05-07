@@ -73,16 +73,6 @@ const HeaderFilters = observer(function HeaderFilters({
 
   return (
     <div className={cn("flex gap-3", classname)}>
-      <ProjectOrderByDropdown
-        value={displayFilters?.order_by}
-        onChange={(val) => {
-          if (!workspaceSlug || val === displayFilters?.order_by) return;
-          updateDisplayFilters(workspaceSlug.toString(), {
-            order_by: val,
-          });
-        }}
-        isMobile={isMobile}
-      />
       <div className={cn(filterClassname)}>
         <FiltersDropdown
           icon={<ListFilter className="h-3 w-3" />}
@@ -103,6 +93,16 @@ const HeaderFilters = observer(function HeaderFilters({
           />
         </FiltersDropdown>
       </div>
+      <ProjectOrderByDropdown
+        value={displayFilters?.order_by}
+        onChange={(val) => {
+          if (!workspaceSlug || val === displayFilters?.order_by) return;
+          updateDisplayFilters(workspaceSlug.toString(), {
+            order_by: val,
+          });
+        }}
+        isMobile={isMobile}
+      />
     </div>
   );
 });

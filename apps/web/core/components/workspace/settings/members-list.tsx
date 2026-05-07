@@ -4,6 +4,8 @@
  * See the LICENSE file for details.
  */
 
+import { useState } from "react";
+import { Mail, ShieldCheck, Users, UsersRound } from "lucide-react";
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
@@ -19,11 +21,14 @@ import { useMember } from "@/hooks/store/use-member";
 import { WorkspaceInvitationsListItem } from "./invitations-list-item";
 import { WorkspaceMembersListItem } from "./members-list-item";
 
+type TMembersTab = "members" | "invites";
+
 export const WorkspaceMembersList = observer(function WorkspaceMembersList(props: {
   searchQuery: string;
   isAdmin: boolean;
 }) {
   const { searchQuery, isAdmin } = props;
+  const [activeTab, setActiveTab] = useState<TMembersTab>("members");
 
   // router
   const { workspaceSlug } = useParams();
@@ -38,6 +43,7 @@ export const WorkspaceMembersList = observer(function WorkspaceMembersList(props
       workspaceMemberInvitationIds,
       getSearchedWorkspaceInvitationIds,
       getWorkspaceMemberDetails,
+      getWorkspaceInvitationDetails,
     },
   } = useMember();
   const { t } = useTranslation();
@@ -59,62 +65,144 @@ export const WorkspaceMembersList = observer(function WorkspaceMembersList(props
   const filteredMemberIds = workspaceSlug ? getFilteredWorkspaceMemberIds(workspaceSlug.toString()) : [];
   const searchedMemberIds = searchQuery ? getSearchedWorkspaceMemberIds(searchQuery) : filteredMemberIds;
   const searchedInvitationsIds = getSearchedWorkspaceInvitationIds(searchQuery);
-  const memberDetails = searchedMemberIds
-    ?.map((memberId) => getWorkspaceMemberDetails(memberId))
-    .sort((a, b) => {
-      if (a?.is_active && !b?.is_active) return -1;
-      if (!a?.is_active && b?.is_active) return 1;
-      return 0;
-    });
+  const pendingInvitationIds =
+    workspaceMemberInvitationIds?.filter((invitationId) => {
+      const invitation = getWorkspaceInvitationDetails(invitationId);
+      return invitation && !invitation.responded_at && !invitation.accepted;
+    }) ?? [];
+  const searchedPendingInvitationIds =
+    searchedInvitationsIds?.filter((invitationId) => pendingInvitationIds.includes(invitationId)) ?? [];
+  const searchedMemberDetails = searchedMemberIds?.map((memberId) => getWorkspaceMemberDetails(memberId)) ?? [];
+  const memberDetails = [
+    ...searchedMemberDetails.filter((member) => member?.is_active !== false),
+    ...searchedMemberDetails.filter((member) => member?.is_active === false),
+  ];
 
   // stat counts (always from unfiltered totals)
   const totalMembers = workspaceMemberIds?.length ?? 0;
-  const pendingInvites = workspaceMemberInvitationIds?.length ?? 0;
+  const activeMembers =
+    workspaceMemberIds?.filter((id) => {
+      const d = getWorkspaceMemberDetails(id);
+      return d?.is_active !== false;
+    }).length ?? 0;
+  const pendingInvites = pendingInvitationIds.length;
   const adminCount =
     workspaceMemberIds?.filter((id) => {
       const d = getWorkspaceMemberDetails(id);
-      return d?.role === EUserPermissions.ADMIN;
+      return d?.role === EUserPermissions.ADMIN && d?.is_active !== false;
     }).length ?? 0;
+  const statCards = [
+    {
+      title: "Active Members",
+      value: activeMembers,
+      icon: Users,
+      className: "flyers-soft-teams-stat-icon-purple",
+    },
+    {
+      title: "Pending Invites",
+      value: pendingInvites,
+      icon: Mail,
+      className: "flyers-soft-teams-stat-icon-yellow",
+    },
+    {
+      title: "Admins",
+      value: adminCount,
+      icon: ShieldCheck,
+      className: "flyers-soft-teams-stat-icon-blue",
+    },
+    {
+      title: "Total Members",
+      value: totalMembers,
+      icon: UsersRound,
+      className: "flyers-soft-teams-stat-icon-green",
+    },
+  ];
+  const hasMembers = (memberDetails?.length ?? 0) > 0;
+  const hasPendingInvites = searchedPendingInvitationIds.length > 0;
+  const activeView: TMembersTab = isAdmin ? activeTab : "members";
 
   return (
     <>
       {/* ── Stat cards ── */}
       <div className="flyers-soft-teams-stats">
-        <div className="flyers-soft-teams-stat-card">
-          <span className="flyers-soft-teams-stat-label">Active Members</span>
-          <span className="flyers-soft-teams-stat-value">{totalMembers}</span>
-        </div>
-        <div className="flyers-soft-teams-stat-card">
-          <span className="flyers-soft-teams-stat-label">Pending Invites</span>
-          <span className="flyers-soft-teams-stat-value">{pendingInvites}</span>
-        </div>
-        <div className="flyers-soft-teams-stat-card">
-          <span className="flyers-soft-teams-stat-label">Admins</span>
-          <span className="flyers-soft-teams-stat-value">{adminCount}</span>
-        </div>
+        {statCards.map((stat) => {
+          const Icon = stat.icon;
+
+          return (
+            <div key={stat.title} className="flyers-soft-teams-stat-card">
+              <span className={`flyers-soft-teams-stat-icon ${stat.className}`}>
+                <Icon className="h-4 w-4" />
+              </span>
+              <span className="min-w-0">
+                <span className="flyers-soft-teams-stat-label">{stat.title}</span>
+                <span className="flyers-soft-teams-stat-value">{stat.value}</span>
+              </span>
+            </div>
+          );
+        })}
       </div>
 
       {/* ── Team Members card ── */}
-      <div className="flyers-soft-teams-members-panel">
-        {searchedMemberIds?.length !== 0 && <WorkspaceMembersListItem memberDetails={memberDetails ?? []} />}
-        {searchedInvitationsIds?.length === 0 && searchedMemberIds?.length === 0 && (
-          <h4 className="flyers-soft-teams-empty-state text-center text-body-xs-regular text-placeholder">
-            {t("no_matching_members")}
-          </h4>
+      <div className="flyers-soft-teams-tabs" role="tablist" aria-label="Teams members views">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeView === "members"}
+          className="flyers-soft-teams-tab"
+          onClick={() => setActiveTab("members")}
+        >
+          <span>All Members</span>
+          <CountChip count={memberDetails?.length ?? 0} className="h-5" />
+        </button>
+        {isAdmin && (
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeView === "invites"}
+            className="flyers-soft-teams-tab"
+            onClick={() => setActiveTab("invites")}
+          >
+            <span>Pending Invites</span>
+            <CountChip count={searchedPendingInvitationIds.length} className="h-5" />
+          </button>
         )}
       </div>
 
+      {activeView === "members" && (
+        <div className="flyers-soft-teams-members-panel">
+          {hasMembers && <WorkspaceMembersListItem memberDetails={memberDetails ?? []} />}
+          {!hasMembers && (
+            <h4 className="flyers-soft-teams-empty-state text-center text-body-xs-regular text-placeholder">
+              {t("no_matching_members")}
+            </h4>
+          )}
+        </div>
+      )}
+
       {/* ── Pending Invites card ── */}
-      {isAdmin && searchedInvitationsIds && searchedInvitationsIds.length > 0 && (
+      {isAdmin && activeView === "invites" && (
         <div className="flyers-soft-teams-invites-card">
           <div className="flyers-soft-teams-invites-header">
             <h4 className="text-13 font-semibold text-primary">Pending Invites</h4>
-            <CountChip count={searchedInvitationsIds.length} className="m-auto ml-2 h-5" />
+            <CountChip count={searchedPendingInvitationIds.length} className="m-auto ml-2 h-5" />
+          </div>
+          <div className="flyers-soft-teams-invites-table-header">
+            <span>Email</span>
+            <span>Role</span>
+            <span>Status</span>
+            <span>Sent</span>
+            <span>Actions</span>
           </div>
           <div className="flyers-soft-teams-invites-list">
-            {searchedInvitationsIds.map((invitationId) => (
-              <WorkspaceInvitationsListItem key={invitationId} invitationId={invitationId} />
-            ))}
+            {hasPendingInvites ? (
+              searchedPendingInvitationIds.map((invitationId) => (
+                <WorkspaceInvitationsListItem key={invitationId} invitationId={invitationId} />
+              ))
+            ) : (
+              <h4 className="flyers-soft-teams-empty-state text-center text-body-xs-regular text-placeholder">
+                No pending invites
+              </h4>
+            )}
           </div>
         </div>
       )}

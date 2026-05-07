@@ -4,6 +4,15 @@
  * See the LICENSE file for details.
  */
 
+import { AccentureLogo, DolbyLogo, SonyLogo, ZerodhaLogo } from "@plane/propel/icons";
+
+const BRAND_LOGOS = [
+  { id: "accenture", icon: <AccentureLogo /> },
+  { id: "dolby", icon: <DolbyLogo /> },
+  { id: "sony", icon: <SonyLogo /> },
+  { id: "zerodha", icon: <ZerodhaLogo /> },
+];
+
 export function AuthFooter() {
   return (
     <div className="flex flex-col items-center gap-6">

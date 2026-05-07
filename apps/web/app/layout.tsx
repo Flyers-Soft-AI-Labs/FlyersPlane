@@ -55,9 +55,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <head>
         <meta name="theme-color" content="#fff" />
-        <link rel="icon" type="image/png" href="/flyers-logo.png" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="manifest" href="/site.webmanifest.json" />
-        <link rel="shortcut icon" href="/flyers-logo.png" />
+        <link rel="shortcut icon" href="/favicon.ico" />
         {/* Meta info for PWA */}
         <meta name="application-name" content="Flyers Soft" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

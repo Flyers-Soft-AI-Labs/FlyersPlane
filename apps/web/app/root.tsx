@@ -29,8 +29,8 @@ import "@fontsource/ibm-plex-mono";
 const APP_TITLE = "Flyers Soft | Simple, extensible, open-source project management tool.";
 
 export const links: LinksFunction = () => [
-  { rel: "icon", type: "image/png", href: "/flyers-logo.png" },
-  { rel: "shortcut icon", href: "/flyers-logo.png" },
+  { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
+  { rel: "shortcut icon", href: "/favicon.ico" },
   { rel: "manifest", href: "/site.webmanifest.json" },
   { rel: "apple-touch-icon", href: "/flyers-logo.png" },
   { rel: "apple-touch-icon", sizes: "180x180", href: "/flyers-logo.png" },

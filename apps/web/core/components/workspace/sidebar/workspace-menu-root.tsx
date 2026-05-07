@@ -33,6 +33,16 @@ type WorkspaceMenuRootProps = {
   variant: "sidebar" | "top-navigation";
 };
 
+function WorkspaceMenuOpenSync(props: { open: boolean; onChange: (open: boolean) => void }) {
+  const { open, onChange } = props;
+
+  useEffect(() => {
+    onChange(open);
+  }, [open, onChange]);
+
+  return null;
+}
+
 export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: WorkspaceMenuRootProps) {
   const { variant } = props;
   // store hooks
@@ -83,13 +93,9 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
       })}
     >
       {({ open, close }: { open: boolean; close: () => void }) => {
-        // Update local state directly
-        if (isWorkspaceMenuOpen !== open) {
-          setIsWorkspaceMenuOpen(open);
-        }
-
         return (
           <>
+            <WorkspaceMenuOpenSync open={open} onChange={setIsWorkspaceMenuOpen} />
             {variant === "sidebar" && (
               <Menu.Button
                 className={cn("flex size-8 w-full items-center justify-center rounded-md", {
@@ -97,7 +103,7 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
                 })}
               >
                 <AppSidebarItem
-                  variant="button"
+                  variant="content"
                   item={{
                     icon: (
                       <WorkspaceLogo

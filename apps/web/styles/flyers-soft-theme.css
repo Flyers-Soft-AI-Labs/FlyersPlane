@@ -5406,7 +5406,10 @@ body,
 .flyers-soft-project-ticket-table-header,
 .flyers-soft-project-ticket-row {
   display: grid !important;
-  grid-template-columns: minmax(340px, 1.7fr) minmax(116px, 0.62fr) minmax(126px, 0.62fr) minmax(154px, 0.72fr) minmax(96px, 0.44fr) 48px;
+  grid-template-columns: minmax(340px, 1.7fr) minmax(116px, 0.62fr) minmax(126px, 0.62fr) minmax(154px, 0.72fr) minmax(
+      96px,
+      0.44fr
+    ) 48px;
   align-items: center;
   column-gap: 12px;
 }
@@ -6218,4 +6221,1209 @@ tr {
 /* Catch div-based rows (Plane list layout) */
 div[role="row"]:hover {
   background: #f9f6ef !important;
+}
+
+/* Teams settings: final compact premium UI pass scoped to the real /settings/members page. */
+.flyers-soft-app-header:has(.flyers-soft-teams-page-header) {
+  min-height: 86px !important;
+  max-height: none !important;
+  border-bottom: 0 !important;
+  background: #fffdf7 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-teams-page-header {
+  min-height: 86px !important;
+  align-items: center !important;
+  padding: 20px 28px 12px !important;
+}
+
+.flyers-soft-teams-page-title {
+  color: #111827 !important;
+  font-size: 24px !important;
+  font-weight: 760 !important;
+  line-height: 1.1 !important;
+  letter-spacing: 0 !important;
+}
+
+.flyers-soft-teams-page-subtitle {
+  margin-top: 6px !important;
+  color: #667085 !important;
+  font-size: 14px !important;
+  line-height: 1.35 !important;
+}
+
+.flyers-soft-teams-header-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.flyers-soft-teams-search {
+  width: min(320px, 28vw) !important;
+  min-width: 240px !important;
+  height: 38px !important;
+  border: 1px solid #e7eaf0 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  padding: 0 12px !important;
+  color: #111827 !important;
+  box-shadow: 0 8px 18px rgba(16, 24, 40, 0.04) !important;
+}
+
+.flyers-soft-teams-search:focus-within,
+.flyers-soft-teams-search:hover {
+  border-color: #ffd166 !important;
+  box-shadow: 0 0 0 3px rgba(255, 196, 0, 0.14) !important;
+}
+
+.flyers-soft-teams-filter button,
+.flyers-soft-teams-filter [role="button"] {
+  height: 38px !important;
+  min-height: 38px !important;
+  border: 1px solid #e7eaf0 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  padding: 0 14px !important;
+  color: #1f2937 !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  box-shadow: 0 8px 18px rgba(16, 24, 40, 0.04) !important;
+}
+
+.flyers-soft-teams-page-header .flyers-soft-teams-add-button {
+  height: 38px !important;
+  min-height: 38px !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  background: #ffc928 !important;
+  padding: 0 16px !important;
+  color: #111827 !important;
+  font-size: 13px !important;
+  font-weight: 750 !important;
+  box-shadow: 0 10px 18px rgba(245, 158, 11, 0.18) !important;
+}
+
+.flyers-soft-teams-page-header .flyers-soft-teams-add-button:hover {
+  background: #ffd84d !important;
+  transform: translateY(-1px);
+}
+
+.flyers-soft-teams-page {
+  gap: 18px !important;
+  background: #fffdf7 !important;
+  padding: 16px 28px 28px !important;
+  color: #111827 !important;
+}
+
+.flyers-soft-teams-stats {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+}
+
+.flyers-soft-teams-stat-card {
+  display: flex !important;
+  min-height: 90px !important;
+  align-items: center !important;
+  flex-direction: row !important;
+  gap: 16px !important;
+  border: 1px solid #eceff4 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  padding: 16px 18px !important;
+  box-shadow: 0 12px 28px rgba(16, 24, 40, 0.045) !important;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.flyers-soft-teams-stat-card:hover {
+  border-color: #ffe08a !important;
+  transform: translateY(-4px);
+  box-shadow: 0 16px 30px rgba(245, 158, 11, 0.14) !important;
+}
+
+.flyers-soft-teams-stat-icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  place-items: center;
+  border-radius: 10px;
+}
+
+.flyers-soft-teams-stat-icon-purple {
+  background: #f1e7ff;
+  color: #7c3aed;
+}
+
+.flyers-soft-teams-stat-icon-yellow {
+  background: #eaf6ff;
+  color: #0284c7;
+}
+
+.flyers-soft-teams-stat-icon-blue {
+  background: #eaf8ef;
+  color: #16a34a;
+}
+
+.flyers-soft-teams-stat-icon-green {
+  background: #fff4df;
+  color: #f97316;
+}
+
+.flyers-soft-teams-stat-label {
+  display: block;
+  color: #667085 !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  line-height: 1.25 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.flyers-soft-teams-stat-value {
+  display: block;
+  margin-top: 5px;
+  color: #111827 !important;
+  font-size: 24px !important;
+  font-weight: 780 !important;
+  line-height: 1 !important;
+}
+
+.flyers-soft-teams-tabs {
+  display: flex;
+  min-height: 40px;
+  align-items: flex-end;
+  gap: 22px;
+  border-bottom: 1px solid #e8edf4;
+  margin-top: 2px;
+}
+
+.flyers-soft-teams-tab {
+  display: inline-flex;
+  height: 40px;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #667085;
+  font-size: 13px;
+  font-weight: 700;
+  transition:
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.flyers-soft-teams-tab:hover,
+.flyers-soft-teams-tab[aria-selected="true"] {
+  border-bottom-color: #ffc400;
+  color: #f5a400;
+}
+
+.flyers-soft-teams-members-panel,
+.flyers-soft-teams-invites-card {
+  overflow: hidden !important;
+  border: 1px solid #e8edf4 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  box-shadow: 0 10px 24px rgba(16, 24, 40, 0.045) !important;
+}
+
+.flyers-soft-teams-members-table-card,
+.flyers-soft-teams-invites-list {
+  min-width: 920px;
+}
+
+.flyers-soft-teams-col-header,
+.flyers-soft-teams-member-row {
+  display: grid !important;
+  grid-template-columns:
+    minmax(210px, 1.45fr) minmax(210px, 1.25fr) minmax(120px, 0.55fr) minmax(112px, 0.5fr)
+    minmax(132px, 0.58fr) 58px !important;
+  align-items: center !important;
+  column-gap: 12px !important;
+}
+
+.flyers-soft-teams-col-header {
+  height: 42px !important;
+  border-bottom: 1px solid #e8edf4 !important;
+  background: #ffffff !important;
+  padding: 0 18px !important;
+}
+
+.flyers-soft-teams-col-label {
+  color: #667085 !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.flyers-soft-teams-member-row {
+  min-height: 54px !important;
+  border-bottom: 1px solid #edf1f5 !important;
+  background: #ffffff !important;
+  padding: 0 18px !important;
+  transition:
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.flyers-soft-teams-member-row:last-child {
+  border-bottom-color: transparent !important;
+}
+
+.flyers-soft-teams-member-row:hover {
+  background: #fffaf0 !important;
+  box-shadow: inset 3px 0 0 #ffc400 !important;
+}
+
+.flyers-soft-team-avatar {
+  width: 30px !important;
+  min-width: 30px !important;
+  height: 30px !important;
+  border: 1px solid rgba(255, 196, 0, 0.18);
+  background: #fff3cf !important;
+  color: #c27a00 !important;
+}
+
+.flyers-soft-team-member-cell p:first-child {
+  color: #111827 !important;
+  font-size: 13px !important;
+  font-weight: 750 !important;
+}
+
+.flyers-soft-team-member-cell p:last-child,
+.flyers-soft-teams-email,
+.flyers-soft-teams-joined {
+  color: #667085 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+.flyers-soft-team-role-badge,
+.flyers-soft-team-role-select {
+  display: inline-flex !important;
+  width: auto !important;
+  min-height: 24px !important;
+  align-items: center !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+  background: #f1e7ff !important;
+  padding: 3px 9px !important;
+  color: #7c3aed !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-team-status-badge {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 24px;
+  align-items: center;
+  gap: 7px;
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.flyers-soft-team-status-badge::before,
+.flyers-soft-team-pending-badge::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-radius: 999px;
+}
+
+.flyers-soft-team-status-active {
+  background: #f0fdf4 !important;
+  color: #16a34a !important;
+}
+
+.flyers-soft-team-status-active::before {
+  background: #22c55e;
+}
+
+.flyers-soft-team-status-suspended {
+  background: #f2f4f7 !important;
+  color: #667085 !important;
+}
+
+.flyers-soft-team-status-suspended::before {
+  background: #98a2b3;
+}
+
+.flyers-soft-team-actions-button,
+.flyers-soft-team-invite-actions button {
+  display: grid !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  place-items: center !important;
+  border: 1px solid #e8edf4 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  color: #667085 !important;
+  box-shadow: 0 8px 16px rgba(16, 24, 40, 0.06) !important;
+}
+
+.flyers-soft-team-actions-button:hover,
+.flyers-soft-team-invite-actions button:hover {
+  border-color: #ffd166 !important;
+  background: #fffaf0 !important;
+  color: #111827 !important;
+}
+
+.flyers-soft-teams-invites-header {
+  min-height: 44px;
+  border-bottom: 1px solid #e8edf4 !important;
+  background: #fff7df !important;
+  padding: 0 18px !important;
+}
+
+.flyers-soft-teams-invites-table-header,
+.flyers-soft-team-invite-row {
+  display: grid !important;
+  grid-template-columns: minmax(280px, 1.55fr) minmax(110px, 0.55fr) minmax(150px, 0.7fr) minmax(150px, 0.65fr) 96px !important;
+  align-items: center !important;
+  column-gap: 14px !important;
+}
+
+.flyers-soft-teams-invites-table-header {
+  min-width: 920px;
+  min-height: 38px;
+  border-bottom: 1px solid #e8edf4;
+  background: #ffffff;
+  padding: 0 18px;
+  color: #667085;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.flyers-soft-team-invite-row {
+  min-height: 58px;
+  border-bottom: 1px solid #edf1f5 !important;
+  background: #ffffff !important;
+  padding: 0 18px !important;
+}
+
+.flyers-soft-team-invite-row:last-child {
+  border-bottom-color: transparent !important;
+}
+
+.flyers-soft-team-invite-row:hover {
+  background: #fffaf0 !important;
+}
+
+.flyers-soft-team-invite-email-cell {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+}
+
+.flyers-soft-team-invite-avatar {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  place-items: center;
+  border-radius: 999px;
+  background: #fff3cf;
+  color: #667085;
+}
+
+.flyers-soft-team-pending-badge {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 24px;
+  align-items: center;
+  gap: 7px;
+  border-radius: 999px;
+  background: #fff8e1 !important;
+  padding: 3px 9px;
+  color: #f5a400 !important;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.flyers-soft-team-pending-badge::before {
+  background: #ffc928;
+}
+
+.flyers-soft-team-invite-role {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 30px;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #e8edf4;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 0 11px;
+  color: #1f2937;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.flyers-soft-team-invite-date {
+  color: #667085;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.flyers-soft-team-invite-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.flyers-soft-teams-empty-state {
+  padding: 28px !important;
+  color: #98a2b3 !important;
+}
+
+.flyers-soft-teams-settings-sidebar {
+  width: 250px !important;
+  border-right-color: #f1dfae !important;
+  background: linear-gradient(180deg, #fffaf0 0%, #fffdf7 52%, #fff7df 100%) !important;
+  color: #111827 !important;
+  box-shadow: 12px 0 24px rgba(245, 158, 11, 0.05);
+  --background-color-surface-1: #fffdf7;
+  --background-color-layer-transparent-hover: #fff6dc;
+  --background-color-layer-transparent-selected: #fff1c2;
+  --text-color-primary: #111827;
+  --text-color-secondary: #344054;
+  --text-color-tertiary: #667085;
+  --border-color-subtle: #f1dfae;
+}
+
+.flyers-soft-teams-settings-sidebar [data-slot="scroll-area-viewport"] > div:first-child {
+  border-bottom: 1px solid rgba(241, 223, 174, 0.68);
+  padding-bottom: 12px;
+}
+
+.flyers-soft-teams-settings-sidebar [data-slot="scroll-area-viewport"] > div:first-child > div:first-child {
+  min-height: 42px;
+  padding: 10px 14px 4px !important;
+  color: #111827 !important;
+  font-size: 14px !important;
+  font-weight: 750 !important;
+}
+
+.flyers-soft-teams-settings-sidebar [data-slot="scroll-area-viewport"] > div:first-child > div:first-child button {
+  width: 30px !important;
+  min-width: 30px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  border-radius: 8px !important;
+  color: #667085 !important;
+}
+
+.flyers-soft-teams-settings-sidebar
+  [data-slot="scroll-area-viewport"]
+  > div:first-child
+  > div:first-child
+  button:hover {
+  background: #fff1c2 !important;
+  color: #111827 !important;
+}
+
+.flyers-soft-teams-settings-sidebar [data-slot="scroll-area-viewport"] > div:first-child > div:nth-child(2) {
+  margin: 6px 12px 0 !important;
+  border: 1px solid #f1dfae;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.74);
+  padding: 10px !important;
+  box-shadow: 0 10px 22px rgba(245, 158, 11, 0.08);
+}
+
+.flyers-soft-teams-settings-nav {
+  gap: 8px !important;
+  padding: 12px !important;
+}
+
+.flyers-soft-teams-settings-nav > div {
+  padding-block: 8px !important;
+}
+
+.flyers-soft-teams-settings-nav > div > div:first-child {
+  padding: 4px 10px 8px !important;
+  color: #98a2b3 !important;
+  font-size: 11px !important;
+  font-weight: 750 !important;
+  letter-spacing: 0 !important;
+}
+
+.flyers-soft-teams-settings-nav a,
+.flyers-soft-teams-settings-nav button {
+  min-height: 38px !important;
+  border: 1px solid transparent !important;
+  border-radius: 8px !important;
+  padding: 0 11px !important;
+  color: #344054 !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease !important;
+}
+
+.flyers-soft-teams-settings-nav a:hover,
+.flyers-soft-teams-settings-nav button:hover {
+  border-color: #f1dfae !important;
+  background: rgba(255, 255, 255, 0.74) !important;
+  color: #111827 !important;
+}
+
+.flyers-soft-teams-settings-nav a[class*="bg-layer-transparent-selected"],
+.flyers-soft-teams-settings-nav button[class*="bg-layer-transparent-selected"] {
+  border-color: #ffe08a !important;
+  background: #fff1c2 !important;
+  color: #111827 !important;
+  box-shadow: inset 3px 0 0 #ffc400 !important;
+}
+
+.flyers-soft-teams-settings-nav a span:first-child,
+.flyers-soft-teams-settings-nav button span:first-child {
+  display: grid !important;
+  width: 24px !important;
+  height: 24px !important;
+  place-items: center !important;
+  border-radius: 7px !important;
+  background: rgba(255, 196, 0, 0.11);
+  color: #f5a400 !important;
+}
+
+.flyers-soft-teams-settings-nav svg {
+  width: 15px !important;
+  height: 15px !important;
+}
+
+@media (max-width: 1180px) {
+  .flyers-soft-teams-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .flyers-soft-teams-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .flyers-soft-teams-search {
+    width: min(360px, 100%) !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .flyers-soft-teams-page-header {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    padding: 16px !important;
+  }
+
+  .flyers-soft-teams-page {
+    padding: 12px 14px 20px !important;
+  }
+
+  .flyers-soft-teams-stats {
+    grid-template-columns: 1fr !important;
+  }
+
+  .flyers-soft-teams-search,
+  .flyers-soft-teams-filter,
+  .flyers-soft-teams-filter > div,
+  .flyers-soft-teams-page-header .flyers-soft-teams-add-button {
+    width: 100% !important;
+  }
+}
+
+/* Teams page final alignment: real /settings/members page inside the global app shell. */
+.flyers-soft-app-header:has(.flyers-soft-teams-page-header) {
+  min-height: 88px !important;
+  max-height: none !important;
+  border-bottom: 0 !important;
+  background: #fffdf7 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-teams-page-header {
+  min-height: 88px !important;
+  align-items: center !important;
+  gap: 20px !important;
+  padding: 22px clamp(24px, 3vw, 40px) 14px !important;
+}
+
+.flyers-soft-teams-page-title {
+  color: #111827 !important;
+  font-size: 24px !important;
+  font-weight: 760 !important;
+  line-height: 1.08 !important;
+  letter-spacing: 0 !important;
+}
+
+.flyers-soft-teams-page-subtitle {
+  margin-top: 7px !important;
+  color: #667085 !important;
+  font-size: 14px !important;
+  line-height: 1.35 !important;
+}
+
+.flyers-soft-teams-header-actions {
+  flex: 1 1 auto !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-end !important;
+  gap: 12px !important;
+}
+
+.flyers-soft-teams-search {
+  width: min(300px, 24vw) !important;
+  min-width: 220px !important;
+  height: 38px !important;
+  border: 1px solid #e6eaf0 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  padding: 0 12px !important;
+  color: #111827 !important;
+  box-shadow: 0 8px 18px rgba(16, 24, 40, 0.035) !important;
+}
+
+.flyers-soft-teams-search:focus-within,
+.flyers-soft-teams-search:hover {
+  border-color: #ffd166 !important;
+  box-shadow: 0 0 0 3px rgba(255, 196, 0, 0.12) !important;
+}
+
+.flyers-soft-teams-filter {
+  flex: 0 0 auto !important;
+  width: auto !important;
+}
+
+.flyers-soft-teams-filter .flyers-soft-member-filter-button {
+  height: 38px !important;
+  min-height: 38px !important;
+  width: auto !important;
+  border: 1px solid #e6eaf0 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  padding: 0 14px !important;
+  color: #344054 !important;
+  font-size: 13px !important;
+  font-weight: 680 !important;
+  box-shadow: 0 8px 18px rgba(16, 24, 40, 0.035) !important;
+}
+
+.flyers-soft-teams-filter .flyers-soft-member-filter-button:hover {
+  border-color: #ffd166 !important;
+  background: #fffdf7 !important;
+  color: #111827 !important;
+}
+
+.flyers-soft-member-filter-count {
+  display: grid;
+  min-width: 18px;
+  height: 18px;
+  place-items: center;
+  border-radius: 999px;
+  background: #ffe08a;
+  padding: 0 5px;
+  color: #8a5a00;
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1;
+}
+
+.flyers-soft-teams-page-header .flyers-soft-teams-add-button {
+  height: 38px !important;
+  min-height: 38px !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  background: #ffc928 !important;
+  padding: 0 16px !important;
+  color: #111827 !important;
+  font-size: 13px !important;
+  font-weight: 760 !important;
+  box-shadow: 0 10px 18px rgba(245, 158, 11, 0.16) !important;
+}
+
+.flyers-soft-teams-page-header .flyers-soft-teams-add-button:hover {
+  background: #ffd84d !important;
+  transform: translateY(-1px);
+}
+
+.flyers-soft-teams-page {
+  display: flex !important;
+  width: 100% !important;
+  max-width: none !important;
+  flex-direction: column !important;
+  gap: 18px !important;
+  overflow: visible !important;
+  background: #fffdf7 !important;
+  padding: 0 0 30px !important;
+  color: #111827 !important;
+}
+
+.flyers-soft-teams-stats {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 16px !important;
+}
+
+.flyers-soft-teams-stat-card {
+  display: flex !important;
+  min-height: 88px !important;
+  align-items: center !important;
+  flex-direction: row !important;
+  gap: 14px !important;
+  border: 1px solid #eef2f6 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  padding: 15px 16px !important;
+  box-shadow: 0 10px 24px rgba(16, 24, 40, 0.045) !important;
+}
+
+.flyers-soft-teams-stat-card:hover {
+  border-color: #ffe08a !important;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 26px rgba(245, 158, 11, 0.1) !important;
+}
+
+.flyers-soft-teams-stat-icon {
+  display: grid !important;
+  width: 44px !important;
+  height: 44px !important;
+  flex: 0 0 44px !important;
+  place-items: center !important;
+  border-radius: 10px !important;
+}
+
+.flyers-soft-teams-stat-icon-purple {
+  background: #f1e7ff !important;
+  color: #7c3aed !important;
+}
+
+.flyers-soft-teams-stat-icon-yellow {
+  background: #eaf6ff !important;
+  color: #0284c7 !important;
+}
+
+.flyers-soft-teams-stat-icon-blue {
+  background: #eaf8ef !important;
+  color: #16a34a !important;
+}
+
+.flyers-soft-teams-stat-icon-green {
+  background: #fff1e6 !important;
+  color: #f97316 !important;
+}
+
+.flyers-soft-teams-stat-label {
+  display: block !important;
+  color: #667085 !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  line-height: 1.25 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+.flyers-soft-teams-stat-value {
+  display: block !important;
+  margin-top: 5px !important;
+  color: #111827 !important;
+  font-size: 24px !important;
+  font-weight: 780 !important;
+  line-height: 1 !important;
+}
+
+.flyers-soft-teams-tabs {
+  display: flex !important;
+  min-height: 42px !important;
+  align-items: flex-end !important;
+  gap: 24px !important;
+  border-bottom: 1px solid #e8edf4 !important;
+  margin-top: 2px !important;
+}
+
+.flyers-soft-teams-tab {
+  display: inline-flex !important;
+  height: 42px !important;
+  align-items: center !important;
+  gap: 8px !important;
+  border: 0 !important;
+  border-bottom: 2px solid transparent !important;
+  background: transparent !important;
+  color: #667085 !important;
+  font-size: 13px !important;
+  font-weight: 720 !important;
+  letter-spacing: 0 !important;
+}
+
+.flyers-soft-teams-tab:hover,
+.flyers-soft-teams-tab[aria-selected="true"] {
+  border-bottom-color: #ffc400 !important;
+  color: #f5a400 !important;
+}
+
+.flyers-soft-teams-members-panel,
+.flyers-soft-teams-invites-card {
+  overflow: visible !important;
+  border: 1px solid #e8edf4 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  box-shadow: 0 10px 24px rgba(16, 24, 40, 0.045) !important;
+}
+
+.flyers-soft-teams-members-table-card,
+.flyers-soft-teams-invites-list {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+.flyers-soft-teams-col-header,
+.flyers-soft-teams-member-row {
+  display: grid !important;
+  grid-template-columns:
+    minmax(190px, 1.25fr) minmax(170px, 0.95fr) minmax(100px, 0.52fr) minmax(96px, 0.5fr)
+    minmax(118px, 0.55fr) 56px !important;
+  align-items: center !important;
+  column-gap: 12px !important;
+}
+
+.flyers-soft-teams-col-header > *,
+.flyers-soft-teams-member-row > * {
+  min-width: 0 !important;
+}
+
+.flyers-soft-teams-col-header > *:last-child,
+.flyers-soft-teams-member-row > *:last-child {
+  justify-self: end !important;
+}
+
+.flyers-soft-teams-col-header {
+  height: 42px !important;
+  border-bottom: 1px solid #e8edf4 !important;
+  border-radius: 8px 8px 0 0 !important;
+  background: #ffffff !important;
+  padding: 0 18px !important;
+}
+
+.flyers-soft-teams-col-label {
+  overflow: hidden !important;
+  color: #667085 !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.flyers-soft-teams-member-row {
+  min-height: 52px !important;
+  border-bottom: 1px solid #edf1f5 !important;
+  background: #ffffff !important;
+  padding: 0 18px !important;
+}
+
+.flyers-soft-teams-member-row:last-child {
+  border-bottom-color: transparent !important;
+}
+
+.flyers-soft-teams-member-row:hover {
+  background: #fffaf0 !important;
+  box-shadow: inset 3px 0 0 #ffc400 !important;
+}
+
+.flyers-soft-team-member-cell {
+  min-width: 0 !important;
+}
+
+.flyers-soft-team-avatar {
+  width: 30px !important;
+  min-width: 30px !important;
+  height: 30px !important;
+  border: 1px solid rgba(255, 196, 0, 0.16) !important;
+  background: #fff3cf !important;
+  color: #b77900 !important;
+}
+
+.flyers-soft-team-member-cell p:first-child {
+  color: #111827 !important;
+  font-size: 13px !important;
+  font-weight: 740 !important;
+}
+
+.flyers-soft-team-member-cell p:last-child,
+.flyers-soft-teams-email,
+.flyers-soft-teams-joined {
+  overflow: hidden !important;
+  color: #667085 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.flyers-soft-team-role-badge,
+.flyers-soft-team-role-select {
+  display: inline-flex !important;
+  width: auto !important;
+  min-height: 24px !important;
+  align-items: center !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+  background: #f1e7ff !important;
+  padding: 3px 9px !important;
+  color: #7c3aed !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-team-status-badge,
+.flyers-soft-team-pending-badge {
+  display: inline-flex !important;
+  width: fit-content !important;
+  min-height: 24px !important;
+  align-items: center !important;
+  gap: 7px !important;
+  border-radius: 999px !important;
+  padding: 3px 9px !important;
+  font-size: 12px !important;
+  font-weight: 750 !important;
+  white-space: nowrap !important;
+}
+
+.flyers-soft-team-status-badge::before,
+.flyers-soft-team-pending-badge::before {
+  content: "" !important;
+  width: 7px !important;
+  height: 7px !important;
+  flex: 0 0 7px !important;
+  border-radius: 999px !important;
+}
+
+.flyers-soft-team-status-active {
+  background: #f0fdf4 !important;
+  color: #16a34a !important;
+}
+
+.flyers-soft-team-status-active::before {
+  background: #22c55e !important;
+}
+
+.flyers-soft-team-status-suspended {
+  background: #f2f4f7 !important;
+  color: #667085 !important;
+}
+
+.flyers-soft-team-status-suspended::before {
+  background: #98a2b3 !important;
+}
+
+.flyers-soft-team-actions-button,
+.flyers-soft-team-invite-actions button {
+  display: grid !important;
+  width: 32px !important;
+  min-width: 32px !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  place-items: center !important;
+  border: 1px solid #e8edf4 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  color: #667085 !important;
+  opacity: 1 !important;
+  box-shadow: 0 8px 16px rgba(16, 24, 40, 0.055) !important;
+}
+
+.flyers-soft-team-actions-button:hover,
+.flyers-soft-team-invite-actions button:hover {
+  border-color: #ffd166 !important;
+  background: #fffaf0 !important;
+  color: #111827 !important;
+}
+
+.flyers-soft-team-actions-empty {
+  display: block !important;
+  width: 32px !important;
+  text-align: center !important;
+  color: #98a2b3 !important;
+}
+
+.flyers-soft-teams-invites-header {
+  display: flex !important;
+  min-height: 44px !important;
+  align-items: center !important;
+  border-bottom: 1px solid #e8edf4 !important;
+  border-radius: 8px 8px 0 0 !important;
+  background: #fff8e6 !important;
+  padding: 0 18px !important;
+}
+
+.flyers-soft-teams-invites-table-header,
+.flyers-soft-team-invite-row {
+  display: grid !important;
+  grid-template-columns: minmax(240px, 1.4fr) minmax(118px, 0.55fr) minmax(104px, 0.5fr) minmax(130px, 0.58fr) 86px !important;
+  align-items: center !important;
+  column-gap: 14px !important;
+}
+
+.flyers-soft-teams-invites-table-header > *,
+.flyers-soft-team-invite-row > * {
+  min-width: 0 !important;
+}
+
+.flyers-soft-teams-invites-table-header > *:last-child,
+.flyers-soft-team-invite-row > *:last-child {
+  justify-self: end !important;
+}
+
+.flyers-soft-teams-invites-table-header {
+  min-width: 0 !important;
+  min-height: 38px !important;
+  border-bottom: 1px solid #e8edf4 !important;
+  background: #ffffff !important;
+  padding: 0 18px !important;
+  color: #667085 !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+.flyers-soft-team-invite-row {
+  min-height: 56px !important;
+  border-bottom: 1px solid #edf1f5 !important;
+  background: #ffffff !important;
+  padding: 0 18px !important;
+}
+
+.flyers-soft-team-invite-row:last-child {
+  border-bottom-color: transparent !important;
+}
+
+.flyers-soft-team-invite-row:hover {
+  background: #fffaf0 !important;
+}
+
+.flyers-soft-team-invite-email-cell {
+  display: flex !important;
+  min-width: 0 !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.flyers-soft-team-invite-avatar {
+  display: grid !important;
+  width: 30px !important;
+  height: 30px !important;
+  flex: 0 0 30px !important;
+  place-items: center !important;
+  border-radius: 999px !important;
+  background: #fff3cf !important;
+  color: #667085 !important;
+}
+
+.flyers-soft-team-pending-badge {
+  background: #fff8e1 !important;
+  color: #f5a400 !important;
+}
+
+.flyers-soft-team-pending-badge::before {
+  background: #ffc928 !important;
+}
+
+.flyers-soft-team-invite-role {
+  display: inline-flex !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  min-height: 30px !important;
+  align-items: center !important;
+  gap: 10px !important;
+  border: 1px solid #e8edf4 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  padding: 0 11px !important;
+  color: #1f2937 !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+}
+
+.flyers-soft-team-invite-date {
+  overflow: hidden !important;
+  color: #667085 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.flyers-soft-team-invite-actions {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+}
+
+.flyers-soft-teams-empty-state {
+  padding: 28px !important;
+  color: #98a2b3 !important;
+}
+
+@media (max-width: 1180px) {
+  .flyers-soft-teams-page-header {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+
+  .flyers-soft-teams-header-actions {
+    width: 100% !important;
+    justify-content: flex-start !important;
+  }
+
+  .flyers-soft-teams-search {
+    width: min(360px, 100%) !important;
+  }
+
+  .flyers-soft-teams-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 860px) {
+  .flyers-soft-teams-members-panel,
+  .flyers-soft-teams-invites-card {
+    overflow-x: auto !important;
+  }
+
+  .flyers-soft-teams-members-table-card,
+  .flyers-soft-teams-invites-table-header,
+  .flyers-soft-teams-invites-list {
+    min-width: 760px !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .flyers-soft-teams-page-header {
+    padding: 16px !important;
+  }
+
+  .flyers-soft-teams-stats {
+    grid-template-columns: 1fr !important;
+  }
+
+  .flyers-soft-teams-search,
+  .flyers-soft-teams-filter,
+  .flyers-soft-teams-filter .flyers-soft-member-filter-button,
+  .flyers-soft-teams-page-header .flyers-soft-teams-add-button {
+    width: 100% !important;
+  }
 }

@@ -7,6 +7,7 @@
 import { GOD_MODE_URL } from "@plane/constants";
 // assets
 import GradientBgLogo from "@/app/assets/auth/gradient-bg-logo.webp?url";
+import GradientLogo from "@/app/assets/auth/gradient-logo.webp?url";
 import { FlyersLogo } from "@/components/common/flyers-logo";
 import DefaultLayout from "@/layouts/default-layout";
 import { Button } from "@plane/propel/button";
