@@ -48,20 +48,20 @@ function getProjectStatus(project: IProject, progress: number, totalIssues: numb
   if (project.archived_at) {
     return {
       label: "On Hold",
-      className: "border-[#fecdd3] bg-[#fff0f4] text-[#e11d48]",
+      className: "border-[#fecdd3] bg-[#fff1f3] text-[#be123c]",
     };
   }
 
   if (totalIssues > 0 && progress >= 100) {
     return {
       label: "Completed",
-      className: "border-[#bbf7d0] bg-[#dcfce7] text-[#15803d]",
+      className: "border-[#bbf7d0] bg-[#ecfdf3] text-[#15803d]",
     };
   }
 
   return {
     label: "Active",
-    className: "border-[#ddd6fe] bg-[#ede9fe] text-[#6d28d9]",
+    className: "border-[#d8d6fe] bg-[#f3f1ff] text-[#5b4bd8]",
   };
 }
 
@@ -213,27 +213,34 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
           data-prevent-progress={!isMemberOfProject || isArchived}
           className="group/project-card flex h-[270px] w-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-[#f1e4b8] bg-white shadow-[0_8px_24px_rgba(15,23,42,0.055)] transition-all duration-200 ease-out outline-none hover:-translate-y-1 hover:border-[#efd277] hover:shadow-[0_18px_36px_rgba(255,193,7,0.22)] focus-visible:border-[#efd277]"
         >
-          <div className="relative h-[104px] w-full shrink-0 overflow-hidden">
+          <div className="relative h-[112px] w-full shrink-0 overflow-hidden">
             <CoverImage
               src={project.cover_image_url}
               alt={project.name}
               showDefaultWhenEmpty
               className="absolute inset-0 h-full w-full"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/5" />
 
-            <div className="absolute right-12 bottom-3 left-4 z-[1] flex items-end gap-2.5">
-              <div className="shadow-sm grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/95">
+            <div className="absolute right-12 bottom-3 left-4 z-[1] flex items-center gap-2.5 rounded-xl border border-white/10 bg-black/40 px-3 py-2 shadow-[0_10px_28px_rgba(0,0,0,0.18)] backdrop-blur-[2px]">
+              <div className="shadow-sm grid size-9 shrink-0 place-items-center rounded-xl bg-white/95">
                 <Logo logo={project.logo_props} size={18} />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="flex min-w-0 flex-wrap items-center gap-2">
-                  <h3 className="text-15 truncate font-semibold text-on-color">{project.name}</h3>
-                  <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-semibold", status.className)}>
-                    {status.label.toUpperCase()}
+                <div className="flex min-w-0 items-center gap-2">
+                  <h3 className="text-15 min-w-0 flex-1 truncate leading-5 font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.55)]">
+                    {project.name}
+                  </h3>
+                  <span
+                    className={cn(
+                      "inline-flex shrink-0 items-center rounded-full border px-1.5 py-0.5 text-[10px] leading-none font-semibold tracking-[0.01em]",
+                      status.className
+                    )}
+                  >
+                    {status.label}
                   </span>
                 </div>
-                <div className="tracking-normal mt-1 flex items-center gap-1.5 text-11 font-semibold text-on-color/90 uppercase">
+                <div className="tracking-normal mt-1 flex min-w-0 items-center gap-1.5 text-11 font-semibold text-white/90 uppercase">
                   <span>{project.identifier}</span>
                   {project.network === 0 && <LockIcon className="h-3 w-3" />}
                 </div>

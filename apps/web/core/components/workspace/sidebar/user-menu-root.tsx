@@ -22,7 +22,12 @@ import { useAppTheme } from "@/hooks/store/use-app-theme";
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useUser } from "@/hooks/store/user";
 
-export const UserMenuRoot = observer(function UserMenuRoot() {
+type UserMenuRootProps = {
+  variant?: "sidebar" | "header";
+};
+
+export const UserMenuRoot = observer(function UserMenuRoot(props: UserMenuRootProps) {
+  const { variant = "sidebar" } = props;
   // states
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   // router
@@ -36,6 +41,8 @@ export const UserMenuRoot = observer(function UserMenuRoot() {
   const isUserInstanceAdmin = false;
   // translation
   const { t } = useTranslation();
+  const userName = currentUser?.first_name || currentUser?.display_name || currentUser?.email || "User";
+  const userInitial = userName.charAt(0).toUpperCase();
 
   const handleSignOut = () => {
     signOut().catch(() =>
@@ -55,23 +62,31 @@ export const UserMenuRoot = observer(function UserMenuRoot() {
 
   return (
     <CustomMenu
+      ariaLabel={userName}
       className="flex items-center"
       customButton={
-        <AppSidebarItem
-          variant="content"
-          item={{
-            icon: (
-              <Avatar
-                name={currentUser?.display_name}
-                src={getFileURL(currentUser?.avatar_url ?? "")}
-                size={20}
-                shape="circle"
-              />
-            ),
-            isActive: isUserMenuOpen,
-          }}
-        />
+        variant === "header" ? (
+          <span className="flyers-soft-user-menu-initial" aria-hidden="true">
+            {userInitial}
+          </span>
+        ) : (
+          <AppSidebarItem
+            variant="content"
+            item={{
+              icon: (
+                <Avatar
+                  name={currentUser?.display_name}
+                  src={getFileURL(currentUser?.avatar_url ?? "")}
+                  size={20}
+                  shape="circle"
+                />
+              ),
+              isActive: isUserMenuOpen,
+            }}
+          />
+        )
       }
+      customButtonClassName={variant === "header" ? "flyers-soft-user-menu-trigger" : ""}
       menuButtonOnClick={() => !isUserMenuOpen && setIsUserMenuOpen(true)}
       onMenuClose={() => setIsUserMenuOpen(false)}
       placement="bottom-end"

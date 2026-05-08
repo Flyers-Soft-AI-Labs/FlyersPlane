@@ -18,17 +18,22 @@ export const ProjectSearch = observer(function ProjectSearch() {
   };
 
   return (
-    <div className="flex h-10 w-full min-w-[220px] items-center gap-2 rounded-lg border border-subtle bg-surface-1 px-3 text-placeholder shadow-[0_6px_18px_rgba(15,23,42,0.04)] transition-colors focus-within:border-accent-strong md:w-[300px]">
+    <div className="flyers-soft-dashboard-search flyers-soft-projects-search !h-9 w-[320px] max-w-full shrink-0 !gap-2 !rounded-lg !px-3 text-12 focus-within:!border-[#ffd75c] focus-within:!shadow-[0_0_0_3px_rgba(255,196,0,0.12)] lg:w-[340px]">
       <SearchIcon className="h-3.5 w-3.5 shrink-0" />
       <input
-        className="w-full border-none bg-transparent text-13 text-primary placeholder:text-placeholder focus:outline-none"
+        className="min-w-0 flex-1 !border-0 !bg-transparent !p-0 text-12 text-primary !shadow-none outline-none placeholder:text-placeholder focus:!shadow-none focus:outline-none"
         placeholder="Search projects..."
         value={searchQuery}
         onChange={(e) => updateSearchQuery(e.target.value)}
         onKeyDown={handleInputKeyDown}
       />
       {searchQuery.trim() !== "" && (
-        <button type="button" className="grid place-items-center text-tertiary" onClick={() => updateSearchQuery("")}>
+        <button
+          type="button"
+          className="grid size-6 shrink-0 place-items-center rounded-md text-tertiary transition hover:bg-layer-transparent-hover hover:text-primary"
+          onClick={() => updateSearchQuery("")}
+          aria-label="Clear project search"
+        >
           <CloseIcon className="h-3 w-3" />
         </button>
       )}

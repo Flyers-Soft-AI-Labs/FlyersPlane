@@ -24,6 +24,7 @@ export function SidebarNavItem(props: TSidebarNavItem) {
         },
         className
       )}
+      data-active={isActive ? "true" : undefined}
     >
       {children}
     </div>

@@ -32,6 +32,7 @@ import type {
   TActivityEntityData,
   THomeWidgetKeys,
   THomeWidgetProps,
+  IIssueActivity,
   TIssueEntityData,
   TIssuesResponse,
   TStateGroups,
@@ -40,13 +41,14 @@ import type {
 import { calculateTimeAgo, cn, copyTextToClipboard, generateWorkItemLink } from "@plane/utils";
 import { CustomMenu } from "@plane/ui";
 // components
+import { ActivityMessage, IssueLink } from "@/components/core/activity";
 import { ButtonAvatars } from "@/components/dropdowns/member/avatar";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useProject } from "@/hooks/store/use-project";
 import { useProjectState } from "@/hooks/store/use-project-state";
 import { useAppRouter } from "@/hooks/use-app-router";
 // services
+import { DashboardService } from "@/services/dashboard.service";
 import { WorkspaceService } from "@/services/workspace.service";
 
 export const HOME_WIDGETS_LIST: {
@@ -100,6 +102,7 @@ type TStatCard = {
   sparklineValue: number | undefined;
 };
 
+const dashboardService = new DashboardService();
 const workspaceService = new WorkspaceService();
 
 const DASHBOARD_SKELETON_ROW_KEYS = ["row-a", "row-b", "row-c", "row-d", "row-e"];
@@ -135,6 +138,19 @@ const fetchWorkspaceIssueCount = async (
   });
 
   return getIssueResponseCount(response);
+};
+
+const fetchDashboardRecentActivity = async (workspaceSlug: string): Promise<IIssueActivity[]> => {
+  const homeDashboard = await dashboardService.getHomeDashboardWidgets(workspaceSlug);
+  const activityWidget = homeDashboard.widgets.find((widget) => widget.key === "recent_activity" && widget.is_visible);
+
+  if (!activityWidget) return [];
+
+  const response = await dashboardService.getWidgetStats(workspaceSlug, homeDashboard.dashboard.id, {
+    widget_key: "recent_activity",
+  });
+
+  return Array.isArray(response) ? (response as IIssueActivity[]) : [];
 };
 
 const isReviewStateName = (stateName: string | undefined) => /\breview\b/i.test(stateName ?? "");
@@ -315,25 +331,32 @@ function CompactIssueRow({ activity, workspaceSlug }: { activity: TActivityEntit
   );
 }
 
-function ActivityRow({ activity, index }: { activity: TActivityEntityData; index: number }) {
-  const entityData = activity.entity_data;
-  const entityLabel =
-    activity.entity_name === "issue" ? "ticket" : activity.entity_name === "project" ? "project" : "page";
-  const people = ["Shalini", "Aarav", "Priya", "Rohan", "Meera"];
-  const actions = ["created", "updated", "commented on", "closed", "reviewed"];
-  const person = people[index % people.length];
-  const action = actions[index % actions.length];
+function TeamActivityRow({ activity, currentUserId }: { activity: IIssueActivity; currentUserId: string | undefined }) {
+  const actorName = activity.actor_detail?.is_bot
+    ? `${activity.actor_detail.first_name} Bot`
+    : activity.actor_detail?.display_name;
+  const actorLabel = currentUserId && currentUserId === activity.actor_detail?.id ? "You" : actorName || "Unknown user";
+  const actorInitial = (actorName || actorLabel).charAt(0).toUpperCase();
 
   return (
     <div className="flyers-soft-dashboard-activity-row">
-      <div className="flyers-soft-dashboard-activity-avatar">{person.charAt(0)}</div>
+      <div className="flyers-soft-dashboard-activity-avatar">{actorInitial}</div>
       <div className="min-w-0 flex-1">
         <div className="truncate text-13 font-medium text-primary">
-          <span className="flyers-soft-dashboard-activity-name">{person}</span> {action} a {entityLabel}
+          <span className="flyers-soft-dashboard-activity-name">{actorLabel}</span>{" "}
+          {activity.field ? (
+            <ActivityMessage activity={activity} showIssue />
+          ) : (
+            <span>
+              created <IssueLink activity={activity} />
+            </span>
+          )}
         </div>
-        {entityData?.name && <div className="truncate text-11 text-placeholder">{entityData.name}</div>}
+        {activity.project_detail?.name && (
+          <div className="truncate text-11 text-placeholder">{activity.project_detail.name}</div>
+        )}
       </div>
-      <div className="flyers-soft-dashboard-activity-time">{calculateTimeAgo(activity.visited_at)}</div>
+      <div className="flyers-soft-dashboard-activity-time">{calculateTimeAgo(activity.created_at)}</div>
     </div>
   );
 }
@@ -344,7 +367,6 @@ export const DashboardWidgets = observer(function DashboardWidgets(props: TDashb
   const workspaceSlugString = workspaceSlug?.toString();
   const router = useAppRouter();
   const { toggleCreateIssueModal } = useCommandPalette();
-  const { joinedProjectIds } = useProject();
   const { fetchedMap, fetchWorkspaceStates, workspaceStates } = useProjectState();
   const hasLoadedWorkspaceStates = !!(workspaceSlugString && fetchedMap[workspaceSlugString]);
 
@@ -392,7 +414,7 @@ export const DashboardWidgets = observer(function DashboardWidgets(props: TDashb
 
   const { data: teamActivity, isLoading: isTeamActivityLoading } = useSWR(
     workspaceSlugString ? `FLYERS_HOME_TEAM_ACTIVITY_${workspaceSlugString}` : null,
-    workspaceSlugString ? () => workspaceService.fetchWorkspaceRecents(workspaceSlugString) : null,
+    workspaceSlugString ? () => fetchDashboardRecentActivity(workspaceSlugString) : null,
     { revalidateOnFocus: false, shouldRetryOnError: false }
   );
 
@@ -420,6 +442,7 @@ export const DashboardWidgets = observer(function DashboardWidgets(props: TDashb
   const visibleRecentTickets = (recentTickets ?? []).filter(
     (activity) => activity.entity_name === "issue" && activity.entity_data
   );
+  const visibleTeamActivity = (teamActivity ?? []).filter((activity) => activity.actor_detail && activity.created_at);
   const isReviewCountLoading =
     !hasLoadedWorkspaceStates ||
     (!!reviewStateIdsKey && (isReviewTicketsLoading || resolvedReviewTicketsCount === undefined));
@@ -571,18 +594,17 @@ export const DashboardWidgets = observer(function DashboardWidgets(props: TDashb
           <div className="mt-3 flex flex-col gap-2">
             {isTeamActivityLoading ? (
               <DashboardSkeletonRows compact />
-            ) : teamActivity && teamActivity.length > 0 ? (
-              teamActivity
-                .filter((activity) => activity.entity_data)
+            ) : visibleTeamActivity.length > 0 ? (
+              visibleTeamActivity
                 .slice(0, 5)
-                .map((activity, index) => (
-                  <ActivityRow key={activity.id} activity={activity as TActivityEntityData} index={index} />
+                .map((activity) => (
+                  <TeamActivityRow key={activity.id} activity={activity} currentUserId={currentUser?.id} />
                 ))
             ) : (
               <EmptyPanel
                 icon={Activity}
-                title="No activity yet"
-                text={`${joinedProjectIds.length} project queues are ready for movement.`}
+                title="No recent activity yet"
+                text="Real workspace activity will appear here when available."
               />
             )}
           </div>

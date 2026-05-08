@@ -27,7 +27,9 @@ export const ExtendedAppHeader = observer(function ExtendedAppHeader(props: { he
   return (
     <>
       {sidebarCollapsed && shouldShowSidebarToggleButton && <AppSidebarToggleButton />}
-      <div className="w-full">{header}</div>
+      <div className="flyers-soft-extended-app-header flex w-full min-w-0 items-center">
+        <div className="min-w-0 flex-1">{header}</div>
+      </div>
     </>
   );
 });

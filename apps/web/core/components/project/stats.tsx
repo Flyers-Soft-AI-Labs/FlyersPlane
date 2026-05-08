@@ -4,7 +4,7 @@
  * See the LICENSE file for details.
  */
 
-import { BriefcaseBusiness, CheckCircle2, Clock3, LayoutGrid, type LucideIcon } from "lucide-react";
+import { BriefcaseBusiness, CheckCircle2, FolderKanban, PauseCircle, type LucideIcon } from "lucide-react";
 import { observer } from "mobx-react";
 import { cn } from "@plane/utils";
 // hooks
@@ -21,6 +21,7 @@ type TStatCard = {
   icon: LucideIcon;
   iconClassName: string;
   iconBoxClassName: string;
+  helperText: string;
 };
 
 const PROJECT_STATS_SKELETON_KEYS = ["total-projects", "active-projects", "completed-projects", "on-hold-projects"];
@@ -31,13 +32,14 @@ function ProjectStatsSkeleton() {
       {PROJECT_STATS_SKELETON_KEYS.map((key) => (
         <div
           key={key}
-          className="h-[92px] animate-pulse rounded-2xl border border-[#f1e4b8] bg-white p-4 shadow-[0_10px_28px_rgba(15,23,42,0.045)]"
+          className="h-[108px] animate-pulse rounded-xl border border-[#edf0f5] bg-white p-5 shadow-[0_12px_32px_rgba(15,23,42,0.06)]"
         >
-          <div className="flex items-center gap-3">
-            <div className="h-[42px] w-[42px] rounded-xl bg-[#f4f0ff]" />
-            <div className="flex flex-col gap-2">
-              <div className="h-3 w-24 rounded bg-[#f3ead0]" />
-              <div className="h-5 w-10 rounded bg-[#f3ead0]" />
+          <div className="flex h-full items-center gap-4">
+            <div className="size-12 rounded-xl bg-[#eef2ff]" />
+            <div className="flex min-w-0 flex-1 flex-col gap-2">
+              <div className="h-3 w-28 rounded bg-[#eef2f7]" />
+              <div className="h-6 w-12 rounded bg-[#e8edf5]" />
+              <div className="h-3 w-32 rounded bg-[#f2f5f9]" />
             </div>
           </div>
         </div>
@@ -78,13 +80,15 @@ export const ProjectStats = observer(function ProjectStats(props: TProjectStatsP
       icon: BriefcaseBusiness,
       iconBoxClassName: "bg-[#eef2ff]",
       iconClassName: "text-[#3b82f6]",
+      helperText: "All projects in workspace",
     },
     {
       title: "Active Projects",
       value: activeProjects,
-      icon: LayoutGrid,
-      iconBoxClassName: "bg-[#e8fff4]",
+      icon: FolderKanban,
+      iconBoxClassName: "bg-[#e9fbf3]",
       iconClassName: "text-[#10a66f]",
+      helperText: "Open or in progress",
     },
     {
       title: "Completed",
@@ -92,13 +96,15 @@ export const ProjectStats = observer(function ProjectStats(props: TProjectStatsP
       icon: CheckCircle2,
       iconBoxClassName: "bg-[#e9fbef]",
       iconClassName: "text-[#16a34a]",
+      helperText: "All tracked tickets done",
     },
     {
       title: "On Hold",
       value: onHoldProjects,
-      icon: Clock3,
-      iconBoxClassName: "bg-[#fff0f4]",
-      iconClassName: "text-[#e11d48]",
+      icon: PauseCircle,
+      iconBoxClassName: "bg-[#fff0f3]",
+      iconClassName: "text-[#e5485d]",
+      helperText: "Archived projects",
     },
   ];
 
@@ -110,14 +116,20 @@ export const ProjectStats = observer(function ProjectStats(props: TProjectStatsP
         return (
           <div
             key={card.title}
-            className="group flex h-[92px] items-center gap-3.5 rounded-2xl border border-[#f1e4b8] bg-white p-4 shadow-[0_10px_28px_rgba(15,23,42,0.045)] transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_18px_36px_rgba(255,193,7,0.22)]"
+            className="group flex min-h-[108px] items-center gap-4 rounded-xl border border-[#edf0f5] bg-white p-5 shadow-[0_12px_32px_rgba(15,23,42,0.06)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_18px_42px_rgba(15,23,42,0.10)]"
           >
-            <div className={cn("grid h-[42px] w-[42px] shrink-0 place-items-center rounded-xl", card.iconBoxClassName)}>
-              <Icon className={cn("h-5 w-5", card.iconClassName)} strokeWidth={2} />
+            <div
+              className={cn(
+                "grid size-12 shrink-0 place-items-center rounded-xl transition-transform duration-200 group-hover:scale-[1.03]",
+                card.iconBoxClassName
+              )}
+            >
+              <Icon className={cn("size-5", card.iconClassName)} strokeWidth={2.2} />
             </div>
-            <div className="min-w-0">
-              <p className="text-12 font-medium text-[#64748b]">{card.title}</p>
-              <p className="text-xl mt-1 font-bold text-[#111827]">{card.value}</p>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-13 font-medium text-[#64748b]">{card.title}</p>
+              <p className="text-2xl mt-1 leading-none font-semibold text-[#111827]">{card.value}</p>
+              <p className="mt-2 truncate text-11 font-medium text-[#8a94a6]">{card.helperText}</p>
             </div>
           </div>
         );

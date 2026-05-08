@@ -4,17 +4,16 @@
  * See the LICENSE file for details.
  */
 
-import type { MutableRefObject } from "react";
+import type { CSSProperties, MutableRefObject, ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useTheme } from "next-themes";
+import { createPortal } from "react-dom";
 import {
   ArrowDown,
   ArrowUp,
   BarChart3,
-  Bell,
   CheckCircle2,
   ChevronDown,
   ChevronLeft,
@@ -24,9 +23,7 @@ import {
   LayoutList,
   ListChecks,
   Minus,
-  Moon,
   MoreHorizontal,
-  Plus,
   Search,
   ShieldAlert,
   SlidersHorizontal,
@@ -35,22 +32,18 @@ import {
   Ticket,
   X,
 } from "lucide-react";
-import useSWR from "swr";
-import { EIssueFilterType, ISSUE_DISPLAY_FILTERS_BY_PAGE } from "@plane/constants";
-import type { IIssueDisplayFilterOptions, IIssueDisplayProperties, IState, TIssue } from "@plane/types";
+import { EIssueFilterType, ISSUE_DISPLAY_FILTERS_BY_PAGE, ISSUE_PRIORITIES } from "@plane/constants";
+import type { IIssueDisplayFilterOptions, IIssueDisplayProperties, IState, IUserLite, TIssue } from "@plane/types";
 import { EIssueLayoutTypes, EIssueServiceType, EIssuesStoreType } from "@plane/types";
 import { Avatar } from "@plane/ui";
-import { calculateTimeAgoShort, cn, generateWorkItemLink, getFileURL, getNumberCount } from "@plane/utils";
+import { calculateTimeAgoShort, cn, generateWorkItemLink, getFileURL } from "@plane/utils";
 // hooks
-import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
 import { useMember } from "@/hooks/store/use-member";
 import { useProject } from "@/hooks/store/use-project";
 import { useProjectState } from "@/hooks/store/use-project-state";
-import { useWorkspaceNotifications } from "@/hooks/store/notifications";
 import { useUser } from "@/hooks/store/user";
-import { useWorkspace } from "@/hooks/store/use-workspace";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
 import useIssuePeekOverviewRedirection from "@/hooks/use-issue-peek-overview-redirection";
 import { usePlatformOS } from "@/hooks/use-platform-os";
@@ -58,12 +51,18 @@ import { usePlatformOS } from "@/hooks/use-platform-os";
 import { DisplayFiltersSelection, FiltersDropdown } from "../filters";
 import type { TRenderQuickActions } from "../list/list-view-types";
 
-const COL_TEMPLATE = "40px 40px 106px minmax(260px,1fr) 184px 166px 158px 130px 52px";
+const COL_TEMPLATE = "40px 40px 106px minmax(360px,1fr) 164px 154px 158px 126px 52px";
 const PAGE_SIZE = 5;
 const SKELETON_ROW_KEYS = ["loading-row-1", "loading-row-2", "loading-row-3"];
 
 type FilterTab = "all" | "mine" | "unassigned" | "starred";
+type InlineMenuField = "status" | "priority" | "assignee";
+type InlineMenuState = { issueId: string; field: InlineMenuField } | null;
 type StatAccent = "slate" | "amber" | "blue" | "green" | "rose";
+type TicketPriority = NonNullable<TIssue["priority"]>;
+
+const PRIORITY_ORDER: TicketPriority[] = ["none", "low", "medium", "high", "urgent"];
+const STATUS_ORDER = ["todo", "in progress", "in review", "done", "blocked"];
 
 interface AllTicketsPageViewProps {
   issueIds: string[];
@@ -83,22 +82,22 @@ type TStatCard = {
 };
 
 const statAccentClasses: Record<StatAccent, string> = {
-  slate: "bg-[#f0f2f5] text-[#64748b]",
-  amber: "bg-[#fff4cf] text-[#f5a400]",
-  blue: "bg-[#e8f2ff] text-[#1677ff]",
-  green: "bg-[#e8f8ef] text-[#079669]",
-  rose: "bg-[#ffe8ec] text-[#e5485d]",
+  slate: "bg-[var(--fs-layer-3)] text-[var(--fs-text-tertiary)]",
+  amber: "bg-[var(--fs-warning-soft)] text-[var(--fs-warning)]",
+  blue: "bg-[var(--fs-info-soft)] text-[var(--fs-info)]",
+  green: "bg-[var(--fs-success-soft)] text-[var(--fs-success)]",
+  rose: "bg-[var(--fs-danger-soft)] text-[var(--fs-danger)]",
 };
 
-function getStateTone(state: IState | undefined) {
+function getStateAccent(state: IState | undefined) {
   const name = state?.name?.toLowerCase() ?? "";
   const group = state?.group;
 
-  if (name.includes("review")) return "border-[#cfe3ff] bg-[#edf6ff] text-[#1169d8]";
-  if (group === "completed") return "border-[#ccefdc] bg-[#effaf4] text-[#087a50]";
-  if (group === "started") return "border-[#ffe3a3] bg-[#fff8e7] text-[#9a6400]";
-  if (group === "cancelled" || name.includes("blocked")) return "border-[#ffd4dc] bg-[#fff1f3] text-[#c52f48]";
-  return "border-[#e3e7ef] bg-[#f3f4f6] text-[#475569]";
+  if (name.includes("review")) return "#1677ff";
+  if (group === "completed") return "#11a05d";
+  if (group === "started") return "#d88900";
+  if (group === "cancelled" || name.includes("blocked")) return "#dc3d5a";
+  return "#64748b";
 }
 
 function getPriorityTone(priority: TIssue["priority"]) {
@@ -131,6 +130,13 @@ function getPriorityTone(priority: TIssue["priority"]) {
   }
 }
 
+function getStateOrderIndex(state: IState) {
+  const name = state.name.toLowerCase();
+  const orderIndex = STATUS_ORDER.findIndex((status) => name === status || name.includes(status));
+
+  return orderIndex === -1 ? STATUS_ORDER.length : orderIndex;
+}
+
 export const AllTicketsPageView = observer(function AllTicketsPageView(props: AllTicketsPageViewProps) {
   const { issueIds, quickActions, canEditProperties, canLoadMoreIssues, loadMoreIssues } = props;
 
@@ -139,6 +145,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
   const [searchText, setSearchText] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [starredIds, setStarredIds] = useState<Set<string>>(new Set());
+  const [activeInlineMenu, setActiveInlineMenu] = useState<InlineMenuState>(null);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [sentinelEl, setSentinelEl] = useState<HTMLDivElement | null>(null);
@@ -146,28 +153,15 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
 
   const { workspaceSlug } = useParams();
   const workspaceSlugString = workspaceSlug?.toString() ?? "";
-  const { setTheme, resolvedTheme } = useTheme();
-  const { toggleCreateIssueModal } = useCommandPalette();
   const {
     issueMap,
     issuesFilter: { issueFilters, updateFilters },
   } = useIssues(EIssuesStoreType.GLOBAL);
   const { getStateById } = useProjectState();
-  const { currentWorkspace, getWorkspaceBySlug } = useWorkspace();
-  const { unreadNotificationsCount, getUnreadNotificationsCount } = useWorkspaceNotifications();
   const { data: currentUser } = useUser();
   const currentUserId = currentUser?.id;
-  const workspace = currentWorkspace ?? (workspaceSlugString ? getWorkspaceBySlug(workspaceSlugString) : null);
-  const workspaceName = workspace?.name ?? workspaceSlugString ?? "Workspace";
-  const notificationCount = unreadNotificationsCount.total_unread_notifications_count;
 
   useIntersectionObserver(containerRef, canLoadMoreIssues ? sentinelEl : null, loadMoreIssues, "100% 0% 100% 0%");
-
-  useSWR(
-    workspaceSlugString ? `ALL_TICKETS_UNREAD_NOTIFICATION_COUNT_${workspaceSlugString}` : null,
-    workspaceSlugString ? () => getUnreadNotificationsCount(workspaceSlugString) : null,
-    { revalidateOnFocus: false, shouldRetryOnError: false }
-  );
 
   const stats = useMemo(() => {
     let total = 0;
@@ -330,61 +324,11 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
     <div className="flyers-soft-all-issues-view-body h-full overflow-hidden bg-[#fbf7ef] text-[#111827]">
       <div ref={portalRef} className="spreadsheet-menu-portal" />
 
-      <div className="flex h-[70px] items-center justify-between border-b border-[#eadfca] bg-white/95 px-6">
-        <div className="flex items-center gap-3">
-          <div className="shadow-sm grid size-9 place-items-center rounded-xl bg-[#ffc42e] font-semibold text-white">
-            {workspaceName.charAt(0).toUpperCase()}
-          </div>
-          <button type="button" className="text-15 flex items-center gap-2 font-semibold text-[#111827]">
-            <span className="max-w-56 truncate">{workspaceName}</span>
-            <ChevronDown className="size-4 text-[#64748b]" strokeWidth={2} />
-          </button>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <button
-            type="button"
-            className="grid size-9 place-items-center rounded-full text-[#f5a400] transition hover:bg-[#fff4cf]"
-            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-            aria-label="Toggle theme"
-          >
-            {resolvedTheme === "dark" ? <Moon className="size-5" /> : <Sun className="size-5" />}
-          </button>
-          <Link
-            href={workspaceSlugString ? `/${workspaceSlugString}/notifications/` : "#"}
-            className="relative grid size-9 place-items-center rounded-full text-[#111827] transition hover:bg-[#fff4cf]"
-            aria-label="Notifications"
-          >
-            <Bell className="size-5" strokeWidth={2} />
-            {notificationCount > 0 && (
-              <span className="absolute -top-1 -right-1 grid min-h-5 min-w-5 place-items-center rounded-full bg-[#ffc107] px-1 text-10 font-bold text-[#111827]">
-                {getNumberCount(notificationCount)}
-              </span>
-            )}
-          </Link>
-          <button
-            type="button"
-            className="shadow-sm hover:shadow-md flex h-10 items-center gap-2 rounded-lg bg-[#ffc42e] px-5 text-14 font-semibold text-[#111827] transition hover:-translate-y-0.5 hover:bg-[#ffbd14]"
-            onClick={() => toggleCreateIssueModal(true)}
-          >
-            <Plus className="size-4" strokeWidth={2.3} />
-            Create Ticket
-          </button>
-          <Avatar
-            name={currentUser?.display_name}
-            src={getFileURL(currentUser?.avatar_url ?? "")}
-            size={40}
-            shape="circle"
-            className="font-semibold"
-          />
-        </div>
-      </div>
-
-      <main ref={containerRef} className="h-[calc(100%-70px)] min-h-0 overflow-y-auto px-6 py-7">
+      <main ref={containerRef} className="h-full min-h-0 overflow-y-auto px-6 py-7">
         <section className="flex items-center justify-between gap-5">
           <div className="flex min-w-0 items-center gap-6">
             <h1 className="text-24 font-semibold tracking-tight text-[#111827]">Tickets</h1>
-            <div className="shadow-sm flex h-12 w-[420px] items-center gap-3 rounded-xl border border-[#eadfca] bg-white px-4 focus-within:border-[#ffc42e]">
+            <div className="flyers-soft-all-issues-search shadow-sm flex h-12 w-[420px] items-center gap-3 rounded-xl border border-[#eadfca] bg-white px-4 focus-within:border-[#ffc42e]">
               <Search className="size-5 flex-shrink-0 text-[#334155]" strokeWidth={2} />
               <input
                 type="text"
@@ -459,30 +403,38 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
           </div>
         </section>
 
-        <section className="shadow-sm mt-6 overflow-hidden rounded-xl border border-[#dfe5ef] bg-white">
-          <TicketTableHeader allSelected={allVisibleSelected} onToggleSelectAll={toggleSelectVisible} />
+        <section className="flyers-soft-all-issues-table-card shadow-sm mt-6 overflow-visible rounded-xl border border-[#dfe5ef] bg-white">
+          <div className="overflow-x-auto">
+            <div className="min-w-[1160px]">
+              <TicketTableHeader allSelected={allVisibleSelected} onToggleSelectAll={toggleSelectVisible} />
 
-          {visibleIssueIds.length === 0 ? (
-            <div className="flex h-48 items-center justify-center text-14 text-[#64748b]">
-              No tickets match your filters.
+              {visibleIssueIds.length === 0 ? (
+                <div className="flex h-48 items-center justify-center text-14 text-[#64748b]">
+                  No tickets match your filters.
+                </div>
+              ) : (
+                visibleIssueIds.map((id) => (
+                  <TicketTableRow
+                    key={id}
+                    canEditProperties={canEditProperties}
+                    isSelected={selectedIds.has(id)}
+                    isStarred={starredIds.has(id)}
+                    issueId={id}
+                    onToggleSelect={() => toggleSelect(id)}
+                    onToggleStar={() => toggleStar(id)}
+                    portalRef={portalRef}
+                    quickActions={quickActions}
+                    updateIssue={props.updateIssue}
+                    activeInlineMenu={activeInlineMenu}
+                    onOpenInlineMenu={(field) => setActiveInlineMenu({ issueId: id, field })}
+                    onCloseInlineMenu={() => setActiveInlineMenu(null)}
+                  />
+                ))
+              )}
             </div>
-          ) : (
-            visibleIssueIds.map((id) => (
-              <TicketTableRow
-                key={id}
-                canEditProperties={canEditProperties}
-                isSelected={selectedIds.has(id)}
-                isStarred={starredIds.has(id)}
-                issueId={id}
-                onToggleSelect={() => toggleSelect(id)}
-                onToggleStar={() => toggleStar(id)}
-                portalRef={portalRef}
-                quickActions={quickActions}
-              />
-            ))
-          )}
+          </div>
 
-          <div className="flex min-h-[76px] items-center justify-between border-t border-[#dfe5ef] px-6 text-13 text-[#475569]">
+          <div className="flyers-soft-all-issues-table-footer flex min-h-[76px] flex-wrap items-center justify-between gap-3 border-t border-[#dfe5ef] px-6 text-13 text-[#475569]">
             <span>
               Showing {showingStart} to {showingEnd} of {filteredIds.length} tickets
             </span>
@@ -531,7 +483,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
           )}
         </section>
 
-        <div className="mt-5 flex min-h-16 items-center justify-between rounded-xl border border-[#f0d58a] bg-white/70 px-6 text-13 text-[#475569]">
+        <div className="flyers-soft-all-issues-tip mt-5 flex min-h-16 items-center justify-between rounded-xl border border-[#f0d58a] bg-white/70 px-6 text-13 text-[#475569]">
           <div className="flex items-center gap-3">
             <Sun className="size-4 text-[#f5a400]" />
             <span>
@@ -582,7 +534,7 @@ function DisplayMenu({
 
 function StatCard({ accent, count, icon: Icon, label, subtitle }: TStatCard) {
   return (
-    <div className="flex min-h-[134px] items-center gap-4 rounded-xl border border-[#edf0f5] bg-white p-5 shadow-[0_12px_32px_rgba(17,24,39,0.06)] transition duration-150 hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(17,24,39,0.12)]">
+    <div className="flyers-soft-all-issues-stat-card flex min-h-[134px] items-center gap-4 rounded-xl border border-[#edf0f5] bg-white p-5 shadow-[0_12px_32px_rgba(17,24,39,0.06)] transition duration-150 hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(17,24,39,0.12)]">
       <div className={cn("grid size-12 flex-shrink-0 place-items-center rounded-full", statAccentClasses[accent])}>
         <Icon className="size-5" strokeWidth={2.2} />
       </div>
@@ -601,9 +553,10 @@ function FilterPill({ active, label, onClick }: { active: boolean; label: string
       type="button"
       onClick={onClick}
       className={cn(
-        "text-15 h-11 rounded-xl px-5 font-medium transition",
+        "flyers-soft-all-issues-filter-pill text-15 h-11 rounded-xl px-5 font-medium transition",
         active ? "bg-[#fff1c2] text-[#d68a00]" : "text-[#111827] hover:bg-[#fffaf0]"
       )}
+      data-active={active ? "true" : undefined}
     >
       {label}
     </button>
@@ -614,7 +567,7 @@ function FilterButton({ icon: Icon, label }: { icon?: typeof Filter; label: stri
   return (
     <button
       type="button"
-      className="shadow-sm flex h-11 min-w-30 items-center justify-center gap-2 rounded-xl border border-[#dfe5ef] bg-white px-4 text-14 font-medium text-[#111827] transition hover:bg-[#fffaf0]"
+      className="flyers-soft-all-issues-filter-button shadow-sm flex h-11 min-w-30 items-center justify-center gap-2 rounded-xl border border-[#dfe5ef] bg-white px-4 text-14 font-medium text-[#111827] transition hover:bg-[#fffaf0]"
     >
       {Icon && <Icon className="size-4 text-[#475569]" strokeWidth={2} />}
       {label}
@@ -632,7 +585,7 @@ function TicketTableHeader({
 }) {
   return (
     <div
-      className="grid h-16 items-center border-b border-[#dfe5ef] px-5 text-14 font-medium text-[#475569]"
+      className="flyers-soft-all-issues-table-header sticky top-0 z-[2] grid h-16 items-center border-b border-[#dfe5ef] px-5 text-14 font-medium text-[#475569]"
       style={{ gridTemplateColumns: COL_TEMPLATE }}
     >
       <div className="flex items-center justify-center">
@@ -666,16 +619,32 @@ interface TicketTableRowProps {
   onToggleStar: () => void;
   portalRef: MutableRefObject<HTMLDivElement | null>;
   quickActions: TRenderQuickActions;
+  updateIssue: ((projectId: string | null, issueId: string, data: Partial<TIssue>) => Promise<void>) | undefined;
+  activeInlineMenu: InlineMenuState;
+  onOpenInlineMenu: (field: InlineMenuField) => void;
+  onCloseInlineMenu: () => void;
 }
 
 const TicketTableRow = observer(function TicketTableRow(props: TicketTableRowProps) {
-  const { canEditProperties, issueId, isSelected, isStarred, onToggleSelect, onToggleStar, portalRef, quickActions } =
-    props;
+  const {
+    canEditProperties,
+    issueId,
+    isSelected,
+    isStarred,
+    onToggleSelect,
+    onToggleStar,
+    portalRef,
+    quickActions,
+    updateIssue,
+    activeInlineMenu,
+    onOpenInlineMenu,
+    onCloseInlineMenu,
+  } = props;
 
   const rowRef = useRef<HTMLDivElement | null>(null);
   const { workspaceSlug } = useParams();
   const { getProjectIdentifierById } = useProject();
-  const { getStateById } = useProjectState();
+  const { fetchProjectStates, getProjectStateIds, getStateById } = useProjectState();
   const memberStore = useMember();
   const { handleRedirection } = useIssuePeekOverviewRedirection(false);
   const { isMobile } = usePlatformOS();
@@ -689,12 +658,18 @@ const TicketTableRow = observer(function TicketTableRow(props: TicketTableRowPro
   const ticketKey =
     projectIdentifier && issueDetail.sequence_id ? `${projectIdentifier}-${issueDetail.sequence_id}` : "-";
   const disableUserActions = !canEditProperties(issueDetail.project_id ?? undefined);
+  const canInlineEdit = !!updateIssue && !disableUserActions && !!issueDetail.project_id;
   const isPeeked = getIsIssuePeeked(issueDetail.id) && peekIssue?.nestingLevel === 0;
   const firstAssigneeId = issueDetail.assignee_ids?.[0];
   const assignee = firstAssigneeId ? memberStore.getUserDetails(firstAssigneeId) : undefined;
   const updatedLabel = issueDetail.updated_at ? calculateTimeAgoShort(issueDetail.updated_at) : "-";
   const priorityTone = getPriorityTone(issueDetail.priority);
   const PriorityToneIcon = priorityTone.icon;
+  const projectStateIds = getProjectStateIds(issueDetail.project_id ?? undefined);
+  const projectStates = (projectStateIds ?? [])
+    .map((stateId) => getStateById(stateId))
+    .filter((state): state is IState => !!state)
+    .sort((a, b) => getStateOrderIndex(a) - getStateOrderIndex(b) || a.order - b.order || a.sequence - b.sequence);
 
   const workItemLink = generateWorkItemLink({
     workspaceSlug: workspaceSlug?.toString(),
@@ -706,6 +681,25 @@ const TicketTableRow = observer(function TicketTableRow(props: TicketTableRowPro
   });
 
   const handlePeekOverview = () => handleRedirection(workspaceSlug?.toString(), issueDetail, isMobile, 0);
+
+  const handleInlineUpdate = (data: Partial<TIssue>) => {
+    if (!canInlineEdit || !issueDetail.project_id || !updateIssue) return;
+    void updateIssue(issueDetail.project_id, issueDetail.id, data);
+  };
+
+  const handleStatusMenuOpen = () => {
+    if (!projectStates.length && workspaceSlug && issueDetail.project_id) {
+      void fetchProjectStates(workspaceSlug.toString(), issueDetail.project_id);
+    }
+    onOpenInlineMenu("status");
+  };
+
+  const handleAssigneeMenuOpen = () => {
+    if (!memberStore.workspace.workspaceMemberIds && workspaceSlug) {
+      void memberStore.workspace.fetchWorkspaceMembers(workspaceSlug.toString());
+    }
+    onOpenInlineMenu("assignee");
+  };
 
   const customActionButton = (
     <span className="grid size-8 place-items-center rounded-lg text-[#64748b] transition hover:bg-[#fff4cf] hover:text-[#111827]">
@@ -745,58 +739,60 @@ const TicketTableRow = observer(function TicketTableRow(props: TicketTableRowPro
         <Star className="size-4" fill={isStarred ? "currentColor" : "none"} />
       </button>
 
-      <Link href={workItemLink} className="font-medium text-[#334155] hover:text-[#111827] hover:underline">
+      <Link href={workItemLink} className="font-semibold text-[#475569] hover:text-[#111827] hover:underline">
         {ticketKey}
       </Link>
 
       <button
         type="button"
-        className="text-15 min-w-0 truncate text-left font-semibold text-[#111827] hover:text-[#d68a00]"
+        className="flyers-soft-ticket-title-cell text-15 min-w-0 text-left leading-5 font-semibold text-[#111827] hover:text-[#d68a00]"
         onClick={handlePeekOverview}
       >
         {issueDetail.name}
       </button>
 
-      <div>
-        {state ? (
-          <span
-            className={cn(
-              "inline-flex items-center gap-2 rounded-full border px-3 py-1 text-13 font-medium",
-              getStateTone(state)
-            )}
-          >
-            <span className="size-2 rounded-full bg-current opacity-60" />
-            {state.name}
-          </span>
-        ) : (
-          <span className="text-[#64748b]">-</span>
-        )}
-      </div>
+      <InlineStatusEditor
+        isOpen={activeInlineMenu?.issueId === issueId && activeInlineMenu.field === "status"}
+        disabled={!canInlineEdit}
+        issue={issueDetail}
+        states={projectStates}
+        state={state}
+        onOpen={handleStatusMenuOpen}
+        onClose={onCloseInlineMenu}
+        onChange={(stateId) => {
+          handleInlineUpdate({ state_id: stateId });
+          onCloseInlineMenu();
+        }}
+      />
 
-      <div className="flex items-center gap-2">
-        <PriorityToneIcon className={cn("size-4", priorityTone.className)} strokeWidth={2.2} />
-        <span className="text-[#334155] capitalize">{priorityTone.label}</span>
-      </div>
+      <InlinePriorityEditor
+        isOpen={activeInlineMenu?.issueId === issueId && activeInlineMenu.field === "priority"}
+        disabled={!canInlineEdit}
+        issue={issueDetail}
+        priorityTone={priorityTone}
+        PriorityToneIcon={PriorityToneIcon}
+        onOpen={() => onOpenInlineMenu("priority")}
+        onClose={onCloseInlineMenu}
+        onChange={(priority) => {
+          handleInlineUpdate({ priority });
+          onCloseInlineMenu();
+        }}
+      />
 
-      <div className="flex min-w-0 items-center gap-3">
-        {assignee ? (
-          <>
-            <Avatar
-              name={assignee.display_name}
-              src={getFileURL(assignee.avatar_url ?? "")}
-              size={30}
-              shape="circle"
-              className="flex-shrink-0"
-            />
-            <span className="truncate text-[#334155]">{assignee.display_name}</span>
-          </>
-        ) : (
-          <>
-            <div className="size-8 rounded-full border border-dashed border-[#cbd5e1]" />
-            <span className="text-[#64748b]">Unassigned</span>
-          </>
-        )}
-      </div>
+      <InlineAssigneeEditor
+        isOpen={activeInlineMenu?.issueId === issueId && activeInlineMenu.field === "assignee"}
+        assignee={assignee}
+        disabled={!canInlineEdit}
+        getUserDetails={memberStore.getUserDetails}
+        issue={issueDetail}
+        memberIds={memberStore.workspace.workspaceMemberIds ?? undefined}
+        onOpen={handleAssigneeMenuOpen}
+        onClose={onCloseInlineMenu}
+        onChange={(assigneeIds) => {
+          handleInlineUpdate({ assignee_ids: assigneeIds });
+          onCloseInlineMenu();
+        }}
+      />
 
       <span className="text-[#475569]">{updatedLabel}</span>
 
@@ -812,6 +808,372 @@ const TicketTableRow = observer(function TicketTableRow(props: TicketTableRowPro
     </div>
   );
 });
+
+function InlineStatusEditor({
+  disabled,
+  issue,
+  isOpen,
+  onChange,
+  onClose,
+  onOpen,
+  state,
+  states,
+}: {
+  disabled: boolean;
+  issue: TIssue;
+  isOpen: boolean;
+  onChange: (stateId: string) => void;
+  onClose: () => void;
+  onOpen: () => void;
+  state: IState | undefined;
+  states: IState[];
+}) {
+  const statusStyle = { "--flyers-status-color": getStateAccent(state) } as CSSProperties;
+
+  return (
+    <div className="flyers-soft-inline-field min-w-0">
+      <InlineDropdownMenu
+        disabled={disabled}
+        isOpen={isOpen}
+        menuWidth={190}
+        onClose={onClose}
+        onOpen={onOpen}
+        trigger={
+          <span
+            className={cn(
+              "flyers-soft-status-pill inline-flex max-w-full items-center gap-2",
+              disabled && "cursor-not-allowed opacity-70"
+            )}
+            style={statusStyle}
+          >
+            <span className="min-w-0 truncate">{state?.name ?? "No status"}</span>
+            {!disabled && <ChevronDown className="size-3.5 flex-shrink-0 opacity-70" />}
+          </span>
+        }
+      >
+        {states.length ? (
+          states.map((stateOption) => {
+            const isSelected = stateOption.id === issue.state_id;
+
+            return (
+              <button
+                key={stateOption.id}
+                type="button"
+                className="flyers-soft-inline-menu-option"
+                data-selected={isSelected ? "true" : undefined}
+                onClick={() => onChange(stateOption.id)}
+              >
+                <span
+                  className="size-2.5 flex-shrink-0 rounded-full"
+                  style={{ backgroundColor: getStateAccent(stateOption) }}
+                />
+                <span className="min-w-0 flex-1 truncate text-left">{stateOption.name}</span>
+                {isSelected && <CheckCircle2 className="size-3.5 flex-shrink-0 text-[#f6b800]" strokeWidth={2.4} />}
+              </button>
+            );
+          })
+        ) : (
+          <span className="block px-3 py-2 text-13 text-[#64748b]">No statuses found</span>
+        )}
+      </InlineDropdownMenu>
+    </div>
+  );
+}
+
+function InlinePriorityEditor({
+  disabled,
+  issue,
+  isOpen,
+  onChange,
+  onClose,
+  onOpen,
+  PriorityToneIcon,
+  priorityTone,
+}: {
+  disabled: boolean;
+  issue: TIssue;
+  isOpen: boolean;
+  onChange: (priority: TIssue["priority"]) => void;
+  onClose: () => void;
+  onOpen: () => void;
+  PriorityToneIcon: typeof ArrowUp;
+  priorityTone: ReturnType<typeof getPriorityTone>;
+}) {
+  const priorityKey = `${issue.priority ?? "none"}`.toLowerCase();
+  const priorityOptions = PRIORITY_ORDER.map((priority) => {
+    const priorityDetails = ISSUE_PRIORITIES.find((item) => item.key === priority);
+    return { key: priority, title: priorityDetails?.title ?? priority };
+  });
+
+  return (
+    <div className="flyers-soft-inline-field min-w-0">
+      <InlineDropdownMenu
+        disabled={disabled}
+        isOpen={isOpen}
+        menuWidth={190}
+        onClose={onClose}
+        onOpen={onOpen}
+        trigger={
+          <span
+            className={cn(
+              "flyers-soft-priority-pill inline-flex max-w-full items-center gap-2 capitalize",
+              `flyers-soft-priority-${priorityKey}`,
+              disabled && "cursor-not-allowed opacity-70"
+            )}
+          >
+            <PriorityToneIcon className={cn("size-4 flex-shrink-0", priorityTone.className)} strokeWidth={2.2} />
+            <span className="min-w-0 truncate">{priorityTone.label}</span>
+            {!disabled && <ChevronDown className="size-3.5 flex-shrink-0 opacity-70" />}
+          </span>
+        }
+      >
+        {priorityOptions.map((priority) => {
+          const optionTone = getPriorityTone(priority.key);
+          const OptionIcon = optionTone.icon;
+          const isSelected = priority.key === (issue.priority ?? "none");
+
+          return (
+            <button
+              key={priority.key}
+              type="button"
+              className="flyers-soft-inline-menu-option"
+              data-selected={isSelected ? "true" : undefined}
+              onClick={() => onChange(priority.key)}
+            >
+              <OptionIcon className={cn("size-4 flex-shrink-0", optionTone.className)} strokeWidth={2.2} />
+              <span className="min-w-0 flex-1 truncate text-left">{priority.title}</span>
+              {isSelected && <CheckCircle2 className="size-3.5 flex-shrink-0 text-[#f6b800]" strokeWidth={2.4} />}
+            </button>
+          );
+        })}
+      </InlineDropdownMenu>
+    </div>
+  );
+}
+
+function InlineAssigneeEditor({
+  assignee,
+  disabled,
+  getUserDetails,
+  isOpen,
+  issue,
+  memberIds,
+  onChange,
+  onClose,
+  onOpen,
+}: {
+  assignee: IUserLite | undefined;
+  disabled: boolean;
+  getUserDetails: (userId: string) => IUserLite | undefined;
+  isOpen: boolean;
+  issue: TIssue;
+  memberIds: string[] | undefined;
+  onChange: (assigneeIds: string[]) => void;
+  onClose: () => void;
+  onOpen: () => void;
+}) {
+  const [query, setQuery] = useState("");
+  const selectedAssigneeId = issue.assignee_ids?.[0];
+  const members = (memberIds ?? [])
+    .map((memberId) => getUserDetails(memberId))
+    .filter((member): member is IUserLite => !!member);
+  const filteredMembers = members.filter((member) => {
+    const searchableText = `${member.display_name} ${member.first_name} ${member.last_name} ${member.email ?? ""}`;
+    return searchableText.toLowerCase().includes(query.trim().toLowerCase());
+  });
+
+  useEffect(() => {
+    if (!isOpen) setQuery("");
+  }, [isOpen]);
+
+  return (
+    <div className="flyers-soft-inline-field min-w-0">
+      <InlineDropdownMenu
+        disabled={disabled}
+        isOpen={isOpen}
+        menuWidth={240}
+        onClose={onClose}
+        onOpen={onOpen}
+        trigger={
+          <span
+            className={cn(
+              "flyers-soft-assignee-pill inline-flex max-w-full items-center gap-2 rounded-full border border-[#dfe5ef] bg-white px-2.5 py-1 text-13 font-medium text-[#334155]",
+              disabled && "cursor-not-allowed opacity-70"
+            )}
+          >
+            {assignee ? (
+              <>
+                <Avatar
+                  name={assignee.display_name}
+                  src={getFileURL(assignee.avatar_url ?? "")}
+                  size={24}
+                  shape="circle"
+                  className="flex-shrink-0"
+                />
+                <span className="min-w-0 truncate">{assignee.display_name}</span>
+              </>
+            ) : (
+              <>
+                <span className="size-6 flex-shrink-0 rounded-full border border-dashed border-[#cbd5e1]" />
+                <span className="min-w-0 truncate text-[#64748b]">Unassigned</span>
+              </>
+            )}
+            {!disabled && <ChevronDown className="size-3.5 flex-shrink-0 text-[#64748b]" />}
+          </span>
+        }
+      >
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search members..."
+          className="flyers-soft-inline-menu-search"
+          onClick={(e) => e.stopPropagation()}
+        />
+        <button
+          type="button"
+          className="flyers-soft-inline-menu-option"
+          data-selected={!selectedAssigneeId ? "true" : undefined}
+          onClick={() => onChange([])}
+        >
+          <span className="size-6 flex-shrink-0 rounded-full border border-dashed border-[#cbd5e1]" />
+          <span className="min-w-0 flex-1 truncate text-left">Unassigned</span>
+          {!selectedAssigneeId && <CheckCircle2 className="size-3.5 flex-shrink-0 text-[#f6b800]" strokeWidth={2.4} />}
+        </button>
+        {filteredMembers.length ? (
+          filteredMembers.map((member) => {
+            const isSelected = member.id === selectedAssigneeId;
+
+            return (
+              <button
+                key={member.id}
+                type="button"
+                className="flyers-soft-inline-menu-option"
+                data-selected={isSelected ? "true" : undefined}
+                onClick={() => onChange([member.id])}
+              >
+                <Avatar
+                  name={member.display_name}
+                  src={getFileURL(member.avatar_url ?? "")}
+                  size={24}
+                  shape="circle"
+                  className="flex-shrink-0"
+                />
+                <span className="min-w-0 flex-1 truncate text-left">{member.display_name}</span>
+                {isSelected && <CheckCircle2 className="size-3.5 flex-shrink-0 text-[#f6b800]" strokeWidth={2.4} />}
+              </button>
+            );
+          })
+        ) : (
+          <span className="block px-3 py-2 text-13 text-[#64748b]">No members found</span>
+        )}
+      </InlineDropdownMenu>
+    </div>
+  );
+}
+
+function InlineDropdownMenu({
+  children,
+  disabled,
+  isOpen,
+  menuWidth = 190,
+  onClose,
+  onOpen,
+  trigger,
+}: {
+  children: ReactNode;
+  disabled: boolean;
+  isOpen: boolean;
+  menuWidth?: number;
+  onClose: () => void;
+  onOpen: () => void;
+  trigger: ReactNode;
+}) {
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const [panelStyle, setPanelStyle] = useState<CSSProperties>({});
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (!menuRef.current?.contains(target) && !panelRef.current?.contains(target)) onClose();
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  useEffect(() => {
+    if (!isOpen || !triggerRef.current) return;
+
+    const updatePosition = () => {
+      const triggerRect = triggerRef.current?.getBoundingClientRect();
+      if (!triggerRect) return;
+
+      const left = Math.min(Math.max(12, triggerRect.left), window.innerWidth - menuWidth - 12);
+      const top = Math.min(triggerRect.bottom + 6, window.innerHeight - 260);
+
+      setPanelStyle({
+        left,
+        minWidth: Math.max(triggerRect.width, 148),
+        top: Math.max(12, top),
+        width: menuWidth,
+      });
+    };
+
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [isOpen, menuWidth]);
+
+  return (
+    <div ref={menuRef} className="flyers-soft-inline-menu">
+      <button
+        ref={triggerRef}
+        type="button"
+        disabled={disabled}
+        aria-expanded={isOpen}
+        className="flyers-soft-inline-trigger"
+        onClick={(event) => {
+          event.stopPropagation();
+          if (disabled) return;
+          isOpen ? onClose() : onOpen();
+        }}
+      >
+        {trigger}
+      </button>
+      {isOpen &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            ref={panelRef}
+            className="flyers-soft-inline-menu-panel"
+            style={panelStyle}
+            onClick={(event) => event.stopPropagation()}
+          >
+            {children}
+          </div>,
+          document.body
+        )}
+    </div>
+  );
+}
 
 function PaginationButton({
   icon: Icon,

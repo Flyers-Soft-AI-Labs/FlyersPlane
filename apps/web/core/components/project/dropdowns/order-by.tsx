@@ -42,10 +42,10 @@ export function ProjectOrderByDropdown(props: Props) {
             </span>
           ) : (
             <span
-              className={`${getButtonStyling("secondary", "lg")} h-10 rounded-lg px-3 shadow-[0_6px_18px_rgba(15,23,42,0.04)]`}
+              className={`${getButtonStyling("secondary", "lg")} !h-9 !rounded-lg px-3 !text-12 shadow-[0_6px_18px_rgba(15,23,42,0.04)]`}
             >
               <span className="text-tertiary">Sort:</span>
-              <span>{orderByDetails && t(orderByDetails?.i18n_label)}</span>
+              <span className="max-w-32 truncate">{orderByDetails && t(orderByDetails?.i18n_label)}</span>
               <ChevronDownIcon className="h-3 w-3 shrink-0" strokeWidth={2} />
             </span>
           )}

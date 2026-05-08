@@ -20,8 +20,6 @@ import { ViewsIcon } from "@plane/propel/icons";
 import type { IIssueDisplayFilterOptions, IIssueDisplayProperties, ICustomSearchSelectOption } from "@plane/types";
 import { EIssuesStoreType, EIssueLayoutTypes } from "@plane/types";
 import { Breadcrumbs, Header, BreadcrumbNavigationSearchDropdown } from "@plane/ui";
-// issue creation modal
-import { CreateUpdateIssueModal } from "@/components/issues/issue-modal/modal";
 // components
 import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
 import { SwitcherLabel } from "@/components/common/switcher-label";
@@ -39,7 +37,6 @@ import { GlobalViewLayoutSelection } from "@/plane-web/components/views/helper";
 export const GlobalIssuesHeader = observer(function GlobalIssuesHeader() {
   // states
   const [createViewModal, setCreateViewModal] = useState(false);
-  const [createTicketModal, setCreateTicketModal] = useState(false);
   // router
   const router = useAppRouter();
   const { workspaceSlug, globalViewId: routerGlobalViewId } = useParams();
@@ -128,7 +125,6 @@ export const GlobalIssuesHeader = observer(function GlobalIssuesHeader() {
   return (
     <>
       <CreateUpdateWorkspaceViewModal isOpen={createViewModal} onClose={() => setCreateViewModal(false)} />
-      <CreateUpdateIssueModal isOpen={createTicketModal} onClose={() => setCreateTicketModal(false)} />
       <Header>
         <Header.LeftItem>
           {isAllIssues ? (
@@ -200,20 +196,14 @@ export const GlobalIssuesHeader = observer(function GlobalIssuesHeader() {
               />
             </FiltersDropdown>
           )}
-          {isAllIssues ? (
-            <Button variant="primary" size="lg" onClick={() => setCreateTicketModal(true)}>
-              Create Ticket
-            </Button>
-          ) : (
-            <Button
-              variant="primary"
-              size="lg"
-              data-ph-element={GLOBAL_VIEW_TRACKER_ELEMENTS.RIGHT_HEADER_ADD_BUTTON}
-              onClick={() => setCreateViewModal(true)}
-            >
-              {t("workspace_views.add_view")}
-            </Button>
-          )}
+          <Button
+            variant="primary"
+            size="lg"
+            data-ph-element={GLOBAL_VIEW_TRACKER_ELEMENTS.RIGHT_HEADER_ADD_BUTTON}
+            onClick={() => setCreateViewModal(true)}
+          >
+            {t("workspace_views.add_view")}
+          </Button>
           {!isAllIssues && (
             <div className="hidden md:block">
               {viewDetails && (

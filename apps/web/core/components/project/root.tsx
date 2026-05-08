@@ -99,8 +99,8 @@ export const ProjectRoot = observer(function ProjectRoot() {
   return (
     <>
       <PageHead title={pageTitle} />
-      <div className="flex min-h-full w-full flex-col bg-[#fffdf7]">
-        <div className="mx-auto flex w-full max-w-[1520px] flex-col gap-4 px-4 py-4 lg:px-6 lg:py-5">
+      <div className="flyers-soft-projects-body flex min-h-full w-full flex-col bg-[var(--fs-bg-canvas)]">
+        <div className="mx-auto flex w-full max-w-[1520px] flex-col gap-5 px-6 py-6 lg:px-8 lg:py-7">
           {!isArchived && <ProjectStats isLoading={!totalProjectIds} projectIds={totalProjectIds ?? []} />}
           {(calculateTotalFilters(currentWorkspaceFilters ?? {}) !== 0 || allowedDisplayFilters.length > 0) && (
             <ProjectAppliedFiltersList

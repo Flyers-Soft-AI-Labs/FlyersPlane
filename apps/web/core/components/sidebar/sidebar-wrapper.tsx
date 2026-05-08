@@ -5,13 +5,14 @@
  */
 
 import { useEffect, useRef } from "react";
-import { ChevronDown } from "lucide-react";
 import { observer } from "mobx-react";
 // plane helpers
 import { useOutsideClickDetector } from "@plane/hooks";
 import { ScrollArea } from "@plane/propel/scrollarea";
 // components
 import { FlyersLogo } from "@/components/common/flyers-logo";
+import { HelpMenuRoot } from "@/components/workspace/sidebar/help-section/root";
+import { WorkspaceMenuRoot } from "@/components/workspace/sidebar/workspace-menu-root";
 // plane-web components
 import { WorkspaceEditionBadge } from "@/plane-web/components/workspace/edition-badge";
 // hooks
@@ -25,7 +26,7 @@ type TSidebarWrapperProps = {
 };
 
 export const SidebarWrapper = observer(function SidebarWrapper(props: TSidebarWrapperProps) {
-  const { title, children, quickActions } = props;
+  const { children, quickActions } = props;
   // store hooks
   const { toggleSidebar, sidebarCollapsed } = useAppTheme();
   const windowSize = useSize();
@@ -52,14 +53,13 @@ export const SidebarWrapper = observer(function SidebarWrapper(props: TSidebarWr
           <div className="flyers-soft-sidebar-brand flex items-start justify-between gap-2 px-2">
             <div className="flex min-w-0 items-center gap-2.5">
               <FlyersLogo className="h-10 max-w-[120px] min-w-0 object-contain" />
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <span className="flyers-soft-sidebar-brand-text text-15 block min-w-0 truncate font-semibold text-primary">
                   Flyers Soft
                 </span>
-                <span className="flyers-soft-sidebar-title flex min-w-0 items-center gap-1 text-13">
-                  <span className="truncate">{title}</span>
-                  <ChevronDown className="size-3.5 flex-shrink-0" strokeWidth={2} />
-                </span>
+                <div className="flyers-soft-sidebar-title flex min-w-0 items-center text-13">
+                  <WorkspaceMenuRoot variant="sidebar-brand" />
+                </div>
               </div>
             </div>
           </div>
@@ -79,11 +79,7 @@ export const SidebarWrapper = observer(function SidebarWrapper(props: TSidebarWr
         {/* Help Section */}
         <div className="flex h-12 items-center justify-between border-t border-subtle bg-surface-1 p-3">
           <WorkspaceEditionBadge />
-          {/* TODO: To be checked if we need this */}
-          {/* <div className="flex items-center gap-2">
-          {!shouldRenderAppRail && <HelpMenu />}
-          {!isAppRailEnabled && <AppSidebarToggleButton />}
-        </div> */}
+          <HelpMenuRoot />
         </div>
       </div>
     </>

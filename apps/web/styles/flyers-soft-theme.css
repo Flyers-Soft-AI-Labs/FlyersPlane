@@ -7427,3 +7427,29 @@ div[role="row"]:hover {
     width: 100% !important;
   }
 }
+
+.flyers-soft-app-header:has(.flyers-soft-projects-header) {
+  min-height: auto !important;
+  max-height: none !important;
+  align-items: stretch !important;
+  overflow: visible !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-app-header:has(.flyers-soft-projects-header) .flyers-soft-extended-app-header {
+  align-items: stretch !important;
+}
+
+.flyers-soft-projects-header {
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+.flyers-soft-projects-search input,
+.flyers-soft-projects-search input:hover,
+.flyers-soft-projects-search input:focus {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}

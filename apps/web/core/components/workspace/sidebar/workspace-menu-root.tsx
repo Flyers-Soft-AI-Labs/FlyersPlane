@@ -30,7 +30,7 @@ import { WorkspaceLogo } from "../logo";
 import SidebarDropdownItem from "./dropdown-item";
 
 type WorkspaceMenuRootProps = {
-  variant: "sidebar" | "top-navigation";
+  variant: "sidebar" | "sidebar-brand" | "top-navigation";
 };
 
 function WorkspaceMenuOpenSync(props: { open: boolean; onChange: (open: boolean) => void }) {
@@ -89,6 +89,7 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
       as="div"
       className={cn("relative flex h-full w-fit max-w-48 truncate whitespace-nowrap", {
         "w-full justify-center text-center": variant === "sidebar",
+        "h-auto w-full max-w-full justify-start text-left": variant === "sidebar-brand",
         "flex-grow justify-stretch truncate text-left": variant === "top-navigation",
       })}
     >
@@ -141,6 +142,24 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
                 />
               </Menu.Button>
             )}
+            {variant === "sidebar-brand" && (
+              <Menu.Button
+                className={cn(
+                  "group/menu-button flex max-w-full min-w-0 items-center gap-1 rounded-md text-13 text-secondary transition hover:text-primary focus:outline-none",
+                  {
+                    "text-primary": open,
+                  }
+                )}
+                aria-label={t("aria_labels.projects_sidebar.open_workspace_switcher")}
+              >
+                <span className="min-w-0 truncate">{activeWorkspace?.name ?? t("loading")}</span>
+                <ChevronDownIcon
+                  className={cn("size-3.5 flex-shrink-0 text-placeholder duration-300", {
+                    "rotate-180": open,
+                  })}
+                />
+              </Menu.Button>
+            )}
             <Transition
               as={Fragment}
               enter="transition ease-out duration-100"
@@ -156,6 +175,7 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
                     "fixed z-21 mt-1 flex w-[19rem] origin-top-left flex-col divide-y divide-subtle rounded-md border-[0.5px] border-strong bg-surface-1 shadow-raised-200 outline-none",
                     {
                       "top-11 left-14": variant === "sidebar",
+                      "top-[4.5rem] left-4": variant === "sidebar-brand",
                       "top-10 left-4": variant === "top-navigation",
                     }
                   )}
