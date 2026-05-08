@@ -31,6 +31,8 @@ const WorkspaceSettingLayout = observer(function WorkspaceSettingLayout({ params
   // derived values
   const { accessKey } = pathnameToAccessKey(pathname);
   const userWorkspaceRole = getWorkspaceRoleByWorkspaceSlug(workspaceSlug);
+  const normalizedPathname = pathname?.replace(/\/$/, "");
+  const isWorkspaceSettingsRoot = normalizedPathname === `/${workspaceSlug}/settings`;
 
   let isAuthorized: boolean | string = false;
   if (pathname && workspaceSlug && userWorkspaceRole) {
@@ -39,18 +41,22 @@ const WorkspaceSettingLayout = observer(function WorkspaceSettingLayout({ params
 
   return (
     <>
-      <SettingsMobileNav
-        hamburgerContent={WorkspaceSettingsSidebarRoot}
-        activePath={getWorkspaceActivePath(pathname) || ""}
-      />
+      {!isWorkspaceSettingsRoot && (
+        <SettingsMobileNav
+          hamburgerContent={WorkspaceSettingsSidebarRoot}
+          activePath={getWorkspaceActivePath(pathname) || ""}
+        />
+      )}
       <div className="inset-y-0 flex h-full w-full flex-row">
         {workspaceUserInfo && !isAuthorized ? (
           <NotAuthorizedView section="settings" className="h-auto" />
         ) : (
           <div className="relative flex size-full">
-            <div className="hidden h-full md:block">
-              <WorkspaceSettingsSidebarRoot />
-            </div>
+            {!isWorkspaceSettingsRoot && (
+              <div className="hidden h-full md:block">
+                <WorkspaceSettingsSidebarRoot />
+              </div>
+            )}
             <Outlet />
           </div>
         )}
