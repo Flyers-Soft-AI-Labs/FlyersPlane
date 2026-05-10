@@ -83,6 +83,17 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
   const routerProjectIdentifier = workItem?.toString().split("-")[0];
   const projectIdFromRouter = getProjectByIdentifier(routerProjectIdentifier)?.id;
   const projectId = data?.project_id ?? routerProjectId?.toString() ?? projectIdFromRouter;
+  const shouldUseCreateTicketLayout = !data?.id && !isDraft && !moveToIssue;
+
+  useEffect(() => {
+    if (!isOpen || !shouldUseCreateTicketLayout) return;
+
+    document.body.classList.add("flyers-soft-create-ticket-modal-open");
+
+    return () => {
+      document.body.classList.remove("flyers-soft-create-ticket-modal-open");
+    };
+  }, [isOpen, shouldUseCreateTicketLayout]);
 
   const fetchIssueDetail = async (issueId: string | undefined) => {
     setDescription(undefined);
@@ -415,9 +426,11 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
   return (
     <ModalCore
       isOpen={isOpen}
-      position={EModalPosition.TOP}
+      position={shouldUseCreateTicketLayout ? EModalPosition.CENTER : EModalPosition.TOP}
       width={isDuplicateModalOpen ? EModalWidth.VIXL : EModalWidth.XXXXL}
-      className="flyers-soft-ticket-modal-core rounded-lg !bg-transparent shadow-none transition-[width] ease-linear"
+      className={`flyers-soft-ticket-modal-core ${
+        shouldUseCreateTicketLayout ? "flyers-soft-create-ticket-modal-core" : ""
+      } rounded-lg !bg-transparent shadow-none transition-[width] ease-linear`}
     >
       {withDraftIssueWrapper ? (
         <DraftIssueLayout {...commonIssueModalProps} changesMade={changesMade} onChange={handleFormChange} />

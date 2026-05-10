@@ -12,7 +12,6 @@ import useSWR from "swr";
 // plane imports
 import { getNumberCount } from "@plane/utils";
 // components
-import { GlobalThemeToggle } from "@/components/core/theme/global-theme-toggle";
 import { UserMenuRoot } from "@/components/workspace/sidebar/user-menu-root";
 import { useWorkspaceNotifications } from "@/hooks/store/notifications";
 import { usePowerK } from "@/hooks/store/use-power-k";
@@ -50,7 +49,6 @@ export const WorkspaceDashboardHeader = observer(function WorkspaceDashboardHead
       </button>
 
       <div className="flyers-soft-dashboard-header-actions">
-        <GlobalThemeToggle />
         <Link
           href={workspaceSlugString ? `/${workspaceSlugString}/notifications` : "#"}
           className="flyers-soft-dashboard-notification"

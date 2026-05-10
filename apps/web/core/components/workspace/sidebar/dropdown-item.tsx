@@ -31,6 +31,10 @@ const SidebarDropdownItem = observer(function SidebarDropdownItem(props: TProps)
   const { workspaceSlug } = useParams();
   // hooks
   const { t } = useTranslation();
+  // derived values
+  const isActive = workspace.id === activeWorkspace?.id;
+  const canManageWorkspace = [EUserPermissions.ADMIN, EUserPermissions.MEMBER].includes(workspace?.role);
+  const canInviteMembers = [EUserPermissions.ADMIN].includes(workspace?.role);
 
   return (
     <Link
@@ -45,76 +49,76 @@ const SidebarDropdownItem = observer(function SidebarDropdownItem(props: TProps)
     >
       <Menu.Item
         as="div"
-        className={cn("px-4 py-2", {
-          "bg-layer-transparent-active": workspace.id === activeWorkspace?.id,
-          "hover:bg-layer-transparent-hover": workspace.id !== activeWorkspace?.id,
+        className={cn("flyers-soft-workspace-option rounded-xl px-3 py-2 transition-colors", {
+          "is-active bg-[#fff8e1]": isActive,
+          "hover:bg-[#fffdf4]": !isActive,
         })}
       >
-        <div className="flex items-center justify-between gap-1 rounded-sm p-1 text-13 text-primary">
-          <div className="relative flex w-[80%] items-center justify-start gap-2.5">
+        <div className="flex min-w-0 items-center justify-between gap-3 text-13 text-[#1f2937]">
+          <div className="relative flex min-w-0 flex-1 items-center justify-start gap-3">
             <span
-              className={`relative flex h-8 w-8 flex-shrink-0 items-center justify-center border-subtle p-2 text-14 font-medium uppercase ${
-                !workspace?.logo_url && "rounded-md bg-[#026292] text-on-color"
+              className={`flyers-soft-workspace-option-logo relative flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[#f0dfb7] bg-[#fff4cf] p-2 text-14 font-bold uppercase text-[#8a5b00] ${
+                !workspace?.logo_url && ""
               }`}
             >
               {workspace?.logo_url && workspace.logo_url !== "" ? (
                 <img
                   src={getFileURL(workspace.logo_url)}
-                  className="absolute top-0 left-0 h-full w-full rounded-sm object-cover"
+                  className="absolute top-0 left-0 h-full w-full object-cover"
                   alt={t("workspace_logo")}
                 />
               ) : (
                 (workspace?.name?.[0] ?? "...")
               )}
             </span>
-            <div className="w-[inherit]">
+            <div className="min-w-0 flex-1">
               <div
-                className={`truncate text-left text-13 font-medium text-ellipsis ${workspaceSlug === workspace.slug ? "" : "text-secondary"}`}
+                className={`truncate text-left text-14 font-semibold text-ellipsis ${workspaceSlug === workspace.slug ? "text-[#111827]" : "text-[#374151]"}`}
               >
                 {workspace.name}
               </div>
-              <div className="flex w-fit gap-2 text-13 text-tertiary capitalize">
+              <div className="mt-0.5 flex min-w-0 items-center gap-2 text-12 text-[#6b7280] capitalize">
                 <span>{getUserRole(workspace.role)?.toLowerCase() || "guest"}</span>
-                <div className="m-auto h-1 w-1 rounded-full bg-layer-1/50" />
+                <div className="h-1 w-1 rounded-full bg-[#d6c8aa]" />
                 <span className="capitalize">{t("member", { count: workspace.total_members || 0 })}</span>
               </div>
             </div>
           </div>
-          {workspace.id === activeWorkspace?.id ? (
-            <span className="flex-shrink-0 p-1">
-              <CheckIcon className="h-5 w-5 text-primary" />
+          {isActive ? (
+            <span className="flyers-soft-workspace-check flex-shrink-0 rounded-full bg-[#ffc400] p-1 text-[#1f2937]">
+              <CheckIcon className="h-4 w-4" />
             </span>
           ) : (
             <SubscriptionPill workspace={workspace} />
           )}
         </div>
-        {workspace.id === activeWorkspace?.id && (
+        {isActive && (canManageWorkspace || canInviteMembers) && (
           <>
-            <div className="mt-2 mb-1 flex gap-2">
-              {[EUserPermissions.ADMIN, EUserPermissions.MEMBER].includes(workspace?.role) && (
+            <div className="flyers-soft-workspace-option-actions mt-3 flex w-full flex-wrap gap-2 pl-12">
+              {canManageWorkspace && (
                 <Link
                   href={`/${workspace.slug}/settings`}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleClose();
                   }}
-                  className="flex gap-1.5 rounded-md border border-strong bg-layer-2 px-2.5 py-1.5 text-secondary transition-colors hover:border-strong hover:text-secondary hover:shadow-raised-100"
+                  className="flyers-soft-workspace-action-button inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-lg border border-[#eadfcb] bg-white px-3 py-2 text-13 font-semibold text-[#374151] transition-colors hover:border-[#ffd75c] hover:bg-[#fff8e1]"
                 >
-                  <Settings className="my-auto h-4 w-4 flex-shrink-0" />
-                  <span className="my-auto text-13 font-medium whitespace-nowrap">{t("settings")}</span>
+                  <Settings className="h-4 w-4 flex-shrink-0" />
+                  <span className="whitespace-nowrap">{t("settings")}</span>
                 </Link>
               )}
-              {[EUserPermissions.ADMIN].includes(workspace?.role) && (
+              {canInviteMembers && (
                 <Link
                   href={`/${workspace.slug}/settings/members`}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleClose();
                   }}
-                  className="flex gap-1.5 rounded-md border border-strong bg-layer-2 px-2.5 py-1.5 text-secondary transition-colors hover:border-strong hover:text-secondary hover:shadow-raised-100"
+                  className="flyers-soft-workspace-action-button inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-lg border border-[#eadfcb] bg-white px-3 py-2 text-13 font-semibold text-[#374151] transition-colors hover:border-[#ffd75c] hover:bg-[#fff8e1]"
                 >
-                  <UserPlus className="my-auto h-4 w-4 flex-shrink-0" />
-                  <span className="my-auto text-13 font-medium whitespace-nowrap">
+                  <UserPlus className="h-4 w-4 flex-shrink-0" />
+                  <span className="whitespace-nowrap">
                     {t("project_settings.members.invite_members.title")}
                   </span>
                 </Link>

@@ -30,6 +30,7 @@ type Props = TDropdownProps & {
   currentProjectId?: string;
   dropdownArrow?: boolean;
   dropdownArrowClassName?: string;
+  emptyIcon?: ReactNode;
   getProjectById: (projectId: string | null | undefined) => Partial<TProject> | undefined;
   onClose?: () => void;
   projectIds: string[];
@@ -59,6 +60,7 @@ export const ProjectDropdownBase = observer(function ProjectDropdownBase(props: 
     disabled = false,
     dropdownArrow = false,
     dropdownArrowClassName = "",
+    emptyIcon,
     getProjectById,
     hideIcon = false,
     multiple,
@@ -170,7 +172,7 @@ export const ProjectDropdownBase = observer(function ProjectDropdownBase(props: 
       );
     } else {
       const projectDetails = getProjectById(value);
-      return projectDetails?.logo_props ? renderIcon(projectDetails.logo_props) : null;
+      return projectDetails?.logo_props ? renderIcon(projectDetails.logo_props) : emptyIcon;
     }
   };
 

@@ -7675,3 +7675,832 @@ div[role="row"]:hover {
   background: #242a36 !important;
   color: #a7afc0 !important;
 }
+
+/* ================================================================
+   Create Ticket modal reference redesign
+   Scoped to the create-only branch of the existing issue modal.
+   ================================================================ */
+
+body.flyers-soft-create-ticket-modal-open .fixed.inset-0.bg-backdrop {
+  background: rgba(22, 18, 10, 0.24) !important;
+  backdrop-filter: blur(3px);
+}
+
+.flyers-soft-create-ticket-modal-core {
+  width: min(94vw, 860px) !important;
+  max-width: 860px !important;
+  max-height: calc(100vh - 32px) !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-create-ticket-modal {
+  display: flex !important;
+  width: 100%;
+  max-height: min(88vh, 760px);
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #eadfcb !important;
+  border-radius: 14px !important;
+  background: #fffdf8 !important;
+  color: #20242c !important;
+  box-shadow: 0 24px 70px rgba(84, 61, 12, 0.18) !important;
+}
+
+.flyers-soft-create-ticket-modal-header {
+  display: flex;
+  min-height: 78px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 1px solid #eee2c8;
+  background: linear-gradient(180deg, #ffffff 0%, #fffdf8 100%);
+  padding: 18px 30px 16px;
+}
+
+.flyers-soft-create-ticket-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  place-items: center;
+  border: 2px solid #ffc400;
+  border-radius: 9px;
+  background: #fff9e6;
+  color: #f5a400;
+}
+
+.flyers-soft-create-ticket-modal-header h2 {
+  margin: 0;
+  color: #171b22;
+  font-size: 20px !important;
+  font-weight: 760;
+  letter-spacing: 0;
+  line-height: 1.15;
+}
+
+.flyers-soft-create-ticket-modal-header p {
+  margin: 4px 0 0;
+  color: #6d6f76;
+  font-size: 14px !important;
+  line-height: 1.35;
+}
+
+.flyers-soft-create-ticket-close {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  place-items: center;
+  border: 1px solid #eadfcb;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #272b33;
+  box-shadow: 0 4px 12px rgba(84, 61, 12, 0.06);
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.flyers-soft-create-ticket-close:hover {
+  border-color: #ffd75c;
+  background: #fff8e1;
+  box-shadow: 0 8px 18px rgba(255, 196, 0, 0.14);
+}
+
+.flyers-soft-create-ticket-modal-body {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 14px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 18px 30px;
+  background: #fffdf8;
+}
+
+.flyers-soft-create-ticket-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.flyers-soft-ticket-title-field {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.flyers-soft-ticket-template-field {
+  width: min(100%, 320px);
+  flex: 0 0 min(100%, 320px);
+}
+
+.flyers-soft-ticket-modal-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.flyers-soft-ticket-modal-field:has(.flyers-soft-ticket-modal-field-control:empty) {
+  display: none !important;
+}
+
+.flyers-soft-ticket-modal-field-label {
+  color: #2f333b;
+  font-size: 13px !important;
+  font-weight: 680;
+  line-height: 1.2;
+}
+
+.flyers-soft-ticket-modal-field-label span {
+  color: #df3f3f;
+}
+
+.flyers-soft-ticket-template-field .flyers-soft-ticket-modal-field-label span {
+  color: #767981;
+  font-size: 12px !important;
+  font-weight: 560;
+}
+
+.flyers-soft-ticket-modal-field-control {
+  min-width: 0;
+}
+
+.flyers-soft-ticket-modal-field-control > div {
+  width: 100%;
+}
+
+.flyers-soft-ticket-modal-field-control .h-7 {
+  height: auto !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control input:not([type="checkbox"]),
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control textarea {
+  width: 100% !important;
+  min-height: 44px !important;
+  height: 44px !important;
+  border: 1px solid #e2d6bd !important;
+  border-radius: 9px !important;
+  background: #ffffff !important;
+  padding: 0 14px !important;
+  color: #222831 !important;
+  box-shadow: inset 0 1px 0 rgba(84, 61, 12, 0.03) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+.flyers-soft-ticket-title-field input {
+  font-size: 15px !important;
+  font-weight: 560 !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control input::placeholder,
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control textarea::placeholder {
+  color: #8c9098 !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control input:focus,
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control textarea:focus {
+  border-color: #ffc400 !important;
+  box-shadow: 0 0 0 3px rgba(255, 196, 0, 0.16) !important;
+  outline: none !important;
+}
+
+.flyers-soft-create-ticket-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 20px;
+}
+
+.flyers-soft-create-ticket-fields-grid > .flyers-soft-ticket-modal-fields-grid {
+  display: contents !important;
+}
+
+.flyers-soft-ticket-modal-fields-grid {
+  min-width: 0;
+}
+
+.flyers-soft-ticket-field-project {
+  order: 1;
+}
+
+.flyers-soft-ticket-field-priority {
+  order: 2;
+}
+
+.flyers-soft-ticket-field-type {
+  order: 3;
+}
+
+.flyers-soft-ticket-field-assignee {
+  order: 4;
+}
+
+.flyers-soft-ticket-field-labels {
+  order: 5;
+}
+
+.flyers-soft-ticket-field-due-date {
+  order: 6;
+}
+
+.flyers-soft-ticket-field-state {
+  order: 7;
+}
+
+.flyers-soft-ticket-field-start-date {
+  order: 8;
+}
+
+.flyers-soft-ticket-field-cycle {
+  order: 9;
+}
+
+.flyers-soft-ticket-field-module {
+  order: 10;
+}
+
+.flyers-soft-ticket-field-estimate {
+  order: 11;
+}
+
+.flyers-soft-ticket-field-parent {
+  order: 12;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control button,
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control [role="button"] {
+  display: flex !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 44px !important;
+  height: 44px !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  overflow: hidden !important;
+  border: 1px solid #e2d6bd !important;
+  border-radius: 9px !important;
+  background: #ffffff !important;
+  padding: 0 13px !important;
+  color: #343942 !important;
+  box-shadow: inset 0 1px 0 rgba(84, 61, 12, 0.03) !important;
+  font-size: 14px !important;
+  font-weight: 540 !important;
+  text-align: left !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control button:hover,
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control [role="button"]:hover {
+  border-color: #ffd75c !important;
+  background: #fffbf0 !important;
+  box-shadow: 0 0 0 3px rgba(255, 196, 0, 0.12) !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control button span,
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control [role="button"] span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control svg {
+  flex: 0 0 auto;
+}
+
+.flyers-soft-create-ticket-description-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.flyers-soft-description-editor {
+  overflow: hidden;
+  border: 1px solid #e2d6bd !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  box-shadow: inset 0 1px 0 rgba(84, 61, 12, 0.03) !important;
+}
+
+.flyers-soft-description-toolbar {
+  min-height: 40px;
+  border-color: #eee2c8 !important;
+  background: #fffdf8;
+}
+
+.flyers-soft-description-toolbar-button {
+  display: grid !important;
+  width: 30px !important;
+  min-width: 30px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  place-items: center !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+  background: transparent !important;
+  color: #2f333b !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-description-toolbar-button:hover {
+  background: #fff1c2 !important;
+  color: #9a6800 !important;
+}
+
+.flyers-soft-description-toolbar-button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.flyers-soft-description-toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.flyers-soft-description-editor-content {
+  min-height: 116px !important;
+  padding: 10px 16px 14px !important;
+}
+
+.flyers-soft-description-editor .editor-container {
+  min-height: 96px;
+}
+
+.flyers-soft-create-ticket-duplicates {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.flyers-soft-create-ticket-modal-footer {
+  display: flex;
+  min-height: 68px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border-top: 1px solid #eee2c8;
+  background: #ffffff;
+  padding: 14px 30px;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+}
+
+.flyers-soft-create-ticket-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #2d323a;
+  font-size: 14px;
+  font-weight: 560;
+}
+
+.flyers-soft-create-ticket-checkbox input {
+  width: 22px !important;
+  height: 22px !important;
+  margin: 0;
+  accent-color: #ffc400;
+}
+
+.flyers-soft-create-ticket-cancel,
+.flyers-soft-create-ticket-submit {
+  min-height: 44px !important;
+  height: 44px !important;
+  border-radius: 9px !important;
+  padding: 0 20px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-create-ticket-cancel {
+  border: 1px solid #e2d6bd !important;
+  background: #ffffff !important;
+  color: #272b33 !important;
+}
+
+.flyers-soft-create-ticket-cancel:hover {
+  border-color: #ffd75c !important;
+  background: #fff8e1 !important;
+}
+
+.flyers-soft-create-ticket-submit {
+  border: 1px solid #f2b800 !important;
+  background: linear-gradient(180deg, #ffd84d 0%, #ffc400 100%) !important;
+  color: #1f232b !important;
+  box-shadow: 0 10px 18px rgba(255, 196, 0, 0.22) !important;
+}
+
+.flyers-soft-create-ticket-submit:hover {
+  background: linear-gradient(180deg, #ffe27a 0%, #ffd43b 100%) !important;
+  box-shadow: 0 12px 22px rgba(255, 196, 0, 0.28) !important;
+}
+
+@media (max-width: 860px) {
+  .flyers-soft-create-ticket-modal-header,
+  .flyers-soft-create-ticket-modal-body,
+  .flyers-soft-create-ticket-modal-footer {
+    padding-inline: 22px;
+  }
+
+  .flyers-soft-create-ticket-title-row {
+    flex-direction: column;
+  }
+
+  .flyers-soft-ticket-template-field {
+    width: 100%;
+    flex-basis: auto;
+  }
+
+  .flyers-soft-create-ticket-fields-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .flyers-soft-create-ticket-modal-core {
+    width: min(96vw, 540px) !important;
+  }
+
+  .flyers-soft-create-ticket-modal {
+    max-height: 90vh;
+  }
+
+  .flyers-soft-create-ticket-modal-header,
+  .flyers-soft-create-ticket-modal-body,
+  .flyers-soft-create-ticket-modal-footer {
+    padding-inline: 16px;
+  }
+
+  .flyers-soft-create-ticket-fields-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .flyers-soft-create-ticket-modal-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .flyers-soft-create-ticket-modal-footer > div:last-child {
+    justify-content: flex-end;
+  }
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control .flyers-soft-field-trigger {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control .flyers-soft-field-trigger:hover,
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control .flyers-soft-field-trigger:focus {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control .flyers-soft-field-button,
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control .flyers-soft-label-field-trigger {
+  display: flex !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 11px !important;
+  overflow: hidden !important;
+  border: 1px solid #e5dac3 !important;
+  border-radius: 9px !important;
+  background: #ffffff !important;
+  padding: 0 13px !important;
+  color: #2f343c !important;
+  box-shadow:
+    inset 0 1px 0 rgba(84, 61, 12, 0.03),
+    0 8px 18px rgba(84, 61, 12, 0.035) !important;
+  font-size: 14px !important;
+  font-weight: 560 !important;
+  line-height: 1 !important;
+  text-align: left !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control .flyers-soft-field-button:hover,
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control .flyers-soft-label-field-trigger:hover {
+  border-color: #ffd75c !important;
+  background: #fffefa !important;
+  box-shadow:
+    0 0 0 3px rgba(255, 196, 0, 0.12),
+    0 8px 18px rgba(84, 61, 12, 0.05) !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control .flyers-soft-field-button > span,
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control .flyers-soft-label-field-trigger span {
+  min-width: 0;
+  overflow: hidden;
+  color: #6f737b !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control .flyers-soft-field-button svg,
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control .flyers-soft-label-field-trigger svg {
+  width: 17px !important;
+  height: 17px !important;
+  flex: 0 0 17px !important;
+  stroke-width: 2 !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-field-caret {
+  width: 14px !important;
+  height: 14px !important;
+  margin-left: auto;
+  color: #8b9098 !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-field-icon-project,
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-field-project svg:first-child {
+  color: #6677b8 !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-field-icon-priority,
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-field-priority svg:first-child {
+  color: #ff4d5f !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-field-type svg:first-child {
+  color: #22b15f !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-field-assignee svg:first-child {
+  color: #526cff !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-field-labels svg:first-child {
+  color: #6e7580 !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-field-icon-calendar,
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-field-due-date svg:first-child {
+  color: #6d737c !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-label-field-trigger {
+  position: relative;
+  padding-right: 38px !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-label-field-trigger::after {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  width: 14px;
+  height: 14px;
+  background-color: #8b9098;
+  content: "";
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+  transform: translateY(-50%);
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-label-field-trigger .flyers-soft-label-field-content,
+.flyers-soft-create-ticket-modal .flyers-soft-label-field-trigger > div {
+  display: flex !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 11px !important;
+  border: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-field-due-date .flyers-soft-field-trigger {
+  position: relative;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-field-due-date .flyers-soft-field-button {
+  padding-right: 40px !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-field-due-date .flyers-soft-field-trigger::after {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  width: 16px;
+  height: 16px;
+  background-color: #6d737c;
+  content: "";
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E") center / contain no-repeat;
+  transform: translateY(-50%);
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-field-type .flyers-soft-ticket-modal-field-control:not(:empty) {
+  position: relative;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-field-type .flyers-soft-ticket-modal-field-control:not(:empty)::before {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  z-index: 1;
+  width: 17px;
+  height: 17px;
+  border: 1.5px solid #22b15f;
+  border-radius: 4px;
+  content: "";
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-field-type .flyers-soft-ticket-modal-field-control:not(:empty)::after {
+  position: absolute;
+  top: 50%;
+  left: 19px;
+  z-index: 1;
+  width: 7px;
+  height: 7px;
+  background: #22b15f;
+  border-radius: 2px;
+  content: "";
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-field-type .flyers-soft-ticket-modal-field-control button {
+  padding-left: 42px !important;
+}
+
+/* Profile and workspace menu polish. */
+.flyers-soft-workspace-switcher,
+.flyers-soft-workspace-switcher[role="menu"],
+.flyers-soft-user-profile-menu,
+.flyers-soft-user-profile-menu[role="menu"] {
+  border: 1px solid #eadfcb !important;
+  border-radius: 16px !important;
+  background: #ffffff !important;
+  color: #1f2937 !important;
+  box-shadow: 0 22px 54px rgba(84, 61, 12, 0.18) !important;
+}
+
+.flyers-soft-workspace-switcher,
+.flyers-soft-workspace-switcher[role="menu"] {
+  width: min(24rem, calc(100vw - 2rem)) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.flyers-soft-user-profile-menu,
+.flyers-soft-user-profile-menu[role="menu"] {
+  width: min(20rem, calc(100vw - 2rem)) !important;
+  padding: 8px !important;
+  gap: 8px !important;
+  overflow: hidden !important;
+}
+
+.flyers-soft-workspace-switcher-scroll {
+  max-height: min(24rem, calc(100vh - 10rem)) !important;
+  padding: 0 !important;
+  background: #ffffff !important;
+}
+
+.flyers-soft-workspace-switcher-email {
+  border-bottom: 1px solid #f3e5ab;
+  background: #ffffff !important;
+  color: #6b7280 !important;
+  letter-spacing: 0;
+}
+
+.flyers-soft-workspace-switcher-list,
+.flyers-soft-workspace-switcher-footer {
+  background: #ffffff !important;
+}
+
+.flyers-soft-workspace-option {
+  width: 100% !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #1f2937 !important;
+}
+
+.flyers-soft-workspace-option:hover,
+.flyers-soft-workspace-option.is-active {
+  background: #fff8e1 !important;
+}
+
+.flyers-soft-workspace-option-logo {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.flyers-soft-workspace-check svg {
+  color: #1f2937 !important;
+}
+
+.flyers-soft-workspace-option-actions {
+  min-width: 0;
+}
+
+.flyers-soft-workspace-action-button,
+.flyers-soft-workspace-switcher-footer-item {
+  min-width: max-content;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  white-space: nowrap;
+}
+
+.flyers-soft-workspace-action-button {
+  min-width: 142px;
+}
+
+.flyers-soft-workspace-action-button:hover,
+.flyers-soft-workspace-switcher-footer-item:hover {
+  border-color: #ffd75c !important;
+  background: #fff8e1 !important;
+  color: #1f2937 !important;
+}
+
+.flyers-soft-workspace-switcher-signout,
+.flyers-soft-workspace-switcher-signout:hover {
+  color: #d14343 !important;
+}
+
+.flyers-soft-user-menu-trigger {
+  display: grid !important;
+  width: 48px !important;
+  height: 48px !important;
+  place-items: center !important;
+  border: 1px solid #eeeeee !important;
+  border-radius: 14px !important;
+  background: #ffffff !important;
+  padding: 0 !important;
+  box-shadow: 0 6px 18px rgba(17, 17, 17, 0.045) !important;
+}
+
+.flyers-soft-user-menu-trigger:hover {
+  border-color: #ffd75c !important;
+  background: #fff8e1 !important;
+}
+
+.flyers-soft-user-menu-initial {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 999px;
+  background: #059669;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 760;
+  line-height: 1;
+}
+
+.flyers-soft-user-profile-menu-layer {
+  z-index: 40 !important;
+}
+
+.flyers-soft-user-profile-card {
+  border: 1px solid #f3e5ab;
+  background: linear-gradient(135deg, #fff8e1 0%, #ffffff 70%) !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-user-profile-menu-item {
+  width: 100% !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #374151 !important;
+  text-align: left !important;
+}
+
+.flyers-soft-user-profile-menu-item:hover {
+  background: #fff8e1 !important;
+  color: #1f2937 !important;
+}
+
+.flyers-soft-user-profile-signout {
+  border-top: 1px solid #f3e5ab !important;
+  color: #d14343 !important;
+}
+
+.flyers-soft-user-profile-signout:hover {
+  background: #fff1c2 !important;
+  color: #d14343 !important;
+}

@@ -31,6 +31,7 @@ type Props = TDropdownProps & {
   button?: ReactNode;
   dropdownArrow?: boolean;
   dropdownArrowClassName?: string;
+  emptyIcon?: ReactNode;
   highlightUrgent?: boolean;
   onChange: (val: TIssuePriorities) => void;
   onClose?: () => void;
@@ -42,6 +43,7 @@ type ButtonProps = {
   className?: string;
   dropdownArrow: boolean;
   dropdownArrowClassName: string;
+  emptyIcon?: ReactNode;
   hideIcon?: boolean;
   hideText?: boolean;
   isActive?: boolean;
@@ -57,6 +59,7 @@ function BorderButton(props: ButtonProps) {
     className,
     dropdownArrow,
     dropdownArrowClassName,
+    emptyIcon,
     hideIcon = false,
     hideText = false,
     highlightUrgent,
@@ -123,7 +126,7 @@ function BorderButton(props: ButtonProps) {
               />
             </div>
           ) : (
-            <SignalHigh className="size-3" />
+            (emptyIcon ?? <SignalHigh className="size-3" />)
           ))}
         {!hideText && (
           <span
@@ -148,6 +151,7 @@ function BackgroundButton(props: ButtonProps) {
     className,
     dropdownArrow,
     dropdownArrowClassName,
+    emptyIcon,
     hideIcon = false,
     hideText = false,
     highlightUrgent,
@@ -214,7 +218,7 @@ function BackgroundButton(props: ButtonProps) {
               />
             </div>
           ) : (
-            <SignalHigh className="size-3" />
+            (emptyIcon ?? <SignalHigh className="size-3" />)
           ))}
         {!hideText && (
           <span
@@ -239,6 +243,7 @@ function TransparentButton(props: ButtonProps) {
     className,
     dropdownArrow,
     dropdownArrowClassName,
+    emptyIcon,
     hideIcon = false,
     hideText = false,
     isActive = false,
@@ -298,7 +303,7 @@ function TransparentButton(props: ButtonProps) {
               />
             </div>
           ) : (
-            <SignalHigh className="size-3" />
+            (emptyIcon ?? <SignalHigh className="size-3" />)
           ))}
         {!hideText && (
           <span
@@ -330,6 +335,7 @@ export function PriorityDropdown(props: Props) {
     disabled = false,
     dropdownArrow = false,
     dropdownArrowClassName = "",
+    emptyIcon,
     hideIcon = false,
     highlightUrgent = true,
     onChange,
@@ -433,6 +439,7 @@ export function PriorityDropdown(props: Props) {
             highlightUrgent={highlightUrgent}
             dropdownArrow={dropdownArrow && !disabled}
             dropdownArrowClassName={dropdownArrowClassName}
+            emptyIcon={emptyIcon}
             hideIcon={hideIcon}
             placeholder={placeholder}
             showTooltip={showTooltip}
