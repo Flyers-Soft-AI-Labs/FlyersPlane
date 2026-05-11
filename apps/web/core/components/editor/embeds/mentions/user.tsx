@@ -50,7 +50,7 @@ export const EditorUserMention = observer(function EditorUserMention(props: Prop
       className={cn(
         "not-prose inline rounded-sm bg-accent-subtle-active px-1 py-0.5 text-accent-primary no-underline",
         {
-          "bg-label-yellow-bg text-label-yellow-text": id === currentUser?.id,
+          "bg-[#f1f1ef] text-[#37352f]": id === currentUser?.id,
         }
       )}
     >

@@ -102,7 +102,7 @@ export const WorkspaceMembersList = observer(function WorkspaceMembersList(props
       title: "Pending Invites",
       value: pendingInvites,
       icon: Mail,
-      className: "flyers-soft-teams-stat-icon-yellow",
+      className: "flyers-soft-teams-stat-icon-neutral",
     },
     {
       title: "Admins",

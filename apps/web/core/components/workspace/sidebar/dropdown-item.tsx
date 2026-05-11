@@ -50,14 +50,14 @@ const SidebarDropdownItem = observer(function SidebarDropdownItem(props: TProps)
       <Menu.Item
         as="div"
         className={cn("flyers-soft-workspace-option rounded-xl px-3 py-2 transition-colors", {
-          "is-active bg-[#fff8e1]": isActive,
-          "hover:bg-[#fffdf4]": !isActive,
+          "is-active bg-[#f1f1ef]": isActive,
+          "hover:bg-[#f5f5f4]": !isActive,
         })}
       >
         <div className="flex min-w-0 items-center justify-between gap-3 text-13 text-[#1f2937]">
           <div className="relative flex min-w-0 flex-1 items-center justify-start gap-3">
             <span
-              className={`flyers-soft-workspace-option-logo relative flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[#f0dfb7] bg-[#fff4cf] p-2 text-14 font-bold uppercase text-[#8a5b00] ${
+              className={`flyers-soft-workspace-option-logo relative flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[#ebebeb] bg-[#f5f5f4] p-2 text-14 font-bold uppercase text-[#6b7280] ${
                 !workspace?.logo_url && ""
               }`}
             >
@@ -79,13 +79,13 @@ const SidebarDropdownItem = observer(function SidebarDropdownItem(props: TProps)
               </div>
               <div className="mt-0.5 flex min-w-0 items-center gap-2 text-12 text-[#6b7280] capitalize">
                 <span>{getUserRole(workspace.role)?.toLowerCase() || "guest"}</span>
-                <div className="h-1 w-1 rounded-full bg-[#d6c8aa]" />
+                <div className="h-1 w-1 rounded-full bg-[#d1d5db]" />
                 <span className="capitalize">{t("member", { count: workspace.total_members || 0 })}</span>
               </div>
             </div>
           </div>
           {isActive ? (
-            <span className="flyers-soft-workspace-check flex-shrink-0 rounded-full bg-[#ffc400] p-1 text-[#1f2937]">
+            <span className="flyers-soft-workspace-check flex-shrink-0 rounded-full bg-[#f1f1ef] p-1 text-[#374151]">
               <CheckIcon className="h-4 w-4" />
             </span>
           ) : (
@@ -102,7 +102,7 @@ const SidebarDropdownItem = observer(function SidebarDropdownItem(props: TProps)
                     e.stopPropagation();
                     handleClose();
                   }}
-                  className="flyers-soft-workspace-action-button inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-lg border border-[#eadfcb] bg-white px-3 py-2 text-13 font-semibold text-[#374151] transition-colors hover:border-[#ffd75c] hover:bg-[#fff8e1]"
+                  className="flyers-soft-workspace-action-button inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-lg border border-[#ebebeb] bg-white px-3 py-2 text-13 font-semibold text-[#374151] transition-colors hover:border-[#e5e7eb] hover:bg-[#f5f5f4]"
                 >
                   <Settings className="h-4 w-4 flex-shrink-0" />
                   <span className="whitespace-nowrap">{t("settings")}</span>
@@ -115,7 +115,7 @@ const SidebarDropdownItem = observer(function SidebarDropdownItem(props: TProps)
                     e.stopPropagation();
                     handleClose();
                   }}
-                  className="flyers-soft-workspace-action-button inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-lg border border-[#eadfcb] bg-white px-3 py-2 text-13 font-semibold text-[#374151] transition-colors hover:border-[#ffd75c] hover:bg-[#fff8e1]"
+                  className="flyers-soft-workspace-action-button inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-lg border border-[#ebebeb] bg-white px-3 py-2 text-13 font-semibold text-[#374151] transition-colors hover:border-[#e5e7eb] hover:bg-[#f5f5f4]"
                 >
                   <UserPlus className="h-4 w-4 flex-shrink-0" />
                   <span className="whitespace-nowrap">

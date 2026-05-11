@@ -95,7 +95,7 @@ export const ProjectStats = observer(function ProjectStats(props: TProjectStatsP
       value: completedProjects,
       icon: CheckCircle2,
       iconBoxClassName: "bg-[#e9fbef]",
-      iconClassName: "text-[#16a34a]",
+      iconClassName: "text-[#6b7280]",
       helperText: "All tracked tickets done",
     },
     {

@@ -42,7 +42,7 @@ export function AppProvider(props: IAppProvider) {
     const isDark = resolvedTheme?.includes("dark");
     document.documentElement.style.colorScheme = isDark ? "dark" : "light";
 
-    const themeColor = isDark ? "#0f1117" : "#fffaf0";
+    const themeColor = isDark ? "#0f1117" : "#fbfbfa";
     const metaThemeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     metaThemeColor?.setAttribute("content", themeColor);
   }, [resolvedTheme]);

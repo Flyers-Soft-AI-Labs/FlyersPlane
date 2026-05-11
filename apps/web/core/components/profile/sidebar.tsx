@@ -177,7 +177,7 @@ export const ProfileSidebar = observer(function ProfileSidebar(props: TProfileSi
                                     completedIssuePercentage <= 35
                                       ? "bg-danger-subtle text-danger-primary"
                                       : completedIssuePercentage <= 70
-                                        ? "bg-yellow-500/10 text-yellow-500"
+                                        ? "bg-[#f1f1ef] text-[#6b7280]"
                                         : "bg-success-subtle text-success-primary"
                                   }`}
                                 >
@@ -224,7 +224,7 @@ export const ProfileSidebar = observer(function ProfileSidebar(props: TProfileSi
                                 <div
                                   className="h-1 rounded-sm"
                                   style={{
-                                    backgroundColor: "#16a34a",
+                                    backgroundColor: "#6b7280",
                                     width: `${(project.completed_issues / totalIssues) * 100}%`,
                                   }}
                                 />
@@ -260,7 +260,7 @@ export const ProfileSidebar = observer(function ProfileSidebar(props: TProfileSi
                               </div>
                               <div className="flex items-center justify-between gap-2">
                                 <div className="flex items-center gap-2">
-                                  <div className="h-2.5 w-2.5 rounded-xs bg-[#16a34a]" />
+                                  <div className="h-2.5 w-2.5 rounded-xs bg-[#6b7280]" />
                                   Completed
                                 </div>
                                 <div className="font-medium">

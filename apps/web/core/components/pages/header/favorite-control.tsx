@@ -37,7 +37,7 @@ export const PageFavoriteControl = observer(function PageFavoriteControl({ page 
       }}
       aria-label={is_favorite ? "Remove favorite" : "Add to favorites"}
       className={
-        is_favorite ? "[&_svg]:fill-(--color-label-yellow-icon) [&_svg]:stroke-(--color-label-yellow-icon)" : ""
+        is_favorite ? "[&_svg]:fill-[#6b7280] [&_svg]:stroke-[#6b7280]" : ""
       }
     />
   );

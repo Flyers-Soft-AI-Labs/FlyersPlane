@@ -20,7 +20,7 @@ const priorityColors = {
   urgent: "#991b1b",
   high: "#ef4444",
   medium: "#f59e0b",
-  low: "#16a34a",
+  low: "#6b7280",
   none: "#e5e5e5",
 };
 

@@ -31,6 +31,7 @@ import SidebarDropdownItem from "./dropdown-item";
 
 type WorkspaceMenuRootProps = {
   variant: "sidebar" | "sidebar-brand" | "top-navigation";
+  label?: string;
 };
 
 function WorkspaceMenuOpenSync(props: { open: boolean; onChange: (open: boolean) => void }) {
@@ -44,7 +45,7 @@ function WorkspaceMenuOpenSync(props: { open: boolean; onChange: (open: boolean)
 }
 
 export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: WorkspaceMenuRootProps) {
-  const { variant } = props;
+  const { label, variant } = props;
   // store hooks
   const { toggleSidebar, toggleAnySidebarDropdown } = useAppTheme();
   const { config } = useInstance();
@@ -145,14 +146,14 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
             {variant === "sidebar-brand" && (
               <Menu.Button
                 className={cn(
-                  "group/menu-button flex max-w-full min-w-0 items-center gap-1 rounded-md text-13 text-secondary transition hover:text-primary focus:outline-none",
+                  "group/menu-button flex max-w-full min-w-0 items-center justify-between gap-2 rounded-md text-13 text-secondary transition hover:text-primary focus:outline-none",
                   {
                     "text-primary": open,
                   }
                 )}
                 aria-label={t("aria_labels.projects_sidebar.open_workspace_switcher")}
               >
-                <span className="min-w-0 truncate">{activeWorkspace?.name ?? t("loading")}</span>
+                <span className="min-w-0 truncate">{label ?? activeWorkspace?.name ?? t("loading")}</span>
                 <ChevronDownIcon
                   className={cn("size-3.5 flex-shrink-0 text-placeholder duration-300", {
                     "rotate-180": open,
@@ -172,7 +173,7 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
               <Menu.Items as={Fragment}>
                 <div
                   className={cn(
-                    "flyers-soft-workspace-switcher fixed z-21 mt-1 flex w-[24rem] max-w-[calc(100vw-2rem)] origin-top-left flex-col overflow-hidden rounded-2xl border border-[#eadfcb] bg-white shadow-[0_22px_54px_rgba(84,61,12,0.18)] outline-none",
+                    "flyers-soft-workspace-switcher fixed z-21 mt-1 flex w-[24rem] max-w-[calc(100vw-2rem)] origin-top-left flex-col overflow-hidden rounded-2xl border border-[#ebebeb] bg-white shadow-[0_22px_54px_rgba(17, 24, 39, 0.18)] outline-none",
                     {
                       "top-11 left-14": variant === "sidebar",
                       "top-[4.5rem] left-4": variant === "sidebar-brand",
@@ -212,12 +213,12 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
                       </div>
                     )}
                   </div>
-                  <div className="flyers-soft-workspace-switcher-footer flex w-full flex-col items-start justify-start gap-1.5 border-t border-[#f3e5ab] px-3 py-3 text-13">
+                  <div className="flyers-soft-workspace-switcher-footer flex w-full flex-col items-start justify-start gap-1.5 border-t border-[#ebebeb] px-3 py-3 text-13">
                     {!isWorkspaceCreationDisabled && (
                       <Link href="/create-workspace" className="w-full">
                         <Menu.Item
                           as="div"
-                          className="flyers-soft-workspace-switcher-footer-item flex min-h-9 w-full items-center gap-2 rounded-lg px-3 py-2 text-13 font-semibold text-[#374151] hover:bg-[#fff8e1]"
+                          className="flyers-soft-workspace-switcher-footer-item flex min-h-9 w-full items-center gap-2 rounded-lg px-3 py-2 text-13 font-semibold text-[#374151] hover:bg-[#f5f5f4]"
                         >
                           <CirclePlus className="size-4 flex-shrink-0" />
                           <span className="min-w-0 truncate">{t("create_workspace")}</span>
@@ -228,7 +229,7 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
                     <Link href="/invitations" className="w-full" onClick={handleItemClick}>
                       <Menu.Item
                         as="div"
-                        className="flyers-soft-workspace-switcher-footer-item flex min-h-9 w-full items-center gap-2 rounded-lg px-3 py-2 text-13 font-semibold text-[#374151] hover:bg-[#fff8e1]"
+                        className="flyers-soft-workspace-switcher-footer-item flex min-h-9 w-full items-center gap-2 rounded-lg px-3 py-2 text-13 font-semibold text-[#374151] hover:bg-[#f5f5f4]"
                       >
                         <Mails className="h-4 w-4 flex-shrink-0" />
                         <span className="min-w-0 truncate">{t("workspace_invites")}</span>
@@ -239,7 +240,7 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
                       <Menu.Item
                         as="button"
                         type="button"
-                        className="flyers-soft-workspace-switcher-footer-item flyers-soft-workspace-switcher-signout flex min-h-9 w-full items-center gap-2 rounded-lg px-3 py-2 text-13 font-semibold text-[#d14343] hover:bg-[#fff1c2]"
+                        className="flyers-soft-workspace-switcher-footer-item flyers-soft-workspace-switcher-signout flex min-h-9 w-full items-center gap-2 rounded-lg px-3 py-2 text-13 font-semibold text-[#374151] hover:bg-[#f5f5f4]"
                         onClick={handleSignOut}
                       >
                         <LogOut className="size-4 flex-shrink-0" />

@@ -18,9 +18,9 @@ import { useAppTheme } from "@/hooks/store/use-app-theme";
 import { ExtendedAppSidebar } from "./extended-sidebar";
 import { AppSidebar } from "./sidebar";
 
-const FLYERS_SOFT_SIDEBAR_WIDTH = 256;
-const FLYERS_SOFT_MIN_SIDEBAR_WIDTH = 232;
-const FLYERS_SOFT_MAX_SIDEBAR_WIDTH = 288;
+const FLYERS_SOFT_SIDEBAR_WIDTH = 264;
+const FLYERS_SOFT_MIN_SIDEBAR_WIDTH = 260;
+const FLYERS_SOFT_MAX_SIDEBAR_WIDTH = 270;
 const resolveSidebarWidth = (width?: number | null) =>
   Math.min(Math.max(width ?? FLYERS_SOFT_SIDEBAR_WIDTH, FLYERS_SOFT_MIN_SIDEBAR_WIDTH), FLYERS_SOFT_MAX_SIDEBAR_WIDTH);
 

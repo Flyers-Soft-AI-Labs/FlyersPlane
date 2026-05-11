@@ -52,7 +52,7 @@ export const WorkspaceHomeView = observer(function WorkspaceHomeView() {
       <>
         <HomePeekOverviewsRoot />
         <div className="flyers-soft-home-surface min-h-full bg-surface-1 px-page-x py-6">
-          <div className="mx-auto w-full max-w-[1320px]">
+          <div className="mx-auto w-full max-w-[1408px]">
             <DashboardWidgets currentUser={currentUser} />
           </div>
         </div>

@@ -18,7 +18,7 @@ export const ProjectSearch = observer(function ProjectSearch() {
   };
 
   return (
-    <div className="flyers-soft-dashboard-search flyers-soft-projects-search !h-9 w-[320px] max-w-full shrink-0 !gap-2 !rounded-lg !px-3 text-12 focus-within:!border-[#ffd75c] focus-within:!shadow-[0_0_0_3px_rgba(255,196,0,0.12)] lg:w-[340px]">
+    <div className="flyers-soft-dashboard-search flyers-soft-projects-search !h-9 w-[320px] max-w-full shrink-0 !gap-2 !rounded-lg !px-3 text-12 focus-within:!border-[#e5e7eb] focus-within:!shadow-[0_0_0_3px_rgba(17, 24, 39, 0.12)] lg:w-[340px]">
       <SearchIcon className="h-3.5 w-3.5 shrink-0" />
       <input
         className="min-w-0 flex-1 !border-0 !bg-transparent !p-0 text-12 text-primary !shadow-none outline-none placeholder:text-placeholder focus:!shadow-none focus:outline-none"
