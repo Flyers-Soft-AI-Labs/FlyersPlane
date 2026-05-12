@@ -8,15 +8,19 @@ import React, { useRef, useState } from "react";
 import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArchiveRestoreIcon, FileText, MoreHorizontal, Settings, UserPlus } from "lucide-react";
+import { ArchiveRestoreIcon, Check, ChevronDown, FileText, MoreHorizontal, Settings, UserPlus } from "lucide-react";
 // plane imports
-import { EUserPermissions } from "@plane/constants";
+import { EUserPermissions, ISSUE_PRIORITIES } from "@plane/constants";
 import { LinkIcon, LockIcon, NewTabIcon, TrashIcon } from "@plane/propel/icons";
 import { setToast, TOAST_TYPE } from "@plane/propel/toast";
-import type { IProject } from "@plane/types";
+import type { IProject, TIssuePriorities } from "@plane/types";
 import type { TContextMenuItem } from "@plane/ui";
 import { ContextMenu, CustomMenu } from "@plane/ui";
-import { copyUrlToClipboard, cn, renderFormattedDate } from "@plane/utils";
+import { copyUrlToClipboard, cn, renderFormattedPayloadDate } from "@plane/utils";
+// components
+import { DateDropdown } from "@/components/dropdowns/date";
+import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
+import { PriorityDropdown } from "@/components/dropdowns/priority";
 // hooks
 import { useMember } from "@/hooks/store/use-member";
 import { useProject } from "@/hooks/store/use-project";
@@ -31,7 +35,7 @@ type Props = {
 };
 
 type TProjectStatus = {
-  label: "Active" | "Completed" | "Archived";
+  label: string;
   className: string;
   dotClassName: string;
 };
@@ -40,8 +44,14 @@ type TProjectWithTableFields = IProject & {
   due_date?: string | Date | null;
   end_date?: string | Date | null;
   priority?: string | null;
+  status?: string | null;
   target_date?: string | Date | null;
 };
+
+type TProjectUpdatePayload = Partial<IProject> & Partial<TProjectWithTableFields>;
+
+const PROJECT_STATUS_OPTIONS = ["To Do", "Planning", "In Progress", "Completed", "Active", "Archived"];
+const PROJECT_PRIORITY_KEYS: TIssuePriorities[] = ["none", "low", "medium", "high", "urgent"];
 
 function getProjectProgress(completedIssues = 0, totalIssues = 0) {
   if (totalIssues <= 0) return 0;
@@ -49,7 +59,45 @@ function getProjectProgress(completedIssues = 0, totalIssues = 0) {
   return Math.min(100, Math.round((completedIssues / totalIssues) * 100));
 }
 
-function getProjectStatus(project: IProject, progress: number, totalIssues: number): TProjectStatus {
+function getStatusTone(statusLabel: string): Pick<TProjectStatus, "className" | "dotClassName"> {
+  const statusValue = statusLabel.toLowerCase();
+
+  if (statusValue.includes("progress") || statusValue === "active") {
+    return {
+      className: "flyers-soft-projects-pill-blue",
+      dotClassName: "flyers-soft-projects-dot-blue",
+    };
+  }
+
+  if (statusValue.includes("plan")) {
+    return {
+      className: "flyers-soft-projects-pill-purple",
+      dotClassName: "flyers-soft-projects-dot-purple",
+    };
+  }
+
+  if (statusValue.includes("complete") || statusValue.includes("done")) {
+    return {
+      className: "flyers-soft-projects-pill-green",
+      dotClassName: "flyers-soft-projects-dot-green",
+    };
+  }
+
+  return {
+    className: "flyers-soft-projects-pill-neutral",
+    dotClassName: "flyers-soft-projects-dot-neutral",
+  };
+}
+
+function getProjectStatus(project: TProjectWithTableFields, progress: number, totalIssues: number): TProjectStatus {
+  if (project.status?.trim()) {
+    const statusLabel = project.status.trim();
+    return {
+      label: statusLabel,
+      ...getStatusTone(statusLabel),
+    };
+  }
+
   if (project.archived_at) {
     return {
       label: "Archived",
@@ -68,8 +116,7 @@ function getProjectStatus(project: IProject, progress: number, totalIssues: numb
 
   return {
     label: "Active",
-    className: "flyers-soft-projects-pill-blue",
-    dotClassName: "flyers-soft-projects-dot-blue",
+    ...getStatusTone("Active"),
   };
 }
 
@@ -87,6 +134,11 @@ function getPriorityClassName(priority: string) {
   return "flyers-soft-projects-pill-neutral";
 }
 
+function getProjectLeadId(projectLead: IProject["project_lead"]) {
+  if (!projectLead) return null;
+  return typeof projectLead === "string" ? projectLead : projectLead.id;
+}
+
 function getProjectLeadName(
   projectLead: IProject["project_lead"],
   getUserDetails: ReturnType<typeof useMember>["getUserDetails"]
@@ -101,19 +153,39 @@ function getProjectLeadName(
   return projectLead.display_name || projectLead.email || "Assigned";
 }
 
+function normalizeProjectPriority(priority: string | null | undefined): TIssuePriorities {
+  const priorityValue = priority?.toLowerCase() as TIssuePriorities | undefined;
+  return priorityValue && PROJECT_PRIORITY_KEYS.includes(priorityValue) ? priorityValue : "none";
+}
+
+function getPriorityLabel(priority: string | null | undefined) {
+  const normalizedPriority = normalizeProjectPriority(priority);
+  return ISSUE_PRIORITIES.find((item) => item.key === normalizedPriority)?.title ?? "None";
+}
+
+function isInlineControlTarget(target: EventTarget | null) {
+  return (
+    target instanceof HTMLElement &&
+    !!target.closest(
+      "a, button, input, textarea, select, [role='button'], [role='menuitem'], [data-project-inline-control]"
+    )
+  );
+}
+
 export const ProjectCard = observer(function ProjectCard(props: Props) {
   const { project } = props;
   // states
   const [deleteProjectModalOpen, setDeleteProjectModal] = useState(false);
   const [joinProjectModalOpen, setJoinProjectModal] = useState(false);
-  const [restoreProject, setRestoreProject] = useState(false);
+  const [restoreProjectModalOpen, setRestoreProjectModalOpen] = useState(false);
   // refs
-  const projectCardRef = useRef<HTMLAnchorElement | null>(null);
+  const projectCardRef = useRef<HTMLDivElement | null>(null);
   // router
   const router = useAppRouter();
   const { workspaceSlug } = useParams();
   // store hooks
-  const { getProjectAnalyticsCountById } = useProject();
+  const { getProjectAnalyticsCountById, updateProject, archiveProject, restoreProject: restoreProjectInStore } =
+    useProject();
   const { getUserDetails } = useMember();
   // auth
   const isMemberOfProject = !!project.member_role;
@@ -126,23 +198,76 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
   const totalIssues = analytics?.total_issues ?? 0;
   const completedIssues = analytics?.completed_issues ?? 0;
   const progress = getProjectProgress(completedIssues, totalIssues);
-  const status = getProjectStatus(project, progress, totalIssues);
-  const memberCount = analytics?.total_members ?? project.members?.length ?? 0;
   const tableProject = project as TProjectWithTableFields;
+  const status = getProjectStatus(tableProject, progress, totalIssues);
+  const memberCount = analytics?.total_members ?? project.members?.length ?? 0;
   const projectLeadName = getProjectLeadName(project.project_lead, getUserDetails);
+  const projectLeadId = getProjectLeadId(project.project_lead);
   const dueDate = getProjectDueDate(tableProject);
-  const dueDateLabel = dueDate ? renderFormattedDate(dueDate) : "No due date";
-  const priorityLabel = tableProject.priority?.trim() || "None";
+  const projectPriority = normalizeProjectPriority(tableProject.priority);
+  const priorityLabel = getPriorityLabel(tableProject.priority);
   const priorityClassName = getPriorityClassName(priorityLabel);
-  const teamLabel = `${memberCount} ${memberCount === 1 ? "member" : "members"}`;
+  const teamMemberIds = project.members ?? [];
+  const teamLabel = `${teamMemberIds.length || memberCount} ${
+    (teamMemberIds.length || memberCount) === 1 ? "member" : "members"
+  }`;
 
   const projectLink = `${workspaceSlug}/projects/${project.id}/issues`;
+  const workspaceSlugString = workspaceSlug?.toString();
+
+  const handleUpdateError = () =>
+    setToast({
+      type: TOAST_TYPE.ERROR,
+      title: "Update failed",
+      message: "Could not update the project. Please try again.",
+    });
+
+  const updateProjectDetails = async (data: TProjectUpdatePayload) => {
+    if (!workspaceSlugString) return;
+    await updateProject(workspaceSlugString, project.id, data as Partial<IProject>);
+  };
+
+  const handleStatusUpdate = (nextStatus: string) => {
+    if (!workspaceSlugString || nextStatus === status.label) return;
+
+    void (async () => {
+      if (nextStatus === "Archived") {
+        await archiveProject(workspaceSlugString, project.id);
+        return;
+      }
+
+      if (isArchived) await restoreProjectInStore(workspaceSlugString, project.id);
+      await updateProjectDetails({ status: nextStatus });
+    })().catch(handleUpdateError);
+  };
+
+  const handleProjectRowNavigation = () => {
+    if (!isMemberOfProject || isArchived) {
+      if (!isArchived) setJoinProjectModal(true);
+      return;
+    }
+
+    router.push(`/${projectLink}`);
+  };
+
   const handleProjectClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!isMemberOfProject || isArchived) {
       e.preventDefault();
       if (!isArchived) setJoinProjectModal(true);
     }
   };
+
+  const handleProjectRowClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isInlineControlTarget(e.target)) return;
+    handleProjectRowNavigation();
+  };
+
+  const handleProjectRowKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    handleProjectRowNavigation();
+  };
+
   const handleCopyText = () =>
     copyUrlToClipboard(projectLink).then(() =>
       setToast({
@@ -184,7 +309,7 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
     },
     {
       key: "restore",
-      action: () => setRestoreProject(true),
+      action: () => setRestoreProjectModalOpen(true),
       title: "Restore",
       icon: ArchiveRestoreIcon,
       shouldRender: isArchived && hasAdminRole,
@@ -218,75 +343,165 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
         <ArchiveRestoreProjectModal
           workspaceSlug={workspaceSlug.toString()}
           projectId={project.id}
-          isOpen={restoreProject}
-          onClose={() => setRestoreProject(false)}
+          isOpen={restoreProjectModalOpen}
+          onClose={() => setRestoreProjectModalOpen(false)}
           archive={false}
         />
       )}
-      <div className="flyers-soft-projects-row-wrap" role="row">
+      <div className="flyers-soft-projects-row-wrap">
         <ContextMenu parentRef={projectCardRef} items={MENU_ITEMS} />
-        {visibleMenuItems.length > 0 && (
-          <div className="flyers-soft-projects-row-actions" data-prevent-progress>
-            <CustomMenu
-              customButton={
-                <span className="flyers-soft-projects-action-button">
-                  <MoreHorizontal className="h-4 w-4" strokeWidth={2} />
-                </span>
-              }
-              ariaLabel="Project actions"
-              placement="bottom-end"
-              closeOnSelect
-            >
-              {visibleMenuItems.map((item) => {
-                const Icon = item.icon;
-
-                return (
-                  <CustomMenu.MenuItem key={item.key} className="flex items-center gap-2" onClick={() => item.action()}>
-                    {Icon && <Icon className="h-3.5 w-3.5" />}
-                    {item.title}
-                  </CustomMenu.MenuItem>
-                );
-              })}
-            </CustomMenu>
-          </div>
-        )}
-        <Link
+        <div
           ref={projectCardRef}
-          href={`/${projectLink}`}
-          onClick={handleProjectClick}
-          data-prevent-progress={!isMemberOfProject || isArchived}
           className="flyers-soft-projects-table-row"
+          data-prevent-progress={!isMemberOfProject || isArchived}
+          onClick={handleProjectRowClick}
+          onKeyDown={handleProjectRowKeyDown}
+          role="row"
+          tabIndex={0}
         >
           <div className="flyers-soft-projects-name-cell" role="cell">
             <FileText className="h-4 w-4 shrink-0 text-tertiary" strokeWidth={1.8} aria-hidden="true" />
             <div className="min-w-0">
-              <div className="flyers-soft-projects-project-name">
+              <Link
+                href={`/${projectLink}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleProjectClick(e);
+                }}
+                data-prevent-progress={!isMemberOfProject || isArchived}
+                className="flyers-soft-projects-project-name"
+              >
                 <span className="truncate">{project.name}</span>
                 {project.network === 0 && <LockIcon className="h-3 w-3 shrink-0 text-tertiary" />}
-              </div>
+              </Link>
               <div className="flyers-soft-projects-project-key">{project.identifier}</div>
             </div>
           </div>
-          <div role="cell">
-            <span className={cn("flyers-soft-projects-pill", status.className)}>
-              <span className={cn("flyers-soft-projects-pill-dot", status.dotClassName)} />
-              {status.label}
-            </span>
+          <div role="cell" data-project-inline-control>
+            <CustomMenu
+              customButton={
+                <span className={cn("flyers-soft-projects-pill flyers-soft-projects-inline-pill", status.className)}>
+                  <span className={cn("flyers-soft-projects-pill-dot", status.dotClassName)} />
+                  {status.label}
+                  <ChevronDown className="h-3 w-3 opacity-60" strokeWidth={2} />
+                </span>
+              }
+              customButtonClassName="flyers-soft-projects-inline-menu-button"
+              ariaLabel="Project status"
+              placement="bottom-start"
+              closeOnSelect
+            >
+              {PROJECT_STATUS_OPTIONS.map((statusOption) => (
+                <CustomMenu.MenuItem
+                  key={statusOption}
+                  className="flex items-center justify-between gap-2"
+                  onClick={() => handleStatusUpdate(statusOption)}
+                >
+                  <span className="flex items-center gap-2">
+                    <span
+                      className={cn(
+                        "flyers-soft-projects-pill-dot",
+                        getStatusTone(statusOption).dotClassName
+                      )}
+                    />
+                    {statusOption}
+                  </span>
+                  {statusOption === status.label && <Check className="h-3.5 w-3.5" strokeWidth={2} />}
+                </CustomMenu.MenuItem>
+              ))}
+            </CustomMenu>
           </div>
-          <div className="flyers-soft-projects-muted-cell" role="cell">
-            {projectLeadName}
+          <div className="flyers-soft-projects-muted-cell" role="cell" data-project-inline-control>
+            <MemberDropdown
+              value={projectLeadId}
+              onChange={(lead) => {
+                void updateProjectDetails({ project_lead: lead === projectLeadId ? null : lead }).catch(
+                  handleUpdateError
+                );
+              }}
+              placeholder="Owner"
+              multiple={false}
+              buttonVariant="transparent-with-text"
+              placement="bottom-start"
+              button={<span className="flyers-soft-projects-inline-text">{projectLeadName}</span>}
+            />
           </div>
-          <div className="flyers-soft-projects-muted-cell" role="cell">
-            {teamLabel}
+          <div className="flyers-soft-projects-muted-cell" role="cell" data-project-inline-control>
+            <MemberDropdown
+              value={teamMemberIds}
+              onChange={(members) => {
+                void updateProjectDetails({ members }).catch(handleUpdateError);
+              }}
+              placeholder="Team"
+              multiple
+              buttonVariant="transparent-with-text"
+              placement="bottom-start"
+              button={<span className="flyers-soft-projects-inline-text">{teamLabel}</span>}
+            />
           </div>
-          <div className="flyers-soft-projects-muted-cell" role="cell">
-            {dueDateLabel}
+          <div className="flyers-soft-projects-muted-cell" role="cell" data-project-inline-control>
+            <DateDropdown
+              value={dueDate}
+              onChange={(date) => {
+                void updateProjectDetails({
+                  target_date: date ? (renderFormattedPayloadDate(date) ?? null) : null,
+                }).catch(handleUpdateError);
+              }}
+              placeholder="No due date"
+              buttonVariant="transparent-with-text"
+              buttonClassName="flyers-soft-projects-inline-date-button"
+              buttonContainerClassName="flyers-soft-projects-inline-date"
+              hideIcon
+              placement="bottom-start"
+            />
           </div>
-          <div role="cell">
-            <span className={cn("flyers-soft-projects-pill", priorityClassName)}>{priorityLabel}</span>
+          <div role="cell" data-project-inline-control>
+            <PriorityDropdown
+              value={projectPriority}
+              onChange={(priority) => {
+                void updateProjectDetails({ priority }).catch(handleUpdateError);
+              }}
+              buttonVariant="transparent-with-text"
+              placement="bottom-start"
+              button={
+                <span className={cn("flyers-soft-projects-pill flyers-soft-projects-inline-pill", priorityClassName)}>
+                  {priorityLabel}
+                  <ChevronDown className="h-3 w-3 opacity-60" strokeWidth={2} />
+                </span>
+              }
+            />
           </div>
-          <div role="cell" aria-hidden="true" />
-        </Link>
+          <div className="flyers-soft-projects-plus-cell" role="cell" aria-hidden="true" />
+          <div className="flyers-soft-projects-more-cell" role="cell" data-project-inline-control>
+            {visibleMenuItems.length > 0 && (
+              <CustomMenu
+                customButton={
+                  <span className="flyers-soft-projects-action-button">
+                    <MoreHorizontal className="h-4 w-4" strokeWidth={2} />
+                  </span>
+                }
+                ariaLabel="Project actions"
+                placement="bottom-end"
+                closeOnSelect
+              >
+                {visibleMenuItems.map((item) => {
+                  const Icon = item.icon;
+
+                  return (
+                    <CustomMenu.MenuItem
+                      key={item.key}
+                      className="flex items-center gap-2"
+                      onClick={() => item.action()}
+                    >
+                      {Icon && <Icon className="h-3.5 w-3.5" />}
+                      {item.title}
+                    </CustomMenu.MenuItem>
+                  );
+                })}
+              </CustomMenu>
+            )}
+          </div>
+        </div>
       </div>
     </>
   );

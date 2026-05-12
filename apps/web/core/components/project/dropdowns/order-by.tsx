@@ -9,7 +9,7 @@ import { ArrowDownWideNarrow } from "lucide-react";
 import { PROJECT_ORDER_BY_OPTIONS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { getButtonStyling } from "@plane/propel/button";
-import { CheckIcon, ChevronDownIcon } from "@plane/propel/icons";
+import { CheckIcon } from "@plane/propel/icons";
 import type { TProjectOrderByOptions } from "@plane/types";
 import { CustomMenu } from "@plane/ui";
 
@@ -42,11 +42,11 @@ export function ProjectOrderByDropdown(props: Props) {
             </span>
           ) : (
             <span
+              title={`Sort: ${orderByDetails ? t(orderByDetails?.i18n_label) : ""}`}
               className={`${getButtonStyling("secondary", "lg")} flyers-soft-projects-sort-button !h-9 !rounded-lg px-3 !text-12 shadow-[0_6px_18px_rgba(15,23,42,0.04)]`}
             >
-              <span className="text-tertiary">Sort:</span>
-              <span className="max-w-32 truncate">{orderByDetails && t(orderByDetails?.i18n_label)}</span>
-              <ChevronDownIcon className="h-3 w-3 shrink-0" strokeWidth={2} />
+              <ArrowDownWideNarrow className="size-3.5 shrink-0" strokeWidth={2} />
+              <span className="sr-only">{`Sort: ${orderByDetails ? t(orderByDetails?.i18n_label) : ""}`}</span>
             </span>
           )}
         </>

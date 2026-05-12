@@ -4,12 +4,12 @@
  * See the LICENSE file for details.
  */
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import useSWR from "swr";
-import { Folder, Plus } from "lucide-react";
+import { Archive, ChevronDown, Folder, PanelsTopLeft, Plus, SquareCheckBig, Zap } from "lucide-react";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel, PROJECT_TRACKER_ELEMENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -30,6 +30,8 @@ import { ProjectCardList } from "./card-list";
 import HeaderFilters from "./filters";
 import { ProjectSearch } from "./search-projects";
 
+type TProjectTab = "all" | "active";
+
 export const ProjectRoot = observer(function ProjectRoot() {
   const { currentWorkspace } = useWorkspace();
   const { workspaceSlug } = useParams();
@@ -37,7 +39,8 @@ export const ProjectRoot = observer(function ProjectRoot() {
   const { t } = useTranslation();
   const { toggleCreateProjectModal } = useCommandPalette();
   // store
-  const { totalProjectIds, filteredProjectIds, fetchProjectAnalyticsCount } = useProject();
+  const { totalProjectIds, filteredProjectIds, fetchProjectAnalyticsCount, getProjectAnalyticsCountById, getProjectById } =
+    useProject();
   const {
     currentWorkspaceFilters,
     currentWorkspaceAppliedDisplayFilters,
@@ -53,6 +56,7 @@ export const ProjectRoot = observer(function ProjectRoot() {
     : undefined;
 
   const isArchived = pathname.includes("/archives");
+  const [selectedProjectTab, setSelectedProjectTab] = useState<TProjectTab>("all");
   const workspacePath = workspaceSlug ? `/${workspaceSlug.toString()}` : "";
   const analyticsProjectIds = totalProjectIds?.join(",");
   const isAuthorizedUser = allowPermissions(
@@ -62,20 +66,48 @@ export const ProjectRoot = observer(function ProjectRoot() {
   const projectTabs = [
     {
       href: `${workspacePath}/projects`,
-      isActive: !isArchived,
+      Icon: PanelsTopLeft,
+      isActive: !isArchived && selectedProjectTab === "all",
+      key: "all" as const,
       label: "All Projects",
     },
     {
       href: `${workspacePath}/projects`,
-      isActive: false,
+      Icon: SquareCheckBig,
+      isActive: !isArchived && selectedProjectTab === "active",
+      key: "active" as const,
       label: "Active",
     },
     {
       href: `${workspacePath}/projects/archives`,
+      Icon: Archive,
       isActive: isArchived,
+      key: "archived" as const,
       label: "Archived",
     },
   ];
+
+  const isActiveProject = useCallback(
+    (projectId: string) => {
+      const project = getProjectById(projectId) as
+        | (ReturnType<typeof getProjectById> & { status?: string | null })
+        | undefined;
+      if (!project || project.archived_at) return false;
+
+      const projectStatus = project.status?.trim().toLowerCase();
+      if (projectStatus) return !["archived", "completed", "done"].includes(projectStatus);
+
+      const analytics = getProjectAnalyticsCountById(projectId);
+      const totalIssues = analytics?.total_issues ?? 0;
+      if (totalIssues <= 0) return true;
+
+      return (analytics?.completed_issues ?? 0) < totalIssues;
+    },
+    [getProjectAnalyticsCountById, getProjectById]
+  );
+
+  const visibleFilteredProjectIds =
+    !isArchived && selectedProjectTab === "active" ? filteredProjectIds?.filter(isActiveProject) : filteredProjectIds;
 
   const allowedDisplayFilters =
     currentWorkspaceAppliedDisplayFilters?.filter((filter) => filter !== "archived_projects") ?? [];
@@ -110,6 +142,7 @@ export const ProjectRoot = observer(function ProjectRoot() {
 
   useEffect(() => {
     if (!workspaceSlug) return;
+    if (isArchived) setSelectedProjectTab("all");
     updateDisplayFilters(workspaceSlug.toString(), { archived_projects: isArchived });
   }, [isArchived, pathname, updateDisplayFilters, workspaceSlug]);
 
@@ -149,9 +182,15 @@ export const ProjectRoot = observer(function ProjectRoot() {
                   key={tab.label}
                   href={tab.href}
                   className={tab.isActive ? "is-active" : ""}
+                  onClick={(e) => {
+                    if (tab.key === "archived") return;
+                    setSelectedProjectTab(tab.key);
+                    if (tab.key === "active" && !isArchived) e.preventDefault();
+                  }}
                   role="tab"
                   aria-selected={tab.isActive}
                 >
+                  <tab.Icon className="h-4 w-4" strokeWidth={1.8} />
                   {tab.label}
                 </Link>
               ))}
@@ -169,6 +208,15 @@ export const ProjectRoot = observer(function ProjectRoot() {
 
             <div className="flyers-soft-projects-toolbar-actions">
               <HeaderFilters classname="flyers-soft-projects-toolbar-filters" />
+              <button
+                type="button"
+                title="Quick actions"
+                aria-label="Quick actions"
+                className="flyers-soft-projects-toolbar-icon-button"
+                onClick={() => toggleCreateProjectModal(true)}
+              >
+                <Zap className="h-4 w-4" strokeWidth={1.8} />
+              </button>
               <ProjectSearch />
               {isAuthorizedUser && !isArchived && (
                 <Button
@@ -178,8 +226,8 @@ export const ProjectRoot = observer(function ProjectRoot() {
                   data-ph-element={PROJECT_TRACKER_ELEMENTS.CREATE_HEADER_BUTTON}
                   className="flyers-soft-projects-new-button"
                 >
-                  <Plus className="h-3.5 w-3.5" strokeWidth={2} />
                   <span>New</span>
+                  <ChevronDown className="h-3.5 w-3.5" strokeWidth={2} />
                 </Button>
               )}
             </div>
@@ -197,7 +245,7 @@ export const ProjectRoot = observer(function ProjectRoot() {
               alwaysAllowEditing
             />
           )}
-          <ProjectCardList totalProjectIds={totalProjectIds} filteredProjectIds={filteredProjectIds} />
+          <ProjectCardList totalProjectIds={totalProjectIds} filteredProjectIds={visibleFilteredProjectIds} />
         </div>
       </div>
     </>

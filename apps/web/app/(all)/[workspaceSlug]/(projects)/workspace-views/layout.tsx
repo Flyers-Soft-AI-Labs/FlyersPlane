@@ -13,10 +13,11 @@ import { GlobalIssuesHeader } from "./header";
 export default function GlobalIssuesLayout() {
   const { globalViewId } = useParams();
   const isAllIssues = globalViewId?.toString() === "all-issues";
+  const isAssignedView = globalViewId?.toString() === "assigned";
 
   return (
     <>
-      {!isAllIssues && <AppHeader header={<GlobalIssuesHeader />} />}
+      {!isAllIssues && !isAssignedView && <AppHeader header={<GlobalIssuesHeader />} />}
       <ContentWrapper>
         <Outlet />
       </ContentWrapper>

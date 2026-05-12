@@ -73,13 +73,14 @@ const HeaderFilters = observer(function HeaderFilters({
   const isFiltersApplied = calculateTotalFilters(filters ?? {}) !== 0;
   const defaultFilterMenuButton = (
     <span
+      title={t("common.filters")}
       className={cn(
         getButtonStyling("secondary", "lg"),
         "flyers-soft-projects-filter-button relative !h-9 !rounded-lg px-3 !text-12 shadow-[0_6px_18px_rgba(15,23,42,0.04)]"
       )}
     >
       <ListFilter className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-      <span>{t("common.filters")}</span>
+      <span className="sr-only">{t("common.filters")}</span>
       {isFiltersApplied && <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-accent-primary" />}
     </span>
   );

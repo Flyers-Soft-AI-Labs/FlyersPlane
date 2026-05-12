@@ -341,7 +341,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
       <main ref={containerRef} className="h-full min-h-0 overflow-y-auto px-6 py-7">
         <section className="flex items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3">
-            <h1 className="text-24 font-semibold tracking-tight text-[#111827]">Tickets</h1>
+            <h1 className="text-[30px] font-semibold tracking-tight text-[#111827]">Tickets</h1>
           </div>
 
           <div className="flex items-center gap-2">

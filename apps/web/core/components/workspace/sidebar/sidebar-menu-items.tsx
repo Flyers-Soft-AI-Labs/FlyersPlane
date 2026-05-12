@@ -103,7 +103,7 @@ export const SidebarMenuItems = observer(function SidebarMenuItems() {
     },
     {
       key: "tasks",
-      label: "Tasks",
+      label: "To Do List",
       href: `${workspaceRoot}/workspace-views/assigned`,
       icon: ListTodo,
       isActive: pathname?.startsWith(`${workspaceRoot}/workspace-views/assigned`),

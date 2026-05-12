@@ -5,6 +5,7 @@
  */
 
 import { observer } from "mobx-react";
+import { CalendarDays, Circle, List, MoreHorizontal, Plus, User, Users } from "lucide-react";
 // plane imports
 import { EUserPermissionsLevel, EUserPermissions } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -104,13 +105,36 @@ export const ProjectCardList = observer(function ProjectCardList(props: TProject
       <div className="flyers-soft-projects-table-scroll">
         <div className="flyers-soft-projects-table" role="table" aria-label="Projects">
           <div className="flyers-soft-projects-table-header" role="row">
-            <div role="columnheader">Name</div>
-            <div role="columnheader">Status</div>
-            <div role="columnheader">Owner</div>
-            <div role="columnheader">Team</div>
-            <div role="columnheader">Due date</div>
-            <div role="columnheader">Priority</div>
-            <div role="columnheader" aria-label="Actions" />
+            <div className="flyers-soft-projects-header-cell" role="columnheader">
+              <span className="flyers-soft-projects-header-text-icon">Aa</span>
+              <span>Name</span>
+            </div>
+            <div className="flyers-soft-projects-header-cell" role="columnheader">
+              <Circle className="h-4 w-4" strokeWidth={1.8} />
+              <span>Status</span>
+            </div>
+            <div className="flyers-soft-projects-header-cell" role="columnheader">
+              <User className="h-4 w-4" strokeWidth={1.8} />
+              <span>Owner</span>
+            </div>
+            <div className="flyers-soft-projects-header-cell" role="columnheader">
+              <Users className="h-4 w-4" strokeWidth={1.8} />
+              <span>Team</span>
+            </div>
+            <div className="flyers-soft-projects-header-cell" role="columnheader">
+              <CalendarDays className="h-4 w-4" strokeWidth={1.8} />
+              <span>Due date</span>
+            </div>
+            <div className="flyers-soft-projects-header-cell" role="columnheader">
+              <List className="h-4 w-4" strokeWidth={1.8} />
+              <span>Priority</span>
+            </div>
+            <div className="flyers-soft-projects-header-icon-cell" role="columnheader" aria-label="Add property">
+              <Plus className="h-4 w-4" strokeWidth={1.8} />
+            </div>
+            <div className="flyers-soft-projects-header-icon-cell" role="columnheader" aria-label="More options">
+              <MoreHorizontal className="h-4 w-4" strokeWidth={1.8} />
+            </div>
           </div>
           {filteredProjectIds.map((projectId) => {
             const projectDetails = getProjectById(projectId);

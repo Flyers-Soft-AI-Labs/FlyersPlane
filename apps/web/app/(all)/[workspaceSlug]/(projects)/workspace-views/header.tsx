@@ -6,6 +6,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { observer } from "mobx-react";
+import { ListTodo, Menu } from "lucide-react";
 import { useParams } from "next/navigation";
 // plane imports
 import {
@@ -91,6 +92,7 @@ export const GlobalIssuesHeader = observer(function GlobalIssuesHeader() {
 
   const isLocked = viewDetails?.is_locked;
   const isAllIssues = globalViewId === "all-issues";
+  const isAssignedView = globalViewId === "assigned";
 
   const isDefaultView = DEFAULT_GLOBAL_VIEWS_LIST.find((view) => view.key === globalViewId);
 
@@ -121,6 +123,34 @@ export const GlobalIssuesHeader = observer(function GlobalIssuesHeader() {
   }, [activeLayout]);
 
   if (isAllIssues) return null;
+
+  if (isAssignedView) {
+    return (
+      <Header>
+        <Header.LeftItem>
+          <Breadcrumbs>
+            <Breadcrumbs.Item
+              component={<BreadcrumbLink label="Menu" icon={<Menu className="h-4 w-4 text-tertiary" />} />}
+            />
+            <Breadcrumbs.Item
+              component={
+                <BreadcrumbLink
+                  label="To Do List"
+                  icon={
+                    <Breadcrumbs.Icon>
+                      <ListTodo className="size-4 flex-shrink-0 text-tertiary" />
+                    </Breadcrumbs.Icon>
+                  }
+                  isLast
+                />
+              }
+              isLast
+            />
+          </Breadcrumbs>
+        </Header.LeftItem>
+      </Header>
+    );
+  }
 
   return (
     <>
