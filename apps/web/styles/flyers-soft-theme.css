@@ -8437,7 +8437,7 @@ body.flyers-soft-create-ticket-modal-open .fixed.inset-0.bg-backdrop {
 
 .flyers-soft-workspace-switcher-signout,
 .flyers-soft-workspace-switcher-signout:hover {
-  color: #d14343 !important;
+  color: #374151 !important;
 }
 
 .flyers-soft-user-menu-trigger {
@@ -8463,7 +8463,7 @@ body.flyers-soft-create-ticket-modal-open .fixed.inset-0.bg-backdrop {
   height: 34px;
   place-items: center;
   border-radius: 999px;
-  background: #059669;
+  background: #111827;
   color: #ffffff;
   font-size: 14px;
   font-weight: 760;
@@ -8496,12 +8496,12 @@ body.flyers-soft-create-ticket-modal-open .fixed.inset-0.bg-backdrop {
 
 .flyers-soft-user-profile-signout {
   border-top: 1px solid #ebebeb !important;
-  color: #d14343 !important;
+  color: #374151 !important;
 }
 
 .flyers-soft-user-profile-signout:hover {
   background: #f1f1ef !important;
-  color: #d14343 !important;
+  color: #111827 !important;
 }
 
 /* ================================================================
@@ -9516,6 +9516,7 @@ body:has(.flyers-soft-home-content-wrapper) #main-sidebar .flex.h-12.items-cente
 .flyers-soft-sidebar-simple-link:hover {
   background: #f1f1ef !important;
   color: #111827 !important;
+  border-color: transparent !important;
 }
 
 .flyers-soft-sidebar-simple-item[data-active="true"],
@@ -9524,6 +9525,8 @@ body:has(.flyers-soft-home-content-wrapper) #main-sidebar .flex.h-12.items-cente
 .flyers-soft-sidebar-simple-item:has(button.text-primary) {
   background: #f0f0ef !important;
   color: #111827 !important;
+  border: 0 !important;
+  box-shadow: none !important;
 }
 
 .flyers-soft-sidebar-simple-item[data-active="true"] .flyers-soft-sidebar-simple-link,
@@ -9531,6 +9534,11 @@ body:has(.flyers-soft-home-content-wrapper) #main-sidebar .flex.h-12.items-cente
 .flyers-soft-sidebar-simple-item:has(button.text-primary) .flyers-soft-sidebar-simple-link {
   color: #111827 !important;
   font-weight: 600 !important;
+}
+
+.flyers-soft-sidebar-nav-item[class*="bg-layer-transparent-active"] {
+  box-shadow: none !important;
+  border-left: 0 !important;
 }
 
 .flyers-soft-sidebar-workspace-row {
@@ -9870,5 +9878,575 @@ body:has(.flyers-soft-home-content-wrapper) #main-sidebar .flex.h-12.items-cente
   .flyers-soft-dashboard-actions-grid,
   .flyers-soft-dashboard-stats-grid {
     grid-template-columns: 1fr !important;
+  }
+}
+
+/* ================================================================
+   FLYERS NOTION SIDEBAR — Authoritative flat-row override.
+   This block sits last in the file and wins every earlier rule.
+   Wrapper divs are always transparent; only the inner link row
+   receives hover/active backgrounds.
+   ================================================================ */
+
+/* 1. Wrapper: zero decoration in ALL states */
+.flyers-soft-sidebar-nav-item,
+.flyers-soft-sidebar-nav-item:hover,
+.flyers-soft-sidebar-nav-item:focus-visible,
+.flyers-soft-sidebar-nav-item[data-active="true"],
+.flyers-soft-sidebar-nav-item[class*="bg-layer-transparent"],
+.flyers-soft-sidebar-simple-item,
+.flyers-soft-sidebar-simple-item:hover,
+.flyers-soft-sidebar-simple-item[data-active="true"],
+.flyers-soft-sidebar-simple-item[class*="bg-layer-transparent"],
+.flyers-soft-sidebar-simple-item:has(a.text-primary),
+.flyers-soft-sidebar-simple-item:has(button.text-primary) {
+  background: transparent !important;
+  border: none !important;
+  border-left: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+}
+
+/* 2. Inner link row — base */
+.flyers-soft-sidebar-simple-link {
+  display: flex !important;
+  width: 100% !important;
+  min-height: 32px !important;
+  align-items: center !important;
+  gap: 8px !important;
+  border-radius: 5px !important;
+  padding: 5px 8px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  background: transparent !important;
+  color: #4b5563 !important;
+  transition: background 80ms ease !important;
+}
+
+/* 3. Inner link — hover */
+.flyers-soft-sidebar-nav-item:hover .flyers-soft-sidebar-simple-link,
+.flyers-soft-sidebar-simple-link:hover {
+  background: #f7f7f7 !important;
+  color: #111827 !important;
+}
+
+/* 4. Inner link — active (wrapper carries data-active; link carries text-primary) */
+.flyers-soft-sidebar-nav-item[data-active="true"] .flyers-soft-sidebar-simple-link,
+.flyers-soft-sidebar-simple-item:has(a.text-primary) .flyers-soft-sidebar-simple-link,
+.flyers-soft-sidebar-simple-item:has(button.text-primary) .flyers-soft-sidebar-simple-link {
+  background: #f0f0f0 !important;
+  color: #111827 !important;
+  font-weight: 600 !important;
+}
+
+/* 5. Icons — default muted, active slightly darker */
+.flyers-soft-sidebar-simple-link svg {
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0 !important;
+  color: #6b7280 !important;
+}
+
+.flyers-soft-sidebar-nav-item[data-active="true"] .flyers-soft-sidebar-simple-link svg {
+  color: #374151 !important;
+}
+
+/* 6. Nested indent */
+.flyers-soft-sidebar-nested-link {
+  padding-left: 20px !important;
+}
+
+/* ================================================================
+   Notion-style Projects Page — Authoritative final pass.
+   This block is last in the file and overrides all earlier rules.
+   ================================================================ */
+
+/* ── Menu button (sidebar-toggle-button) ──────────────────────── */
+
+.flyers-soft-sidebar-toggle-button {
+  display: inline-flex !important;
+  flex-shrink: 0 !important;
+  align-items: center !important;
+  gap: 5px !important;
+  height: 28px !important;
+  border: 0 !important;
+  border-radius: 5px !important;
+  background: transparent !important;
+  padding: 0 8px !important;
+  color: #37352f !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
+  box-shadow: none !important;
+  transition: background 80ms ease !important;
+}
+
+.flyers-soft-sidebar-toggle-button:hover {
+  background: rgba(55, 53, 47, 0.08) !important;
+}
+
+.flyers-soft-sidebar-toggle-logo {
+  height: 18px !important;
+  width: auto !important;
+  flex-shrink: 0 !important;
+}
+
+.flyers-soft-sidebar-toggle-chevron {
+  width: 12px !important;
+  height: 12px !important;
+  flex-shrink: 0 !important;
+  opacity: 0.48 !important;
+}
+
+/* ── Projects header row — compact, matches Dashboard height ──── */
+
+.flyers-soft-app-header:has(.flyers-soft-projects-header) {
+  min-height: 52px !important;
+  max-height: 52px !important;
+  align-items: center !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #eeeeec !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+.flyers-soft-app-header:has(.flyers-soft-projects-header) .flyers-soft-extended-app-header {
+  align-items: center !important;
+}
+
+.flyers-soft-projects-header {
+  padding: 0 16px 0 0 !important;
+  max-width: none !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+/* Breadcrumb */
+.flyers-soft-projects-breadcrumb {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: rgba(55, 53, 47, 0.55) !important;
+}
+
+.flyers-soft-projects-breadcrumb span:last-child {
+  color: #37352f !important;
+  font-weight: 560 !important;
+}
+
+/* ── Remove excess top-padding from content scroll ───────────── */
+
+.flyers-soft-projects-list-scroll {
+  padding-top: 0 !important;
+}
+
+/* ── Body & Page container ────────────────────────────────────── */
+
+.flyers-soft-projects-body {
+  min-height: 100% !important;
+  width: 100% !important;
+  background: #ffffff !important;
+  padding: 0 !important;
+  --fs-bg-canvas: #ffffff;
+}
+
+.flyers-soft-projects-page {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* ── Hero / title section ─────────────────────────────────────── */
+
+.flyers-soft-projects-hero {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  padding: 32px 40px 10px !important;
+}
+
+.flyers-soft-projects-folder-icon {
+  display: grid !important;
+  width: 42px !important;
+  height: 42px !important;
+  flex-shrink: 0 !important;
+  place-items: center !important;
+  border-radius: 8px !important;
+  background: #f7f7f5 !important;
+  color: #37352f !important;
+}
+
+.flyers-soft-projects-hero h1 {
+  color: #1a1a18 !important;
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  margin: 0 !important;
+}
+
+.flyers-soft-projects-hero p {
+  margin: 2px 0 0 !important;
+  color: rgba(55, 53, 47, 0.6) !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+}
+
+/* ── Toolbar: tabs + right-side actions ──────────────────────── */
+
+.flyers-soft-projects-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding: 0 40px !important;
+  border-bottom: 1px solid #eeeeec !important;
+  margin-top: 4px !important;
+}
+
+/* Tabs */
+.flyers-soft-projects-tabs {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+.flyers-soft-projects-tabs > a,
+.flyers-soft-projects-tabs > a:link,
+.flyers-soft-projects-tabs > a:visited {
+  display: inline-flex !important;
+  align-items: center !important;
+  height: 38px !important;
+  padding: 0 12px !important;
+  color: rgba(55, 53, 47, 0.62) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+  border-bottom: 2px solid transparent !important;
+  transition: color 100ms ease, border-color 100ms ease, background 100ms ease !important;
+  border-radius: 4px 4px 0 0 !important;
+}
+
+.flyers-soft-projects-tabs > a:hover {
+  color: #37352f !important;
+  background: rgba(55, 53, 47, 0.05) !important;
+}
+
+.flyers-soft-projects-tabs > a.is-active {
+  color: #37352f !important;
+  font-weight: 600 !important;
+  border-bottom-color: #37352f !important;
+}
+
+.flyers-soft-projects-tab-add {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 26px !important;
+  height: 26px !important;
+  margin-left: 2px !important;
+  border: 0 !important;
+  border-radius: 4px !important;
+  background: transparent !important;
+  color: rgba(55, 53, 47, 0.48) !important;
+  cursor: pointer !important;
+  transition: background 80ms ease !important;
+}
+
+.flyers-soft-projects-tab-add:hover {
+  background: rgba(55, 53, 47, 0.08) !important;
+  color: #37352f !important;
+}
+
+/* Right-side toolbar actions */
+.flyers-soft-projects-toolbar-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
+}
+
+.flyers-soft-projects-toolbar-filters {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+/* Compact filter/sort buttons */
+.flyers-soft-projects-filter-button {
+  height: 28px !important;
+  border-radius: 5px !important;
+  padding: 0 9px !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+}
+
+/* Compact search box */
+.flyers-soft-projects-search {
+  height: 28px !important;
+  width: 200px !important;
+  min-width: 0 !important;
+  border-radius: 5px !important;
+}
+
+/* New project button */
+.flyers-soft-projects-new-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  height: 28px !important;
+  border-radius: 5px !important;
+  background: #37352f !important;
+  padding: 0 10px !important;
+  color: #ffffff !important;
+  font-size: 12.5px !important;
+  font-weight: 550 !important;
+  border: 0 !important;
+  cursor: pointer !important;
+  transition: background 80ms ease !important;
+}
+
+.flyers-soft-projects-new-button:hover {
+  background: #1a1917 !important;
+}
+
+/* ── Table section ────────────────────────────────────────────── */
+
+.flyers-soft-projects-table-section {
+  padding: 16px 40px 48px !important;
+}
+
+.flyers-soft-projects-table-scroll {
+  overflow-x: auto !important;
+  border: 1px solid #eeeeec !important;
+  border-radius: 8px !important;
+}
+
+/* Table = flex column; each row is its own grid with the same column template */
+.flyers-soft-projects-table {
+  display: flex !important;
+  flex-direction: column !important;
+  min-width: 660px !important;
+  width: 100% !important;
+  background: #ffffff !important;
+}
+
+/* Header row */
+.flyers-soft-projects-table-header {
+  display: grid !important;
+  grid-template-columns: minmax(180px, 2fr) 90px 120px 90px 110px 90px 32px !important;
+  width: 100% !important;
+  border-bottom: 1px solid #eeeeec !important;
+}
+
+.flyers-soft-projects-table-header > [role="columnheader"] {
+  display: flex !important;
+  align-items: center !important;
+  height: 34px !important;
+  padding: 0 12px !important;
+  color: rgba(55, 53, 47, 0.48) !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  background: #fafaf9 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: uppercase !important;
+}
+
+/* Footer row */
+.flyers-soft-projects-table-footer {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  height: 34px !important;
+  padding: 0 12px !important;
+  border-top: 1px solid #eeeeec !important;
+  background: #fafaf9 !important;
+  color: rgba(55, 53, 47, 0.48) !important;
+  font-size: 12px !important;
+}
+
+.flyers-soft-projects-table-footer strong {
+  color: #37352f !important;
+  font-weight: 600 !important;
+}
+
+/* ── Row wrapper ──────────────────────────────────────────────── */
+
+/* Simple block container providing position context for the action overlay */
+.flyers-soft-projects-row-wrap {
+  position: relative !important;
+  width: 100% !important;
+  display: block !important;
+}
+
+/* The Link element IS the grid row — same column template as the header */
+.flyers-soft-projects-table-row {
+  display: grid !important;
+  width: 100% !important;
+  grid-template-columns: minmax(180px, 2fr) 90px 120px 90px 110px 90px 32px !important;
+  text-decoration: none !important;
+}
+
+/* Individual cells */
+.flyers-soft-projects-table-row > [role="cell"],
+.flyers-soft-projects-table-row > div {
+  display: flex !important;
+  align-items: center !important;
+  min-height: 40px !important;
+  padding: 0 12px !important;
+  color: #37352f !important;
+  font-size: 13px !important;
+  border-bottom: 1px solid #f3f3f1 !important;
+  background: #ffffff !important;
+  transition: background 60ms ease !important;
+}
+
+.flyers-soft-projects-table-row:hover > [role="cell"],
+.flyers-soft-projects-table-row:hover > div {
+  background: rgba(55, 53, 47, 0.03) !important;
+}
+
+/* Name cell */
+.flyers-soft-projects-name-cell {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.flyers-soft-projects-project-name {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  min-width: 0 !important;
+  font-size: 13px !important;
+  font-weight: 550 !important;
+  color: #37352f !important;
+}
+
+.flyers-soft-projects-project-key {
+  font-size: 11px !important;
+  color: rgba(55, 53, 47, 0.45) !important;
+  font-weight: 500 !important;
+  margin-top: 1px !important;
+}
+
+.flyers-soft-projects-muted-cell {
+  color: rgba(55, 53, 47, 0.62) !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+}
+
+/* Actions overlay (... button) — shown on row hover */
+.flyers-soft-projects-row-actions {
+  position: absolute !important;
+  right: 6px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 4 !important;
+  opacity: 0 !important;
+  transition: opacity 80ms ease !important;
+}
+
+.flyers-soft-projects-row-wrap:hover .flyers-soft-projects-row-actions {
+  opacity: 1 !important;
+}
+
+.flyers-soft-projects-action-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 4px !important;
+  background: #ffffff !important;
+  color: rgba(55, 53, 47, 0.6) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid #eeeeec !important;
+}
+
+.flyers-soft-projects-action-button:hover {
+  background: #f3f3f1 !important;
+  color: #37352f !important;
+}
+
+/* ── Status / Priority pills ──────────────────────────────────── */
+
+.flyers-soft-projects-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  height: 20px !important;
+  border-radius: 4px !important;
+  padding: 0 7px !important;
+  font-size: 11.5px !important;
+  font-weight: 530 !important;
+  white-space: nowrap !important;
+}
+
+.flyers-soft-projects-pill-dot {
+  width: 5px !important;
+  height: 5px !important;
+  flex-shrink: 0 !important;
+  border-radius: 50% !important;
+}
+
+.flyers-soft-projects-pill-neutral {
+  background: #f0f0ef !important;
+  color: #6b6b68 !important;
+}
+
+.flyers-soft-projects-dot-neutral {
+  background: #9b9b9b !important;
+}
+
+.flyers-soft-projects-pill-green {
+  background: #edfaf2 !important;
+  color: #2a6b46 !important;
+}
+
+.flyers-soft-projects-dot-green {
+  background: #3ab869 !important;
+}
+
+.flyers-soft-projects-pill-blue {
+  background: #eef4fb !important;
+  color: #1d5fa3 !important;
+}
+
+.flyers-soft-projects-dot-blue {
+  background: #3b82f6 !important;
+}
+
+.flyers-soft-projects-pill-red {
+  background: #fef2f2 !important;
+  color: #991b1b !important;
+}
+
+.flyers-soft-projects-pill-purple {
+  background: #f5f0ff !important;
+  color: #6d28d9 !important;
+}
+
+@media (max-width: 768px) {
+  .flyers-soft-projects-hero {
+    padding: 24px 20px 8px !important;
+  }
+
+  .flyers-soft-projects-toolbar {
+    flex-wrap: wrap !important;
+    padding: 0 20px !important;
+  }
+
+  .flyers-soft-projects-table-section {
+    padding: 12px 20px 32px !important;
   }
 }

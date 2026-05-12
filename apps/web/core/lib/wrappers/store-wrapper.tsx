@@ -45,9 +45,17 @@ function StoreWrapper(props: TStoreWrapper) {
    * Sidebar collapsed fetching from local storage
    */
   useEffect(() => {
+    const hoverSidebarDefaultKey = "flyers_hover_sidebar_default_collapsed_v1";
+    const hasAppliedHoverSidebarDefault = localStorage && localStorage.getItem(hoverSidebarDefaultKey);
+    if (!hasAppliedHoverSidebarDefault) {
+      localStorage.setItem(hoverSidebarDefaultKey, "true");
+      if (sidebarCollapsed !== true) toggleSidebar(true);
+      return;
+    }
+
     const localValue = localStorage && localStorage.getItem("app_sidebar_collapsed");
-    const localBoolValue = localValue ? (localValue === "true" ? true : false) : false;
-    if (localValue && sidebarCollapsed === undefined) toggleSidebar(localBoolValue);
+    const localBoolValue = localValue ? localValue === "true" : true;
+    if (sidebarCollapsed === undefined) toggleSidebar(localBoolValue);
   }, [sidebarCollapsed, setTheme, toggleSidebar]);
 
   /**

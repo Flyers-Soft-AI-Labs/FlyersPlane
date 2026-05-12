@@ -100,14 +100,28 @@ export const ProjectCardList = observer(function ProjectCardList(props: TProject
     );
 
   return (
-    <section className="rounded-2xl border border-[#f1e4b8] bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.045)]">
-      <h2 className="text-base mb-4 font-semibold text-[#111827]">All Projects</h2>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-[repeat(3,minmax(0,1fr))]">
-        {filteredProjectIds.map((projectId) => {
-          const projectDetails = getProjectById(projectId);
-          if (!projectDetails) return;
-          return <ProjectCard key={projectDetails.id} project={projectDetails} />;
-        })}
+    <section className="flyers-soft-projects-table-section">
+      <div className="flyers-soft-projects-table-scroll">
+        <div className="flyers-soft-projects-table" role="table" aria-label="Projects">
+          <div className="flyers-soft-projects-table-header" role="row">
+            <div role="columnheader">Name</div>
+            <div role="columnheader">Status</div>
+            <div role="columnheader">Owner</div>
+            <div role="columnheader">Team</div>
+            <div role="columnheader">Due date</div>
+            <div role="columnheader">Priority</div>
+            <div role="columnheader" aria-label="Actions" />
+          </div>
+          {filteredProjectIds.map((projectId) => {
+            const projectDetails = getProjectById(projectId);
+            if (!projectDetails) return;
+            return <ProjectCard key={projectDetails.id} project={projectDetails} />;
+          })}
+          <div className="flyers-soft-projects-table-footer">
+            <span>COUNT</span>
+            <strong>{filteredProjectIds.length}</strong>
+          </div>
+        </div>
       </div>
     </section>
   );

@@ -17,10 +17,10 @@ function WorkspaceLayout() {
       <ProjectsAppPowerKProvider />
       <div className="relative flex h-full w-full flex-col overflow-hidden rounded-lg border border-subtle">
         <div id="full-screen-portal" className="absolute inset-0 w-full" />
-        <div className="relative flex size-full overflow-hidden">
+        <div className="flyers-soft-notion-layout relative flex size-full overflow-hidden">
           <ProjectAppSidebar />
           <ExtendedProjectSidebar />
-          <main className="relative flex h-full w-full flex-col overflow-hidden bg-surface-1">
+          <main className="flyers-soft-notion-main relative flex h-full min-w-0 flex-1 flex-col overflow-hidden bg-surface-1">
             <Outlet />
           </main>
         </div>

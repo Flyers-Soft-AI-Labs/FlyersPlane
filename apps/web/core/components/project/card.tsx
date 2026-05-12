@@ -8,10 +8,9 @@ import React, { useRef, useState } from "react";
 import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArchiveRestoreIcon, CalendarDays, MoreHorizontal, Settings, UserPlus, Users } from "lucide-react";
+import { ArchiveRestoreIcon, FileText, MoreHorizontal, Settings, UserPlus } from "lucide-react";
 // plane imports
 import { EUserPermissions } from "@plane/constants";
-import { Logo } from "@plane/propel/emoji-icon-picker";
 import { LinkIcon, LockIcon, NewTabIcon, TrashIcon } from "@plane/propel/icons";
 import { setToast, TOAST_TYPE } from "@plane/propel/toast";
 import type { IProject } from "@plane/types";
@@ -19,10 +18,10 @@ import type { TContextMenuItem } from "@plane/ui";
 import { ContextMenu, CustomMenu } from "@plane/ui";
 import { copyUrlToClipboard, cn, renderFormattedDate } from "@plane/utils";
 // hooks
+import { useMember } from "@/hooks/store/use-member";
 import { useProject } from "@/hooks/store/use-project";
 import { useAppRouter } from "@/hooks/use-app-router";
 // local imports
-import { CoverImage } from "@/components/common/cover-image";
 import { ArchiveRestoreProjectModal } from "./archive-restore-modal";
 import { DeleteProjectModal } from "./delete-project-modal";
 import { JoinProjectModal } from "./join-project-modal";
@@ -32,11 +31,17 @@ type Props = {
 };
 
 type TProjectStatus = {
-  label: "Active" | "Completed" | "On Hold";
+  label: "Active" | "Completed" | "Archived";
   className: string;
+  dotClassName: string;
 };
 
-const PROGRESS_FILL_COLOR = "#f5b800";
+type TProjectWithTableFields = IProject & {
+  due_date?: string | Date | null;
+  end_date?: string | Date | null;
+  priority?: string | null;
+  target_date?: string | Date | null;
+};
 
 function getProjectProgress(completedIssues = 0, totalIssues = 0) {
   if (totalIssues <= 0) return 0;
@@ -47,22 +52,53 @@ function getProjectProgress(completedIssues = 0, totalIssues = 0) {
 function getProjectStatus(project: IProject, progress: number, totalIssues: number): TProjectStatus {
   if (project.archived_at) {
     return {
-      label: "On Hold",
-      className: "border-[#fecdd3] bg-[#fff1f3] text-[#be123c]",
+      label: "Archived",
+      className: "flyers-soft-projects-pill-neutral",
+      dotClassName: "flyers-soft-projects-dot-neutral",
     };
   }
 
   if (totalIssues > 0 && progress >= 100) {
     return {
       label: "Completed",
-      className: "border-[#bbf7d0] bg-[#ecfdf3] text-[#15803d]",
+      className: "flyers-soft-projects-pill-green",
+      dotClassName: "flyers-soft-projects-dot-green",
     };
   }
 
   return {
     label: "Active",
-    className: "border-[#d8d6fe] bg-[#f3f1ff] text-[#5b4bd8]",
+    className: "flyers-soft-projects-pill-blue",
+    dotClassName: "flyers-soft-projects-dot-blue",
   };
+}
+
+function getProjectDueDate(project: TProjectWithTableFields) {
+  return project.target_date ?? project.due_date ?? project.end_date ?? null;
+}
+
+function getPriorityClassName(priority: string) {
+  const priorityValue = priority.toLowerCase();
+
+  if (priorityValue === "urgent" || priorityValue === "high") return "flyers-soft-projects-pill-red";
+  if (priorityValue === "medium") return "flyers-soft-projects-pill-purple";
+  if (priorityValue === "low") return "flyers-soft-projects-pill-green";
+
+  return "flyers-soft-projects-pill-neutral";
+}
+
+function getProjectLeadName(
+  projectLead: IProject["project_lead"],
+  getUserDetails: ReturnType<typeof useMember>["getUserDetails"]
+) {
+  if (!projectLead) return "Unassigned";
+
+  if (typeof projectLead === "string") {
+    const userDetails = getUserDetails(projectLead);
+    return userDetails?.display_name || userDetails?.email || "Assigned";
+  }
+
+  return projectLead.display_name || projectLead.email || "Assigned";
 }
 
 export const ProjectCard = observer(function ProjectCard(props: Props) {
@@ -78,6 +114,7 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
   const { workspaceSlug } = useParams();
   // store hooks
   const { getProjectAnalyticsCountById } = useProject();
+  const { getUserDetails } = useMember();
   // auth
   const isMemberOfProject = !!project.member_role;
   const hasAdminRole = project.member_role === EUserPermissions.ADMIN;
@@ -91,6 +128,13 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
   const progress = getProjectProgress(completedIssues, totalIssues);
   const status = getProjectStatus(project, progress, totalIssues);
   const memberCount = analytics?.total_members ?? project.members?.length ?? 0;
+  const tableProject = project as TProjectWithTableFields;
+  const projectLeadName = getProjectLeadName(project.project_lead, getUserDetails);
+  const dueDate = getProjectDueDate(tableProject);
+  const dueDateLabel = dueDate ? renderFormattedDate(dueDate) : "No due date";
+  const priorityLabel = tableProject.priority?.trim() || "None";
+  const priorityClassName = getPriorityClassName(priorityLabel);
+  const teamLabel = `${memberCount} ${memberCount === 1 ? "member" : "members"}`;
 
   const projectLink = `${workspaceSlug}/projects/${project.id}/issues`;
   const handleProjectClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -179,13 +223,13 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
           archive={false}
         />
       )}
-      <div className="relative">
+      <div className="flyers-soft-projects-row-wrap" role="row">
         <ContextMenu parentRef={projectCardRef} items={MENU_ITEMS} />
         {visibleMenuItems.length > 0 && (
-          <div className="absolute top-3 right-3 z-[2]" data-prevent-progress>
+          <div className="flyers-soft-projects-row-actions" data-prevent-progress>
             <CustomMenu
               customButton={
-                <span className="grid h-8 w-8 place-items-center rounded-full bg-white/95 text-[#64748b] shadow-[0_6px_16px_rgba(15,23,42,0.10)] transition-colors hover:bg-white hover:text-[#111827]">
+                <span className="flyers-soft-projects-action-button">
                   <MoreHorizontal className="h-4 w-4" strokeWidth={2} />
                 </span>
               }
@@ -211,78 +255,37 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
           href={`/${projectLink}`}
           onClick={handleProjectClick}
           data-prevent-progress={!isMemberOfProject || isArchived}
-          className="group/project-card flex h-[270px] w-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-[#f1e4b8] bg-white shadow-[0_8px_24px_rgba(15,23,42,0.055)] transition-all duration-200 ease-out outline-none hover:-translate-y-1 hover:border-[#efd277] hover:shadow-[0_18px_36px_rgba(255,193,7,0.22)] focus-visible:border-[#efd277]"
+          className="flyers-soft-projects-table-row"
         >
-          <div className="relative h-[112px] w-full shrink-0 overflow-hidden">
-            <CoverImage
-              src={project.cover_image_url}
-              alt={project.name}
-              showDefaultWhenEmpty
-              className="absolute inset-0 h-full w-full"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/5" />
-
-            <div className="absolute right-12 bottom-3 left-4 z-[1] flex items-center gap-2.5 rounded-xl border border-white/10 bg-black/40 px-3 py-2 shadow-[0_10px_28px_rgba(0,0,0,0.18)] backdrop-blur-[2px]">
-              <div className="shadow-sm grid size-9 shrink-0 place-items-center rounded-xl bg-white/95">
-                <Logo logo={project.logo_props} size={18} />
+          <div className="flyers-soft-projects-name-cell" role="cell">
+            <FileText className="h-4 w-4 shrink-0 text-tertiary" strokeWidth={1.8} aria-hidden="true" />
+            <div className="min-w-0">
+              <div className="flyers-soft-projects-project-name">
+                <span className="truncate">{project.name}</span>
+                {project.network === 0 && <LockIcon className="h-3 w-3 shrink-0 text-tertiary" />}
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex min-w-0 items-center gap-2">
-                  <h3 className="text-15 min-w-0 flex-1 truncate leading-5 font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.55)]">
-                    {project.name}
-                  </h3>
-                  <span
-                    className={cn(
-                      "inline-flex shrink-0 items-center rounded-full border px-1.5 py-0.5 text-[10px] leading-none font-semibold tracking-[0.01em]",
-                      status.className
-                    )}
-                  >
-                    {status.label}
-                  </span>
-                </div>
-                <div className="tracking-normal mt-1 flex min-w-0 items-center gap-1.5 text-11 font-semibold text-white/90 uppercase">
-                  <span>{project.identifier}</span>
-                  {project.network === 0 && <LockIcon className="h-3 w-3" />}
-                </div>
-              </div>
+              <div className="flyers-soft-projects-project-key">{project.identifier}</div>
             </div>
           </div>
-
-          <div className="flex min-h-0 flex-1 flex-col px-4 py-3.5">
-            <p className="line-clamp-2 min-h-9 text-12 leading-[18px] text-[#5f6775]">
-              {project.description && project.description.trim() !== ""
-                ? project.description
-                : `Created on ${renderFormattedDate(project.created_at)}`}
-            </p>
-
-            <div className="mt-3 flex items-center justify-between gap-3 text-11 text-[#64748b]">
-              <span className="flex min-w-0 items-center gap-1.5 font-medium">
-                <Users className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-                <span className="truncate">
-                  {memberCount} {memberCount === 1 ? "member" : "members"}
-                </span>
-              </span>
-              <span className="ml-auto flex shrink-0 items-center gap-1.5 text-right">
-                <CalendarDays className="h-3.5 w-3.5" strokeWidth={2} />
-                {renderFormattedDate(project.created_at)}
-              </span>
-            </div>
-
-            <div className="mt-auto flex items-center gap-3 pt-3">
-              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[#edf1f6]">
-                <div
-                  className="h-full rounded-full transition-[width] duration-300"
-                  style={{ width: `${progress}%`, backgroundColor: PROGRESS_FILL_COLOR }}
-                />
-              </div>
-              <span
-                className="w-9 shrink-0 text-right text-12 font-semibold"
-                style={{ color: progress > 0 ? PROGRESS_FILL_COLOR : "#64748b" }}
-              >
-                {progress}%
-              </span>
-            </div>
+          <div role="cell">
+            <span className={cn("flyers-soft-projects-pill", status.className)}>
+              <span className={cn("flyers-soft-projects-pill-dot", status.dotClassName)} />
+              {status.label}
+            </span>
           </div>
+          <div className="flyers-soft-projects-muted-cell" role="cell">
+            {projectLeadName}
+          </div>
+          <div className="flyers-soft-projects-muted-cell" role="cell">
+            {teamLabel}
+          </div>
+          <div className="flyers-soft-projects-muted-cell" role="cell">
+            {dueDateLabel}
+          </div>
+          <div role="cell">
+            <span className={cn("flyers-soft-projects-pill", priorityClassName)}>{priorityLabel}</span>
+          </div>
+          <div role="cell" aria-hidden="true" />
         </Link>
       </div>
     </>

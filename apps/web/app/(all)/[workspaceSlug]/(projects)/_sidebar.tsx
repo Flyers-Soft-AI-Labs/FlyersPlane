@@ -4,78 +4,51 @@
  * See the LICENSE file for details.
  */
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { observer } from "mobx-react";
-// plane imports
-import { useParams, usePathname } from "next/navigation";
-import { SIDEBAR_WIDTH } from "@plane/constants";
-import { useLocalStorage } from "@plane/hooks";
 // components
-import { ResizableSidebar } from "@/components/sidebar/resizable-sidebar";
+import { cancelSidebarClose, scheduleSidebarClose } from "@/components/sidebar/sidebar-toggle-button";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
 // local imports
-import { ExtendedAppSidebar } from "./extended-sidebar";
 import { AppSidebar } from "./sidebar";
 
-const FLYERS_SOFT_SIDEBAR_WIDTH = 264;
-const FLYERS_SOFT_MIN_SIDEBAR_WIDTH = 260;
-const FLYERS_SOFT_MAX_SIDEBAR_WIDTH = 270;
-const resolveSidebarWidth = (width?: number | null) =>
-  Math.min(Math.max(width ?? FLYERS_SOFT_SIDEBAR_WIDTH, FLYERS_SOFT_MIN_SIDEBAR_WIDTH), FLYERS_SOFT_MAX_SIDEBAR_WIDTH);
-
 export const ProjectAppSidebar = observer(function ProjectAppSidebar() {
-  // store hooks
-  const {
-    sidebarCollapsed,
-    toggleSidebar,
-    sidebarPeek,
-    toggleSidebarPeek,
-    isExtendedSidebarOpened,
-    isAnySidebarDropdownOpen,
-  } = useAppTheme();
-  const { storedValue, setValue } = useLocalStorage<number>("sidebarWidth", SIDEBAR_WIDTH);
-  // states
-  const [sidebarWidth, setSidebarWidth] = useState<number>(resolveSidebarWidth(storedValue));
-  // routes
-  const { workspaceSlug } = useParams();
-  const pathname = usePathname();
-  // derived values
-  const isAnyExtendedSidebarOpen = isExtendedSidebarOpened;
+  const { sidebarCollapsed, toggleSidebar } = useAppTheme();
+  const sidebarRef = useRef<HTMLElement | null>(null);
+  const isOpen = sidebarCollapsed === false;
+  const closeSidebar = useCallback(() => toggleSidebar(true), [toggleSidebar]);
 
-  const isNotificationsPath = pathname.includes(`/${workspaceSlug}/notifications`);
+  useEffect(() => {
+    if (!isOpen) return;
 
-  // handlers
-  const handleWidthChange = (width: number) => setValue(width);
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
 
-  if (isNotificationsPath) return null;
+      if (sidebarRef.current?.contains(target) || target.closest("[data-sidebar-menu-trigger='true']")) return;
+
+      cancelSidebarClose();
+      closeSidebar();
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [closeSidebar, isOpen]);
 
   return (
-    <>
-      <ResizableSidebar
-        showPeek={sidebarPeek}
-        defaultWidth={resolveSidebarWidth(storedValue)}
-        width={sidebarWidth}
-        setWidth={setSidebarWidth}
-        minWidth={FLYERS_SOFT_MIN_SIDEBAR_WIDTH}
-        maxWidth={FLYERS_SOFT_MAX_SIDEBAR_WIDTH}
-        defaultCollapsed={sidebarCollapsed}
-        peekDuration={1500}
-        onWidthChange={handleWidthChange}
-        onCollapsedChange={toggleSidebar}
-        isCollapsed={sidebarCollapsed}
-        toggleCollapsed={toggleSidebar}
-        togglePeek={toggleSidebarPeek}
-        extendedSidebar={
-          <>
-            <ExtendedAppSidebar />
-          </>
-        }
-        isAnyExtendedSidebarExpanded={isAnyExtendedSidebarOpen}
-        isAnySidebarDropdownOpen={isAnySidebarDropdownOpen}
-      >
-        <AppSidebar />
-      </ResizableSidebar>
-    </>
+    <aside
+      ref={sidebarRef}
+      id="main-sidebar"
+      className="flyers-soft-notion-sidebar"
+      data-sidebar-panel="true"
+      data-open={isOpen ? "true" : "false"}
+      aria-hidden={!isOpen}
+      onMouseEnter={cancelSidebarClose}
+      onMouseLeave={(event) => scheduleSidebarClose(closeSidebar, { x: event.clientX, y: event.clientY })}
+    >
+      <AppSidebar />
+    </aside>
   );
 });

@@ -193,7 +193,7 @@ export const SidebarMenuItems = observer(function SidebarMenuItems() {
 function FlyersSidebarItem({ item, nested = false }: { item: TFlyersSidebarItem; nested?: boolean }) {
   const Icon = item.icon;
   const className = cn(
-    "flex w-full min-w-0 items-center rounded-md text-left text-13 font-medium",
+    "flex w-full min-w-0 items-center text-left text-13 font-medium",
     "flyers-soft-sidebar-simple-link",
     nested && "flyers-soft-sidebar-nested-link",
     item.isActive ? "text-primary" : "text-secondary"

@@ -9,8 +9,6 @@ import { observer } from "mobx-react";
 import { useParams } from "react-router";
 // components
 import { AppSidebarToggleButton } from "@/components/sidebar/sidebar-toggle-button";
-// hooks
-import { useAppTheme } from "@/hooks/store/use-app-theme";
 import { useProjectNavigationPreferences } from "@/hooks/use-navigation-preferences";
 
 export const ExtendedAppHeader = observer(function ExtendedAppHeader(props: { header: ReactNode }) {
@@ -19,14 +17,12 @@ export const ExtendedAppHeader = observer(function ExtendedAppHeader(props: { he
   const { projectId, workItem } = useParams();
   // preferences
   const { preferences: projectPreferences } = useProjectNavigationPreferences();
-  // store hooks
-  const { sidebarCollapsed } = useAppTheme();
   // derived values
   const shouldShowSidebarToggleButton = projectPreferences.navigationMode === "ACCORDION" || (!projectId && !workItem);
 
   return (
     <>
-      {sidebarCollapsed && shouldShowSidebarToggleButton && <AppSidebarToggleButton />}
+      {shouldShowSidebarToggleButton && <AppSidebarToggleButton />}
       <div className="flyers-soft-extended-app-header flex w-full min-w-0 items-center">
         <div className="min-w-0 flex-1">{header}</div>
       </div>

@@ -9,7 +9,7 @@ import { useParams } from "next/navigation";
 import useSWR from "swr";
 // hooks
 import { useHome } from "@/hooks/store/use-home";
-import { useUserProfile, useUser } from "@/hooks/store/user";
+import { useUserProfile } from "@/hooks/store/user";
 // plane web imports
 import { HomePeekOverviewsRoot } from "@/plane-web/components/home";
 import { TourRoot } from "@/plane-web/components/onboarding/tour/root";
@@ -19,7 +19,6 @@ import { DashboardWidgets } from "./home-dashboard-widgets";
 export const WorkspaceHomeView = observer(function WorkspaceHomeView() {
   // store hooks
   const { workspaceSlug } = useParams();
-  const { data: currentUser } = useUser();
   const { data: currentUserProfile, updateTourCompleted } = useUserProfile();
   const { fetchWidgets } = useHome();
 
@@ -53,7 +52,7 @@ export const WorkspaceHomeView = observer(function WorkspaceHomeView() {
         <HomePeekOverviewsRoot />
         <div className="flyers-soft-home-surface min-h-full bg-surface-1 px-page-x py-6">
           <div className="mx-auto w-full max-w-[1408px]">
-            <DashboardWidgets currentUser={currentUser} />
+            <DashboardWidgets />
           </div>
         </div>
       </>

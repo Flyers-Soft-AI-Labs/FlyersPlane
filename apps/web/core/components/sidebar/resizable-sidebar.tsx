@@ -31,10 +31,11 @@ interface ResizableSidebarProps {
   isAnySidebarDropdownOpen?: boolean;
 }
 
+const COLLAPSED_SIDEBAR_WIDTH = 60;
+
 export function ResizableSidebar({
   showPeek = false,
   togglePeek,
-  peekDuration = 500,
   isCollapsed = false,
   toggleCollapsed: toggleCollapsedProp,
   onCollapsedChange,
@@ -52,6 +53,7 @@ export function ResizableSidebar({
   // states
   const [isResizing, setIsResizing] = useState(false);
   const [isHoveringTrigger, setIsHoveringTrigger] = useState(false);
+  const [hasFocusWithin, setHasFocusWithin] = useState(false);
   // refs
   const peekTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const initialWidthRef = useRef<number>(0);
@@ -99,21 +101,52 @@ export function ResizableSidebar({
     }
   }, [toggleCollapsedProp, setShowPeek]);
 
-  const handlePeekEnter = useCallback(() => {
-    if (isCollapsed && showPeek) {
-      if (peekTimeoutRef.current) {
-        clearTimeout(peekTimeoutRef.current);
-      }
+  const handleSidebarEnter = useCallback(() => {
+    if (!isCollapsed) return;
+    setIsHoveringTrigger(true);
+    setShowPeek(true);
+    if (peekTimeoutRef.current) {
+      clearTimeout(peekTimeoutRef.current);
     }
-  }, [isCollapsed, showPeek]);
+  }, [isCollapsed, setShowPeek]);
 
-  const handlePeekLeave = useCallback(() => {
-    if (isCollapsed && !isAnyExtendedSidebarExpanded && !isAnySidebarDropdownOpen) {
+  const handleSidebarLeave = useCallback(() => {
+    setIsHoveringTrigger(false);
+    if (isCollapsed && !hasFocusWithin && !isAnyExtendedSidebarExpanded && !isAnySidebarDropdownOpen) {
       peekTimeoutRef.current = setTimeout(() => {
         setShowPeek(false);
-      }, peekDuration);
+      }, 120);
     }
-  }, [isCollapsed, peekDuration, setShowPeek, isAnyExtendedSidebarExpanded, isAnySidebarDropdownOpen]);
+  }, [
+    hasFocusWithin,
+    isAnyExtendedSidebarExpanded,
+    isAnySidebarDropdownOpen,
+    isCollapsed,
+    setShowPeek,
+  ]);
+
+  const handleSidebarFocus = useCallback(() => {
+    if (!isCollapsed) return;
+    setHasFocusWithin(true);
+    setShowPeek(true);
+    if (peekTimeoutRef.current) {
+      clearTimeout(peekTimeoutRef.current);
+    }
+  }, [isCollapsed, setShowPeek]);
+
+  const handleSidebarBlur = useCallback(
+    (event: React.FocusEvent<HTMLDivElement>) => {
+      if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
+
+      setHasFocusWithin(false);
+      if (isCollapsed && !isHoveringTrigger && !isAnyExtendedSidebarExpanded && !isAnySidebarDropdownOpen) {
+        peekTimeoutRef.current = setTimeout(() => {
+          setShowPeek(false);
+        }, 120);
+      }
+    },
+    [isAnyExtendedSidebarExpanded, isAnySidebarDropdownOpen, isCollapsed, isHoveringTrigger, setShowPeek]
+  );
 
   // Set up event listeners for resizing
   useEffect(() => {
@@ -142,23 +175,12 @@ export function ResizableSidebar({
     []
   );
 
-  useEffect(() => {
-    if (!isAnySidebarDropdownOpen && isCollapsed && isHoveringTrigger) {
-      handlePeekLeave();
-    }
-  }, [isAnySidebarDropdownOpen]);
-
-  useEffect(() => {
-    if (!isAnyExtendedSidebarExpanded && isCollapsed && isHoveringTrigger) {
-      handlePeekLeave();
-    }
-  }, [isAnyExtendedSidebarExpanded]);
-
   // Reset peek when sidebar is expanded
   useEffect(() => {
     if (!isCollapsed) {
       setShowPeek(false);
       setIsHoveringTrigger(false);
+      setHasFocusWithin(false);
       if (peekTimeoutRef.current) {
         clearTimeout(peekTimeoutRef.current);
       }
@@ -174,92 +196,70 @@ export function ResizableSidebar({
     onCollapsedChange?.(isCollapsed);
   }, [isCollapsed, onCollapsedChange]);
 
+  const shouldExpandCollapsedSidebar =
+    isCollapsed && (isHoveringTrigger || hasFocusWithin || !!showPeek || isAnyExtendedSidebarExpanded || isAnySidebarDropdownOpen);
+  const reservedWidth = isCollapsed ? COLLAPSED_SIDEBAR_WIDTH : width;
+  const renderedWidth = shouldExpandCollapsedSidebar ? width : reservedWidth;
+
   return (
     <>
       {/* Main Sidebar */}
       <div
         id="main-sidebar"
         className={cn(
-          "flyers-soft-resizable-sidebar z-20 h-full border-r border-subtle bg-surface-1",
+          "flyers-soft-resizable-sidebar relative z-30 h-full border-r border-subtle bg-surface-1",
           !isResizing && "transition-all duration-300 ease-in-out",
-          isCollapsed ? "w-0 translate-x-[-100%] opacity-0" : "translate-x-0 opacity-100",
+          "translate-x-0 opacity-100",
           isMobile && "absolute",
           className
         )}
         style={{
-          width: `${isCollapsed ? 0 : width}px`,
-          minWidth: `${isCollapsed ? 0 : width}px`,
-          maxWidth: `${isCollapsed ? 0 : width}px`,
+          width: `${reservedWidth}px`,
+          minWidth: `${reservedWidth}px`,
+          maxWidth: `${reservedWidth}px`,
         }}
+        data-collapsed={isCollapsed ? "true" : "false"}
+        data-expanded={isCollapsed ? (shouldExpandCollapsedSidebar ? "true" : "false") : "true"}
+        onMouseEnter={handleSidebarEnter}
+        onMouseLeave={handleSidebarLeave}
+        onFocusCapture={handleSidebarFocus}
+        onBlurCapture={handleSidebarBlur}
+        tabIndex={isCollapsed ? 0 : undefined}
         role="complementary"
         aria-label="Main sidebar"
         data-prevent-outside-click={isMobile}
       >
         <aside
           className={cn(
-            "flyers-soft-main-sidebar-panel group/sidebar relative flex h-full w-full flex-col overflow-hidden bg-surface-1 pt-3",
+            "flyers-soft-main-sidebar-panel group/sidebar flex h-full flex-col overflow-hidden bg-surface-1 pt-3",
+            isCollapsed ? "absolute top-0 left-0" : "relative w-full",
+            shouldExpandCollapsedSidebar && "flyers-soft-sidebar-hover-expanded",
             isAnyExtendedSidebarExpanded && "rounded-none"
           )}
+          style={{
+            width: `${renderedWidth}px`,
+            minWidth: `${renderedWidth}px`,
+            maxWidth: `${renderedWidth}px`,
+          }}
         >
           {children}
 
           {/* Resize Handle */}
-          <div
-            className={cn(
-              "absolute z-[20] h-full w-1 cursor-ew-resize transition-all duration-200",
-              !isResizing && "hover:bg-surface-2",
-              isResizing && "w-1.5 bg-layer-1",
-              "top-0 right-0"
-            )}
-            // onDoubleClick toggle sidebar
-            onDoubleClick={() => toggleCollapsed()}
-            onMouseDown={(e) => startResizing(e)}
-            role="separator"
-            aria-label="Resize sidebar"
-          />
-        </aside>
-      </div>
-      {/* Peek View */}
-      <div
-        className={cn(
-          "shadow-sm absolute left-0 z-20 h-full bg-surface-1",
-          "flyers-soft-sidebar-peek",
-          !isResizing && "transition-all duration-300 ease-in-out",
-          isCollapsed && showPeek ? "translate-x-0 opacity-100" : "translate-x-[-100%] opacity-0",
-          "pointer-events-none",
-          isCollapsed && showPeek && "pointer-events-auto",
-          !showPeek ? "w-0" : "w-full"
-        )}
-        style={{
-          width: `${width}px`,
-        }}
-        onMouseEnter={handlePeekEnter}
-        onMouseLeave={handlePeekLeave}
-        role="complementary"
-        aria-label="Sidebar peek view"
-      >
-        <aside
-          className={cn(
-            "flyers-soft-main-sidebar-panel group/sidebar relative z-20 flex h-full w-full flex-col overflow-hidden bg-surface-1 pt-4",
-            "self-center rounded-md rounded-tl-none rounded-bl-none border-r border-subtle",
-            isAnyExtendedSidebarExpanded && "rounded-none"
+          {!isCollapsed && (
+            <div
+              className={cn(
+                "absolute z-[20] h-full w-1 cursor-ew-resize transition-all duration-200",
+                !isResizing && "hover:bg-surface-2",
+                isResizing && "w-1.5 bg-layer-1",
+                "top-0 right-0"
+              )}
+              // onDoubleClick toggle sidebar
+              onDoubleClick={() => toggleCollapsed()}
+              onMouseDown={(e) => startResizing(e)}
+              role="separator"
+              aria-label="Resize sidebar"
+            />
           )}
-        >
-          {children}
-          {/* Resize Handle */}
-          <div
-            className={cn(
-              "absolute z-[20] h-full w-1 cursor-ew-resize transition-all duration-200",
-              !isResizing && "hover:bg-surface-2",
-              isResizing && "bg-layer-1",
-              "top-0 right-0"
-            )}
-            // onDoubleClick toggle sidebar
-            onDoubleClick={() => toggleCollapsed()}
-            onMouseDown={(e) => startResizing(e)}
-            role="separator"
-            aria-label="Resize sidebar"
-          />
         </aside>
       </div>
 

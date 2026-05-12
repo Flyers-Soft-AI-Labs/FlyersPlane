@@ -17,11 +17,8 @@ export function SidebarNavItem(props: TSidebarNavItem) {
   return (
     <div
       className={cn(
-        "flyers-soft-sidebar-nav-item group relative flex w-full cursor-pointer items-center justify-between gap-1 rounded-md px-2 py-0.5 outline-none",
-        {
-          "!bg-layer-transparent-active text-primary": isActive,
-          "text-secondary hover:bg-layer-transparent-hover active:bg-layer-transparent-active": !isActive,
-        },
+        "flyers-soft-sidebar-nav-item group relative flex w-full items-center justify-between outline-none",
+        isActive ? "text-primary" : "text-secondary",
         className
       )}
       data-active={isActive ? "true" : undefined}

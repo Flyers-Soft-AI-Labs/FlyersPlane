@@ -6,39 +6,15 @@
 
 import type { CSSProperties, FC, ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
-import {
-  ArrowRight,
-  CheckCircle2,
-  Clock3,
-  Copy,
-  FileText,
-  FolderKanban,
-  FolderOpen,
-  ListChecks,
-  MoreVertical,
-  Plus,
-  RefreshCw,
-  Ticket,
-  Users,
-} from "lucide-react";
+import { ArrowRight, FileText, FolderKanban, FolderOpen, MoreVertical, Plus, Ticket, Users } from "lucide-react";
 import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 // plane imports
 import { Button } from "@plane/propel/button";
-import { TOAST_TYPE, setToast } from "@plane/propel/toast";
-import type {
-  TActivityEntityData,
-  THomeWidgetKeys,
-  THomeWidgetProps,
-  TIssueEntityData,
-  TIssuesResponse,
-  TStateGroups,
-  IUser,
-} from "@plane/types";
-import { cn, copyTextToClipboard, generateWorkItemLink } from "@plane/utils";
-import { CustomMenu } from "@plane/ui";
+import type { TActivityEntityData, THomeWidgetKeys, THomeWidgetProps, TIssueEntityData } from "@plane/types";
+import { cn, generateWorkItemLink } from "@plane/utils";
 // components
 import { ButtonAvatars } from "@/components/dropdowns/member/avatar";
 // hooks
@@ -46,7 +22,7 @@ import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useMember } from "@/hooks/store/use-member";
 import { useProject } from "@/hooks/store/use-project";
 import { useProjectState } from "@/hooks/store/use-project-state";
-import { useAppRouter } from "@/hooks/use-app-router";
+import { useUser } from "@/hooks/store/user";
 // services
 import { WorkspaceService } from "@/services/workspace.service";
 
@@ -84,57 +60,9 @@ export const HOME_WIDGETS_LIST: {
   },
 };
 
-type TDashboardWidgetsProps = {
-  currentUser?: IUser;
-};
-
-type TStatCard = {
-  label: string;
-  value: number | undefined;
-  caption: string;
-  icon: LucideIcon;
-  accent: "slate" | "blue" | "neutral" | "green";
-  actionLabel?: string;
-  isLoading?: boolean;
-  onRefresh: () => Promise<unknown> | unknown;
-  onOpen: () => void;
-  unitLabel?: string;
-};
-
 const workspaceService = new WorkspaceService();
 
 const DASHBOARD_SKELETON_ROW_KEYS = ["row-a", "row-b", "row-c", "row-d", "row-e"];
-const DASHBOARD_COUNT_PARAMS = {
-  cursor: "1:0:0",
-  per_page: "1",
-};
-
-const getIssueResponseCount = (response: TIssuesResponse | undefined) =>
-  response?.total_results ?? response?.total_count ?? response?.count ?? 0;
-
-const fetchWorkspaceIssueCount = async (
-  workspaceSlug: string,
-  params: Partial<{ state_group: TStateGroups; state_id__in: string }> = {}
-) => {
-  const response = await workspaceService.getViewIssues(workspaceSlug, {
-    ...DASHBOARD_COUNT_PARAMS,
-    ...params,
-  });
-
-  return getIssueResponseCount(response);
-};
-
-const isReviewStateName = (stateName: string | undefined) => /\breview\b/i.test(stateName ?? "");
-
-const getTicketsViewHref = (workspaceSlug: string, params: Record<string, string | undefined> = {}) => {
-  const searchParams = new URLSearchParams();
-  Object.entries(params).forEach(([key, value]) => {
-    if (value) searchParams.set(key, value);
-  });
-  const queryString = searchParams.toString();
-
-  return `/${workspaceSlug}/workspace-views/all-issues/${queryString ? `?${queryString}` : ""}`;
-};
 
 const formatDashboardDate = (date: string | undefined) => {
   if (!date) return "Unknown";
@@ -148,95 +76,6 @@ const formatDashboardDate = (date: string | undefined) => {
     year: "numeric",
   }).format(parsedDate);
 };
-
-function StatCard({
-  actionLabel = "Open",
-  accent,
-  caption,
-  icon: Icon,
-  isLoading,
-  label,
-  onOpen,
-  onRefresh,
-  unitLabel = "tickets",
-  value,
-}: TStatCard) {
-  const formattedValue = isLoading ? "..." : (value ?? 0).toLocaleString();
-  const statSummary = `${label}: ${isLoading ? "Loading" : formattedValue} ${unitLabel}`;
-
-  const handleCopySummary = () => {
-    void copyTextToClipboard(statSummary)
-      .then(() =>
-        setToast({
-          type: TOAST_TYPE.SUCCESS,
-          title: "Summary copied",
-          message: statSummary,
-        })
-      )
-      .catch(() =>
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: "Could not copy summary",
-          message: "Please try again.",
-        })
-      );
-  };
-
-  const handleRefresh = () => {
-    void Promise.resolve()
-      .then(onRefresh)
-      .then(() =>
-        setToast({
-          type: TOAST_TYPE.SUCCESS,
-          title: "Stats refreshed",
-          message: `${label} is up to date.`,
-        })
-      )
-      .catch(() =>
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: "Could not refresh stats",
-          message: "Please try again.",
-        })
-      );
-  };
-
-  return (
-    <div className={cn("flyers-soft-dashboard-stat-card", `flyers-soft-dashboard-stat-${accent}`)}>
-      <div className="flyers-soft-dashboard-stat-top">
-        <span className="flyers-soft-dashboard-stat-icon">
-          <Icon className="size-4" strokeWidth={2} />
-        </span>
-        <div className="flex min-w-0 flex-col gap-1">
-          <span className="truncate text-12 font-medium text-tertiary">{label}</span>
-          <span className="text-20 font-semibold text-primary">{formattedValue}</span>
-        </div>
-        <CustomMenu
-          customButton={<MoreVertical className="flyers-soft-dashboard-stat-menu size-4" strokeWidth={2} />}
-          customButtonClassName="grid size-5 place-items-center rounded-sm hover:bg-layer-transparent-hover"
-          placement="bottom-end"
-          closeOnSelect
-          ariaLabel={`${label} actions`}
-          optionsClassName="min-w-36"
-        >
-          <CustomMenu.MenuItem onClick={onOpen} className="flex items-center gap-2">
-            <ArrowRight className="size-3.5" strokeWidth={2} />
-            <span>{actionLabel}</span>
-          </CustomMenu.MenuItem>
-          <CustomMenu.MenuItem onClick={handleCopySummary} className="flex items-center gap-2">
-            <Copy className="size-3.5" strokeWidth={2} />
-            <span>Copy summary</span>
-          </CustomMenu.MenuItem>
-          <CustomMenu.MenuItem onClick={handleRefresh} className="flex items-center gap-2">
-            <RefreshCw className="size-3.5" strokeWidth={2} />
-            <span>Refresh stats</span>
-          </CustomMenu.MenuItem>
-        </CustomMenu>
-      </div>
-      <p className="truncate text-11 text-placeholder">{caption}</p>
-    </div>
-  );
-}
 
 function CompactIssueRow({ activity, workspaceSlug }: { activity: TActivityEntityData; workspaceSlug: string }) {
   const { getStateById } = useProjectState();
@@ -276,7 +115,7 @@ function CompactIssueRow({ activity, workspaceSlug }: { activity: TActivityEntit
         <span className="truncate">{state?.name ?? "Open"}</span>
       </div>
       <span className={cn("flyers-soft-priority-pill", `flyers-soft-priority-${issue.priority || "none"}`)}>
-        {issue.priority === "urgent" ? "↑ Urgent" : issue.priority || "None"}
+        {issue.priority === "urgent" ? "\u2191 Urgent" : issue.priority || "None"}
       </span>
       <div className="flyers-soft-dashboard-ticket-assignee">
         <ButtonAvatars showTooltip userIds={assigneeIds} size="sm" />
@@ -297,57 +136,11 @@ function CompactIssueRow({ activity, workspaceSlug }: { activity: TActivityEntit
   );
 }
 
-export const DashboardWidgets = observer(function DashboardWidgets(props: TDashboardWidgetsProps) {
-  const { currentUser } = props;
+export const DashboardWidgets = observer(function DashboardWidgets() {
   const { workspaceSlug } = useParams();
   const workspaceSlugString = workspaceSlug?.toString();
-  const router = useAppRouter();
   const { toggleCreateIssueModal } = useCommandPalette();
-  const { fetchProjects, joinedProjectIds } = useProject();
-  const { fetchedMap, fetchWorkspaceStates, workspaceStates } = useProjectState();
-  const hasLoadedWorkspaceStates = !!(workspaceSlugString && fetchedMap[workspaceSlugString]);
-
-  useSWR(
-    workspaceSlugString ? `FLYERS_HOME_PROJECTS_${workspaceSlugString}` : null,
-    workspaceSlugString ? () => fetchProjects(workspaceSlugString) : null,
-    { revalidateOnFocus: false, shouldRetryOnError: false }
-  );
-
-  useSWR(
-    workspaceSlugString && !hasLoadedWorkspaceStates ? `FLYERS_HOME_WORKSPACE_STATES_${workspaceSlugString}` : null,
-    workspaceSlugString ? () => fetchWorkspaceStates(workspaceSlugString) : null,
-    { revalidateOnFocus: false, shouldRetryOnError: false }
-  );
-
-  const {
-    data: totalTicketsCount,
-    isLoading: isTotalTicketsLoading,
-    mutate: mutateTotalTicketsCount,
-  } = useSWR<number>(
-    workspaceSlugString ? `FLYERS_HOME_TICKET_COUNT_TOTAL_${workspaceSlugString}` : null,
-    workspaceSlugString ? () => fetchWorkspaceIssueCount(workspaceSlugString) : null,
-    { revalidateOnFocus: false, shouldRetryOnError: false }
-  );
-
-  const {
-    data: inProgressTicketsCount,
-    isLoading: isInProgressTicketsLoading,
-    mutate: mutateInProgressTicketsCount,
-  } = useSWR<number>(
-    workspaceSlugString ? `FLYERS_HOME_TICKET_COUNT_STARTED_${workspaceSlugString}` : null,
-    workspaceSlugString ? () => fetchWorkspaceIssueCount(workspaceSlugString, { state_group: "started" }) : null,
-    { revalidateOnFocus: false, shouldRetryOnError: false }
-  );
-
-  const {
-    data: doneTicketsCount,
-    isLoading: isDoneTicketsLoading,
-    mutate: mutateDoneTicketsCount,
-  } = useSWR<number>(
-    workspaceSlugString ? `FLYERS_HOME_TICKET_COUNT_COMPLETED_${workspaceSlugString}` : null,
-    workspaceSlugString ? () => fetchWorkspaceIssueCount(workspaceSlugString, { state_group: "completed" }) : null,
-    { revalidateOnFocus: false, shouldRetryOnError: false }
-  );
+  const { data: currentUser } = useUser();
 
   const { data: recentTickets, isLoading: isRecentTicketsLoading } = useSWR(
     workspaceSlugString ? `FLYERS_HOME_RECENT_TICKETS_${workspaceSlugString}` : null,
@@ -355,102 +148,13 @@ export const DashboardWidgets = observer(function DashboardWidgets(props: TDashb
     { revalidateOnFocus: false, shouldRetryOnError: false }
   );
 
-  const reviewStateIds = (workspaceStates ?? [])
-    .filter((state) => isReviewStateName(state.name))
-    .map((state) => state.id);
-  const reviewStateIdsKey = reviewStateIds.join(",");
-  const {
-    data: reviewTicketsCount,
-    isLoading: isReviewTicketsLoading,
-    mutate: mutateReviewTicketsCount,
-  } = useSWR<number>(
-    hasLoadedWorkspaceStates && reviewStateIdsKey
-      ? `FLYERS_HOME_TICKET_COUNT_REVIEW_${workspaceSlugString}_${reviewStateIdsKey}`
-      : null,
-    workspaceSlugString && reviewStateIdsKey
-      ? () => fetchWorkspaceIssueCount(workspaceSlugString, { state_id__in: reviewStateIdsKey })
-      : null,
-    { revalidateOnFocus: false, shouldRetryOnError: false }
-  );
-
   if (!workspaceSlugString) return null;
 
-  const resolvedReviewTicketsCount = hasLoadedWorkspaceStates && !reviewStateIdsKey ? 0 : reviewTicketsCount;
   const visibleRecentTickets = (recentTickets ?? []).filter(
     (activity) => activity.entity_name === "issue" && activity.entity_data
   );
-  const isReviewCountLoading =
-    !hasLoadedWorkspaceStates ||
-    (!!reviewStateIdsKey && (isReviewTicketsLoading || resolvedReviewTicketsCount === undefined));
-  const refreshDashboardStats = async () => {
-    await fetchWorkspaceStates(workspaceSlugString);
-    await Promise.all([
-      mutateTotalTicketsCount(),
-      mutateInProgressTicketsCount(),
-      mutateReviewTicketsCount(),
-      mutateDoneTicketsCount(),
-    ]);
-  };
-  const refreshProjectStats = () => fetchProjects(workspaceSlugString);
 
-  const stats: TStatCard[] = [
-    {
-      label: "Total Tickets",
-      value: totalTicketsCount,
-      caption: "Tracked across the workspace",
-      icon: Ticket,
-      accent: "slate",
-      isLoading: isTotalTicketsLoading || totalTicketsCount === undefined,
-      onOpen: () => router.push(getTicketsViewHref(workspaceSlugString)),
-      onRefresh: refreshDashboardStats,
-      actionLabel: "View tickets",
-    },
-    {
-      label: "In Progress",
-      value: inProgressTicketsCount,
-      caption: "Started or pending work",
-      icon: Clock3,
-      accent: "blue",
-      isLoading: isInProgressTicketsLoading || inProgressTicketsCount === undefined,
-      onOpen: () => router.push(getTicketsViewHref(workspaceSlugString, { state_group: "started" })),
-      onRefresh: refreshDashboardStats,
-      actionLabel: "View tickets",
-    },
-    {
-      label: "In Review",
-      value: resolvedReviewTicketsCount,
-      caption: "Recent tickets in review states",
-      icon: ListChecks,
-      accent: "neutral",
-      isLoading: isReviewCountLoading,
-      onOpen: () => router.push(getTicketsViewHref(workspaceSlugString, { state_id__in: reviewStateIdsKey })),
-      onRefresh: refreshDashboardStats,
-      actionLabel: "View tickets",
-    },
-    {
-      label: "Done",
-      value: doneTicketsCount,
-      caption: "Completed tickets",
-      icon: CheckCircle2,
-      accent: "green",
-      isLoading: isDoneTicketsLoading || doneTicketsCount === undefined,
-      onOpen: () => router.push(getTicketsViewHref(workspaceSlugString, { state_group: "completed" })),
-      onRefresh: refreshDashboardStats,
-      actionLabel: "View tickets",
-    },
-    {
-      label: "Projects",
-      value: joinedProjectIds.length,
-      caption: "Active projects you can access",
-      icon: FolderKanban,
-      accent: "slate",
-      onOpen: () => router.push(`/${workspaceSlugString}/projects`),
-      onRefresh: refreshProjectStats,
-      actionLabel: "Open projects",
-      unitLabel: "projects",
-    },
-  ];
-  const displayName = currentUser?.first_name || currentUser?.display_name || "there";
+  const displayName = currentUser?.first_name || currentUser?.display_name || "Shalini";
   const greeting = "Good afternoon";
 
   return (
@@ -458,9 +162,9 @@ export const DashboardWidgets = observer(function DashboardWidgets(props: TDashb
       <section className="flyers-soft-dashboard-page-heading">
         <div className="min-w-0">
           <h1 className="flyers-soft-dashboard-greeting tracking-normal text-28 font-semibold text-primary">
-            {greeting}, {displayName} <span aria-hidden="true">👋</span>
+            {greeting}, {displayName} <span aria-hidden="true">{"\u{1F44B}"}</span>
           </h1>
-          <p className="flyers-soft-dashboard-subtitle mt-3 max-w-2xl text-15 text-tertiary">
+          <p className="flyers-soft-dashboard-subtitle text-15 mt-3 max-w-2xl text-tertiary">
             Here&apos;s what&apos;s happening in your workspace today.
           </p>
         </div>
@@ -493,39 +197,6 @@ export const DashboardWidgets = observer(function DashboardWidgets(props: TDashb
             <Users className="size-4" strokeWidth={2} />
             <span>Invite members</span>
           </Link>
-        </div>
-      </section>
-
-      <section className="flyers-soft-dashboard-section">
-        <SectionHeader
-          title="Overview"
-          action={
-            <CustomMenu
-              customButton={<MoreVertical className="size-4" strokeWidth={2} />}
-              customButtonClassName="flyers-soft-dashboard-section-menu"
-              placement="bottom-end"
-              closeOnSelect
-              ariaLabel="Overview actions"
-              optionsClassName="min-w-36"
-            >
-              <CustomMenu.MenuItem onClick={refreshDashboardStats} className="flex items-center gap-2">
-                <RefreshCw className="size-3.5" strokeWidth={2} />
-                <span>Refresh stats</span>
-              </CustomMenu.MenuItem>
-              <CustomMenu.MenuItem
-                onClick={() => router.push(getTicketsViewHref(workspaceSlugString))}
-                className="flex items-center gap-2"
-              >
-                <ArrowRight className="size-3.5" strokeWidth={2} />
-                <span>View tickets</span>
-              </CustomMenu.MenuItem>
-            </CustomMenu>
-          }
-        />
-        <div className="flyers-soft-dashboard-stats-grid">
-          {stats.map((stat) => (
-            <StatCard key={stat.label} {...stat} />
-          ))}
         </div>
       </section>
 

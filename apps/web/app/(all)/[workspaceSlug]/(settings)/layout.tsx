@@ -8,13 +8,15 @@ import { Outlet } from "react-router";
 // components
 import { ContentWrapper } from "@/components/core/content-wrapper";
 import { ProjectsAppPowerKProvider } from "@/components/power-k/projects-app-provider";
+import { ProjectAppSidebar } from "../(projects)/_sidebar";
 
 export default function SettingsLayout() {
   return (
     <>
       <ProjectsAppPowerKProvider />
       <div className="relative flex size-full overflow-hidden rounded-lg border border-subtle">
-        <main className="relative flex size-full flex-col overflow-hidden">
+        <ProjectAppSidebar />
+        <main className="flyers-soft-notion-main relative flex min-w-0 flex-1 flex-col overflow-hidden">
           {/* Content */}
           <ContentWrapper className="w-full bg-surface-1 md:flex">
             <div className="size-full overflow-hidden">

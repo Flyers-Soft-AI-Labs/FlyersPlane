@@ -75,7 +75,7 @@ const HeaderFilters = observer(function HeaderFilters({
     <span
       className={cn(
         getButtonStyling("secondary", "lg"),
-        "relative !h-9 !rounded-lg px-3 !text-12 shadow-[0_6px_18px_rgba(15,23,42,0.04)]"
+        "flyers-soft-projects-filter-button relative !h-9 !rounded-lg px-3 !text-12 shadow-[0_6px_18px_rgba(15,23,42,0.04)]"
       )}
     >
       <ListFilter className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
