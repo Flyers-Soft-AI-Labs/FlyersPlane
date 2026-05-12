@@ -10450,3 +10450,515 @@ body:has(.flyers-soft-home-content-wrapper) #main-sidebar .flex.h-12.items-cente
     padding: 12px 20px 32px !important;
   }
 }
+
+/* ================================================================
+   Projects Page — Phase-2: reference-accurate alignment pass.
+   These rules sit last and win over the Phase-1 block above.
+   ================================================================ */
+
+/* ── Hero: icon stacks above title, both left-aligned ─────────── */
+
+.flyers-soft-projects-hero {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 0 !important;
+  padding: 20px 56px 16px !important;
+}
+
+.flyers-soft-projects-folder-icon {
+  width: auto !important;
+  height: auto !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  margin-bottom: 8px !important;
+  color: #787774 !important;
+}
+
+.flyers-soft-projects-folder-icon svg {
+  width: 36px !important;
+  height: 36px !important;
+  display: block !important;
+}
+
+.flyers-soft-projects-hero h1 {
+  font-size: 32px !important;
+  font-weight: 700 !important;
+  line-height: 1.1 !important;
+  margin: 0 !important;
+  letter-spacing: -0.3px !important;
+  color: #1a1a18 !important;
+}
+
+.flyers-soft-projects-hero p {
+  margin: 5px 0 0 !important;
+  font-size: 14px !important;
+  color: rgba(55, 53, 47, 0.55) !important;
+  font-weight: 400 !important;
+}
+
+/* ── Toolbar + table: align left edge with hero (56px) ────────── */
+
+.flyers-soft-projects-toolbar {
+  padding: 0 56px !important;
+  margin-top: 10px !important;
+}
+
+.flyers-soft-projects-table-section {
+  padding: 0 56px 48px !important;
+}
+
+/* ── New button: blue like reference ──────────────────────────── */
+
+.flyers-soft-projects-new-button {
+  background: #0f7ae5 !important;
+}
+
+.flyers-soft-projects-new-button:hover {
+  background: #0c6abf !important;
+}
+
+/* ── Table: flat Notion style — no outer card border ──────────── */
+
+.flyers-soft-projects-table-scroll {
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+/* Add a single top border to the table itself so columns feel grounded */
+.flyers-soft-projects-table {
+  border-top: 1px solid #e9e9e7 !important;
+}
+
+/* Header cells: transparent background */
+.flyers-soft-projects-table-header > [role="columnheader"] {
+  background: transparent !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  font-size: 12px !important;
+  color: rgba(55, 53, 47, 0.52) !important;
+}
+
+/* Footer: transparent */
+.flyers-soft-projects-table-footer {
+  background: transparent !important;
+}
+
+/* Row cells: transparent base, thin divider */
+.flyers-soft-projects-table-row > [role="cell"],
+.flyers-soft-projects-table-row > div {
+  background: transparent !important;
+  border-bottom: 1px solid #f0f0ef !important;
+}
+
+.flyers-soft-projects-table-row:hover > [role="cell"],
+.flyers-soft-projects-table-row:hover > div {
+  background: rgba(55, 53, 47, 0.03) !important;
+}
+
+/* ── Breadcrumb header: remove centering, minimal padding ──────── */
+
+.flyers-soft-projects-header {
+  margin: 0 !important;
+  padding: 0 16px 0 0 !important;
+}
+
+/* ── Mobile overrides ─────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .flyers-soft-projects-hero {
+    padding: 16px 20px 12px !important;
+  }
+
+  .flyers-soft-projects-toolbar {
+    padding: 0 20px !important;
+  }
+
+  .flyers-soft-projects-table-section {
+    padding: 0 20px 32px !important;
+  }
+}
+
+/* Compact global sidebar restore */
+#main-sidebar.flyers-soft-resizable-sidebar,
+#main-sidebar .flyers-soft-main-sidebar-panel,
+#main-sidebar .flyers-soft-sidebar-shell {
+  background: #ffffff !important;
+}
+
+#main-sidebar.flyers-soft-resizable-sidebar {
+  overflow: hidden !important;
+  border-right: 1px solid #f1f1ef !important;
+  box-shadow: none !important;
+}
+
+#main-sidebar.flyers-soft-resizable-sidebar[data-collapsed="true"] {
+  border-right: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+#main-sidebar[data-collapsed="true"] .flyers-soft-main-sidebar-panel,
+#main-sidebar[data-collapsed="true"] .flyers-soft-sidebar-shell {
+  border-right: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+#main-sidebar .flyers-soft-main-sidebar-panel {
+  border-right: 0 !important;
+  padding-top: 0 !important;
+  box-shadow: none !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-brand-wrap {
+  padding: 12px 10px 8px !important;
+}
+
+#main-sidebar[data-collapsed="true"] .flyers-soft-sidebar-brand-wrap {
+  padding: 12px 0 !important;
+  background: transparent !important;
+}
+
+#main-sidebar[data-collapsed="true"][data-expanded="true"] .flyers-soft-sidebar-brand-wrap {
+  padding: 12px 10px 8px !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-brand {
+  min-height: 32px !important;
+  gap: 8px !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-toggle-button {
+  width: 32px !important;
+  height: 32px !important;
+  flex: 0 0 32px !important;
+  gap: 0 !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  padding: 0 !important;
+  color: #374151 !important;
+  box-shadow: none !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-toggle-button:hover,
+#main-sidebar .flyers-soft-sidebar-toggle-button:focus-visible,
+#main-sidebar .flyers-soft-sidebar-toggle-button[aria-expanded="true"] {
+  background: #f1f1ef !important;
+  color: #111827 !important;
+  outline: none !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-toggle-logo {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+}
+
+#main-sidebar[data-collapsed="true"] .flyers-soft-sidebar-brand {
+  width: 60px !important;
+  min-height: 40px !important;
+  justify-content: center !important;
+  gap: 0 !important;
+}
+
+#main-sidebar[data-collapsed="true"] .flyers-soft-sidebar-scroll-viewport {
+  overflow: hidden !important;
+  scrollbar-width: none !important;
+}
+
+#main-sidebar[data-collapsed="true"] .flyers-soft-sidebar-scroll-viewport::-webkit-scrollbar {
+  display: none !important;
+}
+
+#main-sidebar[data-collapsed="true"] :is([data-slot="scroll-area-scrollbar"], [data-radix-scroll-area-scrollbar]) {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#main-sidebar[data-collapsed="true"][data-expanded="true"] .flyers-soft-sidebar-brand {
+  width: auto !important;
+  min-height: 32px !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-brand .flyers-logo {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+}
+
+#main-sidebar[data-collapsed="true"] .flyers-soft-sidebar-brand .flyers-logo {
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+}
+
+#main-sidebar[data-collapsed="true"][data-expanded="true"] .flyers-soft-sidebar-brand .flyers-logo {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-scroll-viewport {
+  padding: 10px 10px 12px !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-nav-group {
+  gap: 16px !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-section,
+#main-sidebar .flyers-soft-sidebar-nested-list {
+  gap: 1px !important;
+  margin-top: 0 !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-private-section {
+  margin-top: 0 !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-section-label {
+  min-height: 24px !important;
+  margin: 0 !important;
+  padding: 0 8px !important;
+  color: #6b7280 !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  line-height: 24px !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-simple-item {
+  height: auto !important;
+  min-height: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-simple-link {
+  display: flex !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  align-items: center !important;
+  gap: 8px !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  padding: 6px 8px !important;
+  color: #4b5563 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  line-height: 20px !important;
+  box-shadow: none !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-simple-link svg {
+  width: 16px !important;
+  height: 16px !important;
+  color: #6b7280 !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-simple-item:hover,
+#main-sidebar .flyers-soft-sidebar-simple-link:hover {
+  background: #f7f7f7 !important;
+  color: #111827 !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-simple-item[data-active="true"] .flyers-soft-sidebar-simple-link,
+#main-sidebar .flyers-soft-sidebar-simple-item:has(a.text-primary) .flyers-soft-sidebar-simple-link,
+#main-sidebar .flyers-soft-sidebar-simple-item:has(button.text-primary) .flyers-soft-sidebar-simple-link {
+  background: #eeeeee !important;
+  color: #111827 !important;
+  font-weight: 600 !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-nested-link {
+  padding-left: 20px !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-workspace-row,
+#main-sidebar .flyers-soft-sidebar-title .group\/menu-button {
+  height: 32px !important;
+  min-height: 32px !important;
+  gap: 8px !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  padding: 6px 8px !important;
+  color: #374151 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-workspace-row:hover,
+#main-sidebar .flyers-soft-sidebar-title .group\/menu-button:hover {
+  background: #f7f7f7 !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-workspace-icon {
+  width: 22px !important;
+  height: 22px !important;
+  border: 0 !important;
+  border-radius: 5px !important;
+  background: #eeeeee !important;
+  color: #374151 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 22px !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-bottom-action {
+  border-top: 0 !important;
+  background: #ffffff !important;
+  padding: 8px 10px 12px !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-add-button {
+  height: 32px !important;
+  min-height: 32px !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  padding: 6px 8px !important;
+  color: #4b5563 !important;
+  box-shadow: none !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-add-button:hover {
+  background: #f7f7f7 !important;
+  color: #111827 !important;
+}
+
+/* Global sidebar motion only */
+#main-sidebar.flyers-soft-resizable-sidebar {
+  transition:
+    width 260ms ease-in-out,
+    min-width 260ms ease-in-out,
+    max-width 260ms ease-in-out,
+    flex-basis 260ms ease-in-out,
+    background-color 180ms ease-out,
+    border-color 180ms ease-out,
+    box-shadow 220ms ease-out !important;
+  will-change: width, min-width, max-width, flex-basis;
+}
+
+#main-sidebar .flyers-soft-main-sidebar-panel {
+  transition:
+    width 260ms ease-in-out,
+    min-width 260ms ease-in-out,
+    max-width 260ms ease-in-out,
+    flex-basis 260ms ease-in-out,
+    background-color 180ms ease-out,
+    border-color 180ms ease-out,
+    box-shadow 220ms ease-out !important;
+  will-change: width, min-width, max-width, flex-basis;
+}
+
+#main-sidebar .flyers-soft-sidebar-shell {
+  transition:
+    opacity 220ms ease-out,
+    transform 260ms ease-in-out,
+    background-color 180ms ease-out !important;
+  will-change: opacity, transform;
+}
+
+#main-sidebar .flyers-soft-sidebar-brand-wrap {
+  transition:
+    padding 260ms ease-in-out,
+    background-color 180ms ease-out !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-brand {
+  transition:
+    width 260ms ease-in-out,
+    min-height 260ms ease-in-out,
+    gap 220ms ease-in-out,
+    background-color 180ms ease-out !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-toggle-logo,
+#main-sidebar .flyers-soft-sidebar-brand .flyers-logo {
+  transition:
+    width 220ms ease-in-out,
+    height 220ms ease-in-out,
+    min-width 220ms ease-in-out !important;
+}
+
+#main-sidebar
+  :is(.flyers-soft-sidebar-title, .flyers-soft-sidebar-scroll-viewport, .flyers-soft-sidebar-bottom-action) {
+  transition:
+    opacity 220ms ease-out 60ms,
+    transform 260ms ease-out 20ms,
+    visibility 0ms linear 0ms !important;
+  will-change: opacity, transform;
+}
+
+#main-sidebar[data-collapsed="true"]
+  :is(.flyers-soft-sidebar-title, .flyers-soft-sidebar-scroll-viewport, .flyers-soft-sidebar-bottom-action) {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateX(-8px) !important;
+  transition:
+    opacity 150ms ease-in,
+    transform 190ms ease-in,
+    visibility 0ms linear 190ms !important;
+}
+
+#main-sidebar[data-collapsed="true"][data-expanded="false"]
+  :is(.flyers-soft-sidebar-title, .flyers-soft-sidebar-scroll-viewport, .flyers-soft-sidebar-bottom-action) {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateX(-8px) !important;
+  transition:
+    opacity 150ms ease-in,
+    transform 190ms ease-in,
+    visibility 0ms linear 190ms !important;
+}
+
+#main-sidebar[data-collapsed="false"]
+  :is(.flyers-soft-sidebar-title, .flyers-soft-sidebar-scroll-viewport, .flyers-soft-sidebar-bottom-action) {
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: translateX(0) !important;
+}
+
+#main-sidebar[data-collapsed="true"] .flyers-soft-sidebar-title,
+#main-sidebar[data-collapsed="true"][data-expanded="false"] .flyers-soft-sidebar-title {
+  display: block !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  flex: 0 0 0 !important;
+  overflow: hidden !important;
+}
+
+.flyers-soft-notion-main {
+  transition:
+    width 260ms ease-in-out,
+    flex-basis 260ms ease-in-out,
+    margin-left 260ms ease-in-out !important;
+}
+
+#main-sidebar[data-resizing="true"],
+#main-sidebar[data-resizing="true"] .flyers-soft-main-sidebar-panel {
+  transition: none !important;
+  will-change: auto;
+}

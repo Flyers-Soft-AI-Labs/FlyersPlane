@@ -4,10 +4,13 @@
  * See the LICENSE file for details.
  */
 
-import { useCallback, useEffect, useRef } from "react";
+import type { SetStateAction } from "react";
+import { useCallback } from "react";
 import { observer } from "mobx-react";
+import { SIDEBAR_WIDTH } from "@plane/constants";
+import { useLocalStorage } from "@plane/hooks";
 // components
-import { cancelSidebarClose, scheduleSidebarClose } from "@/components/sidebar/sidebar-toggle-button";
+import { ResizableSidebar } from "@/components/sidebar/resizable-sidebar";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
 // local imports
@@ -15,40 +18,27 @@ import { AppSidebar } from "./sidebar";
 
 export const ProjectAppSidebar = observer(function ProjectAppSidebar() {
   const { sidebarCollapsed, toggleSidebar } = useAppTheme();
-  const sidebarRef = useRef<HTMLElement | null>(null);
-  const isOpen = sidebarCollapsed === false;
-  const closeSidebar = useCallback(() => toggleSidebar(true), [toggleSidebar]);
+  const { storedValue: storedSidebarWidth, setValue: setStoredSidebarWidth } = useLocalStorage<number>(
+    "sidebarWidth",
+    SIDEBAR_WIDTH
+  );
+  const sidebarWidth = storedSidebarWidth ?? SIDEBAR_WIDTH;
 
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handlePointerDown = (event: PointerEvent) => {
-      const target = event.target;
-      if (!(target instanceof HTMLElement)) return;
-
-      if (sidebarRef.current?.contains(target) || target.closest("[data-sidebar-menu-trigger='true']")) return;
-
-      cancelSidebarClose();
-      closeSidebar();
-    };
-
-    document.addEventListener("pointerdown", handlePointerDown);
-
-    return () => document.removeEventListener("pointerdown", handlePointerDown);
-  }, [closeSidebar, isOpen]);
+  const setSidebarWidth = useCallback(
+    (nextWidth: SetStateAction<number>) => {
+      setStoredSidebarWidth(typeof nextWidth === "function" ? nextWidth(sidebarWidth) : nextWidth);
+    },
+    [setStoredSidebarWidth, sidebarWidth]
+  );
 
   return (
-    <aside
-      ref={sidebarRef}
-      id="main-sidebar"
-      className="flyers-soft-notion-sidebar"
-      data-sidebar-panel="true"
-      data-open={isOpen ? "true" : "false"}
-      aria-hidden={!isOpen}
-      onMouseEnter={cancelSidebarClose}
-      onMouseLeave={(event) => scheduleSidebarClose(closeSidebar, { x: event.clientX, y: event.clientY })}
+    <ResizableSidebar
+      isCollapsed={sidebarCollapsed ?? true}
+      width={sidebarWidth}
+      setWidth={setSidebarWidth}
+      toggleCollapsed={toggleSidebar}
     >
       <AppSidebar />
-    </aside>
+    </ResizableSidebar>
   );
 });

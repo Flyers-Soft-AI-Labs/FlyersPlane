@@ -131,7 +131,7 @@ export const ProjectRoot = observer(function ProjectRoot() {
     <>
       <PageHead title={pageTitle} />
       <div className="flyers-soft-projects-body flex min-h-full w-full flex-col bg-[var(--fs-bg-canvas)]">
-        <div className="flyers-soft-projects-page mx-auto flex w-full max-w-[1360px] flex-col">
+        <div className="flyers-soft-projects-page flex w-full flex-col">
           <section className="flyers-soft-projects-hero">
             <div className="flyers-soft-projects-folder-icon" aria-hidden="true">
               <Folder className="h-7 w-7" strokeWidth={1.8} />

@@ -17,7 +17,7 @@ export const ProjectsBaseHeader = observer(function ProjectsBaseHeader() {
   const isArchived = pathname.includes("/archives");
 
   return (
-    <Header className="flyers-soft-projects-header mx-auto w-full max-w-[1360px] items-center px-6 py-3 lg:px-8">
+    <Header className="flyers-soft-projects-header w-full items-center">
       <Header.LeftItem className="!max-w-none min-w-0 flex-1 overflow-hidden">
         <div className="flyers-soft-projects-breadcrumb" aria-label="Projects breadcrumb">
           <Folder className="h-4 w-4 shrink-0 text-primary" strokeWidth={1.8} aria-hidden="true" />

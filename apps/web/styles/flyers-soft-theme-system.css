@@ -1429,8 +1429,8 @@ select:focus-visible,
 
 /* Tickets /workspace-views/all-issues */
 .flyers-soft-all-issues-view-body {
-  background: linear-gradient(180deg, var(--fs-bg-shell) 0%, var(--fs-bg-canvas) 100%) !important;
-  color: var(--fs-text-primary) !important;
+  background: #fbfbfa !important;
+  color: #111827 !important;
 }
 
 .flyers-soft-all-issues-topbar,
@@ -1438,53 +1438,55 @@ select:focus-visible,
 .flyers-soft-all-issues-table-card,
 .flyers-soft-all-issues-stat-card,
 .flyers-soft-all-issues-tip {
-  background: color-mix(in srgb, var(--fs-surface-1) 94%, transparent) !important;
-  border-color: var(--fs-border-subtle) !important;
-  color: var(--fs-text-primary) !important;
-  box-shadow: var(--fs-card-shadow) !important;
+  background: #ffffff !important;
+  border-color: #e5e7eb !important;
+  color: #111827 !important;
+  box-shadow: none !important;
 }
 
 .flyers-soft-all-issues-topbar {
-  box-shadow: 0 1px 0 var(--fs-border-subtle) !important;
+  box-shadow: none !important;
 }
 
 .flyers-soft-all-issues-search,
 .flyers-soft-all-issues-filter-button {
-  background: var(--fs-input-bg) !important;
-  border-color: var(--fs-border-subtle) !important;
-  color: var(--fs-text-primary) !important;
+  background: #ffffff !important;
+  border-color: #e5e7eb !important;
+  color: #374151 !important;
+  box-shadow: none !important;
 }
 
 .flyers-soft-all-issues-filter-pill {
-  color: var(--fs-text-secondary) !important;
+  color: #374151 !important;
 }
 
 .flyers-soft-all-issues-filter-pill:hover,
 .flyers-soft-all-issues-filter-button:hover {
-  background: var(--fs-accent-softer) !important;
-  color: var(--fs-text-primary) !important;
+  background: #fbfbfa !important;
+  color: #111827 !important;
 }
 
-.flyers-soft-all-issues-filter-pill[data-active="true"] {
-  background: var(--fs-accent-soft) !important;
-  color: var(--txt-accent-primary) !important;
-  box-shadow: inset 0 0 0 1px var(--fs-border-accent);
+.flyers-soft-all-issues-filter-pill[data-active="true"],
+.flyers-soft-all-issues-filter-button[data-active="true"] {
+  background: #f1f1ef !important;
+  color: #111827 !important;
+  box-shadow: none !important;
 }
 
 .flyers-soft-all-issues-table-header {
-  background: var(--fs-surface-2) !important;
-  border-color: var(--fs-border-subtle) !important;
-  color: var(--fs-text-secondary) !important;
-  box-shadow: 0 1px 0 var(--fs-border-subtle);
+  background: #fbfbfa !important;
+  border-color: #e5e7eb !important;
+  color: #374151 !important;
+  box-shadow: none !important;
 }
 
 .flyers-soft-all-issues-ticket-row {
-  border-color: var(--fs-border-subtle) !important;
-  color: var(--fs-text-primary) !important;
+  border-color: #e5e7eb !important;
+  color: #111827 !important;
 }
 
 .flyers-soft-all-issues-ticket-row:hover {
-  background: var(--fs-accent-softer) !important;
+  background: #fbfbfa !important;
 }
 
 .flyers-soft-ticket-title-cell {
@@ -1521,7 +1523,7 @@ select:focus-visible,
 
 .flyers-soft-inline-trigger:focus-visible {
   border-radius: 999px;
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--fs-accent) 45%, transparent);
+  box-shadow: 0 0 0 2px #e5e7eb;
 }
 
 .flyers-soft-inline-menu {
@@ -1535,12 +1537,12 @@ select:focus-visible,
   z-index: 9999;
   max-height: 260px;
   overflow-y: auto;
-  border: 1px solid var(--fs-border-subtle);
+  border: 1px solid #e5e7eb;
   border-radius: 10px;
-  background: var(--fs-popover-bg);
+  background: #ffffff;
   padding: 6px;
-  color: var(--fs-text-primary);
-  box-shadow: var(--fs-popover-shadow);
+  color: #111827;
+  box-shadow: none;
 }
 
 .flyers-soft-inline-menu-option {
@@ -1553,7 +1555,7 @@ select:focus-visible,
   border-radius: 8px;
   background: transparent;
   padding: 6px 8px;
-  color: var(--fs-text-primary);
+  color: #374151;
   font-size: 13px;
   font-weight: 500;
   line-height: 1.2;
@@ -1565,156 +1567,82 @@ select:focus-visible,
 
 .flyers-soft-inline-menu-option:hover,
 .flyers-soft-inline-menu-option[data-selected="true"] {
-  background: var(--fs-accent-softer);
+  background: #f5f5f4;
+  color: #111827;
 }
 
 .flyers-soft-inline-menu-search {
   margin-bottom: 6px;
   height: 34px;
   width: 100%;
-  border: 1px solid var(--fs-border-subtle);
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
-  background: var(--fs-input-bg);
+  background: #ffffff;
   padding: 0 10px;
-  color: var(--fs-text-primary);
+  color: #111827;
   font-size: 13px;
   outline: none;
 }
 
 .flyers-soft-inline-menu-search::placeholder {
-  color: var(--fs-text-tertiary);
+  color: #6b7280;
 }
 
 .flyers-soft-inline-menu-search:focus {
-  border-color: var(--fs-border-accent);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--fs-accent) 18%, transparent);
+  border-color: #e5e7eb;
+  box-shadow: 0 0 0 2px #f1f1ef;
 }
 
 .flyers-soft-all-issues-view-body .flyers-soft-status-pill,
 .flyers-soft-all-issues-view-body .flyers-soft-priority-pill,
 .flyers-soft-all-issues-view-body .flyers-soft-assignee-pill {
-  min-height: 28px;
+  min-height: 24px;
   width: auto;
-  border: 1px solid color-mix(in srgb, currentColor 18%, transparent) !important;
+  border: 1px solid #e5e7eb !important;
   border-radius: 999px;
-  padding: 4px 10px;
+  padding: 2px 8px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.15;
   box-shadow: none !important;
 }
 
 .flyers-soft-all-issues-view-body .flyers-soft-status-pill {
-  background: color-mix(in srgb, var(--flyers-status-color, #64748b) 12%, var(--fs-surface-1)) !important;
-  border-color: color-mix(in srgb, var(--flyers-status-color, #64748b) 24%, transparent) !important;
-  color: color-mix(in srgb, var(--flyers-status-color, #64748b) 82%, var(--fs-text-primary)) !important;
+  background: #f5f5f4 !important;
+  color: #374151 !important;
 }
 
 .flyers-soft-all-issues-view-body .flyers-soft-status-pill::before {
   display: block;
   content: "";
-  width: 8px;
-  height: 8px;
-  flex: 0 0 8px;
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
   border-radius: 999px;
-  background: var(--flyers-status-color, #64748b);
+  background: #6b7280;
 }
 
-.flyers-soft-all-issues-view-body .flyers-soft-priority-pill {
-  border-color: var(--fs-border-subtle) !important;
-}
-
-.flyers-soft-all-issues-view-body .flyers-soft-priority-none {
-  background: color-mix(in srgb, var(--fs-text-tertiary) 11%, var(--fs-surface-1)) !important;
-  color: var(--fs-text-secondary) !important;
-}
-
-.flyers-soft-all-issues-view-body .flyers-soft-priority-low {
-  background: color-mix(in srgb, var(--fs-success) 12%, var(--fs-surface-1)) !important;
-  color: var(--fs-success) !important;
-}
-
-.flyers-soft-all-issues-view-body .flyers-soft-priority-medium {
-  background: color-mix(in srgb, var(--fs-warning) 15%, var(--fs-surface-1)) !important;
-  color: var(--fs-warning) !important;
-}
-
+.flyers-soft-all-issues-view-body .flyers-soft-priority-pill,
+.flyers-soft-all-issues-view-body .flyers-soft-priority-none,
+.flyers-soft-all-issues-view-body .flyers-soft-priority-low,
+.flyers-soft-all-issues-view-body .flyers-soft-priority-medium,
 .flyers-soft-all-issues-view-body .flyers-soft-priority-high,
 .flyers-soft-all-issues-view-body .flyers-soft-priority-urgent {
-  background: color-mix(in srgb, var(--fs-danger) 13%, var(--fs-surface-1)) !important;
-  color: var(--fs-danger) !important;
+  background: #f5f5f4 !important;
+  border-color: #e5e7eb !important;
+  color: #374151 !important;
 }
 
 .flyers-soft-all-issues-view-body .flyers-soft-assignee-pill {
-  background: var(--fs-surface-1) !important;
-  border-color: var(--fs-border-subtle) !important;
-  color: var(--fs-text-secondary) !important;
+  background: #ffffff !important;
+  border-color: #e5e7eb !important;
+  color: #374151 !important;
 }
 
 .flyers-soft-all-issues-table-footer {
-  background: color-mix(in srgb, var(--fs-surface-1) 96%, transparent) !important;
-  border-color: var(--fs-border-subtle) !important;
-  color: var(--fs-text-secondary) !important;
-}
-
-[data-theme*="dark"] .flyers-soft-all-issues-view-body {
-  background: linear-gradient(180deg, #111318 0%, #0f1117 100%) !important;
-  color: #f5f7fb !important;
-}
-
-[data-theme*="dark"] .flyers-soft-all-issues-topbar,
-[data-theme*="dark"] .flyers-soft-all-issues-toolbar,
-[data-theme*="dark"] .flyers-soft-all-issues-table-card,
-[data-theme*="dark"] .flyers-soft-all-issues-stat-card,
-[data-theme*="dark"] .flyers-soft-all-issues-tip {
-  background: #181c24 !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
-  color: #f5f7fb !important;
-  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.34) !important;
-}
-
-[data-theme*="dark"] .flyers-soft-all-issues-table-header {
-  background: #1f2430 !important;
-  color: #a7afc0 !important;
-}
-
-[data-theme*="dark"] .flyers-soft-all-issues-ticket-row:hover {
-  background: rgba(255, 255, 255, 0.055) !important;
-}
-
-[data-theme*="dark"] .flyers-soft-inline-menu-panel {
-  background: #181c24 !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
-  color: #f5f7fb !important;
-  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.34) !important;
-}
-
-[data-theme*="dark"] .flyers-soft-inline-menu-option {
-  color: #f5f7fb !important;
-}
-
-[data-theme*="dark"] .flyers-soft-inline-menu-option:hover,
-[data-theme*="dark"] .flyers-soft-inline-menu-option[data-selected="true"] {
-  background: rgba(17, 24, 39, 0.12) !important;
-}
-
-[data-theme*="dark"] .flyers-soft-inline-menu-search {
-  background: #1f2430 !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
-  color: #f5f7fb !important;
-}
-
-[data-theme*="dark"] .flyers-soft-all-issues-view-body .flyers-soft-status-pill {
-  background: color-mix(in srgb, var(--flyers-status-color, #a7afc0) 22%, #181c24) !important;
-  border-color: color-mix(in srgb, var(--flyers-status-color, #a7afc0) 38%, rgba(255, 255, 255, 0.08)) !important;
-  color: #f5f7fb !important;
-}
-
-[data-theme*="dark"] .flyers-soft-all-issues-view-body .flyers-soft-priority-none,
-[data-theme*="dark"] .flyers-soft-all-issues-view-body .flyers-soft-assignee-pill {
-  background: #1f2430 !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
-  color: #a7afc0 !important;
+  background: #ffffff !important;
+  border-color: #e5e7eb !important;
+  color: #374151 !important;
 }
 
 /* Notion-like neutral dashboard and global sidebar guard. */
@@ -2593,8 +2521,8 @@ textarea:focus {
 
 /* Hover-expand global sidebar rail. */
 .flyers-soft-resizable-sidebar {
-  overflow: visible !important;
-  isolation: isolate;
+  overflow: hidden !important;
+  isolation: auto;
 }
 
 .flyers-soft-main-sidebar-panel {
@@ -2612,14 +2540,21 @@ textarea:focus {
   width: 60px !important;
   min-width: 60px !important;
   max-width: 60px !important;
-  border-right: 1px solid #e5e5e5 !important;
-  background: #ffffff !important;
-  z-index: 60 !important;
+  border-right: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  z-index: 30 !important;
 }
 
 #main-sidebar[data-collapsed="true"] .flyers-soft-main-sidebar-panel {
-  border-right: 1px solid #e5e5e5 !important;
-  background: #ffffff !important;
+  border-right: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+#main-sidebar[data-collapsed="true"] .flyers-soft-sidebar-shell {
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 #main-sidebar[data-collapsed="true"][data-expanded="false"] .flyers-soft-main-sidebar-panel {
@@ -2627,11 +2562,12 @@ textarea:focus {
 }
 
 #main-sidebar[data-collapsed="true"][data-expanded="true"] .flyers-soft-main-sidebar-panel {
-  box-shadow: 18px 0 44px rgba(17, 24, 39, 0.14) !important;
+  box-shadow: none !important;
 }
 
 #main-sidebar[data-collapsed="true"] .flyers-soft-sidebar-brand-wrap {
-  padding: 18px 0 12px !important;
+  padding: 12px 0 12px !important;
+  background: transparent !important;
 }
 
 #main-sidebar[data-collapsed="true"] .flyers-soft-sidebar-brand {
@@ -2675,6 +2611,21 @@ textarea:focus {
 
 #main-sidebar[data-collapsed="true"][data-expanded="false"] .flyers-soft-sidebar-title {
   display: none !important;
+}
+
+#main-sidebar[data-collapsed="true"] .flyers-soft-sidebar-scroll-viewport {
+  overflow: hidden !important;
+  scrollbar-width: none !important;
+}
+
+#main-sidebar[data-collapsed="true"] .flyers-soft-sidebar-scroll-viewport::-webkit-scrollbar {
+  display: none !important;
+}
+
+#main-sidebar[data-collapsed="true"] :is([data-slot="scroll-area-scrollbar"], [data-radix-scroll-area-scrollbar]) {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 #main-sidebar[data-collapsed="true"][data-expanded="true"]
@@ -3115,13 +3066,6 @@ textarea:focus {
   color: #f5f5f5 !important;
 }
 
-/* Click-open Notion-style global sidebar. */
-#extended-sidebar-toggle,
-#extended-project-sidebar-toggle,
-.flyers-soft-sidebar-peek {
-  display: none !important;
-}
-
 .flyers-soft-notion-layout {
   align-items: stretch;
 }
@@ -3131,67 +3075,6 @@ textarea:focus {
   transition:
     flex-basis 220ms cubic-bezier(0.22, 1, 0.36, 1),
     width 220ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-#main-sidebar.flyers-soft-notion-sidebar {
-  position: relative !important;
-  z-index: 20;
-  display: block !important;
-  width: 0 !important;
-  min-width: 0 !important;
-  max-width: 0 !important;
-  height: 100% !important;
-  overflow: hidden !important;
-  border-right: 1px solid transparent !important;
-  border-radius: 0 !important;
-  background: #fbfbfa !important;
-  box-shadow: none !important;
-  opacity: 1 !important;
-  transition:
-    width 220ms cubic-bezier(0.22, 1, 0.36, 1),
-    min-width 220ms cubic-bezier(0.22, 1, 0.36, 1),
-    max-width 220ms cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 180ms ease;
-}
-
-#main-sidebar.flyers-soft-notion-sidebar[data-open="true"] {
-  width: 260px !important;
-  min-width: 260px !important;
-  max-width: 260px !important;
-  border-right-color: #e6e6e6 !important;
-}
-
-#main-sidebar.flyers-soft-notion-sidebar .flyers-soft-sidebar-shell {
-  width: 260px !important;
-  min-width: 260px !important;
-  max-width: 260px !important;
-  background: #fbfbfa !important;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateX(-10px);
-  transition:
-    opacity 160ms ease,
-    transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-#main-sidebar.flyers-soft-notion-sidebar[data-open="true"] .flyers-soft-sidebar-shell {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateX(0);
-}
-
-#main-sidebar.flyers-soft-notion-sidebar .flyers-soft-sidebar-brand-wrap {
-  padding: 12px 12px 8px !important;
-}
-
-#main-sidebar.flyers-soft-notion-sidebar .flyers-soft-sidebar-scroll-viewport {
-  padding: 10px 12px 12px !important;
-}
-
-#main-sidebar.flyers-soft-notion-sidebar .flyers-soft-sidebar-bottom-action {
-  border-top: 0 !important;
-  background: #fbfbfa !important;
-  padding: 8px 12px 12px !important;
 }
 
 .flyers-soft-sidebar-toggle-button {
@@ -3238,55 +3121,6 @@ textarea:focus {
   display: flex;
   align-items: center;
   gap: 4px;
-}
-
-#main-sidebar.flyers-soft-notion-sidebar .flyers-soft-sidebar-simple-link,
-#main-sidebar.flyers-soft-notion-sidebar .flyers-soft-sidebar-workspace-row,
-#main-sidebar.flyers-soft-notion-sidebar .flyers-soft-sidebar-title .group\/menu-button,
-#main-sidebar.flyers-soft-notion-sidebar .flyers-soft-sidebar-add-button {
-  height: 34px !important;
-  min-height: 34px !important;
-  border-radius: 6px !important;
-  font-size: 14px !important;
-}
-
-#main-sidebar.flyers-soft-notion-sidebar .flyers-soft-sidebar-simple-link svg {
-  width: 17px !important;
-  height: 17px !important;
-}
-
-#main-sidebar.flyers-soft-notion-sidebar .flyers-soft-sidebar-nav-group {
-  gap: 16px !important;
-}
-
-#main-sidebar.flyers-soft-notion-sidebar .flyers-soft-sidebar-section-label {
-  color: #7a7a7a !important;
-  font-size: 13px !important;
-  font-weight: 500 !important;
-}
-
-@media (max-width: 760px) {
-  #main-sidebar.flyers-soft-notion-sidebar[data-open="true"] {
-    width: 250px !important;
-    min-width: 250px !important;
-    max-width: 250px !important;
-  }
-
-  #main-sidebar.flyers-soft-notion-sidebar .flyers-soft-sidebar-shell {
-    width: 250px !important;
-    min-width: 250px !important;
-    max-width: 250px !important;
-  }
-}
-
-[data-theme*="dark"] #main-sidebar.flyers-soft-notion-sidebar,
-[data-theme*="dark"] #main-sidebar.flyers-soft-notion-sidebar .flyers-soft-sidebar-shell,
-[data-theme*="dark"] #main-sidebar.flyers-soft-notion-sidebar .flyers-soft-sidebar-bottom-action {
-  background: #111111 !important;
-}
-
-[data-theme*="dark"] #main-sidebar.flyers-soft-notion-sidebar[data-open="true"] {
-  border-right-color: #2a2a2a !important;
 }
 
 [data-theme*="dark"] .flyers-soft-sidebar-toggle-button {
@@ -3763,4 +3597,123 @@ textarea:focus {
 [data-theme*="dark"] .flyers-soft-projects-search:hover,
 [data-theme*="dark"] .flyers-soft-projects-search:focus-within {
   background: #1f1f1f !important;
+}
+
+/* Global sidebar motion only */
+#main-sidebar.flyers-soft-resizable-sidebar {
+  transition:
+    width 260ms ease-in-out,
+    min-width 260ms ease-in-out,
+    max-width 260ms ease-in-out,
+    flex-basis 260ms ease-in-out,
+    background-color 180ms ease-out,
+    border-color 180ms ease-out,
+    box-shadow 220ms ease-out !important;
+  will-change: width, min-width, max-width, flex-basis;
+}
+
+#main-sidebar .flyers-soft-main-sidebar-panel {
+  transition:
+    width 260ms ease-in-out,
+    min-width 260ms ease-in-out,
+    max-width 260ms ease-in-out,
+    flex-basis 260ms ease-in-out,
+    background-color 180ms ease-out,
+    border-color 180ms ease-out,
+    box-shadow 220ms ease-out !important;
+  will-change: width, min-width, max-width, flex-basis;
+}
+
+#main-sidebar .flyers-soft-sidebar-shell {
+  transition:
+    opacity 220ms ease-out,
+    transform 260ms ease-in-out,
+    background-color 180ms ease-out !important;
+  will-change: opacity, transform;
+}
+
+#main-sidebar .flyers-soft-sidebar-brand-wrap {
+  transition:
+    padding 260ms ease-in-out,
+    background-color 180ms ease-out !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-brand {
+  transition:
+    width 260ms ease-in-out,
+    min-height 260ms ease-in-out,
+    gap 220ms ease-in-out,
+    background-color 180ms ease-out !important;
+}
+
+#main-sidebar .flyers-soft-sidebar-toggle-logo,
+#main-sidebar .flyers-soft-sidebar-brand .flyers-logo {
+  transition:
+    width 220ms ease-in-out,
+    height 220ms ease-in-out,
+    min-width 220ms ease-in-out !important;
+}
+
+#main-sidebar
+  :is(.flyers-soft-sidebar-title, .flyers-soft-sidebar-scroll-viewport, .flyers-soft-sidebar-bottom-action) {
+  transition:
+    opacity 220ms ease-out 60ms,
+    transform 260ms ease-out 20ms,
+    visibility 0ms linear 0ms !important;
+  will-change: opacity, transform;
+}
+
+#main-sidebar[data-collapsed="true"]
+  :is(.flyers-soft-sidebar-title, .flyers-soft-sidebar-scroll-viewport, .flyers-soft-sidebar-bottom-action) {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateX(-8px) !important;
+  transition:
+    opacity 150ms ease-in,
+    transform 190ms ease-in,
+    visibility 0ms linear 190ms !important;
+}
+
+#main-sidebar[data-collapsed="true"][data-expanded="false"]
+  :is(.flyers-soft-sidebar-title, .flyers-soft-sidebar-scroll-viewport, .flyers-soft-sidebar-bottom-action) {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateX(-8px) !important;
+  transition:
+    opacity 150ms ease-in,
+    transform 190ms ease-in,
+    visibility 0ms linear 190ms !important;
+}
+
+#main-sidebar[data-collapsed="false"]
+  :is(.flyers-soft-sidebar-title, .flyers-soft-sidebar-scroll-viewport, .flyers-soft-sidebar-bottom-action) {
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: translateX(0) !important;
+}
+
+#main-sidebar[data-collapsed="true"] .flyers-soft-sidebar-title,
+#main-sidebar[data-collapsed="true"][data-expanded="false"] .flyers-soft-sidebar-title {
+  display: block !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  flex: 0 0 0 !important;
+  overflow: hidden !important;
+}
+
+.flyers-soft-notion-main {
+  transition:
+    width 260ms ease-in-out,
+    flex-basis 260ms ease-in-out,
+    margin-left 260ms ease-in-out !important;
+}
+
+#main-sidebar[data-resizing="true"],
+#main-sidebar[data-resizing="true"] .flyers-soft-main-sidebar-panel {
+  transition: none !important;
+  will-change: auto;
 }

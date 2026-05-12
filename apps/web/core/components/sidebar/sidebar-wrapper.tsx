@@ -10,7 +10,7 @@ import { observer } from "mobx-react";
 import { useOutsideClickDetector } from "@plane/hooks";
 import { ScrollArea } from "@plane/propel/scrollarea";
 // components
-import { FlyersLogo } from "@/components/common/flyers-logo";
+import { AppSidebarToggleButton } from "@/components/sidebar/sidebar-toggle-button";
 import { WorkspaceMenuRoot } from "@/components/workspace/sidebar/workspace-menu-root";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
@@ -29,6 +29,7 @@ export const SidebarWrapper = observer(function SidebarWrapper(props: TSidebarWr
   const windowSize = useSize();
   // refs
   const ref = useRef<HTMLDivElement>(null);
+  const openedByHoverRef = useRef(false);
 
   useOutsideClickDetector(ref, () => {
     if (sidebarCollapsed === false && window.innerWidth < 768) {
@@ -41,12 +42,28 @@ export const SidebarWrapper = observer(function SidebarWrapper(props: TSidebarWr
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [windowSize]);
 
+  const handleHoverOpen = () => {
+    openedByHoverRef.current = true;
+    toggleSidebar(false);
+  };
+
+  const handleShellMouseLeave = () => {
+    if (!openedByHoverRef.current || sidebarCollapsed !== false) return;
+
+    openedByHoverRef.current = false;
+    toggleSidebar(true);
+  };
+
   return (
     <>
-      <div ref={ref} className="flyers-soft-sidebar-shell flex h-full w-full animate-fade-in flex-col">
+      <div
+        ref={ref}
+        className="flyers-soft-sidebar-shell flex h-full w-full animate-fade-in flex-col"
+        onMouseLeave={handleShellMouseLeave}
+      >
         <div className="flyers-soft-sidebar-brand-wrap px-3 pt-3">
           <div className="flyers-soft-sidebar-brand flex items-center gap-2">
-            <FlyersLogo className="h-5 w-5 min-w-5 object-contain" />
+            <AppSidebarToggleButton openedByHoverRef={openedByHoverRef} onHoverOpen={handleHoverOpen} />
             <div className="flyers-soft-sidebar-title min-w-0 flex-1">
               <WorkspaceMenuRoot variant="sidebar-brand" label="Flyers Soft" />
             </div>

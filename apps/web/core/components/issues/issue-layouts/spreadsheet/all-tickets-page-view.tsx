@@ -18,19 +18,13 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Clock3,
   Filter,
-  LayoutList,
-  ListChecks,
   Minus,
   MoreHorizontal,
+  Plus,
   Search,
-  ShieldAlert,
   SlidersHorizontal,
   Star,
-  Sun,
-  Ticket,
-  X,
 } from "lucide-react";
 import { EIssueFilterType, ISSUE_DISPLAY_FILTERS_BY_PAGE, ISSUE_PRIORITIES } from "@plane/constants";
 import type { IIssueDisplayFilterOptions, IIssueDisplayProperties, IState, IUserLite, TIssue } from "@plane/types";
@@ -38,6 +32,7 @@ import { EIssueLayoutTypes, EIssueServiceType, EIssuesStoreType } from "@plane/t
 import { Avatar } from "@plane/ui";
 import { calculateTimeAgoShort, cn, generateWorkItemLink, getFileURL } from "@plane/utils";
 // hooks
+import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
 import { useMember } from "@/hooks/store/use-member";
@@ -51,15 +46,17 @@ import { usePlatformOS } from "@/hooks/use-platform-os";
 import { DisplayFiltersSelection, FiltersDropdown } from "../filters";
 import type { TRenderQuickActions } from "../list/list-view-types";
 
-const COL_TEMPLATE = "40px 40px 106px minmax(360px,1fr) 164px 154px 158px 126px 52px";
+const COL_TEMPLATE = "40px 40px 112px minmax(320px,1fr) 150px 140px 156px 112px 48px";
 const PAGE_SIZE = 5;
 const SKELETON_ROW_KEYS = ["loading-row-1", "loading-row-2", "loading-row-3"];
+const UNASSIGNED_FILTER_VALUE = "__unassigned__";
 
 type FilterTab = "all" | "mine" | "unassigned" | "starred";
 type InlineMenuField = "status" | "priority" | "assignee";
 type InlineMenuState = { issueId: string; field: InlineMenuField } | null;
-type StatAccent = "slate" | "neutral" | "blue" | "green" | "rose";
+type ToolbarMenuField = "filter" | "status" | "priority" | "assignee";
 type TicketPriority = NonNullable<TIssue["priority"]>;
+type AssigneeFilter = string | typeof UNASSIGNED_FILTER_VALUE | null;
 
 const PRIORITY_ORDER: TicketPriority[] = ["none", "low", "medium", "high", "urgent"];
 const STATUS_ORDER = ["todo", "in progress", "in review", "done", "blocked"];
@@ -73,22 +70,6 @@ interface AllTicketsPageViewProps {
   loadMoreIssues: () => void;
 }
 
-type TStatCard = {
-  accent: StatAccent;
-  count: number;
-  icon: typeof Ticket;
-  label: string;
-  subtitle: string;
-};
-
-const statAccentClasses: Record<StatAccent, string> = {
-  slate: "bg-[var(--fs-layer-3)] text-[var(--fs-text-tertiary)]",
-  neutral: "bg-[#f1f1ef] text-[#6b7280]",
-  blue: "bg-[#f1f1ef] text-[#6b7280]",
-  green: "bg-[#f1f1ef] text-[#6b7280]",
-  rose: "bg-[#f1f1ef] text-[#6b7280]",
-};
-
 function getStateAccent(state: IState | undefined) {
   const name = state?.name?.toLowerCase() ?? "";
   const group = state?.group;
@@ -97,7 +78,7 @@ function getStateAccent(state: IState | undefined) {
   if (group === "completed") return "#6b7280";
   if (group === "started") return "#6b7280";
   if (group === "cancelled" || name.includes("blocked")) return "#6b7280";
-  return "#64748b";
+  return "#6b7280";
 }
 
 function getPriorityTone(priority: TIssue["priority"]) {
@@ -123,11 +104,16 @@ function getPriorityTone(priority: TIssue["priority"]) {
       };
     default:
       return {
-        className: "text-[#64748b]",
+        className: "text-[#6b7280]",
         icon: Minus,
         label: "None",
       };
   }
+}
+
+function getPriorityLabel(priority: TIssue["priority"]) {
+  if (!priority || priority === "none") return "None";
+  return ISSUE_PRIORITIES.find((item) => item.key === priority)?.title ?? priority;
 }
 
 function getStateOrderIndex(state: IState) {
@@ -143,8 +129,12 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
   const [activeFilter, setActiveFilter] = useState<FilterTab>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchText, setSearchText] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [priorityFilter, setPriorityFilter] = useState<TicketPriority | null>(null);
+  const [assigneeFilter, setAssigneeFilter] = useState<AssigneeFilter>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [starredIds, setStarredIds] = useState<Set<string>>(new Set());
+  const [activeToolbarMenu, setActiveToolbarMenu] = useState<ToolbarMenuField | null>(null);
   const [activeInlineMenu, setActiveInlineMenu] = useState<InlineMenuState>(null);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -158,34 +148,50 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
     issuesFilter: { issueFilters, updateFilters },
   } = useIssues(EIssuesStoreType.GLOBAL);
   const { getStateById } = useProjectState();
+  const { getProjectById, getProjectIdentifierById } = useProject();
+  const memberStore = useMember();
   const { data: currentUser } = useUser();
+  const { toggleCreateIssueModal } = useCommandPalette();
   const currentUserId = currentUser?.id;
 
   useIntersectionObserver(containerRef, canLoadMoreIssues ? sentinelEl : null, loadMoreIssues, "100% 0% 100% 0%");
 
-  const stats = useMemo(() => {
-    let total = 0;
-    let inProgress = 0;
-    let inReview = 0;
-    let done = 0;
-    let blocked = 0;
+  const statusOptions = useMemo(() => {
+    const statesById = new Map<string, IState>();
 
     for (const id of issueIds) {
       const issue = issueMap[id];
-      if (!issue) continue;
-
-      total++;
-      const state = getStateById(issue.state_id);
-      const name = state?.name?.toLowerCase() ?? "";
-
-      if (state?.group === "completed") done++;
-      else if (state?.group === "cancelled" || name.includes("blocked")) blocked++;
-      else if (name.includes("review")) inReview++;
-      else if (state?.group === "started") inProgress++;
+      const state = getStateById(issue?.state_id);
+      if (state) statesById.set(state.id, state);
     }
 
-    return { total, inProgress, inReview, done, blocked };
+    return [...statesById.values()].sort(
+      (a, b) => getStateOrderIndex(a) - getStateOrderIndex(b) || a.order - b.order || a.sequence - b.sequence
+    );
   }, [getStateById, issueIds, issueMap]);
+
+  const assigneeOptions = useMemo(() => {
+    const assigneeIds = new Set<string>();
+
+    for (const id of issueIds) {
+      const issue = issueMap[id];
+      issue?.assignee_ids?.forEach((assigneeId) => assigneeIds.add(assigneeId));
+    }
+
+    return [...assigneeIds]
+      .map((assigneeId) => memberStore.getUserDetails(assigneeId))
+      .filter((member): member is IUserLite => !!member)
+      .sort((a, b) => a.display_name.localeCompare(b.display_name));
+  }, [issueIds, issueMap, memberStore]);
+
+  const selectedStatus = statusFilter ? statusOptions.find((state) => state.id === statusFilter) : undefined;
+  const selectedAssignee =
+    assigneeFilter && assigneeFilter !== UNASSIGNED_FILTER_VALUE
+      ? memberStore.getUserDetails(assigneeFilter)
+      : undefined;
+  const selectedAssigneeLabel =
+    assigneeFilter === UNASSIGNED_FILTER_VALUE ? "Unassigned" : selectedAssignee?.display_name;
+  const hasToolbarFilters = !!statusFilter || !!priorityFilter || !!assigneeFilter;
 
   const filteredIds = useMemo(() => {
     const query = searchText.trim().toLowerCase();
@@ -193,13 +199,55 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
     return issueIds.filter((id) => {
       const issue = issueMap[id];
       if (!issue) return false;
-      if (query && !issue.name.toLowerCase().includes(query)) return false;
+      const state = getStateById(issue.state_id);
+      const projectIdentifier = getProjectIdentifierById(issue.project_id);
+      const project = getProjectById(issue.project_id);
+      const ticketKey = projectIdentifier && issue.sequence_id ? `${projectIdentifier}-${issue.sequence_id}` : "";
+      const assigneeNames =
+        issue.assignee_ids?.map((assigneeId) => memberStore.getUserDetails(assigneeId)?.display_name).join(" ") ?? "";
+      const searchableText = [
+        issue.name,
+        ticketKey,
+        projectIdentifier,
+        project?.name,
+        state?.name,
+        getPriorityLabel(issue.priority),
+        assigneeNames,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      if (query && !searchableText.includes(query)) return false;
+      if (statusFilter && issue.state_id !== statusFilter) return false;
+      if (priorityFilter && (issue.priority ?? "none") !== priorityFilter) return false;
+      if (assigneeFilter === UNASSIGNED_FILTER_VALUE && issue.assignee_ids?.length) return false;
+      if (
+        assigneeFilter &&
+        assigneeFilter !== UNASSIGNED_FILTER_VALUE &&
+        !(issue.assignee_ids?.includes(assigneeFilter) ?? false)
+      )
+        return false;
       if (activeFilter === "mine") return issue.assignee_ids?.includes(currentUserId ?? "") ?? false;
       if (activeFilter === "unassigned") return !issue.assignee_ids?.length;
       if (activeFilter === "starred") return starredIds.has(id);
       return true;
     });
-  }, [activeFilter, currentUserId, issueIds, issueMap, searchText, starredIds]);
+  }, [
+    activeFilter,
+    assigneeFilter,
+    currentUserId,
+    getProjectById,
+    getProjectIdentifierById,
+    getStateById,
+    issueIds,
+    issueMap,
+    memberStore,
+    priorityFilter,
+    searchText,
+    starredIds,
+    statusFilter,
+  ]);
 
   const totalPages = Math.max(1, Math.ceil(filteredIds.length / PAGE_SIZE));
   const pageStartIndex = (currentPage - 1) * PAGE_SIZE;
@@ -210,7 +258,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeFilter, searchText]);
+  }, [activeFilter, assigneeFilter, priorityFilter, searchText, statusFilter]);
 
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(totalPages);
@@ -243,6 +291,10 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
   const clearFilters = () => {
     setActiveFilter("all");
     setSearchText("");
+    setStatusFilter(null);
+    setPriorityFilter(null);
+    setAssigneeFilter(null);
+    setActiveToolbarMenu(null);
   };
 
   const handleNextPage = () => {
@@ -282,77 +334,25 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
     );
   };
 
-  const statCards: TStatCard[] = [
-    {
-      accent: "slate",
-      count: stats.total,
-      icon: Ticket,
-      label: "Total Tickets",
-      subtitle: "All created tickets",
-    },
-    {
-      accent: "neutral",
-      count: stats.inProgress,
-      icon: Clock3,
-      label: "In Progress",
-      subtitle: "Currently in progress",
-    },
-    {
-      accent: "blue",
-      count: stats.inReview,
-      icon: ListChecks,
-      label: "In Review",
-      subtitle: "In review states",
-    },
-    {
-      accent: "green",
-      count: stats.done,
-      icon: CheckCircle2,
-      label: "Done",
-      subtitle: "Completed tickets",
-    },
-    {
-      accent: "rose",
-      count: stats.blocked,
-      icon: ShieldAlert,
-      label: "Blocked",
-      subtitle: "Currently blocked",
-    },
-  ];
-
   return (
     <div className="flyers-soft-all-issues-view-body h-full overflow-hidden bg-[#fbfbfa] text-[#111827]">
       <div ref={portalRef} className="spreadsheet-menu-portal" />
 
       <main ref={containerRef} className="h-full min-h-0 overflow-y-auto px-6 py-7">
-        <section className="flex items-center justify-between gap-5">
-          <div className="flex min-w-0 items-center gap-6">
+        <section className="flex items-center justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3">
             <h1 className="text-24 font-semibold tracking-tight text-[#111827]">Tickets</h1>
-            <div className="flyers-soft-all-issues-search shadow-sm flex h-12 w-[420px] items-center gap-3 rounded-xl border border-[#ebebeb] bg-white px-4 focus-within:border-[#e5e7eb]">
-              <Search className="size-5 flex-shrink-0 text-[#334155]" strokeWidth={2} />
-              <input
-                type="text"
-                placeholder="Search tickets, projects, teams..."
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                className="min-w-0 flex-1 bg-transparent text-14 text-[#111827] outline-none placeholder:text-[#64748b]"
-              />
-              <span className="rounded-md bg-[#f5f5f4] px-2 py-1 text-11 font-medium text-[#6b7280]">Ctrl + K</span>
-            </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="shadow-sm flex h-12 items-center gap-1 rounded-xl border border-[#ebebeb] bg-white px-3">
-              <button
-                type="button"
-                title="List view"
-                aria-pressed="true"
-                className="grid size-8 place-items-center rounded-lg bg-[#f5f5f4] text-[#6b7280]"
-                onClick={handleLayoutChange}
-              >
-                <LayoutList className="size-4" strokeWidth={2} />
-              </button>
-            </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => toggleCreateIssueModal(true)}
+              className="flex h-10 items-center gap-2 whitespace-nowrap rounded-lg bg-[#111827] px-3.5 text-13 font-medium text-white transition hover:bg-[#374151]"
+            >
+              <Plus className="size-4" strokeWidth={2} />
+              Create Ticket
+            </button>
             <DisplayMenu
               displayFilters={issueFilters?.displayFilters}
               displayProperties={issueFilters?.displayProperties ?? {}}
@@ -362,7 +362,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
             {workspaceSlugString && (
               <Link
                 href={`/${workspaceSlugString}/analytics/overview/`}
-                className="shadow-sm flex h-12 items-center gap-2 rounded-xl border border-[#ebebeb] bg-white px-5 text-14 font-medium text-[#334155] transition hover:-translate-y-0.5 hover:bg-[#fbfbfa]"
+                className="flex h-10 items-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-4 text-13 font-medium text-[#374151] transition hover:bg-[#fbfbfa]"
               >
                 <BarChart3 className="size-4" strokeWidth={2} />
                 Analytics
@@ -371,45 +371,198 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
           </div>
         </section>
 
-        <section className="mt-6 grid grid-cols-5 gap-4">
-          {statCards.map((card) => (
-            <StatCard key={card.label} {...card} />
-          ))}
-        </section>
-
-        <section className="mt-7 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <FilterPill label="All Tickets" active={activeFilter === "all"} onClick={() => setActiveFilter("all")} />
-            <FilterPill label="My Tickets" active={activeFilter === "mine"} onClick={() => setActiveFilter("mine")} />
-            <FilterPill
-              label="Unassigned"
-              active={activeFilter === "unassigned"}
-              onClick={() => setActiveFilter("unassigned")}
+        <section className="mt-7 flex flex-wrap items-center justify-between gap-3">
+          <div className="flyers-soft-all-issues-search flex h-10 w-full max-w-[520px] items-center gap-3 rounded-lg border border-[#e5e7eb] bg-white px-3 focus-within:border-[#e5e7eb]">
+            <Search className="size-4 flex-shrink-0 text-[#374151]" strokeWidth={2} />
+            <input
+              type="text"
+              placeholder="Search tickets, projects, teams..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              className="min-w-0 flex-1 bg-transparent text-13 text-[#111827] outline-none placeholder:text-[#6b7280]"
             />
-            <FilterPill
-              label="Starred"
-              active={activeFilter === "starred"}
-              onClick={() => setActiveFilter("starred")}
-            />
+            <span className="rounded-md bg-[#f5f5f4] px-2 py-0.5 text-11 font-medium text-[#6b7280]">Ctrl K</span>
           </div>
-          <div className="flex items-center gap-3">
-            <FilterButton icon={Filter} label="Filter" />
-            <FilterButton label="Status" />
-            <FilterButton label="Priority" />
-            <FilterButton label="Assignee" />
-            <button type="button" onClick={clearFilters} className="px-3 text-14 font-medium text-[#334155]">
+
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <button
+              type="button"
+              title="View settings"
+              aria-label="View settings"
+              aria-pressed="true"
+              className="grid size-10 place-items-center rounded-lg border border-[#e5e7eb] bg-white text-[#374151] transition hover:bg-[#fbfbfa]"
+              onClick={handleLayoutChange}
+            >
+              <SlidersHorizontal className="size-4" strokeWidth={2} />
+            </button>
+
+            <ToolbarFilterDropdown
+              active={hasToolbarFilters || activeFilter !== "all"}
+              icon={Filter}
+              isOpen={activeToolbarMenu === "filter"}
+              label="Filter"
+              onClose={() => setActiveToolbarMenu(null)}
+              onOpen={() => setActiveToolbarMenu("filter")}
+            >
+              <ToolbarMenuOption
+                label="All tickets"
+                selected={activeFilter === "all"}
+                onClick={() => {
+                  setActiveFilter("all");
+                  setActiveToolbarMenu(null);
+                }}
+              />
+              <ToolbarMenuOption
+                label="My tickets"
+                selected={activeFilter === "mine"}
+                onClick={() => {
+                  setActiveFilter("mine");
+                  setActiveToolbarMenu(null);
+                }}
+              />
+              <ToolbarMenuOption
+                label="Unassigned"
+                selected={activeFilter === "unassigned"}
+                onClick={() => {
+                  setActiveFilter("unassigned");
+                  setActiveToolbarMenu(null);
+                }}
+              />
+              <ToolbarMenuOption
+                label="Starred"
+                selected={activeFilter === "starred"}
+                onClick={() => {
+                  setActiveFilter("starred");
+                  setActiveToolbarMenu(null);
+                }}
+              />
+            </ToolbarFilterDropdown>
+
+            <ToolbarFilterDropdown
+              active={!!statusFilter}
+              isOpen={activeToolbarMenu === "status"}
+              label={selectedStatus?.name ?? "Status"}
+              onClose={() => setActiveToolbarMenu(null)}
+              onOpen={() => setActiveToolbarMenu("status")}
+            >
+              <ToolbarMenuOption
+                label="Any status"
+                selected={!statusFilter}
+                onClick={() => {
+                  setStatusFilter(null);
+                  setActiveToolbarMenu(null);
+                }}
+              />
+              {statusOptions.map((state) => (
+                <ToolbarMenuOption
+                  key={state.id}
+                  label={state.name}
+                  selected={statusFilter === state.id}
+                  onClick={() => {
+                    setStatusFilter(state.id);
+                    setActiveToolbarMenu(null);
+                  }}
+                />
+              ))}
+            </ToolbarFilterDropdown>
+
+            <ToolbarFilterDropdown
+              active={!!priorityFilter}
+              isOpen={activeToolbarMenu === "priority"}
+              label={priorityFilter ? getPriorityLabel(priorityFilter) : "Priority"}
+              onClose={() => setActiveToolbarMenu(null)}
+              onOpen={() => setActiveToolbarMenu("priority")}
+            >
+              <ToolbarMenuOption
+                label="Any priority"
+                selected={!priorityFilter}
+                onClick={() => {
+                  setPriorityFilter(null);
+                  setActiveToolbarMenu(null);
+                }}
+              />
+              {PRIORITY_ORDER.map((priority) => (
+                <ToolbarMenuOption
+                  key={priority}
+                  label={getPriorityLabel(priority)}
+                  selected={priorityFilter === priority}
+                  onClick={() => {
+                    setPriorityFilter(priority);
+                    setActiveToolbarMenu(null);
+                  }}
+                />
+              ))}
+            </ToolbarFilterDropdown>
+
+            <ToolbarFilterDropdown
+              active={!!assigneeFilter}
+              isOpen={activeToolbarMenu === "assignee"}
+              label={selectedAssigneeLabel ?? "Assignee"}
+              onClose={() => setActiveToolbarMenu(null)}
+              onOpen={() => {
+                if (!memberStore.workspace.workspaceMemberIds && workspaceSlugString) {
+                  void memberStore.workspace.fetchWorkspaceMembers(workspaceSlugString);
+                }
+                setActiveToolbarMenu("assignee");
+              }}
+            >
+              <ToolbarMenuOption
+                label="Any assignee"
+                selected={!assigneeFilter}
+                onClick={() => {
+                  setAssigneeFilter(null);
+                  setActiveToolbarMenu(null);
+                }}
+              />
+              <ToolbarMenuOption
+                label="Unassigned"
+                selected={assigneeFilter === UNASSIGNED_FILTER_VALUE}
+                onClick={() => {
+                  setAssigneeFilter(UNASSIGNED_FILTER_VALUE);
+                  setActiveToolbarMenu(null);
+                }}
+              />
+              {assigneeOptions.map((assignee) => (
+                <ToolbarMenuOption
+                  key={assignee.id}
+                  label={assignee.display_name}
+                  selected={assigneeFilter === assignee.id}
+                  onClick={() => {
+                    setAssigneeFilter(assignee.id);
+                    setActiveToolbarMenu(null);
+                  }}
+                />
+              ))}
+            </ToolbarFilterDropdown>
+
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="h-10 px-2 text-13 font-medium text-[#374151] transition hover:text-[#111827]"
+            >
               Clear
             </button>
           </div>
         </section>
 
-        <section className="flyers-soft-all-issues-table-card shadow-sm mt-6 overflow-visible rounded-xl border border-[#dfe5ef] bg-white">
+        <section className="mt-6 flex items-center gap-2">
+          <FilterPill label="All Tickets" active={activeFilter === "all"} onClick={() => setActiveFilter("all")} />
+          <FilterPill label="My Tickets" active={activeFilter === "mine"} onClick={() => setActiveFilter("mine")} />
+          <FilterPill
+            label="Unassigned"
+            active={activeFilter === "unassigned"}
+            onClick={() => setActiveFilter("unassigned")}
+          />
+          <FilterPill label="Starred" active={activeFilter === "starred"} onClick={() => setActiveFilter("starred")} />
+        </section>
+
+        <section className="flyers-soft-all-issues-table-card mt-5 overflow-visible rounded-[10px] border border-[#e5e7eb] bg-white">
           <div className="overflow-x-auto">
-            <div className="min-w-[1160px]">
+            <div className="min-w-[1080px]">
               <TicketTableHeader allSelected={allVisibleSelected} onToggleSelectAll={toggleSelectVisible} />
 
               {visibleIssueIds.length === 0 ? (
-                <div className="flex h-48 items-center justify-center text-14 text-[#64748b]">
+                <div className="flex h-40 items-center justify-center text-13 text-[#6b7280]">
                   No tickets match your filters.
                 </div>
               ) : (
@@ -434,7 +587,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
             </div>
           </div>
 
-          <div className="flyers-soft-all-issues-table-footer flex min-h-[76px] flex-wrap items-center justify-between gap-3 border-t border-[#dfe5ef] px-6 text-13 text-[#475569]">
+          <div className="flyers-soft-all-issues-table-footer flex min-h-[64px] flex-wrap items-center justify-between gap-3 border-t border-[#e5e7eb] px-4 text-13 text-[#374151]">
             <span>
               Showing {showingStart} to {showingEnd} of {filteredIds.length} tickets
             </span>
@@ -444,16 +597,16 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
                 isDisabled={currentPage === 1}
                 onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
               />
-              {[1, 2, 3].map((page) => (
+              {Array.from({ length: Math.min(totalPages, 3) }, (_, index) => index + 1).map((page) => (
                 <button
                   key={`page-${page}`}
                   type="button"
-                  onClick={() => setCurrentPage(Math.min(page, totalPages))}
+                  onClick={() => setCurrentPage(page)}
                   className={cn(
-                    "grid size-9 place-items-center rounded-lg border text-13 font-semibold transition",
+                    "grid size-8 place-items-center rounded-lg border text-13 font-semibold transition",
                     currentPage === page
-                      ? "border-[#e5e7eb] bg-[#e5e7eb] text-[#111827]"
-                      : "border-[#dfe5ef] bg-white text-[#334155] hover:bg-[#fbfbfa]"
+                      ? "border-[#e5e7eb] bg-[#f1f1ef] text-[#111827]"
+                      : "border-[#e5e7eb] bg-white text-[#374151] hover:bg-[#fbfbfa]"
                   )}
                 >
                   {page}
@@ -466,7 +619,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
               />
               <button
                 type="button"
-                className="ml-4 flex h-9 items-center gap-2 rounded-lg border border-[#dfe5ef] bg-white px-3 text-13 font-medium text-[#334155]"
+                className="ml-4 flex h-8 items-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-3 text-13 font-medium text-[#374151]"
               >
                 {PAGE_SIZE} / page
                 <ChevronDown className="size-4" />
@@ -475,24 +628,13 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
           </div>
 
           {canLoadMoreIssues && (
-            <div ref={setSentinelEl} className="space-y-2 px-6 pb-4">
+            <div ref={setSentinelEl} className="space-y-2 px-4 pb-4">
               {SKELETON_ROW_KEYS.map((key) => (
-                <div key={key} className="h-12 animate-pulse rounded-lg bg-[#fbfbfa]" />
+                <div key={key} className="h-[44px] animate-pulse rounded-lg bg-[#fbfbfa]" />
               ))}
             </div>
           )}
         </section>
-
-        <div className="flyers-soft-all-issues-tip mt-5 flex min-h-16 items-center justify-between rounded-xl border border-[#f0d58a] bg-white/70 px-6 text-13 text-[#475569]">
-          <div className="flex items-center gap-3">
-            <Sun className="size-4 text-[#6b7280]" />
-            <span>
-              <span className="font-semibold text-[#334155]">Tip:</span> Use filters to quickly find the tickets you
-              need.
-            </span>
-          </div>
-          <X className="size-4 text-[#64748b]" />
-        </div>
       </main>
     </div>
   );
@@ -512,7 +654,7 @@ function DisplayMenu({
   return (
     <FiltersDropdown
       menuButton={
-        <span className="shadow-sm flex h-12 items-center gap-2 rounded-xl border border-[#ebebeb] bg-white px-5 text-14 font-medium text-[#334155] transition hover:-translate-y-0.5 hover:bg-[#fbfbfa]">
+        <span className="flex h-10 items-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-4 text-13 font-medium text-[#374151] transition hover:bg-[#fbfbfa]">
           <SlidersHorizontal className="size-4" strokeWidth={2} />
           Display
         </span>
@@ -532,29 +674,14 @@ function DisplayMenu({
   );
 }
 
-function StatCard({ accent, count, icon: Icon, label, subtitle }: TStatCard) {
-  return (
-    <div className="flyers-soft-all-issues-stat-card flex min-h-[134px] items-center gap-4 rounded-xl border border-[#edf0f5] bg-white p-5 shadow-[0_12px_32px_rgba(17,24,39,0.06)] transition duration-150 hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(17,24,39,0.12)]">
-      <div className={cn("grid size-12 flex-shrink-0 place-items-center rounded-full", statAccentClasses[accent])}>
-        <Icon className="size-5" strokeWidth={2.2} />
-      </div>
-      <div className="min-w-0">
-        <div className="truncate text-14 font-medium text-[#334155]">{label}</div>
-        <div className="text-26 mt-2 leading-none font-bold text-[#111827] tabular-nums">{count.toLocaleString()}</div>
-        <div className="mt-4 truncate text-13 text-[#64748b]">{subtitle}</div>
-      </div>
-    </div>
-  );
-}
-
 function FilterPill({ active, label, onClick }: { active: boolean; label: string; onClick: () => void }) {
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        "flyers-soft-all-issues-filter-pill text-15 h-11 rounded-xl px-5 font-medium transition",
-        active ? "bg-[#f1f1ef] text-[#6b7280]" : "text-[#111827] hover:bg-[#fbfbfa]"
+        "flyers-soft-all-issues-filter-pill h-9 rounded-lg px-3.5 text-13 font-medium transition",
+        active ? "bg-[#f1f1ef] text-[#111827]" : "bg-transparent text-[#374151] hover:bg-[#fbfbfa]"
       )}
       data-active={active ? "true" : undefined}
     >
@@ -563,15 +690,67 @@ function FilterPill({ active, label, onClick }: { active: boolean; label: string
   );
 }
 
-function FilterButton({ icon: Icon, label }: { icon?: typeof Filter; label: string }) {
+function ToolbarFilterDropdown({
+  active,
+  children,
+  icon: Icon,
+  isOpen,
+  label,
+  onClose,
+  onOpen,
+}: {
+  active: boolean;
+  children: ReactNode;
+  icon?: typeof Filter;
+  isOpen: boolean;
+  label: string;
+  onClose: () => void;
+  onOpen: () => void;
+}) {
+  return (
+    <InlineDropdownMenu
+      disabled={false}
+      isOpen={isOpen}
+      menuWidth={210}
+      onClose={onClose}
+      onOpen={onOpen}
+      trigger={
+        <span
+          className={cn(
+            "flyers-soft-all-issues-filter-button flex h-10 min-w-24 items-center justify-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-3 text-13 font-medium text-[#374151] transition hover:bg-[#fbfbfa]",
+            active && "bg-[#f1f1ef] text-[#111827]"
+          )}
+          data-active={active ? "true" : undefined}
+        >
+          {Icon && <Icon className="size-4" strokeWidth={2} />}
+          <span className="max-w-[112px] truncate">{label}</span>
+          {!Icon && <ChevronDown className="size-4 text-[#6b7280]" />}
+        </span>
+      }
+    >
+      {children}
+    </InlineDropdownMenu>
+  );
+}
+
+function ToolbarMenuOption({
+  label,
+  onClick,
+  selected,
+}: {
+  label: string;
+  onClick: () => void;
+  selected: boolean;
+}) {
   return (
     <button
       type="button"
-      className="flyers-soft-all-issues-filter-button shadow-sm flex h-11 min-w-30 items-center justify-center gap-2 rounded-xl border border-[#dfe5ef] bg-white px-4 text-14 font-medium text-[#111827] transition hover:bg-[#fbfbfa]"
+      className="flyers-soft-inline-menu-option"
+      data-selected={selected ? "true" : undefined}
+      onClick={onClick}
     >
-      {Icon && <Icon className="size-4 text-[#475569]" strokeWidth={2} />}
-      {label}
-      {!Icon && <ChevronDown className="size-4 text-[#64748b]" />}
+      <span className="min-w-0 flex-1 truncate text-left">{label}</span>
+      {selected && <CheckCircle2 className="size-3.5 flex-shrink-0 text-[#6b7280]" strokeWidth={2.4} />}
     </button>
   );
 }
@@ -585,7 +764,7 @@ function TicketTableHeader({
 }) {
   return (
     <div
-      className="flyers-soft-all-issues-table-header sticky top-0 z-[2] grid h-16 items-center border-b border-[#dfe5ef] px-5 text-14 font-medium text-[#475569]"
+      className="flyers-soft-all-issues-table-header sticky top-0 z-[2] grid h-[52px] items-center border-b border-[#e5e7eb] px-4 text-13 font-medium text-[#374151]"
       style={{ gridTemplateColumns: COL_TEMPLATE }}
     >
       <div className="flex items-center justify-center">
@@ -593,7 +772,7 @@ function TicketTableHeader({
           type="checkbox"
           checked={allSelected}
           onChange={onToggleSelectAll}
-          className="size-4 rounded border-[#cbd5e1] accent-[#e5e7eb]"
+          className="size-4 rounded border-[#e5e7eb] accent-[#111827]"
         />
       </div>
       <div />
@@ -604,7 +783,7 @@ function TicketTableHeader({
       <div>Assignee</div>
       <div>Updated</div>
       <div className="flex justify-center">
-        <SlidersHorizontal className="size-4 text-[#64748b]" />
+        <SlidersHorizontal className="size-4 text-[#6b7280]" />
       </div>
     </div>
   );
@@ -702,8 +881,8 @@ const TicketTableRow = observer(function TicketTableRow(props: TicketTableRowPro
   };
 
   const customActionButton = (
-    <span className="grid size-8 place-items-center rounded-lg text-[#64748b] transition hover:bg-[#f5f5f4] hover:text-[#111827]">
-      <MoreHorizontal className="size-5" />
+    <span className="grid size-7 place-items-center rounded-lg text-[#6b7280] transition hover:bg-[#f5f5f4] hover:text-[#111827]">
+      <MoreHorizontal className="size-4" />
     </span>
   );
 
@@ -714,7 +893,7 @@ const TicketTableRow = observer(function TicketTableRow(props: TicketTableRowPro
       data-active={isPeeked ? "true" : undefined}
       data-selected={isSelected ? "true" : undefined}
       className={cn(
-        "flyers-soft-all-issues-ticket-row text-15 grid h-17 items-center border-b border-[#dfe5ef] px-5 text-[#111827] transition last:border-b-0 hover:bg-[#fbfbfa]",
+        "flyers-soft-all-issues-ticket-row grid h-[52px] items-center border-b border-[#e5e7eb] px-4 text-13 text-[#111827] transition last:border-b-0 hover:bg-[#fbfbfa]",
         (isSelected || isPeeked) && "flyers-soft-all-issues-ticket-row-active !bg-[#fbfbfa] !text-[#111827]"
       )}
       style={{ gridTemplateColumns: COL_TEMPLATE }}
@@ -724,14 +903,14 @@ const TicketTableRow = observer(function TicketTableRow(props: TicketTableRowPro
           type="checkbox"
           checked={isSelected}
           onChange={onToggleSelect}
-          className="size-4 rounded border-[#cbd5e1] accent-[#e5e7eb]"
+          className="size-4 rounded border-[#e5e7eb] accent-[#111827]"
         />
       </div>
 
       <button
         type="button"
-        className={cn("grid size-8 place-items-center rounded-lg text-[#64748b] hover:text-[#6b7280]", {
-          "text-[#6b7280]": isStarred,
+        className={cn("grid size-8 place-items-center rounded-lg text-[#6b7280] hover:text-[#374151]", {
+          "text-[#374151]": isStarred,
         })}
         onClick={onToggleStar}
         aria-label={isStarred ? "Unstar ticket" : "Star ticket"}
@@ -739,13 +918,13 @@ const TicketTableRow = observer(function TicketTableRow(props: TicketTableRowPro
         <Star className="size-4" fill={isStarred ? "currentColor" : "none"} />
       </button>
 
-      <Link href={workItemLink} className="font-semibold text-[#475569] hover:text-[#111827] hover:underline">
+      <Link href={workItemLink} className="font-semibold text-[#374151] hover:text-[#111827] hover:underline">
         {ticketKey}
       </Link>
 
       <button
         type="button"
-        className="flyers-soft-ticket-title-cell text-15 min-w-0 text-left leading-5 font-semibold text-[#111827] hover:text-[#6b7280]"
+        className="flyers-soft-ticket-title-cell min-w-0 text-left text-13 leading-5 font-medium text-[#111827] hover:text-[#374151]"
         onClick={handlePeekOverview}
       >
         {issueDetail.name}
@@ -794,7 +973,7 @@ const TicketTableRow = observer(function TicketTableRow(props: TicketTableRowPro
         }}
       />
 
-      <span className="text-[#475569]">{updatedLabel}</span>
+      <span className="text-[#6b7280]">{updatedLabel}</span>
 
       <div className="flex justify-center">
         {!disableUserActions &&
@@ -868,12 +1047,12 @@ function InlineStatusEditor({
                   style={{ backgroundColor: getStateAccent(stateOption) }}
                 />
                 <span className="min-w-0 flex-1 truncate text-left">{stateOption.name}</span>
-                {isSelected && <CheckCircle2 className="size-3.5 flex-shrink-0 text-[#d1d5db]" strokeWidth={2.4} />}
+                {isSelected && <CheckCircle2 className="size-3.5 flex-shrink-0 text-[#6b7280]" strokeWidth={2.4} />}
               </button>
             );
           })
         ) : (
-          <span className="block px-3 py-2 text-13 text-[#64748b]">No statuses found</span>
+          <span className="block px-3 py-2 text-13 text-[#6b7280]">No statuses found</span>
         )}
       </InlineDropdownMenu>
     </div>
@@ -921,7 +1100,7 @@ function InlinePriorityEditor({
               disabled && "cursor-not-allowed opacity-70"
             )}
           >
-            <PriorityToneIcon className={cn("size-4 flex-shrink-0", priorityTone.className)} strokeWidth={2.2} />
+            <PriorityToneIcon className={cn("size-3.5 flex-shrink-0", priorityTone.className)} strokeWidth={2.2} />
             <span className="min-w-0 truncate">{priorityTone.label}</span>
             {!disabled && <ChevronDown className="size-3.5 flex-shrink-0 opacity-70" />}
           </span>
@@ -940,9 +1119,9 @@ function InlinePriorityEditor({
               data-selected={isSelected ? "true" : undefined}
               onClick={() => onChange(priority.key)}
             >
-              <OptionIcon className={cn("size-4 flex-shrink-0", optionTone.className)} strokeWidth={2.2} />
+              <OptionIcon className={cn("size-3.5 flex-shrink-0", optionTone.className)} strokeWidth={2.2} />
               <span className="min-w-0 flex-1 truncate text-left">{priority.title}</span>
-              {isSelected && <CheckCircle2 className="size-3.5 flex-shrink-0 text-[#d1d5db]" strokeWidth={2.4} />}
+              {isSelected && <CheckCircle2 className="size-3.5 flex-shrink-0 text-[#6b7280]" strokeWidth={2.4} />}
             </button>
           );
         })}
@@ -997,7 +1176,7 @@ function InlineAssigneeEditor({
         trigger={
           <span
             className={cn(
-              "flyers-soft-assignee-pill inline-flex max-w-full items-center gap-2 rounded-full border border-[#dfe5ef] bg-white px-2.5 py-1 text-13 font-medium text-[#334155]",
+              "flyers-soft-assignee-pill inline-flex max-w-full items-center gap-2 rounded-full border border-[#e5e7eb] bg-white px-2 py-1 text-13 font-medium text-[#374151]",
               disabled && "cursor-not-allowed opacity-70"
             )}
           >
@@ -1006,7 +1185,7 @@ function InlineAssigneeEditor({
                 <Avatar
                   name={assignee.display_name}
                   src={getFileURL(assignee.avatar_url ?? "")}
-                  size={24}
+                  size={20}
                   shape="circle"
                   className="flex-shrink-0"
                 />
@@ -1014,11 +1193,11 @@ function InlineAssigneeEditor({
               </>
             ) : (
               <>
-                <span className="size-6 flex-shrink-0 rounded-full border border-dashed border-[#cbd5e1]" />
-                <span className="min-w-0 truncate text-[#64748b]">Unassigned</span>
+                <span className="size-5 flex-shrink-0 rounded-full border border-dashed border-[#e5e7eb]" />
+                <span className="min-w-0 truncate text-[#6b7280]">Unassigned</span>
               </>
             )}
-            {!disabled && <ChevronDown className="size-3.5 flex-shrink-0 text-[#64748b]" />}
+            {!disabled && <ChevronDown className="size-3.5 flex-shrink-0 text-[#6b7280]" />}
           </span>
         }
       >
@@ -1036,9 +1215,9 @@ function InlineAssigneeEditor({
           data-selected={!selectedAssigneeId ? "true" : undefined}
           onClick={() => onChange([])}
         >
-          <span className="size-6 flex-shrink-0 rounded-full border border-dashed border-[#cbd5e1]" />
+          <span className="size-5 flex-shrink-0 rounded-full border border-dashed border-[#e5e7eb]" />
           <span className="min-w-0 flex-1 truncate text-left">Unassigned</span>
-          {!selectedAssigneeId && <CheckCircle2 className="size-3.5 flex-shrink-0 text-[#d1d5db]" strokeWidth={2.4} />}
+          {!selectedAssigneeId && <CheckCircle2 className="size-3.5 flex-shrink-0 text-[#6b7280]" strokeWidth={2.4} />}
         </button>
         {filteredMembers.length ? (
           filteredMembers.map((member) => {
@@ -1055,17 +1234,17 @@ function InlineAssigneeEditor({
                 <Avatar
                   name={member.display_name}
                   src={getFileURL(member.avatar_url ?? "")}
-                  size={24}
+                  size={20}
                   shape="circle"
                   className="flex-shrink-0"
                 />
                 <span className="min-w-0 flex-1 truncate text-left">{member.display_name}</span>
-                {isSelected && <CheckCircle2 className="size-3.5 flex-shrink-0 text-[#d1d5db]" strokeWidth={2.4} />}
+                {isSelected && <CheckCircle2 className="size-3.5 flex-shrink-0 text-[#6b7280]" strokeWidth={2.4} />}
               </button>
             );
           })
         ) : (
-          <span className="block px-3 py-2 text-13 text-[#64748b]">No members found</span>
+          <span className="block px-3 py-2 text-13 text-[#6b7280]">No members found</span>
         )}
       </InlineDropdownMenu>
     </div>
@@ -1189,7 +1368,7 @@ function PaginationButton({
       type="button"
       disabled={isDisabled}
       onClick={onClick}
-      className="grid size-9 place-items-center rounded-lg border border-[#dfe5ef] bg-white text-[#334155] transition hover:bg-[#fbfbfa] disabled:cursor-not-allowed disabled:opacity-45"
+      className="grid size-8 place-items-center rounded-lg border border-[#e5e7eb] bg-white text-[#374151] transition hover:bg-[#fbfbfa] disabled:cursor-not-allowed disabled:opacity-45"
     >
       <Icon className="size-4" />
     </button>

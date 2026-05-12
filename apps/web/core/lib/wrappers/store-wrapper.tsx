@@ -45,7 +45,7 @@ function StoreWrapper(props: TStoreWrapper) {
    * Sidebar collapsed fetching from local storage
    */
   useEffect(() => {
-    const hoverSidebarDefaultKey = "flyers_hover_sidebar_default_collapsed_v1";
+    const hoverSidebarDefaultKey = "flyers_compact_sidebar_default_collapsed_v2";
     const hasAppliedHoverSidebarDefault = localStorage && localStorage.getItem(hoverSidebarDefaultKey);
     if (!hasAppliedHoverSidebarDefault) {
       localStorage.setItem(hoverSidebarDefaultKey, "true");
