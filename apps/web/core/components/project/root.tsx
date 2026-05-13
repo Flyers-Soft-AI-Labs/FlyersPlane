@@ -166,9 +166,6 @@ export const ProjectRoot = observer(function ProjectRoot() {
       <div className="flyers-soft-projects-body flex min-h-full w-full flex-col bg-[var(--fs-bg-canvas)]">
         <div className="flyers-soft-projects-page flex w-full flex-col">
           <section className="flyers-soft-projects-hero">
-            <div className="flyers-soft-projects-folder-icon" aria-hidden="true">
-              <Folder className="h-7 w-7" strokeWidth={1.8} />
-            </div>
             <div className="min-w-0">
               <h1>{isArchived ? "Archived Projects" : "Projects"}</h1>
               <p>All projects in your workspace. Track progress and manage your work.</p>

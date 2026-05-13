@@ -11575,3 +11575,272 @@ body:has(.flyers-soft-home-content-wrapper) #main-sidebar .flex.h-12.items-cente
     opacity: 1 !important;
   }
 }
+
+/* ================================================================
+   Teams/Members settings page — polish pass
+   Route: /[workspaceSlug]/settings/members/
+   ================================================================ */
+
+/* Table containers — stronger radius + shadow */
+.flyers-soft-teams-members-panel,
+.flyers-soft-teams-invites-card {
+  border-radius: 12px !important;
+  border: 1px solid #e4e9f0 !important;
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.04),
+    0 4px 12px rgba(16, 24, 40, 0.06) !important;
+  overflow: hidden !important;
+  background: #ffffff !important;
+}
+
+/* Active tab — distinct navy underline + dark text */
+.flyers-soft-teams-tab[aria-selected="true"] {
+  border-bottom-color: #374151 !important;
+  color: #111827 !important;
+}
+
+/* ── Role controls ──
+   The editable role renders as:
+     <button class="...flyers-soft-team-role-select">
+       <div class="flyers-soft-team-role-badge">Admin</div>
+       <ChevronDown />
+     </button>
+   Make the button a transparent click-target; the inner badge holds the visual. */
+
+.flyers-soft-team-role-select {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  min-height: unset !important;
+  width: auto !important;
+}
+
+.flyers-soft-team-role-select:hover {
+  background: transparent !important;
+}
+
+/* Chevron inside the editable role button */
+.flyers-soft-team-role-select svg {
+  color: #a78bfa !important;
+  flex-shrink: 0 !important;
+}
+
+/* Badge inside select — keep purple pill */
+.flyers-soft-team-role-select .flyers-soft-team-role-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  border-radius: 6px !important;
+  background: #f1e7ff !important;
+  padding: 3px 10px !important;
+  color: #7c3aed !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Static (non-editable) role badge */
+.flyers-soft-team-role-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  border-radius: 6px !important;
+  background: #f1e7ff !important;
+  padding: 3px 10px !important;
+  color: #7c3aed !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* ── Invite role trigger — match purple pill ── */
+.flyers-soft-team-invite-role {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  border-radius: 6px !important;
+  background: #f1e7ff !important;
+  border: 0 !important;
+  padding: 3px 10px !important;
+  color: #7c3aed !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  min-height: unset !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-team-invite-role svg {
+  color: #a78bfa !important;
+  flex-shrink: 0 !important;
+}
+
+/* ── CustomSelect dropdown portal ──
+   Portaled to <body> via createPortal. [data-prevent-outside-click]
+   is unique to the CustomSelect Combobox.Options wrapper.  */
+[data-prevent-outside-click] > div {
+  z-index: 1000 !important;
+  position: absolute !important;
+  background: #ffffff !important;
+  border: 1px solid #e4e9f0 !important;
+  border-radius: 10px !important;
+  box-shadow:
+    0 4px 6px -2px rgba(16, 24, 40, 0.04),
+    0 12px 28px -4px rgba(16, 24, 40, 0.1) !important;
+  padding: 6px !important;
+  min-width: 140px !important;
+}
+
+/* Inner scroll container */
+[data-prevent-outside-click] > div > div {
+  max-height: 220px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* Dropdown option items */
+[data-prevent-outside-click] [role="option"] {
+  border-radius: 6px !important;
+  padding: 6px 10px !important;
+  color: #374151 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+}
+
+[data-prevent-outside-click] [role="option"]:hover,
+[data-prevent-outside-click] [role="option"][data-headlessui-state~="active"] {
+  background: #f5f3ff !important;
+  color: #7c3aed !important;
+}
+
+/* ── Status + Pending badge — centred in their cell ── */
+.flyers-soft-team-status-badge,
+.flyers-soft-team-pending-badge {
+  align-self: center !important;
+  white-space: nowrap !important;
+}
+
+/* ── Actions buttons always visible on touch, reveal on hover elsewhere ── */
+.flyers-soft-team-invite-actions button {
+  opacity: 1 !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 30px !important;
+  min-width: 30px !important;
+  height: 30px !important;
+  border: 1px solid #e8edf4 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  color: #667085 !important;
+  box-shadow: 0 1px 4px rgba(16, 24, 40, 0.06) !important;
+  transition: background-color 120ms ease, border-color 120ms ease !important;
+}
+
+.flyers-soft-team-invite-actions button:hover {
+  background: #fbfbfa !important;
+  border-color: #d1d5db !important;
+  color: #111827 !important;
+}
+
+/* ================================================================
+   Teams page — round 2 fixes
+   ================================================================ */
+
+/* Fix 1: Remove white outer button box that CustomSelect wraps around
+   customButton in the Pending Invites role column.
+   The <button> gets browser-default white background; strip it. */
+button:has(> .flyers-soft-team-invite-role) {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  border-radius: 0 !important;
+}
+
+button:has(> .flyers-soft-team-invite-role):hover {
+  background: transparent !important;
+}
+
+/* Fix 2: Ensure chevron inside invite-role pill is always visible */
+.flyers-soft-team-invite-role {
+  gap: 6px !important;
+}
+
+.flyers-soft-team-invite-role svg,
+.flyers-soft-team-invite-role svg * {
+  color: #a78bfa !important;
+  stroke: currentColor !important;
+  flex-shrink: 0 !important;
+  display: inline-block !important;
+}
+
+/* Fix 3: Top-right controls — bump all to 36 px so they feel balanced */
+.flyers-soft-teams-search {
+  height: 36px !important;
+  min-height: 36px !important;
+  padding-inline: 12px !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+}
+
+.flyers-soft-member-filter-button {
+  height: 36px !important;
+  min-height: 36px !important;
+  padding-inline: 14px !important;
+  font-size: 13px !important;
+  border-radius: 8px !important;
+}
+
+.flyers-soft-teams-add-button {
+  height: 36px !important;
+  min-height: 36px !important;
+  padding-inline: 14px !important;
+  font-size: 13px !important;
+  border-radius: 8px !important;
+}
+
+/* ================================================================
+   Teams page — tab + table-container final fix
+   These rules are LAST so they win over all earlier overrides.
+   ================================================================ */
+
+/* ── Tabs: no gray hover block, minimal underline only ── */
+.flyers-soft-teams-tab {
+  border-radius: 0 !important;    /* strip the rounded-top-corner block */
+  background: transparent !important;
+  padding: 0 4px !important;      /* tight horizontal padding so hit-area is small */
+}
+
+.flyers-soft-teams-tab:hover {
+  background: transparent !important;  /* kill the gray block */
+  color: #111827 !important;
+  border-bottom-color: #d1d5db !important;
+}
+
+.flyers-soft-teams-tab[aria-selected="true"] {
+  background: transparent !important;
+  color: #111827 !important;
+  font-weight: 600 !important;
+  border-bottom-color: #374151 !important;
+}
+
+/* ── Table containers: rounded + border + soft shadow ── */
+.flyers-soft-teams-members-panel,
+.flyers-soft-teams-invites-card {
+  border: 1px solid #e4e9f0 !important;
+  border-radius: 10px !important;
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.04),
+    0 3px 10px rgba(16, 24, 40, 0.05) !important;
+  overflow: hidden !important;    /* clips rows cleanly to the rounded corners */
+  background: #ffffff !important;
+}
