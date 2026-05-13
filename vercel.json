@@ -23,11 +23,11 @@
       "destination": "https://flyersplane.onrender.com/static/:path*"
     },
     {
-      "source": "/god-mode/:path*",
+      "source": "/god-mode/(.*)",
       "destination": "/god-mode/index.html"
     },
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
