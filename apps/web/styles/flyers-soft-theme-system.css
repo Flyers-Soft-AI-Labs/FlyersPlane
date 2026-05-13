@@ -4396,6 +4396,143 @@ body .flyers-soft-dashboard-inline-menu [data-headlessui-state~="active"] {
   background: #f7f7f5 !important;
 }
 
+/* Projects table editable fields: minimal inline database values */
+.flyers-soft-projects-table-row > [data-project-inline-control]:not(.flyers-soft-projects-more-cell) {
+  display: flex !important;
+  min-width: 0 !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  overflow: visible !important;
+}
+
+.flyers-soft-projects-table-row
+  > [data-project-inline-control]:not(.flyers-soft-projects-more-cell)
+  :is(button, .clickable) {
+  appearance: none !important;
+  display: inline-flex !important;
+  width: auto !important;
+  max-width: 100% !important;
+  height: 22px !important;
+  min-height: 22px !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  border: 0 !important;
+  border-radius: 5px !important;
+  background: transparent !important;
+  padding: 0 !important;
+  color: #37352f !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-projects-table-row
+  > [data-project-inline-control]:not(.flyers-soft-projects-more-cell)
+  :is(button, .clickable):focus-visible {
+  outline: 1px solid #d8d8d6 !important;
+  outline-offset: 2px !important;
+}
+
+.flyers-soft-projects-table-row
+  > [data-project-inline-control]:not(.flyers-soft-projects-more-cell)
+  :is(
+    .flyers-soft-projects-inline-menu-button,
+    .flyers-soft-projects-inline-date,
+    .flyers-soft-projects-inline-date button
+  ) {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-projects-table-row
+  > [data-project-inline-control]:not(.flyers-soft-projects-more-cell)
+  :is(.flyers-soft-projects-inline-text, .flyers-soft-projects-inline-date-button) {
+  display: inline-flex !important;
+  width: auto !important;
+  max-width: 100% !important;
+  height: 22px !important;
+  min-height: 22px !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  overflow: visible !important;
+  border: 1px solid transparent !important;
+  border-radius: 5px !important;
+  background: transparent !important;
+  padding: 0 3px !important;
+  color: #37352f !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 20px !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-projects-table-row
+  > [data-project-inline-control]:not(.flyers-soft-projects-more-cell)
+  :is(button, .clickable):hover
+  :is(.flyers-soft-projects-inline-text, .flyers-soft-projects-inline-date-button),
+.flyers-soft-projects-table-row
+  > [data-project-inline-control]:not(.flyers-soft-projects-more-cell)
+  :is(.flyers-soft-projects-inline-text, .flyers-soft-projects-inline-date-button):hover {
+  border-color: #e8e8e6 !important;
+  background: rgba(55, 53, 47, 0.045) !important;
+}
+
+.flyers-soft-projects-table-row
+  > [data-project-inline-control]:not(.flyers-soft-projects-more-cell)
+  .flyers-soft-projects-pill {
+  height: 22px !important;
+  min-height: 22px !important;
+  max-width: 100% !important;
+  align-items: center !important;
+  gap: 5px !important;
+  border-radius: 6px !important;
+  padding: 0 7px !important;
+  font-size: 12.5px !important;
+  line-height: 20px !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-projects-table-row
+  > [data-project-inline-control]:not(.flyers-soft-projects-more-cell)
+  .flyers-soft-projects-inline-menu-button:hover
+  .flyers-soft-projects-pill {
+  filter: brightness(0.985);
+}
+
+.flyers-soft-projects-table-row
+  > [data-project-inline-control]:not(.flyers-soft-projects-more-cell)
+  .flyers-soft-projects-pill
+  svg {
+  width: 12px !important;
+  height: 12px !important;
+  opacity: 0.42 !important;
+}
+
+.flyers-soft-projects-table-row
+  > [data-project-inline-control]:not(.flyers-soft-projects-more-cell)
+  .flyers-soft-projects-pill-dot {
+  width: 6px !important;
+  height: 6px !important;
+}
+
+.flyers-soft-projects-inline-options {
+  border: 1px solid #e7e7e5 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  padding: 6px !important;
+  color: #37352f !important;
+  box-shadow:
+    0 10px 24px rgba(15, 15, 15, 0.1),
+    0 1px 0 rgba(255, 255, 255, 0.95) inset !important;
+}
+
+.flyers-soft-projects-inline-options :is(button, [role="option"], [role="menuitem"]) {
+  border-radius: 5px !important;
+}
+
 /* Recent tickets selected values: natural inline editing, no boxed controls */
 .flyers-soft-notion-home .flyers-soft-dashboard-ticket-dropdown-cell {
   height: 22px !important;
@@ -4460,4 +4597,153 @@ body .flyers-soft-dashboard-inline-menu [data-headlessui-state~="active"] {
 .flyers-soft-notion-home .flyers-soft-dashboard-ticket-row:hover .flyers-soft-dashboard-inline-chevron,
 .flyers-soft-notion-home .flyers-soft-dashboard-inline-dropdown:focus-within .flyers-soft-dashboard-inline-chevron {
   opacity: 0.55 !important;
+}
+
+/* Final Projects table visual pass: remove cell/button boxes and round the database container. */
+.flyers-soft-projects-table-section .flyers-soft-projects-table-scroll {
+  overflow-x: auto !important;
+  border: 1px solid #e7e7e5 !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  box-shadow:
+    0 10px 28px rgba(15, 15, 15, 0.045),
+    0 1px 0 rgba(255, 255, 255, 0.9) inset !important;
+}
+
+.flyers-soft-projects-table-section .flyers-soft-projects-table {
+  overflow: hidden !important;
+  border: 0 !important;
+  border-top: 0 !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-projects-table-section .flyers-soft-projects-table-header {
+  border-bottom: 1px solid #ececea !important;
+  background: #fbfbfa !important;
+}
+
+.flyers-soft-projects-table-section .flyers-soft-projects-table-header > [role="columnheader"] {
+  background: transparent !important;
+}
+
+.flyers-soft-projects-table-section .flyers-soft-projects-row-wrap {
+  background: #ffffff !important;
+  border-bottom: 1px solid #eeeeec !important;
+  box-shadow: none !important;
+  transition: background-color 120ms ease !important;
+}
+
+.flyers-soft-projects-table-section .flyers-soft-projects-row-wrap:hover,
+.flyers-soft-projects-table-section .flyers-soft-projects-row-wrap:focus-within {
+  background: #fafafa !important;
+}
+
+.flyers-soft-projects-table-section .flyers-soft-projects-table-row,
+.flyers-soft-projects-table-section .flyers-soft-projects-table-row:hover,
+.flyers-soft-projects-table-section .flyers-soft-projects-table-row:focus-visible,
+.flyers-soft-projects-table-section .flyers-soft-projects-table-row > [role="cell"],
+.flyers-soft-projects-table-section .flyers-soft-projects-table-row > div,
+.flyers-soft-projects-table-section .flyers-soft-projects-table-row:hover > [role="cell"],
+.flyers-soft-projects-table-section .flyers-soft-projects-table-row:hover > div,
+.flyers-soft-projects-table-section .flyers-soft-projects-table-row:focus-visible > [role="cell"],
+.flyers-soft-projects-table-section .flyers-soft-projects-table-row:focus-visible > div {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-projects-table-section .flyers-soft-projects-table-row > [role="cell"],
+.flyers-soft-projects-table-section .flyers-soft-projects-table-row > div {
+  min-height: 42px !important;
+  border-bottom: 0 !important;
+}
+
+.flyers-soft-projects-table-section
+  .flyers-soft-projects-table-row
+  > .flyers-soft-projects-muted-cell[data-project-inline-control],
+.flyers-soft-projects-table-section
+  .flyers-soft-projects-table-row
+  > .flyers-soft-projects-muted-cell[data-project-inline-control]
+  * {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-projects-table-section
+  .flyers-soft-projects-table-row
+  > [data-project-inline-control]:not(.flyers-soft-projects-more-cell)
+  :is(button, [role="button"], .clickable, [class*="bg-"], [class*="shadow"]) {
+  border-color: transparent !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-projects-table-section
+  .flyers-soft-projects-table-row
+  > [data-project-inline-control]:not(.flyers-soft-projects-more-cell)
+  :is(.flyers-soft-projects-inline-text, .flyers-soft-projects-inline-date-button) {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: 22px !important;
+  min-height: 22px !important;
+  border: 1px solid transparent !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  padding: 0 4px !important;
+  color: #37352f !important;
+  font-size: 13px !important;
+  line-height: 20px !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-projects-table-section
+  .flyers-soft-projects-table-row
+  > [data-project-inline-control]:not(.flyers-soft-projects-more-cell)
+  :is(button, [role="button"], .clickable):hover
+  :is(.flyers-soft-projects-inline-text, .flyers-soft-projects-inline-date-button),
+.flyers-soft-projects-table-section
+  .flyers-soft-projects-table-row
+  > [data-project-inline-control]:not(.flyers-soft-projects-more-cell)
+  :is(.flyers-soft-projects-inline-text, .flyers-soft-projects-inline-date-button):hover {
+  border-color: #e7e7e5 !important;
+  background: rgba(55, 53, 47, 0.045) !important;
+}
+
+.flyers-soft-projects-table-section .flyers-soft-projects-inline-menu-button {
+  border: 0 !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-projects-table-section .flyers-soft-projects-inline-pill {
+  min-height: 22px !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-projects-table-section .flyers-soft-projects-inline-menu-button:hover .flyers-soft-projects-inline-pill {
+  filter: brightness(0.985);
+}
+
+.flyers-soft-projects-table-section .flyers-soft-projects-more-cell,
+.flyers-soft-projects-table-section .flyers-soft-projects-more-cell * {
+  background-color: transparent !important;
+}
+
+.flyers-soft-projects-table-section .flyers-soft-projects-action-button {
+  border: 1px solid transparent !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-projects-table-section .flyers-soft-projects-action-button:hover {
+  border-color: #e7e7e5 !important;
+  background: rgba(55, 53, 47, 0.045) !important;
 }

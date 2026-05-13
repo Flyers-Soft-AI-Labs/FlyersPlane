@@ -184,8 +184,12 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
   const router = useAppRouter();
   const { workspaceSlug } = useParams();
   // store hooks
-  const { getProjectAnalyticsCountById, updateProject, archiveProject, restoreProject: restoreProjectInStore } =
-    useProject();
+  const {
+    getProjectAnalyticsCountById,
+    updateProject,
+    archiveProject,
+    restoreProject: restoreProjectInStore,
+  } = useProject();
   const { getUserDetails } = useMember();
   // auth
   const isMemberOfProject = !!project.member_role;
@@ -388,6 +392,7 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
               }
               customButtonClassName="flyers-soft-projects-inline-menu-button"
               ariaLabel="Project status"
+              optionsClassName="flyers-soft-projects-inline-options"
               placement="bottom-start"
               closeOnSelect
             >
@@ -398,12 +403,7 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
                   onClick={() => handleStatusUpdate(statusOption)}
                 >
                   <span className="flex items-center gap-2">
-                    <span
-                      className={cn(
-                        "flyers-soft-projects-pill-dot",
-                        getStatusTone(statusOption).dotClassName
-                      )}
-                    />
+                    <span className={cn("flyers-soft-projects-pill-dot", getStatusTone(statusOption).dotClassName)} />
                     {statusOption}
                   </span>
                   {statusOption === status.label && <Check className="h-3.5 w-3.5" strokeWidth={2} />}
@@ -422,6 +422,7 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
               placeholder="Owner"
               multiple={false}
               buttonVariant="transparent-with-text"
+              optionsClassName="flyers-soft-projects-inline-options"
               placement="bottom-start"
               button={<span className="flyers-soft-projects-inline-text">{projectLeadName}</span>}
             />
@@ -435,6 +436,7 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
               placeholder="Team"
               multiple
               buttonVariant="transparent-with-text"
+              optionsClassName="flyers-soft-projects-inline-options"
               placement="bottom-start"
               button={<span className="flyers-soft-projects-inline-text">{teamLabel}</span>}
             />
@@ -452,6 +454,7 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
               buttonClassName="flyers-soft-projects-inline-date-button"
               buttonContainerClassName="flyers-soft-projects-inline-date"
               hideIcon
+              optionsClassName="flyers-soft-projects-inline-options"
               placement="bottom-start"
             />
           </div>
@@ -462,6 +465,7 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
                 void updateProjectDetails({ priority }).catch(handleUpdateError);
               }}
               buttonVariant="transparent-with-text"
+              optionsClassName="flyers-soft-projects-inline-options"
               placement="bottom-start"
               button={
                 <span className={cn("flyers-soft-projects-pill flyers-soft-projects-inline-pill", priorityClassName)}>
