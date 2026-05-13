@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
-const buildTargets = ["admin", "web"];
+const buildTargets = ["admin...", "web..."];
 
 const buildEnv = {
   ...process.env,
