@@ -76,6 +76,7 @@
     "@plane/tailwind-config": "workspace:*",
     "@plane/typescript-config": "workspace:*",
     "@react-router/dev": "catalog:",
+    "@remix-run/dev": "^2.17.4",
     "@tailwindcss/typography": "0.5.19",
     "@types/lodash-es": "catalog:",
     "@types/node": "catalog:",
