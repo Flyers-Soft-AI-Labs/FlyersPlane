@@ -2,6 +2,13 @@
   "framework": null,
   "buildCommand": "pnpm run build:vercel:single",
   "outputDirectory": "apps/web/build/client",
+  "redirects": [
+    {
+      "source": "/god-mode",
+      "destination": "/god-mode/",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/:path*",
@@ -14,10 +21,6 @@
     {
       "source": "/static/:path*",
       "destination": "https://flyersplane.onrender.com/static/:path*"
-    },
-    {
-      "source": "/god-mode",
-      "destination": "/god-mode/index.html"
     },
     {
       "source": "/god-mode/:path*",
