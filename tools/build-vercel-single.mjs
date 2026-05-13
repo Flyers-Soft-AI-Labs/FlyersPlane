@@ -11,9 +11,9 @@ const buildTargets = ["admin...", "web..."];
 
 const buildEnv = {
   ...process.env,
-  VITE_API_BASE_URL: "",
+  VITE_API_BASE_URL: "https://flyersplane.onrender.com",
   VITE_API_BASE_PATH: "",
-  VITE_ADMIN_BASE_URL: "",
+  VITE_ADMIN_BASE_URL: "https://flyersplane.onrender.com",
   VITE_ADMIN_BASE_PATH: "/god-mode",
   NODE_OPTIONS: [process.env.NODE_OPTIONS, "--max-old-space-size=4096"].filter(Boolean).join(" "),
 };
