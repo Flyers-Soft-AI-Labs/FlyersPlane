@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
-const buildArgs = ["turbo", "run", "build", "--filter=admin", "--filter=web"];
+const buildTargets = ["admin", "web"];
 
 const buildEnv = {
   ...process.env,
@@ -15,25 +15,31 @@ const buildEnv = {
   VITE_API_BASE_PATH: "",
   VITE_ADMIN_BASE_URL: "",
   VITE_ADMIN_BASE_PATH: "/god-mode",
+  NODE_OPTIONS: [process.env.NODE_OPTIONS, "--max-old-space-size=4096"].filter(Boolean).join(" "),
 };
 
-const build =
-  process.platform === "win32"
-    ? spawnSync(`${pnpm} ${buildArgs.join(" ")}`, {
+function runPnpm(args) {
+  return process.platform === "win32"
+    ? spawnSync(`${pnpm} ${args.join(" ")}`, {
         cwd: root,
         env: buildEnv,
         shell: true,
         stdio: "inherit",
       })
-    : spawnSync(pnpm, buildArgs, {
+    : spawnSync(pnpm, args, {
         cwd: root,
         env: buildEnv,
         stdio: "inherit",
       });
+}
 
-if (build.status !== 0) {
-  if (build.error) console.error(build.error);
-  process.exit(build.status ?? 1);
+for (const target of buildTargets) {
+  const build = runPnpm(["--filter", target, "build"]);
+
+  if (build.status !== 0) {
+    if (build.error) console.error(build.error);
+    process.exit(build.status ?? 1);
+  }
 }
 
 const adminBuild = resolve(root, "apps/admin/build/client");
