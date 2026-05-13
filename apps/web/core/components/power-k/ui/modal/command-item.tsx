@@ -19,6 +19,7 @@ type Props = {
   isDisabled?: boolean;
   isSelected?: boolean;
   keySequence?: string;
+  keywords?: string[];
   label: string | React.ReactNode;
   onSelect: () => void;
   shortcut?: string;
@@ -26,20 +27,38 @@ type Props = {
 };
 
 export function PowerKModalCommandItem(props: Props) {
-  const { icon: Icon, iconNode, isDisabled, isSelected, keySequence, label, onSelect, shortcut, value } = props;
+  const {
+    icon: Icon,
+    iconNode,
+    isDisabled,
+    isSelected,
+    keySequence,
+    keywords,
+    label,
+    onSelect,
+    shortcut,
+    value,
+  } = props;
 
   return (
-    <Command.Item value={value} onSelect={onSelect} className="focus:outline-none" disabled={isDisabled}>
+    <Command.Item
+      aria-label={typeof label === "string" ? label : undefined}
+      value={value}
+      keywords={keywords}
+      onSelect={onSelect}
+      className="flyers-soft-command-item focus:outline-none"
+      disabled={isDisabled}
+    >
       <div
-        className={cn("flex items-center gap-2 text-secondary", {
+        className={cn("flyers-soft-command-item-label flex min-w-0 items-center gap-2 text-secondary", {
           "opacity-70": isDisabled,
         })}
       >
         {Icon && <Icon className="size-3.5 shrink-0" />}
         {iconNode}
-        {label}
+        <div className="min-w-0 truncate">{label}</div>
       </div>
-      <div className="flex shrink-0 items-center gap-2">
+      <div className="flyers-soft-command-item-meta flex shrink-0 items-center gap-2">
         {isSelected && <CheckIcon className="size-3 shrink-0 text-secondary" />}
         {keySequence && <KeySequenceBadge sequence={keySequence} />}
         {shortcut && <ShortcutBadge shortcut={shortcut} />}

@@ -37,11 +37,19 @@ export function CommandRenderer(props: Props) {
     {} as Record<TPowerKCommandGroup, TPowerKCommandConfig[]>
   );
 
-  const sortedGroups = Object.keys(commandsByGroup).sort((a, b) => {
-    const aPriority = POWER_K_GROUP_PRIORITY[a as TPowerKCommandGroup];
-    const bPriority = POWER_K_GROUP_PRIORITY[b as TPowerKCommandGroup];
-    return aPriority - bPriority;
-  }) as TPowerKCommandGroup[];
+  const sortedGroups = Object.keys(commandsByGroup).reduce<TPowerKCommandGroup[]>((groups, group) => {
+    const groupKey = group as TPowerKCommandGroup;
+    const groupPriority = POWER_K_GROUP_PRIORITY[groupKey];
+    const insertAt = groups.findIndex((existingGroup) => groupPriority < POWER_K_GROUP_PRIORITY[existingGroup]);
+
+    if (insertAt === -1) {
+      groups.push(groupKey);
+    } else {
+      groups.splice(insertAt, 0, groupKey);
+    }
+
+    return groups;
+  }, []);
 
   return (
     <>
@@ -56,17 +64,23 @@ export function CommandRenderer(props: Props) {
 
         return (
           <Command.Group key={groupKey} heading={title}>
-            {groupCommands.map((command) => (
-              <PowerKModalCommandItem
-                key={command.id}
-                icon={command.icon}
-                iconNode={command.iconNode}
-                label={t(command.i18n_title)}
-                keySequence={command.keySequence}
-                shortcut={command.shortcut || command.modifierShortcut}
-                onSelect={() => onCommandSelect(command)}
-              />
-            ))}
+            {groupCommands.map((command) => {
+              const commandTitle = t(command.i18n_title);
+
+              return (
+                <PowerKModalCommandItem
+                  key={command.id}
+                  icon={command.icon}
+                  iconNode={command.iconNode}
+                  label={commandTitle}
+                  keySequence={command.keySequence}
+                  keywords={command.keywords}
+                  shortcut={command.shortcut || command.modifierShortcut}
+                  value={[commandTitle, command.i18n_title, ...(command.keywords ?? [])].join(" ")}
+                  onSelect={() => onCommandSelect(command)}
+                />
+              );
+            })}
           </Command.Group>
         );
       })}

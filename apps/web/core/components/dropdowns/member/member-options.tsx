@@ -6,6 +6,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Placement } from "@popperjs/core";
+import type { PositioningStrategy } from "@popperjs/core";
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { createPortal } from "react-dom";
@@ -31,6 +32,7 @@ interface Props {
   onDropdownOpen?: () => void;
   optionsClassName?: string;
   placement: Placement | undefined;
+  dropdownStrategy?: PositioningStrategy;
   referenceElement: HTMLButtonElement | null;
   value?: string[] | string | null;
 }
@@ -43,6 +45,7 @@ export const MemberOptions = observer(function MemberOptions(props: Props) {
     onDropdownOpen,
     optionsClassName = "",
     placement,
+    dropdownStrategy = "absolute",
     referenceElement,
     value,
   } = props;
@@ -63,12 +66,21 @@ export const MemberOptions = observer(function MemberOptions(props: Props) {
   const { isMobile } = usePlatformOS();
   // popper-js init
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
+    strategy: dropdownStrategy,
     placement: placement ?? "bottom-start",
     modifiers: [
       {
-        name: "preventOverflow",
+        name: "flip",
         options: {
           padding: 12,
+        },
+      },
+      {
+        name: "preventOverflow",
+        options: {
+          altAxis: true,
+          padding: 12,
+          rootBoundary: "viewport",
         },
       },
     ],

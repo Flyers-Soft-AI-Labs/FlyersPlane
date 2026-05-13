@@ -333,6 +333,7 @@ export function PriorityDropdown(props: Props) {
     buttonVariant,
     className = "",
     disabled = false,
+    dropdownStrategy = "absolute",
     dropdownArrow = false,
     dropdownArrowClassName = "",
     emptyIcon,
@@ -340,6 +341,7 @@ export function PriorityDropdown(props: Props) {
     highlightUrgent = true,
     onChange,
     onClose,
+    optionsClassName = "",
     placeholder = t("common.priority"),
     placement,
     showTooltip = false,
@@ -358,12 +360,21 @@ export function PriorityDropdown(props: Props) {
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
   // popper-js init
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
+    strategy: dropdownStrategy,
     placement: placement ?? "bottom-start",
     modifiers: [
       {
-        name: "preventOverflow",
+        name: "flip",
         options: {
           padding: 12,
+        },
+      },
+      {
+        name: "preventOverflow",
+        options: {
+          altAxis: true,
+          padding: 12,
+          rootBoundary: "viewport",
         },
       },
     ],
@@ -472,7 +483,10 @@ export function PriorityDropdown(props: Props) {
       {isOpen && (
         <Combobox.Options className="fixed z-10" static>
           <div
-            className="my-1 w-48 rounded-sm border-[0.5px] border-strong bg-surface-1 px-2 py-2.5 text-11 shadow-raised-200 focus:outline-none"
+            className={cn(
+              "my-1 w-48 rounded-sm border-[0.5px] border-strong bg-surface-1 px-2 py-2.5 text-11 shadow-raised-200 focus:outline-none",
+              optionsClassName
+            )}
             ref={setPopperElement}
             style={styles.popper}
             {...attributes.popper}

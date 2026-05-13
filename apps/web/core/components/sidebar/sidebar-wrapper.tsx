@@ -66,7 +66,7 @@ export const SidebarWrapper = observer(function SidebarWrapper(props: TSidebarWr
         }}
       >
         <div className="flyers-soft-sidebar-brand-wrap px-3 pt-3">
-          <div className="flyers-soft-sidebar-brand flex items-center gap-2">
+          <div className="flyers-soft-sidebar-brand flex items-start gap-2">
             <AppSidebarToggleButton openedByHoverRef={openedByHoverRef} onHoverOpen={handleHoverOpen} />
             <div className="flyers-soft-sidebar-title min-w-0 flex-1">
               <WorkspaceMenuRoot variant="sidebar-brand" label="Flyers Soft" />

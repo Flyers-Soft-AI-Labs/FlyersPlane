@@ -18,12 +18,13 @@ import { PowerKModalContextIndicator } from "./context-indicator";
 type Props = {
   activePage: TPowerKPageType | null;
   context: TPowerKContext;
+  inputRef?: React.Ref<HTMLInputElement>;
   onSearchChange: (value: string) => void;
   searchTerm: string;
 };
 
 export function PowerKModalHeader(props: Props) {
-  const { context, searchTerm, onSearchChange, activePage } = props;
+  const { activePage, context, inputRef, onSearchChange, searchTerm } = props;
   // translation
   const { t } = useTranslation();
   // derived values
@@ -32,7 +33,7 @@ export function PowerKModalHeader(props: Props) {
     : t("power_k.page_placeholders.default");
 
   return (
-    <div className="border-b border-subtle">
+    <div className="flyers-soft-command-palette-header border-b border-subtle">
       {/* Context Indicator */}
       {context.shouldShowContextBasedActions && !activePage && (
         <PowerKModalContextIndicator
@@ -42,19 +43,22 @@ export function PowerKModalHeader(props: Props) {
       )}
 
       {/* Search Input */}
-      <div className="flex items-center gap-2 px-4 py-3">
+      <div className="flyers-soft-command-palette-search-row flex items-center gap-2 px-4 py-3">
         <SearchIcon className="size-4 shrink-0 text-placeholder" />
         <Command.Input
+          aria-label="Search commands"
+          ref={inputRef}
           value={searchTerm}
           onValueChange={onSearchChange}
           placeholder={placeholder}
-          className="flex-1 bg-transparent text-13 text-primary placeholder-(--text-color-placeholder) outline-none"
-          autoFocus
+          className="flyers-soft-command-palette-search-input flex-1 bg-transparent text-13 text-primary placeholder-(--text-color-placeholder) outline-none"
         />
         {searchTerm && (
           <button
+            type="button"
+            aria-label="Clear search"
             onClick={() => onSearchChange("")}
-            className="flex-shrink-0 rounded-sm p-1 text-placeholder hover:bg-layer-1 hover:text-secondary"
+            className="flyers-soft-command-palette-clear flex-shrink-0 rounded-sm p-1 text-placeholder hover:bg-layer-1 hover:text-secondary"
           >
             <X className="h-3 w-3" />
           </button>

@@ -54,6 +54,7 @@ export const WorkItemStateDropdownBase = observer(function WorkItemStateDropdown
     buttonVariant,
     className = "",
     disabled = false,
+    dropdownStrategy = "absolute",
     dropdownArrow = false,
     dropdownArrowClassName = "",
     getStateById,
@@ -63,6 +64,7 @@ export const WorkItemStateDropdownBase = observer(function WorkItemStateDropdown
     onChange,
     onClose,
     onDropdownOpen,
+    optionsClassName = "",
     placement,
     renderByDefault = true,
     showDefaultState = true,
@@ -87,12 +89,21 @@ export const WorkItemStateDropdownBase = observer(function WorkItemStateDropdown
   const stateValue = value ? value : showDefaultState ? defaultState?.id : undefined;
   // popper-js init
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
+    strategy: dropdownStrategy,
     placement: placement ?? "bottom-start",
     modifiers: [
       {
-        name: "preventOverflow",
+        name: "flip",
         options: {
           padding: 12,
+        },
+      },
+      {
+        name: "preventOverflow",
+        options: {
+          altAxis: true,
+          padding: 12,
+          rootBoundary: "viewport",
         },
       },
     ],
@@ -218,7 +229,10 @@ export const WorkItemStateDropdownBase = observer(function WorkItemStateDropdown
       {isOpen && (
         <Combobox.Options className="fixed z-10" static>
           <div
-            className="my-1 w-48 rounded-sm border-[0.5px] border-strong bg-surface-1 px-2 py-2.5 text-11 shadow-raised-200 focus:outline-none"
+            className={cn(
+              "my-1 w-48 rounded-sm border-[0.5px] border-strong bg-surface-1 px-2 py-2.5 text-11 shadow-raised-200 focus:outline-none",
+              optionsClassName
+            )}
             ref={setPopperElement}
             style={styles.popper}
             {...attributes.popper}

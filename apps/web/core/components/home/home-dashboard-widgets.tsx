@@ -4,21 +4,47 @@
  * See the LICENSE file for details.
  */
 
+import { useCallback } from "react";
 import type { CSSProperties, FC, ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
-import { ArrowRight, FileText, FolderKanban, FolderOpen, MoreVertical, Plus, Ticket, Users } from "lucide-react";
+import {
+  ArrowRight,
+  ChevronDown,
+  FileText,
+  FolderKanban,
+  FolderOpen,
+  MoreVertical,
+  Plus,
+  Ticket,
+  Users,
+} from "lucide-react";
 import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
+import { ISSUE_PRIORITIES } from "@plane/constants";
+import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 // plane imports
 import { Button } from "@plane/propel/button";
-import type { TActivityEntityData, THomeWidgetKeys, THomeWidgetProps, TIssueEntityData } from "@plane/types";
-import { cn, generateWorkItemLink } from "@plane/utils";
+import type {
+  TActivityEntityData,
+  THomeWidgetKeys,
+  THomeWidgetProps,
+  TIssue,
+  TIssueEntityData,
+  TIssuePriorities,
+} from "@plane/types";
+import { EIssuesStoreType } from "@plane/types";
+import { generateWorkItemLink } from "@plane/utils";
 // components
 import { ButtonAvatars } from "@/components/dropdowns/member/avatar";
+import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
+import { PriorityDropdown } from "@/components/dropdowns/priority";
+import { ProjectDropdown } from "@/components/dropdowns/project/dropdown";
+import { StateDropdown } from "@/components/dropdowns/state/dropdown";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
+import { useIssuesActions } from "@/hooks/use-issues-actions";
 import { useMember } from "@/hooks/store/use-member";
 import { useProject } from "@/hooks/store/use-project";
 import { useProjectState } from "@/hooks/store/use-project-state";
@@ -77,7 +103,21 @@ const formatDashboardDate = (date: string | undefined) => {
   }).format(parsedDate);
 };
 
-function CompactIssueRow({ activity, workspaceSlug }: { activity: TActivityEntityData; workspaceSlug: string }) {
+type TRecentTicketUpdate = (
+  activity: TActivityEntityData,
+  payload: Partial<TIssue>,
+  entityPatch: Partial<TIssueEntityData>
+) => Promise<void>;
+
+function CompactIssueRow({
+  activity,
+  onIssueUpdate,
+  workspaceSlug,
+}: {
+  activity: TActivityEntityData;
+  onIssueUpdate: TRecentTicketUpdate;
+  workspaceSlug: string;
+}) {
   const { getStateById } = useProjectState();
   const { getUserDetails } = useMember();
   const { getProjectById } = useProject();
@@ -89,6 +129,9 @@ function CompactIssueRow({ activity, workspaceSlug }: { activity: TActivityEntit
   const primaryAssignee = assigneeIds[0] ? getUserDetails(assigneeIds[0]) : undefined;
   const assigneeLabel = primaryAssignee?.display_name ?? (assigneeIds.length > 0 ? "Assigned" : "Unassigned");
   const extraAssigneeCount = Math.max(assigneeIds.length - 1, 0);
+  const priorityKey = (issue.priority || "none") as TIssuePriorities;
+  const priorityOption = ISSUE_PRIORITIES.find((option) => option.key === priorityKey);
+  const priorityLabel = priorityOption?.title ?? (issue.priority === "urgent" ? "Urgent" : issue.priority || "None");
   const workItemLink = generateWorkItemLink({
     workspaceSlug,
     projectId: issue.project_id,
@@ -99,40 +142,132 @@ function CompactIssueRow({ activity, workspaceSlug }: { activity: TActivityEntit
   });
 
   return (
-    <Link href={workItemLink} className="flyers-soft-dashboard-ticket-row">
-      <div className="flyers-soft-dashboard-ticket-cell">
+    <div className="flyers-soft-dashboard-ticket-row">
+      <Link href={workItemLink} className="flyers-soft-dashboard-ticket-cell flyers-soft-dashboard-ticket-link-cell">
         <FileText className="flyers-soft-dashboard-ticket-file-icon size-3.5" strokeWidth={1.8} />
         <span className="flyers-soft-dashboard-ticket-key">
           {issue.project_identifier}-{issue.sequence_id}
         </span>
         <span className="flyers-soft-dashboard-ticket-title truncate">{issue.name}</span>
-      </div>
-      <div className="flyers-soft-dashboard-ticket-status">
-        <span
-          className="flyers-soft-status-dot"
-          style={state?.color ? ({ "--flyers-status-color": state.color } as CSSProperties) : undefined}
+      </Link>
+      <div className="flyers-soft-dashboard-ticket-dropdown-cell">
+        <StateDropdown
+          button={
+            <span className="flyers-soft-dashboard-inline-control">
+              <span
+                className="flyers-soft-dashboard-inline-status-dot"
+                style={state?.color ? ({ "--flyers-status-color": state.color } as CSSProperties) : undefined}
+              />
+              <span className="flyers-soft-dashboard-inline-control-label">{state?.name ?? "Open"}</span>
+              <ChevronDown className="flyers-soft-dashboard-inline-chevron size-3" strokeWidth={2} />
+            </span>
+          }
+          buttonVariant="transparent-with-text"
+          buttonContainerClassName="flyers-soft-dashboard-inline-trigger"
+          className="flyers-soft-dashboard-inline-dropdown"
+          dropdownStrategy="fixed"
+          optionsClassName="flyers-soft-dashboard-inline-menu"
+          placement="auto-start"
+          projectId={issue.project_id}
+          renderByDefault={false}
+          showTooltip={false}
+          value={issue.state}
+          onChange={(stateId) => {
+            if (stateId === issue.state) return;
+            void onIssueUpdate(activity, { state_id: stateId }, { state: stateId });
+          }}
         />
-        <span className="truncate">{state?.name ?? "Open"}</span>
       </div>
-      <span className={cn("flyers-soft-priority-pill", `flyers-soft-priority-${issue.priority || "none"}`)}>
-        {issue.priority === "urgent" ? "\u2191 Urgent" : issue.priority || "None"}
-      </span>
-      <div className="flyers-soft-dashboard-ticket-assignee">
-        <ButtonAvatars showTooltip userIds={assigneeIds} size="sm" />
-        <span className="truncate">
-          {assigneeLabel}
-          {extraAssigneeCount > 0 ? ` +${extraAssigneeCount}` : ""}
-        </span>
+      <div className="flyers-soft-dashboard-ticket-dropdown-cell">
+        <PriorityDropdown
+          button={
+            <span className="flyers-soft-dashboard-inline-control flyers-soft-dashboard-priority-control">
+              <span className="flyers-soft-dashboard-inline-control-label">{priorityLabel}</span>
+              <ChevronDown className="flyers-soft-dashboard-inline-chevron size-3" strokeWidth={2} />
+            </span>
+          }
+          buttonVariant="transparent-with-text"
+          buttonContainerClassName="flyers-soft-dashboard-inline-trigger"
+          className="flyers-soft-dashboard-inline-dropdown"
+          dropdownStrategy="fixed"
+          optionsClassName="flyers-soft-dashboard-inline-menu"
+          placement="auto-start"
+          renderByDefault={false}
+          showTooltip={false}
+          value={priorityKey}
+          onChange={(nextPriority) => {
+            if (nextPriority === issue.priority) return;
+            void onIssueUpdate(activity, { priority: nextPriority }, { priority: nextPriority });
+          }}
+        />
       </div>
-      <div className="flyers-soft-dashboard-ticket-project">
-        <FolderOpen className="size-3.5 flex-shrink-0" strokeWidth={1.8} />
-        <span className="truncate">{projectName}</span>
+      <div className="flyers-soft-dashboard-ticket-dropdown-cell">
+        <MemberDropdown
+          button={
+            <span className="flyers-soft-dashboard-inline-control flyers-soft-dashboard-assignee-control">
+              <ButtonAvatars showTooltip userIds={assigneeIds} size="sm" />
+              <span className="flyers-soft-dashboard-inline-control-label">
+                {assigneeLabel}
+                {extraAssigneeCount > 0 ? ` +${extraAssigneeCount}` : ""}
+              </span>
+              <ChevronDown className="flyers-soft-dashboard-inline-chevron size-3" strokeWidth={2} />
+            </span>
+          }
+          buttonVariant="transparent-with-text"
+          buttonContainerClassName="flyers-soft-dashboard-inline-trigger"
+          className="flyers-soft-dashboard-inline-dropdown"
+          dropdownStrategy="fixed"
+          multiple
+          optionsClassName="flyers-soft-dashboard-inline-menu"
+          placement="auto-start"
+          projectId={issue.project_id}
+          renderByDefault={false}
+          showTooltip={false}
+          value={assigneeIds}
+          onChange={(nextAssigneeIds) => {
+            void onIssueUpdate(activity, { assignee_ids: nextAssigneeIds }, { assignees: nextAssigneeIds });
+          }}
+        />
+      </div>
+      <div className="flyers-soft-dashboard-ticket-dropdown-cell">
+        <ProjectDropdown
+          button={
+            <span className="flyers-soft-dashboard-inline-control">
+              <FolderOpen className="size-3.5 flex-shrink-0 text-secondary" strokeWidth={1.8} />
+              <span className="flyers-soft-dashboard-inline-control-label">{projectName}</span>
+              <ChevronDown className="flyers-soft-dashboard-inline-chevron size-3" strokeWidth={2} />
+            </span>
+          }
+          buttonVariant="transparent-with-text"
+          buttonContainerClassName="flyers-soft-dashboard-inline-trigger"
+          className="flyers-soft-dashboard-inline-dropdown"
+          currentProjectId={issue.project_id}
+          dropdownStrategy="fixed"
+          multiple={false}
+          optionsClassName="flyers-soft-dashboard-inline-menu"
+          placement="auto-start"
+          renderByDefault={false}
+          showTooltip={false}
+          value={issue.project_id}
+          onChange={(projectId) => {
+            if (!projectId || projectId === issue.project_id) return;
+            const nextProject = getProjectById(projectId);
+            void onIssueUpdate(
+              activity,
+              { project_id: projectId },
+              {
+                project_id: projectId,
+                project_identifier: nextProject?.identifier ?? issue.project_identifier,
+              }
+            );
+          }}
+        />
       </div>
       <span className="flyers-soft-dashboard-ticket-date">{formatDashboardDate(activity.visited_at)}</span>
-      <span className="flyers-soft-dashboard-ticket-more" aria-hidden="true">
+      <Link href={workItemLink} className="flyers-soft-dashboard-ticket-more" aria-label={`Open ${issue.name}`}>
         <MoreVertical className="size-3.5" strokeWidth={1.9} />
-      </span>
-    </Link>
+      </Link>
+    </div>
   );
 }
 
@@ -141,11 +276,56 @@ export const DashboardWidgets = observer(function DashboardWidgets() {
   const workspaceSlugString = workspaceSlug?.toString();
   const { toggleCreateIssueModal } = useCommandPalette();
   const { data: currentUser } = useUser();
+  const globalIssueActions = useIssuesActions(EIssuesStoreType.GLOBAL);
+  const epicIssueActions = useIssuesActions(EIssuesStoreType.EPIC);
 
-  const { data: recentTickets, isLoading: isRecentTicketsLoading } = useSWR(
+  const {
+    data: recentTickets,
+    isLoading: isRecentTicketsLoading,
+    mutate: mutateRecentTickets,
+  } = useSWR(
     workspaceSlugString ? `FLYERS_HOME_RECENT_TICKETS_${workspaceSlugString}` : null,
     workspaceSlugString ? () => workspaceService.fetchWorkspaceRecents(workspaceSlugString, "issue") : null,
     { revalidateOnFocus: false, shouldRetryOnError: false }
+  );
+
+  const handleRecentTicketUpdate = useCallback<TRecentTicketUpdate>(
+    async (activity, payload, entityPatch) => {
+      const issue = activity.entity_data as TIssueEntityData;
+      const previousTickets = recentTickets;
+
+      await mutateRecentTickets(
+        (currentTickets) =>
+          currentTickets?.map((ticketActivity) =>
+            ticketActivity.id === activity.id
+              ? {
+                  ...ticketActivity,
+                  entity_data: {
+                    ...(ticketActivity.entity_data as TIssueEntityData),
+                    ...entityPatch,
+                  },
+                }
+              : ticketActivity
+          ),
+        { revalidate: false }
+      );
+
+      try {
+        const updateIssue = issue.is_epic ? epicIssueActions.updateIssue : globalIssueActions.updateIssue;
+        if (!updateIssue) throw new Error("Issue update action is unavailable");
+
+        await updateIssue(issue.project_id, issue.id, payload);
+        await mutateRecentTickets();
+      } catch {
+        await mutateRecentTickets(previousTickets, { revalidate: false });
+        setToast({
+          type: TOAST_TYPE.ERROR,
+          title: "Error!",
+          message: "Could not update ticket. Please try again.",
+        });
+      }
+    },
+    [epicIssueActions.updateIssue, globalIssueActions.updateIssue, mutateRecentTickets, recentTickets]
   );
 
   if (!workspaceSlugString) return null;
@@ -227,6 +407,7 @@ export const DashboardWidgets = observer(function DashboardWidgets() {
                 <CompactIssueRow
                   key={activity.id}
                   activity={activity as TActivityEntityData}
+                  onIssueUpdate={handleRecentTicketUpdate}
                   workspaceSlug={workspaceSlugString}
                 />
               ))
