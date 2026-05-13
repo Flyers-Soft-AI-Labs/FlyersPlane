@@ -18,7 +18,7 @@ export default function GlobalIssuesLayout() {
   return (
     <>
       {!isAllIssues && !isAssignedView && <AppHeader header={<GlobalIssuesHeader />} />}
-      <ContentWrapper>
+      <ContentWrapper className={isAssignedView ? "flyers-soft-projects-list-scroll" : undefined}>
         <Outlet />
       </ContentWrapper>
     </>

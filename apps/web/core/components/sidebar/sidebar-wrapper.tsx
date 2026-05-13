@@ -60,6 +60,10 @@ export const SidebarWrapper = observer(function SidebarWrapper(props: TSidebarWr
         ref={ref}
         className="flyers-soft-sidebar-shell flex h-full w-full animate-fade-in flex-col"
         onMouseLeave={handleShellMouseLeave}
+        onMouseEnter={() => {
+          if (!sidebarCollapsed) return;
+          handleHoverOpen();
+        }}
       >
         <div className="flyers-soft-sidebar-brand-wrap px-3 pt-3">
           <div className="flyers-soft-sidebar-brand flex items-center gap-2">

@@ -32,21 +32,7 @@ export const useMemberColumns = () => {
     {
       key: "Member",
       content: "Member",
-      tdRender: (rowData: RowData) => (
-        <NameColumn
-          rowData={rowData}
-          workspaceSlug={workspaceSlug}
-        />
-      ),
-    },
-    {
-      key: "Email",
-      content: "Email",
-      tdRender: (rowData: RowData) => (
-        <div className={`flyers-soft-teams-email truncate ${rowData.is_active === false ? "text-placeholder" : ""}`}>
-          {rowData.member.email}
-        </div>
-      ),
+      tdRender: (rowData: RowData) => <NameColumn rowData={rowData} workspaceSlug={workspaceSlug} />,
     },
     {
       key: "Role",

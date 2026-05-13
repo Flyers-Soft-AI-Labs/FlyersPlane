@@ -5,12 +5,10 @@
  */
 
 import { useState } from "react";
-import { Mail, ShieldCheck, Users, UsersRound } from "lucide-react";
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 // plane imports
-import { EUserPermissions } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 // components
 import { CountChip } from "@/components/common/count-chip";
@@ -78,71 +76,12 @@ export const WorkspaceMembersList = observer(function WorkspaceMembersList(props
     ...searchedMemberDetails.filter((member) => member?.is_active === false),
   ];
 
-  // stat counts (always from unfiltered totals)
-  const totalMembers = workspaceMemberIds?.length ?? 0;
-  const activeMembers =
-    workspaceMemberIds?.filter((id) => {
-      const d = getWorkspaceMemberDetails(id);
-      return d?.is_active !== false;
-    }).length ?? 0;
-  const pendingInvites = pendingInvitationIds.length;
-  const adminCount =
-    workspaceMemberIds?.filter((id) => {
-      const d = getWorkspaceMemberDetails(id);
-      return d?.role === EUserPermissions.ADMIN && d?.is_active !== false;
-    }).length ?? 0;
-  const statCards = [
-    {
-      title: "Active Members",
-      value: activeMembers,
-      icon: Users,
-      className: "flyers-soft-teams-stat-icon-purple",
-    },
-    {
-      title: "Pending Invites",
-      value: pendingInvites,
-      icon: Mail,
-      className: "flyers-soft-teams-stat-icon-neutral",
-    },
-    {
-      title: "Admins",
-      value: adminCount,
-      icon: ShieldCheck,
-      className: "flyers-soft-teams-stat-icon-blue",
-    },
-    {
-      title: "Total Members",
-      value: totalMembers,
-      icon: UsersRound,
-      className: "flyers-soft-teams-stat-icon-green",
-    },
-  ];
   const hasMembers = (memberDetails?.length ?? 0) > 0;
   const hasPendingInvites = searchedPendingInvitationIds.length > 0;
   const activeView: TMembersTab = isAdmin ? activeTab : "members";
 
   return (
     <>
-      {/* ── Stat cards ── */}
-      <div className="flyers-soft-teams-stats">
-        {statCards.map((stat) => {
-          const Icon = stat.icon;
-
-          return (
-            <div key={stat.title} className="flyers-soft-teams-stat-card">
-              <span className={`flyers-soft-teams-stat-icon ${stat.className}`}>
-                <Icon className="h-4 w-4" />
-              </span>
-              <span className="min-w-0">
-                <span className="flyers-soft-teams-stat-label">{stat.title}</span>
-                <span className="flyers-soft-teams-stat-value">{stat.value}</span>
-              </span>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* ── Team Members card ── */}
       <div className="flyers-soft-teams-tabs" role="tablist" aria-label="Teams members views">
         <button
           type="button"
@@ -182,10 +121,6 @@ export const WorkspaceMembersList = observer(function WorkspaceMembersList(props
       {/* ── Pending Invites card ── */}
       {isAdmin && activeView === "invites" && (
         <div className="flyers-soft-teams-invites-card">
-          <div className="flyers-soft-teams-invites-header">
-            <h4 className="text-13 font-semibold text-primary">Pending Invites</h4>
-            <CountChip count={searchedPendingInvitationIds.length} className="m-auto ml-2 h-5" />
-          </div>
           <div className="flyers-soft-teams-invites-table-header">
             <span>Email</span>
             <span>Role</span>

@@ -172,9 +172,8 @@ export function ToDoListPage() {
   };
 
   return (
-    <div className="flex h-full w-full flex-col overflow-hidden bg-[#fbfbfa] text-[#111827]">
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-6 py-5 md:px-10 lg:px-14">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-5">
+    <div className="flyers-soft-todo-body text-[#111827]">
+      <div className="flyers-soft-todo-content flex flex-col gap-5">
           <section className="flex min-w-0 items-start justify-between gap-4">
             <div className="min-w-0">
               <h1 className="truncate text-[30px] leading-9 font-semibold tracking-normal text-[#111827]">
@@ -431,7 +430,6 @@ export function ToDoListPage() {
               <span>New task</span>
             </button>
           </section>
-        </div>
       </div>
     </div>
   );

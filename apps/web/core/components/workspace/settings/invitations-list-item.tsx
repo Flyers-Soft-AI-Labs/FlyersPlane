@@ -158,7 +158,7 @@ export const WorkspaceInvitationsListItem = observer(function WorkspaceInvitatio
         </div>
 
         <div className="flyers-soft-team-invite-date">
-          {invitationSentAt ? `Sent ${renderFormattedDate(invitationSentAt)}` : "-"}
+          {invitationSentAt ? renderFormattedDate(invitationSentAt) : "-"}
         </div>
 
         <div className="flyers-soft-team-invite-actions">
