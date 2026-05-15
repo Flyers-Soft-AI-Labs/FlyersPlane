@@ -38,7 +38,7 @@ export function InstanceNotReady() {
           </div>
           <div className="flex h-full w-full flex-col items-center justify-center gap-7">
             <div className="flex flex-col items-center gap-11">
-              <img src={GradientLogo} className="h-24 w-40 object-contain" alt="FlyersPlane Logo" />
+              <img src={GradientBgLogo} className="h-24 w-40 object-contain" alt="FlyersPlane Logo" />
               <FlyersLogo className="h-16 max-w-56 object-contain" />
               <div className="flex max-w-124 flex-col items-center gap-3">
                 <h1 className="text-h2-semibold text-primary">Welcome to Plane</h1>
