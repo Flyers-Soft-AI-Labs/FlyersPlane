@@ -20,13 +20,29 @@ import { useIssueModal } from "@/hooks/context/use-issue-modal";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 
 type TIssueProjectSelectProps = {
+  buttonClassName?: string;
+  buttonContainerClassName?: string;
   control: Control<TIssue>;
   disabled?: boolean;
+  dropdownArrow?: boolean;
+  dropdownArrowClassName?: string;
+  emptyIcon?: React.ReactNode;
   handleFormChange: () => void;
+  placeholder?: string;
 };
 
 export const IssueProjectSelect = observer(function IssueProjectSelect(props: TIssueProjectSelectProps) {
-  const { control, disabled = false, handleFormChange } = props;
+  const {
+    buttonClassName,
+    buttonContainerClassName,
+    control,
+    disabled = false,
+    dropdownArrow = false,
+    dropdownArrowClassName,
+    emptyIcon,
+    handleFormChange,
+    placeholder,
+  } = props;
   // store hooks
   const { isMobile } = usePlatformOS();
   // context hooks
@@ -51,6 +67,12 @@ export const IssueProjectSelect = observer(function IssueProjectSelect(props: TI
             }}
             multiple={false}
             buttonVariant="border-with-text"
+            buttonClassName={buttonClassName}
+            buttonContainerClassName={buttonContainerClassName}
+            dropdownArrow={dropdownArrow}
+            dropdownArrowClassName={dropdownArrowClassName}
+            emptyIcon={emptyIcon}
+            placeholder={placeholder}
             renderCondition={(projectId) => allowedProjectIds.includes(projectId)}
             tabIndex={getIndex("project_id")}
             disabled={disabled}

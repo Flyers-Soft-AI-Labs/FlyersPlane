@@ -80,11 +80,11 @@ export const useExportColumns = () => {
             rowData.status === "completed"
               ? "bg-success-subtle text-success-primary"
               : rowData.status === "processing"
-                ? "bg-yellow-500/20 text-yellow-500"
+                ? "bg-[#f1f1ef] text-[#6b7280]"
                 : rowData.status === "failed"
                   ? "bg-danger-subtle text-danger-primary"
                   : rowData.status === "expired"
-                    ? "bg-orange-500/20 text-orange-500"
+                    ? "bg-[#f1f1ef] text-[#6b7280]"
                     : "bg-gray-500/20 text-gray-500"
           }`}
         >

@@ -5,6 +5,7 @@
  */
 
 import Script from "next/script";
+import { ThemeProvider } from "next-themes";
 
 // styles
 import "@/styles/globals.css";
@@ -22,8 +23,7 @@ export const meta = () => [
   { name: "description", content: SITE_DESCRIPTION },
   {
     name: "keywords",
-    content:
-      "ticket tracking, project management, reports, kanban, collaboration, agile, support tickets, workflows",
+    content: "ticket tracking, project management, reports, kanban, collaboration, agile, support tickets, workflows",
   },
   {
     name: "viewport",
@@ -52,12 +52,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const isSessionRecorderEnabled = parseInt(process.env.VITE_ENABLE_SESSION_RECORDER || "0");
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
-        <meta name="theme-color" content="#fff" />
-        <link rel="icon" type="image/png" href="/flyers-logo.png" />
+        <meta name="theme-color" content="#fbfbfa" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="manifest" href="/site.webmanifest.json" />
-        <link rel="shortcut icon" href="/flyers-logo.png" />
+        <link rel="shortcut icon" href="/favicon.ico" />
         {/* Meta info for PWA */}
         <meta name="application-name" content="Flyers Soft" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -73,11 +73,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <div id="context-menu-portal" />
         <div id="editor-portal" />
-        <AppProvider>
-          <div className={cn("relative flex h-screen w-full flex-col overflow-hidden", "app-container")}>
-            <main className="relative h-full w-full overflow-hidden">{children}</main>
-          </div>
-        </AppProvider>
+        <ThemeProvider
+          attribute="data-theme"
+          themes={["light", "dark", "light-contrast", "dark-contrast", "custom"]}
+          defaultTheme="system"
+          enableSystem
+          storageKey="theme"
+        >
+          <AppProvider>
+            <div className={cn("relative flex h-screen w-full flex-col overflow-hidden", "app-container")}>
+              <main className="relative h-full w-full overflow-hidden">{children}</main>
+            </div>
+          </AppProvider>
+        </ThemeProvider>
       </body>
       {!!isSessionRecorderEnabled && process.env.VITE_SESSION_RECORDER_KEY && (
         <Script id="clarity-tracking">

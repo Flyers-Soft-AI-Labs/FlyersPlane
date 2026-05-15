@@ -1647,12 +1647,6 @@ export default {
           },
         },
       },
-      billing_and_plans: {
-        title: "Thanh toán và Kế hoạch",
-        current_plan: "Kế hoạch hiện tại",
-        free_plan: "Bạn đang sử dụng kế hoạch miễn phí",
-        view_plans: "Xem kế hoạch",
-      },
       exports: {
         title: "Xuất",
         exporting: "Đang xuất",

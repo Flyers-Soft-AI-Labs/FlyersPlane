@@ -1659,12 +1659,6 @@ export default {
           },
         },
       },
-      billing_and_plans: {
-        title: "Facturation & Plans",
-        current_plan: "Plan actuel",
-        free_plan: "Vous utilisez actuellement le plan gratuit",
-        view_plans: "Voir les plans",
-      },
       exports: {
         title: "Exportations",
         exporting: "Exportation",

@@ -34,6 +34,7 @@ export type TWorkItemLabelSelectBaseProps = {
   onChange: (value: string[]) => void;
   onDropdownOpen?: () => void;
   placement?: Placement;
+  placeholder?: string;
   createLabel?: (data: Partial<IIssueLabel>) => Promise<IIssueLabel>;
   tabIndex?: number;
   value: string[];
@@ -51,6 +52,7 @@ export const WorkItemLabelSelectBase = observer(function WorkItemLabelSelectBase
     onChange,
     onDropdownOpen,
     placement,
+    placeholder,
     createLabel,
     tabIndex,
     value,
@@ -186,7 +188,7 @@ export const WorkItemLabelSelectBase = observer(function WorkItemLabelSelectBase
             )}
           >
             <LabelPropertyIcon className="h-3 w-3 flex-shrink-0" />
-            <span>{t("labels")}</span>
+            <span>{placeholder ?? t("labels")}</span>
           </div>
         )}
       </button>

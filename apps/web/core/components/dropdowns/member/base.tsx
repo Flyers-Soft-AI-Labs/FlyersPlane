@@ -42,6 +42,7 @@ export const MemberDropdownBase = observer(function MemberDropdownBase(props: TM
     buttonVariant,
     className = "",
     disabled = false,
+    dropdownStrategy = "absolute",
     dropdownArrow = false,
     dropdownArrowClassName = "",
     getUserDetails,
@@ -182,6 +183,7 @@ export const MemberDropdownBase = observer(function MemberDropdownBase(props: TM
           onDropdownOpen={onDropdownOpen}
           optionsClassName={optionsClassName}
           placement={placement}
+          dropdownStrategy={dropdownStrategy}
           referenceElement={referenceElement}
           value={value}
         />

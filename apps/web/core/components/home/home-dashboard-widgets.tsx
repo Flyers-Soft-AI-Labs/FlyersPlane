@@ -4,18 +4,17 @@
  * See the LICENSE file for details.
  */
 
-import type { CSSProperties, FC } from "react";
+import { useCallback } from "react";
+import type { CSSProperties, FC, ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
-  Activity,
   ArrowRight,
-  CheckCircle2,
-  Clock3,
+  ChevronDown,
+  FileText,
+  FolderKanban,
   FolderOpen,
-  ListChecks,
   MoreVertical,
   Plus,
-  Sparkles,
   Ticket,
   Users,
 } from "lucide-react";
@@ -23,26 +22,33 @@ import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
+import { ISSUE_PRIORITIES } from "@plane/constants";
+import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 // plane imports
 import { Button } from "@plane/propel/button";
 import type {
   TActivityEntityData,
   THomeWidgetKeys,
   THomeWidgetProps,
-  TIssuesByStateGroupsWidgetResponse,
+  TIssue,
   TIssueEntityData,
-  TOverviewStatsWidgetResponse,
-  TWidgetStatsResponse,
-  IUser,
+  TIssuePriorities,
 } from "@plane/types";
-import { calculateTimeAgo, cn, generateWorkItemLink } from "@plane/utils";
+import { EIssuesStoreType } from "@plane/types";
+import { generateWorkItemLink } from "@plane/utils";
 // components
 import { ButtonAvatars } from "@/components/dropdowns/member/avatar";
+import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
+import { PriorityDropdown } from "@/components/dropdowns/priority";
+import { ProjectDropdown } from "@/components/dropdowns/project/dropdown";
+import { StateDropdown } from "@/components/dropdowns/state/dropdown";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
-import { useDashboard } from "@/hooks/store/use-dashboard";
+import { useIssuesActions } from "@/hooks/use-issues-actions";
+import { useMember } from "@/hooks/store/use-member";
 import { useProject } from "@/hooks/store/use-project";
 import { useProjectState } from "@/hooks/store/use-project-state";
+import { useUser } from "@/hooks/store/user";
 // services
 import { WorkspaceService } from "@/services/workspace.service";
 
@@ -80,75 +86,52 @@ export const HOME_WIDGETS_LIST: {
   },
 };
 
-type TDashboardWidgetsProps = {
-  currentUser?: IUser;
-};
-
-type TStatCard = {
-  label: string;
-  value: number | undefined;
-  caption: string;
-  icon: LucideIcon;
-  accent: "purple" | "blue" | "amber" | "green";
-  isLoading?: boolean;
-};
-
 const workspaceService = new WorkspaceService();
 
-const todayKey = () => new Date().toISOString().slice(0, 10);
 const DASHBOARD_SKELETON_ROW_KEYS = ["row-a", "row-b", "row-c", "row-d", "row-e"];
-const DASHBOARD_STAR_KEYS = [
-  "star-a",
-  "star-b",
-  "star-c",
-  "star-d",
-  "star-e",
-  "star-f",
-  "star-g",
-  "star-h",
-  "star-i",
-  "star-j",
-  "star-k",
-];
-const DASHBOARD_BAR_KEYS = ["bar-a", "bar-b", "bar-c", "bar-d", "bar-e", "bar-f"];
 
-function StatCard({ accent, caption, icon: Icon, isLoading, label, value }: TStatCard) {
-  return (
-    <div className={cn("flyers-soft-dashboard-stat-card", `flyers-soft-dashboard-stat-${accent}`)}>
-      <div className="flyers-soft-dashboard-stat-top">
-        <span className="flyers-soft-dashboard-stat-icon">
-          <Icon className="size-5" strokeWidth={2.1} />
-        </span>
-        <div className="flex min-w-0 flex-col gap-1">
-          <span className="truncate text-12 font-medium text-tertiary">{label}</span>
-          <span className="text-24 font-semibold text-primary">
-            {isLoading ? "..." : (value ?? 0).toLocaleString()}
-          </span>
-        </div>
-        <MoreVertical className="flyers-soft-dashboard-stat-menu size-4" strokeWidth={2} />
-      </div>
-      <p className="truncate text-11 text-placeholder">{caption}</p>
-      <Sparkline accent={accent} />
-    </div>
-  );
-}
+const formatDashboardDate = (date: string | undefined) => {
+  if (!date) return "Unknown";
 
-function Sparkline({ accent }: { accent: TStatCard["accent"] }) {
-  return (
-    <svg
-      className={cn("flyers-soft-dashboard-sparkline", `flyers-soft-dashboard-sparkline-${accent}`)}
-      viewBox="0 0 180 34"
-      aria-hidden="true"
-    >
-      <path d="M2 22 C18 18 24 29 40 23 C58 16 63 20 78 24 C96 29 99 10 119 11 C138 12 139 27 157 23 C166 20 173 18 178 21" />
-    </svg>
-  );
-}
+  const parsedDate = new Date(date);
+  if (Number.isNaN(parsedDate.getTime())) return "Unknown";
 
-function CompactIssueRow({ activity, workspaceSlug }: { activity: TActivityEntityData; workspaceSlug: string }) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(parsedDate);
+};
+
+type TRecentTicketUpdate = (
+  activity: TActivityEntityData,
+  payload: Partial<TIssue>,
+  entityPatch: Partial<TIssueEntityData>
+) => Promise<void>;
+
+function CompactIssueRow({
+  activity,
+  onIssueUpdate,
+  workspaceSlug,
+}: {
+  activity: TActivityEntityData;
+  onIssueUpdate: TRecentTicketUpdate;
+  workspaceSlug: string;
+}) {
   const { getStateById } = useProjectState();
+  const { getUserDetails } = useMember();
+  const { getProjectById } = useProject();
   const issue = activity.entity_data as TIssueEntityData;
   const state = getStateById(issue.state);
+  const project = getProjectById(issue.project_id);
+  const projectName = project?.name ?? issue.project_identifier ?? "Project";
+  const assigneeIds = issue.assignees ?? [];
+  const primaryAssignee = assigneeIds[0] ? getUserDetails(assigneeIds[0]) : undefined;
+  const assigneeLabel = primaryAssignee?.display_name ?? (assigneeIds.length > 0 ? "Assigned" : "Unassigned");
+  const extraAssigneeCount = Math.max(assigneeIds.length - 1, 0);
+  const priorityKey = (issue.priority || "none") as TIssuePriorities;
+  const priorityOption = ISSUE_PRIORITIES.find((option) => option.key === priorityKey);
+  const priorityLabel = priorityOption?.title ?? (issue.priority === "urgent" ? "Urgent" : issue.priority || "None");
   const workItemLink = generateWorkItemLink({
     workspaceSlug,
     projectId: issue.project_id,
@@ -159,262 +142,313 @@ function CompactIssueRow({ activity, workspaceSlug }: { activity: TActivityEntit
   });
 
   return (
-    <Link href={workItemLink} className="flyers-soft-dashboard-ticket-row">
-      <div className="flex min-w-0 flex-1 items-center gap-3">
-        <div className="flyers-soft-dashboard-ticket-key">
+    <div className="flyers-soft-dashboard-ticket-row">
+      <Link href={workItemLink} className="flyers-soft-dashboard-ticket-cell flyers-soft-dashboard-ticket-link-cell">
+        <FileText className="flyers-soft-dashboard-ticket-file-icon size-3.5" strokeWidth={1.8} />
+        <span className="flyers-soft-dashboard-ticket-key">
           {issue.project_identifier}-{issue.sequence_id}
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="truncate text-13 font-medium text-primary">{issue.name}</div>
-          <div className="mt-1 flex items-center gap-2 text-11 text-placeholder">
-            <span
-              className="flyers-soft-status-dot"
-              style={state?.color ? ({ "--flyers-status-color": state.color } as CSSProperties) : undefined}
-            />
-            <span className="truncate">{state?.name ?? "Open"}</span>
-            <span>/</span>
-            <span>{calculateTimeAgo(activity.visited_at)}</span>
-          </div>
-        </div>
-      </div>
-      <div className="flex flex-shrink-0 items-center gap-2">
-        <span className={cn("flyers-soft-priority-pill", `flyers-soft-priority-${issue.priority || "none"}`)}>
-          {issue.priority || "None"}
         </span>
-        <ButtonAvatars showTooltip userIds={issue.assignees} size="sm" />
+        <span className="flyers-soft-dashboard-ticket-title truncate">{issue.name}</span>
+      </Link>
+      <div className="flyers-soft-dashboard-ticket-dropdown-cell">
+        <StateDropdown
+          button={
+            <span className="flyers-soft-dashboard-inline-control">
+              <span
+                className="flyers-soft-dashboard-inline-status-dot"
+                style={state?.color ? ({ "--flyers-status-color": state.color } as CSSProperties) : undefined}
+              />
+              <span className="flyers-soft-dashboard-inline-control-label">{state?.name ?? "Open"}</span>
+              <ChevronDown className="flyers-soft-dashboard-inline-chevron size-3" strokeWidth={2} />
+            </span>
+          }
+          buttonVariant="transparent-with-text"
+          buttonContainerClassName="flyers-soft-dashboard-inline-trigger"
+          className="flyers-soft-dashboard-inline-dropdown"
+          dropdownStrategy="fixed"
+          optionsClassName="flyers-soft-dashboard-inline-menu"
+          placement="auto-start"
+          projectId={issue.project_id}
+          renderByDefault={false}
+          showTooltip={false}
+          value={issue.state}
+          onChange={(stateId) => {
+            if (stateId === issue.state) return;
+            void onIssueUpdate(activity, { state_id: stateId }, { state: stateId });
+          }}
+        />
       </div>
-    </Link>
-  );
-}
-
-function ActivityRow({ activity, index }: { activity: TActivityEntityData; index: number }) {
-  const entityData = activity.entity_data;
-  const entityLabel =
-    activity.entity_name === "issue" ? "ticket" : activity.entity_name === "project" ? "project" : "page";
-  const people = ["Shalini", "Aarav", "Priya", "Rohan", "Meera"];
-  const actions = ["created", "updated", "commented on", "closed", "reviewed"];
-  const person = people[index % people.length];
-  const action = actions[index % actions.length];
-
-  return (
-    <div className="flyers-soft-dashboard-activity-row">
-      <div className="flyers-soft-dashboard-activity-avatar">{person.charAt(0)}</div>
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-13 font-medium text-primary">
-          <span className="flyers-soft-dashboard-activity-name">{person}</span> {action} a {entityLabel}
-        </div>
-        {entityData?.name && <div className="truncate text-11 text-placeholder">{entityData.name}</div>}
+      <div className="flyers-soft-dashboard-ticket-dropdown-cell">
+        <PriorityDropdown
+          button={
+            <span className="flyers-soft-dashboard-inline-control flyers-soft-dashboard-priority-control">
+              <span className="flyers-soft-dashboard-inline-control-label">{priorityLabel}</span>
+              <ChevronDown className="flyers-soft-dashboard-inline-chevron size-3" strokeWidth={2} />
+            </span>
+          }
+          buttonVariant="transparent-with-text"
+          buttonContainerClassName="flyers-soft-dashboard-inline-trigger"
+          className="flyers-soft-dashboard-inline-dropdown"
+          dropdownStrategy="fixed"
+          optionsClassName="flyers-soft-dashboard-inline-menu"
+          placement="auto-start"
+          renderByDefault={false}
+          showTooltip={false}
+          value={priorityKey}
+          onChange={(nextPriority) => {
+            if (nextPriority === issue.priority) return;
+            void onIssueUpdate(activity, { priority: nextPriority }, { priority: nextPriority });
+          }}
+        />
       </div>
-      <div className="flyers-soft-dashboard-activity-time">{calculateTimeAgo(activity.visited_at)}</div>
+      <div className="flyers-soft-dashboard-ticket-dropdown-cell">
+        <MemberDropdown
+          button={
+            <span className="flyers-soft-dashboard-inline-control flyers-soft-dashboard-assignee-control">
+              <ButtonAvatars showTooltip userIds={assigneeIds} size="sm" />
+              <span className="flyers-soft-dashboard-inline-control-label">
+                {assigneeLabel}
+                {extraAssigneeCount > 0 ? ` +${extraAssigneeCount}` : ""}
+              </span>
+              <ChevronDown className="flyers-soft-dashboard-inline-chevron size-3" strokeWidth={2} />
+            </span>
+          }
+          buttonVariant="transparent-with-text"
+          buttonContainerClassName="flyers-soft-dashboard-inline-trigger"
+          className="flyers-soft-dashboard-inline-dropdown"
+          dropdownStrategy="fixed"
+          multiple
+          optionsClassName="flyers-soft-dashboard-inline-menu"
+          placement="auto-start"
+          projectId={issue.project_id}
+          renderByDefault={false}
+          showTooltip={false}
+          value={assigneeIds}
+          onChange={(nextAssigneeIds) => {
+            void onIssueUpdate(activity, { assignee_ids: nextAssigneeIds }, { assignees: nextAssigneeIds });
+          }}
+        />
+      </div>
+      <div className="flyers-soft-dashboard-ticket-dropdown-cell">
+        <ProjectDropdown
+          button={
+            <span className="flyers-soft-dashboard-inline-control">
+              <FolderOpen className="size-3.5 flex-shrink-0 text-secondary" strokeWidth={1.8} />
+              <span className="flyers-soft-dashboard-inline-control-label">{projectName}</span>
+              <ChevronDown className="flyers-soft-dashboard-inline-chevron size-3" strokeWidth={2} />
+            </span>
+          }
+          buttonVariant="transparent-with-text"
+          buttonContainerClassName="flyers-soft-dashboard-inline-trigger"
+          className="flyers-soft-dashboard-inline-dropdown"
+          currentProjectId={issue.project_id}
+          dropdownStrategy="fixed"
+          multiple={false}
+          optionsClassName="flyers-soft-dashboard-inline-menu"
+          placement="auto-start"
+          renderByDefault={false}
+          showTooltip={false}
+          value={issue.project_id}
+          onChange={(projectId) => {
+            if (!projectId || projectId === issue.project_id) return;
+            const nextProject = getProjectById(projectId);
+            void onIssueUpdate(
+              activity,
+              { project_id: projectId },
+              {
+                project_id: projectId,
+                project_identifier: nextProject?.identifier ?? issue.project_identifier,
+              }
+            );
+          }}
+        />
+      </div>
+      <span className="flyers-soft-dashboard-ticket-date">{formatDashboardDate(activity.visited_at)}</span>
+      <Link href={workItemLink} className="flyers-soft-dashboard-ticket-more" aria-label={`Open ${issue.name}`}>
+        <MoreVertical className="size-3.5" strokeWidth={1.9} />
+      </Link>
     </div>
   );
 }
 
-export const DashboardWidgets = observer(function DashboardWidgets(props: TDashboardWidgetsProps) {
-  const { currentUser } = props;
+export const DashboardWidgets = observer(function DashboardWidgets() {
   const { workspaceSlug } = useParams();
   const workspaceSlugString = workspaceSlug?.toString();
   const { toggleCreateIssueModal } = useCommandPalette();
-  const { fetchHomeDashboardWidgets, fetchWidgetStats, homeDashboardId } = useDashboard();
-  const { joinedProjectIds, loader } = useProject();
-  const { getStateById } = useProjectState();
+  const { data: currentUser } = useUser();
+  const globalIssueActions = useIssuesActions(EIssuesStoreType.GLOBAL);
+  const epicIssueActions = useIssuesActions(EIssuesStoreType.EPIC);
 
-  const { data: dashboardResponse } = useSWR(
-    workspaceSlugString ? `FLYERS_HOME_DASHBOARD_${workspaceSlugString}` : null,
-    workspaceSlugString ? () => fetchHomeDashboardWidgets(workspaceSlugString) : null,
-    { revalidateOnFocus: false, shouldRetryOnError: false }
-  );
-
-  const dashboardId = dashboardResponse?.dashboard.id ?? homeDashboardId;
-
-  const { data: overviewStats, isLoading: isOverviewLoading } = useSWR<TWidgetStatsResponse>(
-    workspaceSlugString && dashboardId ? `FLYERS_HOME_OVERVIEW_${workspaceSlugString}_${dashboardId}` : null,
-    workspaceSlugString && dashboardId
-      ? () => fetchWidgetStats(workspaceSlugString, dashboardId, { widget_key: "overview_stats" })
-      : null,
-    { revalidateOnFocus: false, shouldRetryOnError: false }
-  );
-
-  const { data: stateStats, isLoading: isStateStatsLoading } = useSWR<TWidgetStatsResponse>(
-    workspaceSlugString && dashboardId ? `FLYERS_HOME_STATE_STATS_${workspaceSlugString}_${dashboardId}` : null,
-    workspaceSlugString && dashboardId
-      ? () =>
-          fetchWidgetStats(workspaceSlugString, dashboardId, {
-            widget_key: "issues_by_state_groups",
-            target_date: todayKey(),
-          })
-      : null,
-    { revalidateOnFocus: false, shouldRetryOnError: false }
-  );
-
-  const { data: recentTickets, isLoading: isRecentTicketsLoading } = useSWR(
+  const {
+    data: recentTickets,
+    isLoading: isRecentTicketsLoading,
+    mutate: mutateRecentTickets,
+  } = useSWR(
     workspaceSlugString ? `FLYERS_HOME_RECENT_TICKETS_${workspaceSlugString}` : null,
     workspaceSlugString ? () => workspaceService.fetchWorkspaceRecents(workspaceSlugString, "issue") : null,
     { revalidateOnFocus: false, shouldRetryOnError: false }
   );
 
-  const { data: teamActivity, isLoading: isTeamActivityLoading } = useSWR(
-    workspaceSlugString ? `FLYERS_HOME_TEAM_ACTIVITY_${workspaceSlugString}` : null,
-    workspaceSlugString ? () => workspaceService.fetchWorkspaceRecents(workspaceSlugString) : null,
-    { revalidateOnFocus: false, shouldRetryOnError: false }
+  const handleRecentTicketUpdate = useCallback<TRecentTicketUpdate>(
+    async (activity, payload, entityPatch) => {
+      const issue = activity.entity_data as TIssueEntityData;
+      const previousTickets = recentTickets;
+
+      await mutateRecentTickets(
+        (currentTickets) =>
+          currentTickets?.map((ticketActivity) =>
+            ticketActivity.id === activity.id
+              ? {
+                  ...ticketActivity,
+                  entity_data: {
+                    ...(ticketActivity.entity_data as TIssueEntityData),
+                    ...entityPatch,
+                  },
+                }
+              : ticketActivity
+          ),
+        { revalidate: false }
+      );
+
+      try {
+        const updateIssue = issue.is_epic ? epicIssueActions.updateIssue : globalIssueActions.updateIssue;
+        if (!updateIssue) throw new Error("Issue update action is unavailable");
+
+        await updateIssue(issue.project_id, issue.id, payload);
+        await mutateRecentTickets();
+      } catch {
+        await mutateRecentTickets(previousTickets, { revalidate: false });
+        setToast({
+          type: TOAST_TYPE.ERROR,
+          title: "Error!",
+          message: "Could not update ticket. Please try again.",
+        });
+      }
+    },
+    [epicIssueActions.updateIssue, globalIssueActions.updateIssue, mutateRecentTickets, recentTickets]
   );
 
   if (!workspaceSlugString) return null;
 
-  const overview = overviewStats as TOverviewStatsWidgetResponse | undefined;
-  const states = Array.isArray(stateStats) ? (stateStats as TIssuesByStateGroupsWidgetResponse[]) : [];
-  const stateCount = (state: TIssuesByStateGroupsWidgetResponse["state"]) =>
-    states.filter((item) => item.state === state).reduce((sum, item) => sum + item.count, 0);
-  const stateTotal = states.reduce((sum, item) => sum + item.count, 0);
   const visibleRecentTickets = (recentTickets ?? []).filter(
     (activity) => activity.entity_name === "issue" && activity.entity_data
   );
-  const reviewCount = visibleRecentTickets.filter((activity) => {
-    const issue = (activity as TActivityEntityData).entity_data as TIssueEntityData;
-    return /review/i.test(getStateById(issue.state)?.name ?? "");
-  }).length;
 
-  const stats: TStatCard[] = [
-    {
-      label: "Total Tickets",
-      value: stateTotal || overview?.created_issues_count || overview?.assigned_issues_count,
-      caption: "Tracked across the workspace",
-      icon: Ticket,
-      accent: "purple",
-      isLoading: isOverviewLoading || isStateStatsLoading || loader !== "loaded",
-    },
-    {
-      label: "In Progress",
-      value: stateCount("started") || overview?.pending_issues_count,
-      caption: "Started or pending work",
-      icon: Clock3,
-      accent: "blue",
-      isLoading: isOverviewLoading || isStateStatsLoading,
-    },
-    {
-      label: "In Review",
-      value: reviewCount,
-      caption: "Recent tickets in review states",
-      icon: ListChecks,
-      accent: "amber",
-      isLoading: isRecentTicketsLoading,
-    },
-    {
-      label: "Done",
-      value: stateCount("completed") || overview?.completed_issues_count,
-      caption: "Completed tickets",
-      icon: CheckCircle2,
-      accent: "green",
-      isLoading: isOverviewLoading || isStateStatsLoading,
-    },
-  ];
+  const displayName = currentUser?.first_name || currentUser?.display_name || "Shalini";
+  const greeting = "Good afternoon";
 
   return (
-    <div className="flyers-soft-dashboard-shell">
-      <section className="flyers-soft-dashboard-hero">
-        <div className="flyers-soft-dashboard-hero-copy min-w-0">
-          <p className="text-12 font-semibold text-accent-primary uppercase">Flyers Soft Tickets</p>
-          <h1 className="mt-2 truncate text-24 font-semibold text-primary">
-            Good to see you{currentUser?.first_name ? ", " : ""}
-            {currentUser?.first_name && <span>{currentUser.first_name}</span>}
+    <div className="flyers-soft-dashboard-shell flyers-soft-notion-home">
+      <section className="flyers-soft-dashboard-page-heading">
+        <div className="min-w-0">
+          <h1 className="flyers-soft-dashboard-greeting tracking-normal text-28 font-semibold text-primary">
+            {greeting}, {displayName} <span aria-hidden="true">{"\u{1F44B}"}</span>
           </h1>
-          <p className="mt-2 max-w-2xl text-13 text-secondary">
-            Track ticket flow, review recent work, and keep the team moving without leaving the dashboard.
+          <p className="flyers-soft-dashboard-subtitle text-15 mt-3 max-w-2xl text-tertiary">
+            Here&apos;s what&apos;s happening in your workspace today.
           </p>
-          <div className="flyers-soft-dashboard-hero-actions">
-            <Button variant="primary" size="sm" onClick={() => toggleCreateIssueModal(true)} prependIcon={<Plus />}>
-              Create Ticket
-            </Button>
-            <Link href={`/${workspaceSlugString}/workspace-views/all-issues/`} className="flyers-soft-dashboard-link">
-              View tickets
-              <ArrowRight className="size-3.5" strokeWidth={2} />
-            </Link>
-          </div>
         </div>
-        <DashboardHeroArtwork />
+        <DashboardHomeIllustration />
       </section>
 
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((stat) => (
-          <StatCard key={stat.label} {...stat} />
-        ))}
+      <section className="flyers-soft-dashboard-section">
+        <SectionHeader title="Quick actions" />
+        <div className="flyers-soft-dashboard-actions-grid">
+          <button
+            type="button"
+            className="flyers-soft-dashboard-action-row"
+            onClick={() => toggleCreateIssueModal(true)}
+          >
+            <Plus className="size-4" strokeWidth={2} />
+            <span>Create Ticket</span>
+          </button>
+          <Link
+            href={`/${workspaceSlugString}/workspace-views/all-issues/`}
+            className="flyers-soft-dashboard-action-row"
+          >
+            <Ticket className="size-4" strokeWidth={2} />
+            <span>View tickets</span>
+          </Link>
+          <Link href={`/${workspaceSlugString}/projects`} className="flyers-soft-dashboard-action-row">
+            <FolderKanban className="size-4" strokeWidth={2} />
+            <span>Projects</span>
+          </Link>
+          <Link href={`/${workspaceSlugString}/settings/members`} className="flyers-soft-dashboard-action-row">
+            <Users className="size-4" strokeWidth={2} />
+            <span>Invite members</span>
+          </Link>
+        </div>
       </section>
 
-      <section className="grid grid-cols-1 gap-4 xl:grid-cols-[1.35fr_0.65fr]">
-        <div className="flyers-soft-dashboard-panel">
-          <div className="flyers-soft-dashboard-panel-header">
-            <div className="flyers-soft-dashboard-panel-title">
-              <span>
-                <Ticket className="size-4" strokeWidth={2} />
-              </span>
-              <h2 className="text-15 font-semibold text-primary">Recent Tickets</h2>
-            </div>
-            <Link
-              href={`/${workspaceSlugString}/workspace-views/all-issues/`}
-              className="flyers-soft-dashboard-view-all"
-            >
-              View all
-              <ArrowRight className="size-3.5" strokeWidth={2} />
-            </Link>
-          </div>
-          <div className="mt-3 flex flex-col gap-2">
-            {isRecentTicketsLoading ? (
-              <DashboardSkeletonRows />
-            ) : visibleRecentTickets.length > 0 ? (
-              visibleRecentTickets
-                .slice(0, 6)
-                .map((activity) => (
-                  <CompactIssueRow
-                    key={activity.id}
-                    activity={activity as TActivityEntityData}
-                    workspaceSlug={workspaceSlugString}
-                  />
-                ))
-            ) : (
-              <EmptyTicketsPanel onCreate={() => toggleCreateIssueModal(true)} />
-            )}
-          </div>
+      <section className="flyers-soft-dashboard-section flyers-soft-dashboard-panel flyers-soft-dashboard-recent-panel">
+        <div className="flyers-soft-dashboard-panel-header">
+          <SectionHeader title="Recent tickets" />
+          <Link href={`/${workspaceSlugString}/workspace-views/all-issues/`} className="flyers-soft-dashboard-view-all">
+            View all
+            <ArrowRight className="size-3.5" strokeWidth={2} />
+          </Link>
         </div>
-
-        <div className="flyers-soft-dashboard-panel">
-          <div className="flyers-soft-dashboard-panel-header">
-            <div className="flyers-soft-dashboard-panel-title">
-              <span>
-                <Users className="size-4" strokeWidth={2} />
-              </span>
-              <h2 className="text-15 font-semibold text-primary">Team Activity</h2>
-            </div>
-            <Link
-              href={`/${workspaceSlugString}/workspace-views/all-issues/`}
-              className="flyers-soft-dashboard-view-all"
-            >
-              View all
-              <ArrowRight className="size-3.5" strokeWidth={2} />
-            </Link>
+        <div className="flyers-soft-dashboard-ticket-table mt-3">
+          <div className="flyers-soft-dashboard-ticket-header" aria-hidden="true">
+            <span>Ticket</span>
+            <span>Status</span>
+            <span>Priority</span>
+            <span>Assignee</span>
+            <span>Project</span>
+            <span>Updated</span>
+            <span />
           </div>
-          <div className="mt-3 flex flex-col gap-2">
-            {isTeamActivityLoading ? (
-              <DashboardSkeletonRows compact />
-            ) : teamActivity && teamActivity.length > 0 ? (
-              teamActivity
-                .filter((activity) => activity.entity_data)
-                .slice(0, 5)
-                .map((activity, index) => (
-                  <ActivityRow key={activity.id} activity={activity as TActivityEntityData} index={index} />
-                ))
-            ) : (
-              <EmptyPanel
-                icon={Activity}
-                title="No activity yet"
-                text={`${joinedProjectIds.length} project queues are ready for movement.`}
-              />
-            )}
-          </div>
+          {isRecentTicketsLoading ? (
+            <DashboardSkeletonRows />
+          ) : visibleRecentTickets.length > 0 ? (
+            visibleRecentTickets
+              .slice(0, 6)
+              .map((activity) => (
+                <CompactIssueRow
+                  key={activity.id}
+                  activity={activity as TActivityEntityData}
+                  onIssueUpdate={handleRecentTicketUpdate}
+                  workspaceSlug={workspaceSlugString}
+                />
+              ))
+          ) : (
+            <EmptyTicketsPanel onCreate={() => toggleCreateIssueModal(true)} />
+          )}
         </div>
       </section>
     </div>
   );
 });
+
+function SectionHeader({ action, icon: Icon, title }: { action?: ReactNode; icon?: LucideIcon; title: string }) {
+  return (
+    <div className="flyers-soft-dashboard-section-title">
+      <div className="flex min-w-0 items-center gap-2">
+        {Icon && <Icon className="size-4" strokeWidth={2} />}
+        <h2 className="text-14 font-semibold text-primary">{title}</h2>
+      </div>
+      {action}
+    </div>
+  );
+}
+
+function DashboardHomeIllustration() {
+  return (
+    <div className="flyers-soft-dashboard-illustration" aria-hidden="true">
+      <div className="flyers-soft-dashboard-illustration-window" />
+      <div className="flyers-soft-dashboard-illustration-person">
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className="flyers-soft-dashboard-illustration-laptop" />
+      <div className="flyers-soft-dashboard-illustration-plant">
+        <span />
+        <span />
+      </div>
+    </div>
+  );
+}
 
 function DashboardSkeletonRows({ compact = false }: { compact?: boolean }) {
   return (
@@ -437,7 +471,6 @@ function EmptyTicketsPanel({ onCreate }: { onCreate: () => void }) {
     <div className="flyers-soft-dashboard-empty flyers-soft-dashboard-empty-tickets">
       <div className="flyers-soft-dashboard-empty-folder" aria-hidden="true">
         <FolderOpen className="size-14" strokeWidth={1.5} />
-        <Sparkles className="flyers-soft-dashboard-empty-sparkle size-4" strokeWidth={2} />
       </div>
       <div>
         <div className="text-14 font-semibold text-primary">No tickets yet</div>
@@ -446,44 +479,6 @@ function EmptyTicketsPanel({ onCreate }: { onCreate: () => void }) {
       <Button variant="primary" size="sm" onClick={onCreate} prependIcon={<Plus />}>
         Create Ticket
       </Button>
-    </div>
-  );
-}
-
-function EmptyPanel({ icon: Icon, text, title }: { icon: LucideIcon; text: string; title: string }) {
-  return (
-    <div className="flyers-soft-dashboard-empty">
-      <Icon className="size-5 text-tertiary" strokeWidth={2} />
-      <div>
-        <div className="text-13 font-semibold text-primary">{title}</div>
-        <div className="mt-1 text-12 text-placeholder">{text}</div>
-      </div>
-    </div>
-  );
-}
-
-function DashboardHeroArtwork() {
-  return (
-    <div className="flyers-soft-dashboard-hero-art" aria-hidden="true">
-      <div className="flyers-soft-dashboard-hero-stars">
-        {DASHBOARD_STAR_KEYS.map((key) => (
-          <span key={key} />
-        ))}
-      </div>
-      <div className="flyers-soft-dashboard-hero-bars">
-        {DASHBOARD_BAR_KEYS.map((key) => (
-          <span key={key} />
-        ))}
-      </div>
-      <div className="flyers-soft-dashboard-cloud cloud-one" />
-      <div className="flyers-soft-dashboard-cloud cloud-two" />
-      <div className="flyers-soft-dashboard-cloud cloud-three" />
-      <svg className="flyers-soft-dashboard-rocket" viewBox="0 0 122 122" role="img">
-        <path d="M73.8 12.8C58.3 18.5 47 28.3 39.6 41.9l-10.3 4.2-12.7 18.1 20.3-2.8 23 23-2.8 20.3 18.1-12.7 4.2-10.3c13.6-7.4 23.4-18.7 29.1-34.2 3.3-9 4.5-19.3 3.2-31.1-11.8-1.3-22.1-.1-31.9 3.4z" />
-        <path d="M41.8 63.4 21.7 83.5c-3.8 3.8-5.7 9-5.1 14.4l.5 4.8 4.8.5c5.4.6 10.6-1.3 14.4-5.1l20.1-20.1z" />
-        <circle cx="81.8" cy="39.8" r="8.1" />
-        <path d="M50.3 80.1 41.9 88.5M41.8 71.5 28 85.4M60.1 89.8 46.3 103.6" />
-      </svg>
     </div>
   );
 }

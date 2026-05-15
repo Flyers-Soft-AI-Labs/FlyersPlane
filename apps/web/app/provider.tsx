@@ -4,7 +4,7 @@
  * See the LICENSE file for details.
  */
 
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { SWRConfig } from "swr";
 // Plane Imports
@@ -37,6 +37,15 @@ export function AppProvider(props: IAppProvider) {
   const { children } = props;
   // themes
   const { resolvedTheme } = useTheme();
+
+  useEffect(() => {
+    const isDark = resolvedTheme?.includes("dark");
+    document.documentElement.style.colorScheme = isDark ? "dark" : "light";
+
+    const themeColor = isDark ? "#0f1117" : "#fbfbfa";
+    const metaThemeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    metaThemeColor?.setAttribute("content", themeColor);
+  }, [resolvedTheme]);
 
   return (
     <StoreProvider>

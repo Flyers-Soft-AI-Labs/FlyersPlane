@@ -14,17 +14,21 @@ interface IIconWrapper extends ISvgIcons {
   viewBox?: string;
 }
 
-export function IconWrapper({
-  width = "16",
-  height = "16",
-  className = "text-current",
-  children,
-  clipPathId,
-  viewBox = "0 0 16 16",
-  ...rest
-}: IIconWrapper) {
+export const IconWrapper = React.forwardRef<SVGSVGElement, IIconWrapper>(function IconWrapper(
+  {
+    width = "16",
+    height = "16",
+    className = "text-current",
+    children,
+    clipPathId,
+    viewBox = "0 0 16 16",
+    ...rest
+  },
+  ref
+) {
   return (
     <svg
+      ref={ref}
       width={width}
       height={height}
       viewBox={viewBox}
@@ -47,4 +51,4 @@ export function IconWrapper({
       )}
     </svg>
   );
-}
+});

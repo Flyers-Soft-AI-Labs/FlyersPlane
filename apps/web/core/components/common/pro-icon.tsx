@@ -15,5 +15,5 @@ type TProIcon = {
 export function ProIcon(props: TProIcon) {
   const { className } = props;
 
-  return <Crown className={cn("text-amber-400 inline-block h-3.5 w-3.5", className)} />;
+  return <Crown className={cn("text-[#6b7280] inline-block h-3.5 w-3.5", className)} />;
 }

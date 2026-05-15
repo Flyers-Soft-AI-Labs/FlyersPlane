@@ -1,4 +1,4 @@
-import type { Placement } from "@popperjs/core";
+import type { Placement, PositioningStrategy } from "@popperjs/core";
 
 export type TButtonVariants =
   | "border-with-text"
@@ -15,8 +15,10 @@ export type TDropdownProps = {
   className?: string;
   disabled?: boolean;
   hideIcon?: boolean;
+  optionsClassName?: string;
   placeholder?: string;
   placement?: Placement;
   showTooltip?: boolean;
   tabIndex?: number;
+  dropdownStrategy?: PositioningStrategy;
 };

@@ -45,7 +45,7 @@ export const MinimalTicketListView = observer(function MinimalTicketListView(pro
   useIntersectionObserver(containerRef, canLoadMoreIssues ? sentinelEl : null, loadMoreIssues, "100% 0% 100% 0%");
 
   return (
-    <div ref={containerRef} className="flex h-full w-full flex-col overflow-y-auto">
+    <div ref={containerRef} className="flyers-soft-all-issues-view-body flex h-full w-full flex-col overflow-y-auto">
       <div ref={portalRef} className="spreadsheet-menu-portal" />
 
       {/* ticket rows */}
@@ -157,6 +157,8 @@ const MinimalTicketRow = observer(function MinimalTicketRow(props: MinimalTicket
         ref={rowRef}
         role="button"
         tabIndex={0}
+        data-active={isPeeked ? "true" : undefined}
+        data-selected={isPeeked ? "true" : undefined}
         onClick={handleIssuePeekOverview}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
@@ -165,11 +167,11 @@ const MinimalTicketRow = observer(function MinimalTicketRow(props: MinimalTicket
           }
         }}
         className={cn(
-          "group relative flex h-12 w-full cursor-pointer select-none items-center gap-3 border-b border-subtle px-4 outline-none transition-colors duration-100",
+          "flyers-soft-all-issues-ticket-row group relative flex h-12 w-full cursor-pointer select-none items-center gap-3 border-b border-subtle px-4 outline-none transition-colors duration-100",
           // very light warm hover — no black
           "hover:bg-surface-2",
           // peeked: a subtle left accent + slightly warmer bg
-          isPeeked ? "bg-surface-2" : "bg-transparent",
+          isPeeked ? "flyers-soft-all-issues-ticket-row-active bg-surface-2" : "bg-transparent",
           nestingLevel > 0 && "pl-0"
         )}
         style={nestingLevel > 0 ? { paddingLeft: `${16 + spacingLeft}px` } : undefined}

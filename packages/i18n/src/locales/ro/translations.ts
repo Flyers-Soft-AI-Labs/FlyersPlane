@@ -1651,12 +1651,6 @@ export default {
           },
         },
       },
-      billing_and_plans: {
-        title: "Facturare și Abonamente",
-        current_plan: "Abonament curent",
-        free_plan: "Folosești în prezent abonamentul gratuit",
-        view_plans: "Vezi abonamentele",
-      },
       exports: {
         title: "Exporturi",
         exporting: "Se exportă",

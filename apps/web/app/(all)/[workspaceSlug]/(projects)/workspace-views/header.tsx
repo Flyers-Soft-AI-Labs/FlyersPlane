@@ -6,6 +6,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { observer } from "mobx-react";
+import { ListTodo, Menu } from "lucide-react";
 import { useParams } from "next/navigation";
 // plane imports
 import {
@@ -20,8 +21,6 @@ import { ViewsIcon } from "@plane/propel/icons";
 import type { IIssueDisplayFilterOptions, IIssueDisplayProperties, ICustomSearchSelectOption } from "@plane/types";
 import { EIssuesStoreType, EIssueLayoutTypes } from "@plane/types";
 import { Breadcrumbs, Header, BreadcrumbNavigationSearchDropdown } from "@plane/ui";
-// issue creation modal
-import { CreateUpdateIssueModal } from "@/components/issues/issue-modal/modal";
 // components
 import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
 import { SwitcherLabel } from "@/components/common/switcher-label";
@@ -39,7 +38,6 @@ import { GlobalViewLayoutSelection } from "@/plane-web/components/views/helper";
 export const GlobalIssuesHeader = observer(function GlobalIssuesHeader() {
   // states
   const [createViewModal, setCreateViewModal] = useState(false);
-  const [createTicketModal, setCreateTicketModal] = useState(false);
   // router
   const router = useAppRouter();
   const { workspaceSlug, globalViewId: routerGlobalViewId } = useParams();
@@ -94,6 +92,7 @@ export const GlobalIssuesHeader = observer(function GlobalIssuesHeader() {
 
   const isLocked = viewDetails?.is_locked;
   const isAllIssues = globalViewId === "all-issues";
+  const isAssignedView = globalViewId === "assigned";
 
   const isDefaultView = DEFAULT_GLOBAL_VIEWS_LIST.find((view) => view.key === globalViewId);
 
@@ -123,10 +122,39 @@ export const GlobalIssuesHeader = observer(function GlobalIssuesHeader() {
     return ISSUE_DISPLAY_FILTERS_BY_PAGE.my_issues.layoutOptions[layout];
   }, [activeLayout]);
 
+  if (isAllIssues) return null;
+
+  if (isAssignedView) {
+    return (
+      <Header>
+        <Header.LeftItem>
+          <Breadcrumbs>
+            <Breadcrumbs.Item
+              component={<BreadcrumbLink label="Menu" icon={<Menu className="h-4 w-4 text-tertiary" />} />}
+            />
+            <Breadcrumbs.Item
+              component={
+                <BreadcrumbLink
+                  label="To Do List"
+                  icon={
+                    <Breadcrumbs.Icon>
+                      <ListTodo className="size-4 flex-shrink-0 text-tertiary" />
+                    </Breadcrumbs.Icon>
+                  }
+                  isLast
+                />
+              }
+              isLast
+            />
+          </Breadcrumbs>
+        </Header.LeftItem>
+      </Header>
+    );
+  }
+
   return (
     <>
       <CreateUpdateWorkspaceViewModal isOpen={createViewModal} onClose={() => setCreateViewModal(false)} />
-      <CreateUpdateIssueModal isOpen={createTicketModal} onClose={() => setCreateTicketModal(false)} />
       <Header>
         <Header.LeftItem>
           {isAllIssues ? (
@@ -198,30 +226,21 @@ export const GlobalIssuesHeader = observer(function GlobalIssuesHeader() {
               />
             </FiltersDropdown>
           )}
-          {isAllIssues ? (
-            <Button variant="primary" size="lg" onClick={() => setCreateTicketModal(true)}>
-              Create Ticket
-            </Button>
-          ) : (
-            <Button
-              variant="primary"
-              size="lg"
-              data-ph-element={GLOBAL_VIEW_TRACKER_ELEMENTS.RIGHT_HEADER_ADD_BUTTON}
-              onClick={() => setCreateViewModal(true)}
-            >
-              {t("workspace_views.add_view")}
-            </Button>
-          )}
+          <Button
+            variant="primary"
+            size="lg"
+            data-ph-element={GLOBAL_VIEW_TRACKER_ELEMENTS.RIGHT_HEADER_ADD_BUTTON}
+            onClick={() => setCreateViewModal(true)}
+          >
+            {t("workspace_views.add_view")}
+          </Button>
           {!isAllIssues && (
             <div className="hidden md:block">
               {viewDetails && (
                 <WorkspaceViewQuickActions workspaceSlug={workspaceSlug?.toString()} view={viewDetails} />
               )}
               {isDefaultView && defaultViewDetails && (
-                <DefaultWorkspaceViewQuickActions
-                  workspaceSlug={workspaceSlug?.toString()}
-                  view={defaultViewDetails}
-                />
+                <DefaultWorkspaceViewQuickActions workspaceSlug={workspaceSlug?.toString()} view={defaultViewDetails} />
               )}
             </div>
           )}

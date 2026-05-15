@@ -29,8 +29,8 @@ import "@fontsource/ibm-plex-mono";
 const APP_TITLE = "Flyers Soft | Simple, extensible, open-source project management tool.";
 
 export const links: LinksFunction = () => [
-  { rel: "icon", type: "image/png", href: "/flyers-logo.png" },
-  { rel: "shortcut icon", href: "/flyers-logo.png" },
+  { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
+  { rel: "shortcut icon", href: "/favicon.ico" },
   { rel: "manifest", href: "/site.webmanifest.json" },
   { rel: "apple-touch-icon", href: "/flyers-logo.png" },
   { rel: "apple-touch-icon", sizes: "180x180", href: "/flyers-logo.png" },
@@ -54,7 +54,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#fff" />
+        <meta name="theme-color" content="#fbfbfa" />
         {/* Meta info for PWA */}
         <meta name="application-name" content="Flyers Soft" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -68,7 +68,13 @@ export function Layout({ children }: { children: ReactNode }) {
       <body suppressHydrationWarning>
         <div id="context-menu-portal" />
         <div id="editor-portal" />
-        <ThemeProvider themes={["light", "dark", "light-contrast", "dark-contrast", "custom"]} defaultTheme="system">
+        <ThemeProvider
+          attribute="data-theme"
+          themes={["light", "dark", "light-contrast", "dark-contrast", "custom"]}
+          defaultTheme="system"
+          enableSystem
+          storageKey="theme"
+        >
           {children}
         </ThemeProvider>
         <Scripts />
@@ -101,8 +107,7 @@ export const meta: Route.MetaFunction = () => [
   { property: "og:image:alt", content: "Flyers Soft - Modern project management" },
   {
     name: "keywords",
-    content:
-      "ticket tracking, project management, reports, kanban, collaboration, agile, support tickets, workflows",
+    content: "ticket tracking, project management, reports, kanban, collaboration, agile, support tickets, workflows",
   },
   { name: "twitter:site", content: "Flyers Soft" },
   { name: "twitter:card", content: "summary_large_image" },

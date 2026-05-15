@@ -4,6 +4,8 @@
  * See the LICENSE file for details.
  */
 
+import type { ForwardedRef } from "react";
+import { forwardRef } from "react";
 import Link from "next/link";
 import { cn } from "@plane/utils";
 
@@ -22,7 +24,7 @@ interface AppSidebarItemData {
 }
 
 interface AppSidebarItemProps {
-  variant?: "link" | "button";
+  variant?: "link" | "button" | "content";
   item?: AppSidebarItemData;
 }
 
@@ -46,6 +48,11 @@ interface AppSidebarButtonItemProps {
   children: React.ReactNode;
   onClick?: () => void;
   disabled?: boolean;
+  className?: string;
+}
+
+interface AppSidebarContentItemProps {
+  children: React.ReactNode;
   className?: string;
 }
 
@@ -97,36 +104,59 @@ function AppSidebarItemIcon({ icon, highlight }: AppSidebarItemIconProps) {
   );
 }
 
-function AppSidebarLinkItem({ href, children, className }: AppSidebarLinkItemProps) {
+const AppSidebarLinkItem = forwardRef(function AppSidebarLinkItem(
+  { href, children, className }: AppSidebarLinkItemProps,
+  ref: ForwardedRef<HTMLAnchorElement>
+) {
   if (!href) return null;
 
   return (
-    <Link href={href} className={cn(styles.base, className)}>
+    <Link ref={ref} href={href} className={cn(styles.base, className)}>
       {children}
     </Link>
   );
-}
+});
 
-function AppSidebarButtonItem({ children, onClick, disabled = false, className }: AppSidebarButtonItemProps) {
+const AppSidebarButtonItem = forwardRef(function AppSidebarButtonItem(
+  { children, onClick, disabled = false, className }: AppSidebarButtonItemProps,
+  ref: ForwardedRef<HTMLButtonElement>
+) {
   return (
-    <button className={cn(styles.base, className)} onClick={onClick} disabled={disabled} type="button">
+    <button ref={ref} className={cn(styles.base, className)} onClick={onClick} disabled={disabled} type="button">
       {children}
     </button>
   );
-}
+});
+
+const AppSidebarContentItem = forwardRef(function AppSidebarContentItem(
+  { children, className }: AppSidebarContentItemProps,
+  ref: ForwardedRef<HTMLDivElement>
+) {
+  return (
+    <div ref={ref} className={cn(styles.base, className)}>
+      {children}
+    </div>
+  );
+});
 
 // ============================================================================
 // MAIN COMPONENT
 // ============================================================================
 
-export type AppSidebarItemComponent = React.FC<AppSidebarItemProps> & {
+export type AppSidebarItemComponent = React.ForwardRefExoticComponent<
+  AppSidebarItemProps & React.RefAttributes<HTMLElement>
+> & {
   Label: React.FC<AppSidebarItemLabelProps>;
   Icon: React.FC<AppSidebarItemIconProps>;
-  Link: React.FC<AppSidebarLinkItemProps>;
-  Button: React.FC<AppSidebarButtonItemProps>;
+  Link: typeof AppSidebarLinkItem;
+  Button: typeof AppSidebarButtonItem;
+  Content: typeof AppSidebarContentItem;
 };
 
-function AppSidebarItem({ variant = "link", item }: AppSidebarItemProps) {
+const AppSidebarItem = forwardRef(function AppSidebarItem(
+  { variant = "link", item }: AppSidebarItemProps,
+  ref: ForwardedRef<HTMLElement>
+) {
   if (!item) return null;
 
   const { icon, isActive, label, href, onClick, disabled, showLabel = true } = item;
@@ -139,15 +169,23 @@ function AppSidebarItem({ variant = "link", item }: AppSidebarItemProps) {
   );
 
   if (variant === "link") {
-    return <AppSidebarLinkItem href={href}>{commonItems}</AppSidebarLinkItem>;
+    return (
+      <AppSidebarLinkItem ref={ref as ForwardedRef<HTMLAnchorElement>} href={href}>
+        {commonItems}
+      </AppSidebarLinkItem>
+    );
+  }
+
+  if (variant === "content") {
+    return <AppSidebarContentItem ref={ref as ForwardedRef<HTMLDivElement>}>{commonItems}</AppSidebarContentItem>;
   }
 
   return (
-    <AppSidebarButtonItem onClick={onClick} disabled={disabled}>
+    <AppSidebarButtonItem ref={ref as ForwardedRef<HTMLButtonElement>} onClick={onClick} disabled={disabled}>
       {commonItems}
     </AppSidebarButtonItem>
   );
-}
+}) as AppSidebarItemComponent;
 
 // ============================================================================
 // COMPOUND COMPONENT ASSIGNMENT
@@ -157,6 +195,7 @@ AppSidebarItem.Label = AppSidebarItemLabel;
 AppSidebarItem.Icon = AppSidebarItemIcon;
 AppSidebarItem.Link = AppSidebarLinkItem;
 AppSidebarItem.Button = AppSidebarButtonItem;
+AppSidebarItem.Content = AppSidebarContentItem;
 
 export { AppSidebarItem };
 export type { AppSidebarItemData, AppSidebarItemProps };

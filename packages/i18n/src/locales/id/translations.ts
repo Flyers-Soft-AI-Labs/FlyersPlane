@@ -1647,12 +1647,6 @@ export default {
           },
         },
       },
-      billing_and_plans: {
-        title: "Penagihan & Rencana",
-        current_plan: "Rencana saat ini",
-        free_plan: "Anda saat ini menggunakan rencana gratis",
-        view_plans: "Lihat rencana",
-      },
       exports: {
         title: "Ekspor",
         exporting: "Mengeskpor",

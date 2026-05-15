@@ -37,7 +37,7 @@ export function PowerKModalSearchMenu(props: Props) {
   const [resultsCount, setResultsCount] = useState(0);
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState<IWorkspaceSearchResults>(WORKSPACE_DEFAULT_SEARCH_RESULT);
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const debouncedSearchTerm = useDebounce(searchTerm, 180);
   // navigation
   const { workspaceSlug, projectId } = useParams();
   // store hooks
@@ -54,13 +54,15 @@ export function PowerKModalSearchMenu(props: Props) {
           search: debouncedSearchTerm,
           workspace_search: !projectId ? true : isWorkspaceLevel,
         })
-        .then((results) => {
-          setResults(results);
-          const count = Object.keys(results.results).reduce(
-            (accumulator, key) => results.results[key as keyof typeof results.results]?.length + accumulator,
+        .then((searchResults) => {
+          setResults(searchResults);
+          const count = Object.keys(searchResults.results).reduce(
+            (accumulator, key) =>
+              searchResults.results[key as keyof typeof searchResults.results]?.length + accumulator,
             0
           );
           setResultsCount(count);
+          return searchResults;
         })
         .catch(() => {
           setResults(WORKSPACE_DEFAULT_SEARCH_RESULT);
@@ -83,7 +85,7 @@ export function PowerKModalSearchMenu(props: Props) {
   return (
     <>
       {searchTerm.trim() !== "" && (
-        <div className="mt-4 flex items-center justify-between gap-2 px-4">
+        <div className="flyers-soft-command-search-summary mt-4 flex items-center justify-between gap-2 px-4">
           <h5
             className={cn("text-11 text-primary", {
               "animate-pulse": isSearching,

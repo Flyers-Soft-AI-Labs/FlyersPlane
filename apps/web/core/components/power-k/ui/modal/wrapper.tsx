@@ -4,13 +4,14 @@
  * See the LICENSE file for details.
  */
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Command } from "cmdk";
 import { observer } from "mobx-react";
 import { Dialog, Transition } from "@headlessui/react";
 // hooks
 import { usePowerK } from "@/hooks/store/use-power-k";
 // local imports
+import { formatModifierShortcut, isTypingInInput } from "../../core/shortcut-handler";
 import type { TPowerKCommandConfig, TPowerKContext } from "../../core/types";
 import type { TPowerKCommandsListProps } from "./commands-list";
 import { PowerKModalFooter } from "./footer";
@@ -29,8 +30,22 @@ export const ProjectsAppPowerKModalWrapper = observer(function ProjectsAppPowerK
   // states
   const [searchTerm, setSearchTerm] = useState("");
   const [isWorkspaceLevel, setIsWorkspaceLevel] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
   // store hooks
-  const { activePage, setActivePage } = usePowerK();
+  const { activePage, commandRegistry, setActivePage } = usePowerK();
+
+  const canExecuteCommand = useCallback(
+    (command: TPowerKCommandConfig) => {
+      if (command.isVisible && !command.isVisible(context)) return false;
+      if (command.isEnabled && !command.isEnabled(context)) return false;
+      if ("contextType" in command && (!context.activeContext || context.activeContext !== command.contextType)) {
+        return false;
+      }
+
+      return true;
+    },
+    [context]
+  );
 
   // Handle command selection
   const handleCommandSelect = useCallback(
@@ -68,6 +83,8 @@ export const ProjectsAppPowerKModalWrapper = observer(function ProjectsAppPowerK
   // Handle keyboard navigation
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
+      const nativeEvent = e.nativeEvent;
+
       // Cmd/Ctrl+K closes palette
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
@@ -75,10 +92,29 @@ export const ProjectsAppPowerKModalWrapper = observer(function ProjectsAppPowerK
         return;
       }
 
-      // Escape closes palette or clears search
+      // Modifier shortcuts should keep working while the command input is focused.
+      const shouldHandleModifierShortcut =
+        nativeEvent.metaKey ||
+        nativeEvent.ctrlKey ||
+        nativeEvent.altKey ||
+        (!isTypingInInput(nativeEvent.target) && nativeEvent.shiftKey);
+
+      if (shouldHandleModifierShortcut) {
+        const command = commandRegistry.findByModifierShortcut(context, formatModifierShortcut(nativeEvent));
+
+        if (command && canExecuteCommand(command)) {
+          e.preventDefault();
+          handleCommandSelect(command);
+          return;
+        }
+      }
+
+      // Escape closes the palette, or steps back from a nested command page.
       if (e.key === "Escape") {
         e.preventDefault();
-        if (searchTerm) {
+        if (activePage) {
+          setActivePage(null);
+          context.setActiveCommand(null);
           setSearchTerm("");
         } else {
           onClose();
@@ -100,7 +136,7 @@ export const ProjectsAppPowerKModalWrapper = observer(function ProjectsAppPowerK
         return;
       }
     },
-    [searchTerm, activePage, onClose, setActivePage, context]
+    [activePage, canExecuteCommand, commandRegistry, context, handleCommandSelect, onClose, searchTerm, setActivePage]
   );
 
   // Reset state when modal closes
@@ -118,7 +154,7 @@ export const ProjectsAppPowerKModalWrapper = observer(function ProjectsAppPowerK
 
   return (
     <Transition.Root show={isOpen} as={React.Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
+      <Dialog as="div" className="relative z-50" initialFocus={searchInputRef} onClose={onClose}>
         {/* Backdrop */}
         <Transition.Child
           as={React.Fragment}
@@ -129,22 +165,24 @@ export const ProjectsAppPowerKModalWrapper = observer(function ProjectsAppPowerK
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-backdrop transition-opacity" />
+          <div className="flyers-soft-command-palette-backdrop fixed inset-0 bg-backdrop transition-opacity" />
         </Transition.Child>
         {/* Modal Container */}
         <div className="fixed inset-0 z-30 overflow-y-auto">
-          <div className="flex items-center justify-center p-4 sm:p-6 md:p-20">
+          <div className="flex min-h-full items-start justify-center p-4 pt-[12vh] sm:p-6 sm:pt-[12vh] md:p-20 md:pt-[12vh]">
             <Transition.Child
               as={React.Fragment}
               enter="ease-out duration-300"
-              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              enterFrom="opacity-0 translate-y-2 sm:scale-[.98]"
               enterTo="opacity-100 translate-y-0 sm:scale-100"
-              leave="ease-in duration-200"
+              leave="ease-in duration-150"
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              leaveTo="opacity-0 translate-y-2 sm:scale-[.98]"
             >
-              <Dialog.Panel className="divide-opacity-10 relative flex w-full max-w-2xl transform flex-col items-center justify-center divide-y divide-subtle-1 rounded-lg bg-surface-1 shadow-raised-200 transition-all">
+              <Dialog.Panel className="flyers-soft-command-palette-panel divide-opacity-10 relative flex w-full max-w-2xl transform flex-col items-center justify-center divide-y divide-subtle-1 rounded-lg bg-surface-1 shadow-raised-200 transition-all">
                 <Command
+                  label="Command menu"
+                  loop
                   filter={(i18nValue: string, search: string) => {
                     if (i18nValue === "no-results") return 1;
                     if (i18nValue.toLowerCase().includes(search.toLowerCase())) return 1;
@@ -152,15 +190,16 @@ export const ProjectsAppPowerKModalWrapper = observer(function ProjectsAppPowerK
                   }}
                   shouldFilter={searchTerm.length > 0}
                   onKeyDown={handleKeyDown}
-                  className="w-full"
+                  className="flyers-soft-command-palette w-full"
                 >
                   <PowerKModalHeader
                     activePage={activePage}
                     context={context}
+                    inputRef={searchInputRef}
                     onSearchChange={setSearchTerm}
                     searchTerm={searchTerm}
                   />
-                  <Command.List className="vertical-scrollbar scrollbar-sm max-h-96 overflow-scroll outline-none">
+                  <Command.List className="flyers-soft-command-palette-list vertical-scrollbar scrollbar-sm max-h-96 overflow-auto outline-none">
                     <CommandsListComponent
                       activePage={activePage}
                       context={context}

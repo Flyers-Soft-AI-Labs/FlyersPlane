@@ -180,7 +180,9 @@ export abstract class BaseWorkspaceRootStore implements IWorkspaceRootStore {
    * fetch user workspaces from API
    */
   fetchWorkspaces = async () => {
-    this.loader = true;
+    runInAction(() => {
+      this.loader = true;
+    });
     try {
       const workspaceResponse = await this.workspaceService.userWorkspaces();
       runInAction(() => {
@@ -190,7 +192,9 @@ export abstract class BaseWorkspaceRootStore implements IWorkspaceRootStore {
       });
       return workspaceResponse;
     } finally {
-      this.loader = false;
+      runInAction(() => {
+        this.loader = false;
+      });
     }
   };
 
@@ -245,11 +249,9 @@ export abstract class BaseWorkspaceRootStore implements IWorkspaceRootStore {
   deleteWorkspace = async (workspaceSlug: string) => {
     try {
       await this.workspaceService.deleteWorkspace(workspaceSlug);
-      const updatedWorkspacesList = this.workspaces;
       const workspaceId = this.getWorkspaceBySlug(workspaceSlug)?.id;
-      delete updatedWorkspacesList[`${workspaceId}`];
       runInAction(() => {
-        this.workspaces = updatedWorkspacesList;
+        if (workspaceId) delete this.workspaces[workspaceId];
       });
     } catch (error) {
       console.error("Failed to delete workspace:", error);

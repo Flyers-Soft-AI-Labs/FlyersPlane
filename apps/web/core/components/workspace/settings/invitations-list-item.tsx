@@ -5,16 +5,16 @@
  */
 
 import { useState } from "react";
+import { Mail, Send } from "lucide-react";
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 // plane imports
 import { ROLE, EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
-import { LinkIcon, TrashIcon, ChevronDownIcon } from "@plane/propel/icons";
+import { TrashIcon, ChevronDownIcon } from "@plane/propel/icons";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
-import type { TContextMenuItem } from "@plane/ui";
-import { CustomSelect, CustomMenu } from "@plane/ui";
-import { cn, copyTextToClipboard } from "@plane/utils";
+import { CustomSelect } from "@plane/ui";
+import { copyTextToClipboard, renderFormattedDate } from "@plane/utils";
 // components
 import { ConfirmWorkspaceMemberRemove } from "@/components/workspace/confirm-workspace-member-remove";
 // hooks
@@ -88,27 +88,7 @@ export const WorkspaceInvitationsListItem = observer(function WorkspaceInvitatio
       console.error("Error generating invite link:", error);
     }
   };
-
-  const MENU_ITEMS: TContextMenuItem[] = [
-    {
-      key: "copy-link",
-      action: () => void handleCopyText(),
-      title: t("common.actions.copy_link"),
-      icon: LinkIcon,
-      shouldRender: !!invitationDetails.invite_link,
-    },
-    {
-      key: "remove",
-      action: () => {
-        setRemoveMemberModal(true);
-      },
-      title: t("common.remove"),
-      icon: TrashIcon,
-      shouldRender: isAdmin,
-      className: "text-danger-primary",
-      iconClassName: "text-danger-primary",
-    },
-  ];
+  const invitationSentAt = (invitationDetails as { created_at?: string | Date }).created_at;
 
   return (
     <>
@@ -121,106 +101,76 @@ export const WorkspaceInvitationsListItem = observer(function WorkspaceInvitatio
         }}
         onSubmit={handleRemoveInvitation}
       />
-      <div className="flyers-soft-team-invite-row group flex h-full w-full items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-x-3 gap-y-2">
-          <span className="flyers-soft-team-invite-avatar relative flex h-8 w-8 items-center justify-center rounded-full bg-layer-3 text-tertiary capitalize">
-            {(invitationDetails.email ?? "?")[0]}
+      <div className="flyers-soft-team-invite-row group">
+        <div className="flyers-soft-team-invite-email-cell">
+          <span className="flyers-soft-team-invite-avatar">
+            <Mail className="h-3.5 w-3.5" />
           </span>
           <div className="min-w-0">
             <h4 className="cursor-default truncate text-13 font-medium text-primary">{invitationDetails.email}</h4>
             <p className="text-11 text-tertiary">Invitation sent</p>
           </div>
         </div>
-        <div className="flyers-soft-team-invite-meta flex items-center gap-2 text-11">
-          <div className="flyers-soft-team-pending-badge flex items-center justify-center rounded-sm bg-label-yellow-bg-strong/20 px-2.5 py-1 text-center text-caption-sm-medium text-label-yellow-text">
-            <p>{t("common.pending")}</p>
-          </div>
-          <CustomSelect
-            customButton={
-              <div className="flyers-soft-team-invite-role item-center flex gap-1 rounded-sm px-2 py-0.5">
-                <span
-                  className={`flex items-center rounded-sm text-caption-sm-medium ${
-                    hasRoleChangeAccess ? "" : "text-placeholder"
-                  }`}
-                >
-                  {ROLE[invitationDetails.role]}
-                </span>
-                {hasRoleChangeAccess && (
-                  <span className="grid place-items-center">
-                    <ChevronDownIcon className="h-3 w-3" />
-                  </span>
-                )}
-              </div>
-            }
-            value={invitationDetails.role}
-            onChange={(value: EUserPermissions) => {
-              if (!workspaceSlug || !value) return;
 
-              updateMemberInvitation(workspaceSlug.toString(), invitationDetails.id, {
-                role: value,
-              }).catch((err: unknown) => {
-                const error = err as { error?: string };
-                setToast({
-                  type: TOAST_TYPE.ERROR,
-                  title: "Error!",
-                  message: error?.error || "An error occurred while updating member role. Please try again.",
-                });
+        <CustomSelect
+          customButton={
+            <div className="flyers-soft-team-invite-role">
+              <span className={hasRoleChangeAccess ? "" : "text-placeholder"}>{ROLE[invitationDetails.role]}</span>
+              {hasRoleChangeAccess && <ChevronDownIcon className="h-3 w-3" />}
+            </div>
+          }
+          value={invitationDetails.role}
+          onChange={(value: EUserPermissions) => {
+            if (!workspaceSlug || !value) return;
+
+            updateMemberInvitation(workspaceSlug.toString(), invitationDetails.id, {
+              role: value,
+            }).catch((err: unknown) => {
+              const error = err as { error?: string };
+              setToast({
+                type: TOAST_TYPE.ERROR,
+                title: "Error!",
+                message: error?.error || "An error occurred while updating member role. Please try again.",
               });
-            }}
-            disabled={!hasRoleChangeAccess}
-            placement="bottom-end"
-          >
-            {Object.keys(ROLE).map((key) => {
-              if (
-                currentWorkspaceRole &&
-                Number(currentWorkspaceRole) !== 20 &&
-                Number(currentWorkspaceRole) < parseInt(key)
-              )
-                return null;
+            });
+          }}
+          disabled={!hasRoleChangeAccess}
+          placement="bottom-end"
+        >
+          {Object.keys(ROLE).map((key) => {
+            if (
+              currentWorkspaceRole &&
+              Number(currentWorkspaceRole) !== 20 &&
+              Number(currentWorkspaceRole) < parseInt(key)
+            )
+              return null;
 
-              return (
-                <CustomSelect.Option key={key} value={parseInt(key, 10)}>
-                  <>{ROLE[parseInt(key) as keyof typeof ROLE]}</>
-                </CustomSelect.Option>
-              );
-            })}
-          </CustomSelect>
+            return (
+              <CustomSelect.Option key={key} value={parseInt(key, 10)}>
+                <>{ROLE[parseInt(key) as keyof typeof ROLE]}</>
+              </CustomSelect.Option>
+            );
+          })}
+        </CustomSelect>
+
+        <div className="flyers-soft-team-pending-badge">
+          <span>{t("common.pending")}</span>
+        </div>
+
+        <div className="flyers-soft-team-invite-date">
+          {invitationSentAt ? renderFormattedDate(invitationSentAt) : "-"}
+        </div>
+
+        <div className="flyers-soft-team-invite-actions">
+          {invitationDetails.invite_link && (
+            <button type="button" title={t("common.actions.copy_link")} onClick={() => void handleCopyText()}>
+              <Send className="h-3.5 w-3.5" />
+            </button>
+          )}
           {isAdmin && (
-            <CustomMenu ellipsis placement="bottom-end" closeOnSelect>
-              {MENU_ITEMS.map((item) => {
-                if (item.shouldRender === false) return null;
-                return (
-                  <CustomMenu.MenuItem
-                    key={item.key}
-                    onClick={() => {
-                      item.action();
-                    }}
-                    className={cn(
-                      "flex items-center gap-2",
-                      {
-                        "text-placeholder": item.disabled,
-                      },
-                      item.className
-                    )}
-                    disabled={item.disabled}
-                  >
-                    {item.icon && <item.icon className={cn("h-3 w-3", item.iconClassName)} />}
-                    <div>
-                      <h5>{item.title}</h5>
-                      {item.description && (
-                        <p
-                          className={cn("whitespace-pre-line text-tertiary", {
-                            "text-placeholder": item.disabled,
-                          })}
-                        >
-                          {item.description}
-                        </p>
-                      )}
-                    </div>
-                  </CustomMenu.MenuItem>
-                );
-              })}
-            </CustomMenu>
+            <button type="button" title={t("common.remove")} onClick={() => setRemoveMemberModal(true)}>
+              <TrashIcon className="h-3.5 w-3.5" />
+            </button>
           )}
         </div>
       </div>

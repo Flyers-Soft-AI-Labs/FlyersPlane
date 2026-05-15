@@ -4,27 +4,49 @@
  * See the LICENSE file for details.
  */
 
+import type { MutableRefObject } from "react";
 import { observer } from "mobx-react";
-import { PanelLeft } from "lucide-react";
+// components
+import { FlyersLogo } from "@/components/common/flyers-logo";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
-import { isSidebarToggleVisible } from "@/plane-web/components/desktop";
-import { IconButton } from "@plane/propel/icon-button";
 
-export const AppSidebarToggleButton = observer(function AppSidebarToggleButton() {
-  // store hooks
-  const { toggleSidebar, sidebarPeek, toggleSidebarPeek } = useAppTheme();
+type TAppSidebarToggleButtonProps = {
+  openedByHoverRef?: MutableRefObject<boolean>;
+  onHoverOpen?: () => void;
+};
 
-  if (!isSidebarToggleVisible()) return null;
+export const AppSidebarToggleButton = observer(function AppSidebarToggleButton(props: TAppSidebarToggleButtonProps) {
+  const { openedByHoverRef, onHoverOpen } = props;
+  const { sidebarCollapsed, toggleSidebar } = useAppTheme();
+  const isOpen = sidebarCollapsed === false;
+
   return (
-    <IconButton
-      size="base"
-      variant="ghost"
-      icon={PanelLeft}
+    <button
+      type="button"
+      className="flyers-soft-sidebar-toggle-button"
+      data-sidebar-menu-trigger="true"
       onClick={() => {
-        if (sidebarPeek) toggleSidebarPeek(false);
-        toggleSidebar();
+        if (isOpen && openedByHoverRef?.current) {
+          openedByHoverRef.current = false;
+          return;
+        }
+
+        if (openedByHoverRef) openedByHoverRef.current = false;
+        toggleSidebar(isOpen);
       }}
-    />
+      onMouseEnter={() => {
+        if (isOpen) return;
+
+        if (openedByHoverRef) openedByHoverRef.current = true;
+        if (onHoverOpen) onHoverOpen();
+        else toggleSidebar(false);
+      }}
+      aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
+      aria-expanded={isOpen}
+      title="Menu"
+    >
+      <FlyersLogo className="flyers-soft-sidebar-toggle-logo" />
+    </button>
   );
 });

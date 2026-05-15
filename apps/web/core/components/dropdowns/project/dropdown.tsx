@@ -16,6 +16,7 @@ type Props = TDropdownProps & {
   button?: ReactNode;
   dropdownArrow?: boolean;
   dropdownArrowClassName?: string;
+  emptyIcon?: ReactNode;
   onClose?: () => void;
   renderCondition?: (projectId: string) => boolean;
   renderByDefault?: boolean;

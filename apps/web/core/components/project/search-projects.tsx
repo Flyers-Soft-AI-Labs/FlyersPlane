@@ -4,84 +4,70 @@
  * See the LICENSE file for details.
  */
 
-import { useRef, useState } from "react";
+import { type KeyboardEvent, useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react";
-// plane hooks
-import { useOutsideClickDetector } from "@plane/hooks";
-// i18n
-import { useTranslation } from "@plane/i18n";
 import { SearchIcon, CloseIcon } from "@plane/propel/icons";
-// helpers
-import { cn } from "@plane/utils";
 // hooks
 import { useProjectFilter } from "@/hooks/store/use-project-filter";
-import { IconButton } from "@plane/propel/icon-button";
 
 export const ProjectSearch = observer(function ProjectSearch() {
-  // i18n
-  const { t } = useTranslation();
+  // states
+  const [isExpanded, setIsExpanded] = useState(false);
+  // refs
+  const inputRef = useRef<HTMLInputElement | null>(null);
   // hooks
   const { searchQuery, updateSearchQuery } = useProjectFilter();
-  // refs
-  const inputRef = useRef<HTMLInputElement>(null);
-  // states
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  // outside click detector hook
-  useOutsideClickDetector(inputRef, () => {
-    if (isSearchOpen && searchQuery.trim() === "") setIsSearchOpen(false);
-  });
 
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Escape") {
-      if (searchQuery && searchQuery.trim() !== "") updateSearchQuery("");
-      else setIsSearchOpen(false);
+      if (searchQuery.trim() !== "") updateSearchQuery("");
+      setIsExpanded(false);
     }
   };
 
+  const shouldShowInput = isExpanded || searchQuery.trim() !== "";
+
+  useEffect(() => {
+    if (isExpanded) inputRef.current?.focus();
+  }, [isExpanded]);
+
   return (
-    <div className="flex items-center">
-      {!isSearchOpen && (
-        <IconButton
-          variant="ghost"
-          size="lg"
-          className="-mr-1"
-          onClick={() => {
-            setIsSearchOpen(true);
-            inputRef.current?.focus();
-          }}
-          icon={SearchIcon}
-        />
-      )}
-      <div
-        className={cn(
-          "ml-auto flex w-0 items-center justify-start gap-1 overflow-hidden rounded-md border border-transparent bg-surface-1 text-placeholder opacity-0 transition-[width] ease-linear",
-          {
-            "w-30 border-subtle px-2.5 py-1.5 opacity-100 md:w-64": isSearchOpen,
-          }
-        )}
+    <div
+      className={`flyers-soft-dashboard-search flyers-soft-projects-search !h-9 max-w-full shrink-0 !gap-2 !rounded-lg text-12 focus-within:!border-[#e5e7eb] focus-within:!shadow-none ${
+        shouldShowInput ? "is-expanded w-[220px] !px-3" : "is-collapsed !px-0"
+      }`}
+    >
+      <button
+        type="button"
+        className="flyers-soft-projects-search-trigger"
+        onClick={() => setIsExpanded(true)}
+        aria-label="Search projects"
       >
-        <SearchIcon className="h-3.5 w-3.5" />
+        <SearchIcon className="h-3.5 w-3.5 shrink-0" />
+      </button>
+      {shouldShowInput && (
         <input
           ref={inputRef}
-          className="w-full max-w-[234px] border-none bg-transparent text-13 text-primary placeholder:text-placeholder focus:outline-none"
-          placeholder={t("common.search.label")}
+          className="min-w-0 flex-1 !border-0 !bg-transparent !p-0 text-12 text-primary !shadow-none outline-none placeholder:text-placeholder focus:!shadow-none focus:outline-none"
+          placeholder="Search projects..."
           value={searchQuery}
+          onBlur={() => {
+            if (searchQuery.trim() === "") setIsExpanded(false);
+          }}
           onChange={(e) => updateSearchQuery(e.target.value)}
           onKeyDown={handleInputKeyDown}
         />
-        {isSearchOpen && (
-          <button
-            type="button"
-            className="grid place-items-center"
-            onClick={() => {
-              updateSearchQuery("");
-              setIsSearchOpen(false);
-            }}
-          >
-            <CloseIcon className="h-3 w-3" />
-          </button>
-        )}
-      </div>
+      )}
+      {shouldShowInput && searchQuery.trim() !== "" && (
+        <button
+          type="button"
+          className="grid size-6 shrink-0 place-items-center rounded-md text-tertiary transition hover:bg-layer-transparent-hover hover:text-primary"
+          onClick={() => updateSearchQuery("")}
+          aria-label="Clear project search"
+        >
+          <CloseIcon className="h-3 w-3" />
+        </button>
+      )}
     </div>
   );
 });

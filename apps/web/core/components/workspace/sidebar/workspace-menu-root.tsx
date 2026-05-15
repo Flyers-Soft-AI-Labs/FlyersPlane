@@ -8,12 +8,13 @@ import { Fragment, useState, useEffect } from "react";
 import { observer } from "mobx-react";
 import Link from "next/link";
 // icons
-import { CirclePlus, LogOut, Mails } from "lucide-react";
+import { CirclePlus, LogOut, Mails, Settings, UserPlus } from "lucide-react";
 // ui
 import { Menu, Transition } from "@headlessui/react";
 // plane imports
+import { EUserPermissions } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
-import { ChevronDownIcon } from "@plane/propel/icons";
+import { CheckIcon, ChevronDownIcon } from "@plane/propel/icons";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { IWorkspace } from "@plane/types";
 import { Loader } from "@plane/ui";
@@ -30,13 +31,24 @@ import { WorkspaceLogo } from "../logo";
 import SidebarDropdownItem from "./dropdown-item";
 
 type WorkspaceMenuRootProps = {
-  variant: "sidebar" | "top-navigation";
+  variant: "sidebar" | "sidebar-brand" | "top-navigation";
+  label?: string;
 };
 
+function WorkspaceMenuOpenSync(props: { open: boolean; onChange: (open: boolean) => void }) {
+  const { open, onChange } = props;
+
+  useEffect(() => {
+    onChange(open);
+  }, [open, onChange]);
+
+  return null;
+}
+
 export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: WorkspaceMenuRootProps) {
-  const { variant } = props;
+  const { label, variant } = props;
   // store hooks
-  const { toggleSidebar, toggleAnySidebarDropdown } = useAppTheme();
+  const { toggleSidebar, toggleAnySidebarDropdown, sidebarCollapsed } = useAppTheme();
   const { config } = useInstance();
   const { data: currentUser } = useUser();
   const { signOut } = useUser();
@@ -48,6 +60,8 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
   const { t } = useTranslation();
   // local state
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
+  // inline brand dropdown state (sidebar-brand variant only)
+  const [isBrandOpen, setIsBrandOpen] = useState(false);
 
   const handleWorkspaceNavigation = (workspace: IWorkspace) => updateUserProfile({ last_workspace_id: workspace?.id });
 
@@ -67,13 +81,179 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
     }
   };
   const workspacesList = orderWorkspacesList(Object.values(workspaces ?? {}));
-  // TODO: fix workspaces list scroll
+
+  // Close inline dropdown when sidebar collapses
+  useEffect(() => {
+    if (sidebarCollapsed) setIsBrandOpen(false);
+  }, [sidebarCollapsed]);
 
   // Toggle sidebar dropdown state when either menu is open
   useEffect(() => {
-    toggleAnySidebarDropdown(isWorkspaceMenuOpen);
-  }, [isWorkspaceMenuOpen, toggleAnySidebarDropdown]);
+    toggleAnySidebarDropdown(variant === "sidebar-brand" ? isBrandOpen : isWorkspaceMenuOpen);
+  }, [isWorkspaceMenuOpen, isBrandOpen, variant, toggleAnySidebarDropdown]);
 
+  // ── sidebar-brand: inline accordion (no floating popup) ──────────────────
+  if (variant === "sidebar-brand") {
+    const handleClose = () => setIsBrandOpen(false);
+
+    const orderedWorkspaces = workspacesList
+      ? activeWorkspace
+        ? [activeWorkspace, ...workspacesList.filter((w) => w.id !== activeWorkspace?.id)]
+        : workspacesList
+      : [];
+
+    const canManageWorkspace =
+      !!activeWorkspace &&
+      [EUserPermissions.ADMIN, EUserPermissions.MEMBER].includes(activeWorkspace.role as EUserPermissions);
+    const canInviteMembers =
+      !!activeWorkspace && [EUserPermissions.ADMIN].includes(activeWorkspace.role as EUserPermissions);
+
+    return (
+      <div className="w-full">
+        {/* Trigger button — vertically offset to align with logo center */}
+        <button
+          type="button"
+          onClick={() => setIsBrandOpen((prev) => !prev)}
+          className={cn(
+            "group/menu-button mt-[6px] flex max-w-full min-w-0 w-full items-center justify-between gap-2 rounded-md text-13 text-secondary transition hover:text-primary focus:outline-none",
+            { "text-primary": isBrandOpen }
+          )}
+          aria-label={t("aria_labels.projects_sidebar.open_workspace_switcher")}
+          aria-expanded={isBrandOpen}
+        >
+          <span className="min-w-0 truncate">{label ?? activeWorkspace?.name ?? t("loading")}</span>
+          <ChevronDownIcon
+            className={cn("size-3.5 flex-shrink-0 text-placeholder duration-300", {
+              "rotate-180": isBrandOpen,
+            })}
+          />
+        </button>
+
+        {/* Inline collapsible panel — pushes content below, no overlap */}
+        <div
+          className="overflow-hidden"
+          style={{
+            display: "grid",
+            gridTemplateRows: isBrandOpen ? "1fr" : "0fr",
+            transition: "grid-template-rows 220ms ease",
+          }}
+        >
+          <div className="overflow-hidden min-h-0">
+            <div className="pt-3 pb-2">
+              {/* Current user email */}
+              <p className="px-1 pb-3 text-11 text-[#9ca3af] truncate select-none leading-none">
+                {currentUser?.email}
+              </p>
+
+              {/* Workspace list */}
+              {workspacesList ? (
+                <div className="flex flex-col gap-0.5 mb-2">
+                  {orderedWorkspaces.map((workspace) => {
+                    const isActive = workspace.id === activeWorkspace?.id;
+                    return (
+                      <Link
+                        key={workspace.id}
+                        href={`/${workspace.slug}`}
+                        onClick={() => {
+                          handleWorkspaceNavigation(workspace);
+                          handleItemClick();
+                          handleClose();
+                        }}
+                        className={cn(
+                          "flex items-center gap-2.5 rounded-lg px-2 py-2 text-13 transition-colors duration-100",
+                          { "bg-[#f1f1ef]": isActive, "hover:bg-[#f5f5f4]": !isActive }
+                        )}
+                      >
+                        <WorkspaceLogo
+                          logo={workspace?.logo_url}
+                          name={workspace?.name}
+                          classNames="size-6 flex-shrink-0 rounded-md border border-[#ebebeb]"
+                        />
+                        <span
+                          className={cn("min-w-0 flex-1 truncate text-13 font-medium", {
+                            "text-[#111827]": isActive,
+                            "text-[#374151]": !isActive,
+                          })}
+                        >
+                          {workspace.name}
+                        </span>
+                        {isActive && <CheckIcon className="size-3.5 flex-shrink-0 text-[#374151]" />}
+                      </Link>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="px-1 py-2">
+                  <Loader className="space-y-2">
+                    <Loader.Item height="32px" />
+                    <Loader.Item height="32px" />
+                  </Loader>
+                </div>
+              )}
+
+              {/* Active workspace quick-actions: Settings / Invite */}
+              {activeWorkspace && (canManageWorkspace || canInviteMembers) && (
+                <div className="flex gap-1.5 px-1 pb-3 pt-0.5">
+                  {canManageWorkspace && (
+                    <Link
+                      href={`/${activeWorkspace.slug}/settings`}
+                      onClick={() => { handleItemClick(); handleClose(); }}
+                      className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-[#e5e7eb] bg-white px-2 py-1.5 text-12 font-medium text-[#374151] transition-colors hover:bg-[#f5f5f4]"
+                    >
+                      <Settings className="size-3.5 flex-shrink-0" />
+                      <span className="truncate">{t("settings")}</span>
+                    </Link>
+                  )}
+                  {canInviteMembers && (
+                    <Link
+                      href={`/${activeWorkspace.slug}/settings/members`}
+                      onClick={() => { handleItemClick(); handleClose(); }}
+                      className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-[#e5e7eb] bg-white px-2 py-1.5 text-12 font-medium text-[#374151] transition-colors hover:bg-[#f5f5f4]"
+                    >
+                      <UserPlus className="size-3.5 flex-shrink-0" />
+                      <span className="truncate">Invite</span>
+                    </Link>
+                  )}
+                </div>
+              )}
+
+              {/* Footer actions */}
+              <div className="border-t border-[#ebebeb] pt-2 mt-0 flex flex-col gap-0.5">
+                {!isWorkspaceCreationDisabled && (
+                  <Link
+                    href="/create-workspace"
+                    onClick={() => { handleItemClick(); handleClose(); }}
+                    className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-13 font-medium text-[#374151] transition-colors hover:bg-[#f5f5f4]"
+                  >
+                    <CirclePlus className="size-4 flex-shrink-0" />
+                    <span>{t("create_workspace")}</span>
+                  </Link>
+                )}
+                <Link
+                  href="/invitations"
+                  onClick={() => { handleItemClick(); handleClose(); }}
+                  className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-13 font-medium text-[#374151] transition-colors hover:bg-[#f5f5f4]"
+                >
+                  <Mails className="size-4 flex-shrink-0" />
+                  <span>{t("workspace_invites")}</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-13 font-medium text-[#374151] transition-colors hover:bg-[#f5f5f4]"
+                >
+                  <LogOut className="size-4 flex-shrink-0" />
+                  <span>{t("sign_out")}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── sidebar / top-navigation: original floating Menu (unchanged) ─────────
   return (
     <Menu
       as="div"
@@ -83,13 +263,9 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
       })}
     >
       {({ open, close }: { open: boolean; close: () => void }) => {
-        // Update local state directly
-        if (isWorkspaceMenuOpen !== open) {
-          setIsWorkspaceMenuOpen(open);
-        }
-
         return (
           <>
+            <WorkspaceMenuOpenSync open={open} onChange={setIsWorkspaceMenuOpen} />
             {variant === "sidebar" && (
               <Menu.Button
                 className={cn("flex size-8 w-full items-center justify-center rounded-md", {
@@ -97,7 +273,7 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
                 })}
               >
                 <AppSidebarItem
-                  variant="button"
+                  variant="content"
                   item={{
                     icon: (
                       <WorkspaceLogo
@@ -147,19 +323,19 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
               <Menu.Items as={Fragment}>
                 <div
                   className={cn(
-                    "fixed z-21 mt-1 flex w-[19rem] origin-top-left flex-col divide-y divide-subtle rounded-md border-[0.5px] border-strong bg-surface-1 shadow-raised-200 outline-none",
+                    "flyers-soft-workspace-switcher fixed z-21 mt-1 flex w-[24rem] max-w-[calc(100vw-2rem)] origin-top-left flex-col overflow-hidden rounded-2xl border border-[#ebebeb] bg-white shadow-[0_22px_54px_rgba(17, 24, 39, 0.18)] outline-none",
                     {
                       "top-11 left-14": variant === "sidebar",
                       "top-10 left-4": variant === "top-navigation",
                     }
                   )}
                 >
-                  <div className="vertical-scrollbar flex scrollbar-sm max-h-96 flex-col items-start justify-start overflow-x-hidden overflow-y-scroll">
-                    <span className="sticky top-0 z-21 h-full w-full flex-shrink-0 truncate rounded-md bg-surface-1 px-4 pt-3 pb-1 text-left text-13 font-medium text-placeholder">
+                  <div className="flyers-soft-workspace-switcher-scroll vertical-scrollbar scrollbar-sm flex max-h-96 flex-col items-start justify-start overflow-x-hidden overflow-y-auto">
+                    <span className="flyers-soft-workspace-switcher-email sticky top-0 z-21 h-full w-full flex-shrink-0 truncate bg-white px-4 pt-3 pb-2 text-left text-13 font-medium text-[#6b7280]">
                       {currentUser?.email}
                     </span>
                     {workspacesList ? (
-                      <div className="flex size-full flex-col items-start justify-start">
+                      <div className="flyers-soft-workspace-switcher-list flex size-full flex-col items-start justify-start gap-1 px-2 pb-2">
                         {(activeWorkspace
                           ? [
                               activeWorkspace,
@@ -186,15 +362,15 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
                       </div>
                     )}
                   </div>
-                  <div className="flex w-full flex-col items-start justify-start gap-2 px-4 py-2 text-13">
+                  <div className="flyers-soft-workspace-switcher-footer flex w-full flex-col items-start justify-start gap-1.5 border-t border-[#ebebeb] px-3 py-3 text-13">
                     {!isWorkspaceCreationDisabled && (
                       <Link href="/create-workspace" className="w-full">
                         <Menu.Item
                           as="div"
-                          className="flex items-center gap-2 rounded-sm px-2 py-1 text-13 font-medium text-secondary hover:bg-layer-transparent-hover"
+                          className="flyers-soft-workspace-switcher-footer-item flex min-h-9 w-full items-center gap-2 rounded-lg px-3 py-2 text-13 font-semibold text-[#374151] hover:bg-[#f5f5f4]"
                         >
                           <CirclePlus className="size-4 flex-shrink-0" />
-                          {t("create_workspace")}
+                          <span className="min-w-0 truncate">{t("create_workspace")}</span>
                         </Menu.Item>
                       </Link>
                     )}
@@ -202,10 +378,10 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
                     <Link href="/invitations" className="w-full" onClick={handleItemClick}>
                       <Menu.Item
                         as="div"
-                        className="flex items-center gap-2 rounded-sm px-2 py-1 text-13 font-medium text-secondary hover:bg-layer-transparent-hover"
+                        className="flyers-soft-workspace-switcher-footer-item flex min-h-9 w-full items-center gap-2 rounded-lg px-3 py-2 text-13 font-semibold text-[#374151] hover:bg-[#f5f5f4]"
                       >
                         <Mails className="h-4 w-4 flex-shrink-0" />
-                        {t("workspace_invites")}
+                        <span className="min-w-0 truncate">{t("workspace_invites")}</span>
                       </Menu.Item>
                     </Link>
 
@@ -213,11 +389,11 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
                       <Menu.Item
                         as="button"
                         type="button"
-                        className="flex w-full items-center gap-2 rounded-sm px-2 py-1 text-13 font-medium text-danger-primary hover:bg-layer-transparent-hover"
+                        className="flyers-soft-workspace-switcher-footer-item flyers-soft-workspace-switcher-signout flex min-h-9 w-full items-center gap-2 rounded-lg px-3 py-2 text-13 font-semibold text-[#374151] hover:bg-[#f5f5f4]"
                         onClick={handleSignOut}
                       >
                         <LogOut className="size-4 flex-shrink-0" />
-                        {t("sign_out")}
+                        <span className="min-w-0 truncate">{t("sign_out")}</span>
                       </Menu.Item>
                     </div>
                   </div>

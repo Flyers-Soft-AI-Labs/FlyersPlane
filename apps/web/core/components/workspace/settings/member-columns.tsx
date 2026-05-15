@@ -51,6 +51,8 @@ export function NameColumn(props: NameProps) {
   const { avatar_url, display_name, email, first_name, id, last_name } = rowData.member;
   const isSuspended = rowData.is_active === false;
   const fullName = `${first_name ?? ""} ${last_name ?? ""}`.trim() || display_name || email;
+  const supportingText =
+    email && email !== fullName ? email : display_name && display_name !== fullName ? display_name : "";
 
   return (
     <div className="flyers-soft-team-member-cell flex min-w-0 items-center gap-2.5">
@@ -79,8 +81,10 @@ export function NameColumn(props: NameProps) {
         <p className={cn("truncate text-13 font-medium text-primary", { "text-placeholder": isSuspended })}>
           {fullName}
         </p>
-        {display_name && display_name !== fullName && (
-          <p className="truncate text-11 text-tertiary">{display_name}</p>
+        {supportingText && (
+          <p className={cn("truncate text-11 text-tertiary", { "text-placeholder": isSuspended })}>
+            {supportingText}
+          </p>
         )}
       </div>
     </div>
@@ -162,7 +166,7 @@ export const AccountTypeColumn = observer(function AccountTypeColumn(props: Acco
   return (
     <>
       {isSuspended || isRoleNonEditable ? (
-        <div className={cn("flex w-32", { "text-placeholder": isSuspended })}>
+        <div className={cn("flyers-soft-team-role-badge", { "text-placeholder": isSuspended })}>
           <span>{ROLE[rowData.role]}</span>
         </div>
       ) : (
@@ -191,11 +195,11 @@ export const AccountTypeColumn = observer(function AccountTypeColumn(props: Acco
                 }
               }}
               label={
-                <div className="flex">
+                <div className="flyers-soft-team-role-badge">
                   <span>{ROLE[rowData.role]}</span>
                 </div>
               }
-              buttonClassName={`!px-0 !justify-start hover:bg-surface-1 ${errors.role ? "border-danger-strong" : "border-none"}`}
+              buttonClassName={`flyers-soft-team-role-select !justify-start ${errors.role ? "border-danger-strong" : "border-none"}`}
               className="w-32 rounded-md p-0"
               input
             >

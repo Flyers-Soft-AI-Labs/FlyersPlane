@@ -8,110 +8,270 @@ import React, { useRef, useState } from "react";
 import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArchiveRestoreIcon, Settings, UserPlus } from "lucide-react";
+import { ArchiveRestoreIcon, Check, ChevronDown, FileText, MoreHorizontal, Settings, UserPlus } from "lucide-react";
 // plane imports
-import { EUserPermissions, EUserPermissionsLevel, IS_FAVORITE_MENU_OPEN } from "@plane/constants";
-import { useLocalStorage } from "@plane/hooks";
-import { Button } from "@plane/propel/button";
-import { Logo } from "@plane/propel/emoji-icon-picker";
-import { LinkIcon, LockIcon, NewTabIcon, TrashIcon, CheckIcon } from "@plane/propel/icons";
-import { setPromiseToast, setToast, TOAST_TYPE } from "@plane/propel/toast";
-import { Tooltip } from "@plane/propel/tooltip";
-import type { IProject } from "@plane/types";
+import { EUserPermissions, ISSUE_PRIORITIES } from "@plane/constants";
+import { LinkIcon, LockIcon, NewTabIcon, TrashIcon } from "@plane/propel/icons";
+import { setToast, TOAST_TYPE } from "@plane/propel/toast";
+import type { IProject, TIssuePriorities } from "@plane/types";
 import type { TContextMenuItem } from "@plane/ui";
-import { Avatar, AvatarGroup, ContextMenu, FavoriteStar } from "@plane/ui";
-import { copyUrlToClipboard, cn, getFileURL, renderFormattedDate } from "@plane/utils";
+import { ContextMenu, CustomMenu } from "@plane/ui";
+import { copyUrlToClipboard, cn, renderFormattedPayloadDate } from "@plane/utils";
 // components
+import { DateDropdown } from "@/components/dropdowns/date";
+import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
+import { PriorityDropdown } from "@/components/dropdowns/priority";
 // hooks
 import { useMember } from "@/hooks/store/use-member";
 import { useProject } from "@/hooks/store/use-project";
-import { useUserPermissions } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
-import { usePlatformOS } from "@/hooks/use-platform-os";
 // local imports
-import { CoverImage } from "@/components/common/cover-image";
+import { ArchiveRestoreProjectModal } from "./archive-restore-modal";
 import { DeleteProjectModal } from "./delete-project-modal";
 import { JoinProjectModal } from "./join-project-modal";
-import { ArchiveRestoreProjectModal } from "./archive-restore-modal";
 
 type Props = {
   project: IProject;
 };
+
+type TProjectStatus = {
+  label: string;
+  className: string;
+  dotClassName: string;
+};
+
+type TProjectWithTableFields = IProject & {
+  due_date?: string | Date | null;
+  end_date?: string | Date | null;
+  priority?: string | null;
+  status?: string | null;
+  target_date?: string | Date | null;
+};
+
+type TProjectUpdatePayload = Partial<IProject> & Partial<TProjectWithTableFields>;
+
+const PROJECT_STATUS_OPTIONS = ["To Do", "Planning", "In Progress", "Completed", "Active", "Archived"];
+const PROJECT_PRIORITY_KEYS: TIssuePriorities[] = ["none", "low", "medium", "high", "urgent"];
+
+function getProjectProgress(completedIssues = 0, totalIssues = 0) {
+  if (totalIssues <= 0) return 0;
+
+  return Math.min(100, Math.round((completedIssues / totalIssues) * 100));
+}
+
+function getStatusTone(statusLabel: string): Pick<TProjectStatus, "className" | "dotClassName"> {
+  const statusValue = statusLabel.toLowerCase();
+
+  if (statusValue.includes("progress") || statusValue === "active") {
+    return {
+      className: "flyers-soft-projects-pill-blue",
+      dotClassName: "flyers-soft-projects-dot-blue",
+    };
+  }
+
+  if (statusValue.includes("plan")) {
+    return {
+      className: "flyers-soft-projects-pill-purple",
+      dotClassName: "flyers-soft-projects-dot-purple",
+    };
+  }
+
+  if (statusValue.includes("complete") || statusValue.includes("done")) {
+    return {
+      className: "flyers-soft-projects-pill-green",
+      dotClassName: "flyers-soft-projects-dot-green",
+    };
+  }
+
+  return {
+    className: "flyers-soft-projects-pill-neutral",
+    dotClassName: "flyers-soft-projects-dot-neutral",
+  };
+}
+
+function getProjectStatus(project: TProjectWithTableFields, progress: number, totalIssues: number): TProjectStatus {
+  if (project.status?.trim()) {
+    const statusLabel = project.status.trim();
+    return {
+      label: statusLabel,
+      ...getStatusTone(statusLabel),
+    };
+  }
+
+  if (project.archived_at) {
+    return {
+      label: "Archived",
+      className: "flyers-soft-projects-pill-neutral",
+      dotClassName: "flyers-soft-projects-dot-neutral",
+    };
+  }
+
+  if (totalIssues > 0 && progress >= 100) {
+    return {
+      label: "Completed",
+      className: "flyers-soft-projects-pill-green",
+      dotClassName: "flyers-soft-projects-dot-green",
+    };
+  }
+
+  return {
+    label: "Active",
+    ...getStatusTone("Active"),
+  };
+}
+
+function getProjectDueDate(project: TProjectWithTableFields) {
+  return project.target_date ?? project.due_date ?? project.end_date ?? null;
+}
+
+function getPriorityClassName(priority: string) {
+  const priorityValue = priority.toLowerCase();
+
+  if (priorityValue === "urgent" || priorityValue === "high") return "flyers-soft-projects-pill-red";
+  if (priorityValue === "medium") return "flyers-soft-projects-pill-purple";
+  if (priorityValue === "low") return "flyers-soft-projects-pill-green";
+
+  return "flyers-soft-projects-pill-neutral";
+}
+
+function getProjectLeadId(projectLead: IProject["project_lead"]) {
+  if (!projectLead) return null;
+  return typeof projectLead === "string" ? projectLead : projectLead.id;
+}
+
+function getProjectLeadName(
+  projectLead: IProject["project_lead"],
+  getUserDetails: ReturnType<typeof useMember>["getUserDetails"]
+) {
+  if (!projectLead) return "Unassigned";
+
+  if (typeof projectLead === "string") {
+    const userDetails = getUserDetails(projectLead);
+    return userDetails?.display_name || userDetails?.email || "Assigned";
+  }
+
+  return projectLead.display_name || projectLead.email || "Assigned";
+}
+
+function normalizeProjectPriority(priority: string | null | undefined): TIssuePriorities {
+  const priorityValue = priority?.toLowerCase() as TIssuePriorities | undefined;
+  return priorityValue && PROJECT_PRIORITY_KEYS.includes(priorityValue) ? priorityValue : "none";
+}
+
+function getPriorityLabel(priority: string | null | undefined) {
+  const normalizedPriority = normalizeProjectPriority(priority);
+  return ISSUE_PRIORITIES.find((item) => item.key === normalizedPriority)?.title ?? "None";
+}
+
+function isInlineControlTarget(target: EventTarget | null) {
+  return (
+    target instanceof HTMLElement &&
+    !!target.closest(
+      "a, button, input, textarea, select, [role='button'], [role='menuitem'], [data-project-inline-control]"
+    )
+  );
+}
 
 export const ProjectCard = observer(function ProjectCard(props: Props) {
   const { project } = props;
   // states
   const [deleteProjectModalOpen, setDeleteProjectModal] = useState(false);
   const [joinProjectModalOpen, setJoinProjectModal] = useState(false);
-  const [restoreProject, setRestoreProject] = useState(false);
+  const [restoreProjectModalOpen, setRestoreProjectModalOpen] = useState(false);
   // refs
-  const projectCardRef = useRef(null);
+  const projectCardRef = useRef<HTMLDivElement | null>(null);
   // router
   const router = useAppRouter();
   const { workspaceSlug } = useParams();
   // store hooks
+  const {
+    getProjectAnalyticsCountById,
+    updateProject,
+    archiveProject,
+    restoreProject: restoreProjectInStore,
+  } = useProject();
   const { getUserDetails } = useMember();
-  const { addProjectToFavorites, removeProjectFromFavorites } = useProject();
-  const { allowPermissions } = useUserPermissions();
-  // hooks
-  const { isMobile } = usePlatformOS();
-  // derived values
-  const projectMembersIds = project.members;
-  const shouldRenderFavorite = allowPermissions(
-    [EUserPermissions.ADMIN, EUserPermissions.MEMBER],
-    EUserPermissionsLevel.WORKSPACE
-  );
   // auth
   const isMemberOfProject = !!project.member_role;
   const hasAdminRole = project.member_role === EUserPermissions.ADMIN;
   const hasMemberRole = project.member_role === EUserPermissions.MEMBER;
   // archive
   const isArchived = !!project.archived_at;
-  // local storage
-  const { setValue: toggleFavoriteMenu, storedValue: isFavoriteMenuOpen } = useLocalStorage<boolean>(
-    IS_FAVORITE_MENU_OPEN,
-    false
-  );
-
-  const handleAddToFavorites = () => {
-    if (!workspaceSlug) return;
-
-    const addToFavoritePromise = addProjectToFavorites(workspaceSlug.toString(), project.id);
-    setPromiseToast(addToFavoritePromise, {
-      loading: "Adding project to favorites...",
-      success: {
-        title: "Success!",
-        message: () => "Project added to favorites.",
-        actionItems: () => {
-          if (!isFavoriteMenuOpen) toggleFavoriteMenu(true);
-          return <></>;
-        },
-      },
-      error: {
-        title: "Error!",
-        message: () => "Couldn't add the project to favorites. Please try again.",
-      },
-    });
-  };
-
-  const handleRemoveFromFavorites = () => {
-    if (!workspaceSlug) return;
-
-    const removeFromFavoritePromise = removeProjectFromFavorites(workspaceSlug.toString(), project.id);
-    setPromiseToast(removeFromFavoritePromise, {
-      loading: "Removing project from favorites...",
-      success: {
-        title: "Success!",
-        message: () => "Project removed from favorites.",
-      },
-      error: {
-        title: "Error!",
-        message: () => "Couldn't remove the project from favorites. Please try again.",
-      },
-    });
-  };
+  // analytics
+  const analytics = getProjectAnalyticsCountById(project.id);
+  const totalIssues = analytics?.total_issues ?? 0;
+  const completedIssues = analytics?.completed_issues ?? 0;
+  const progress = getProjectProgress(completedIssues, totalIssues);
+  const tableProject = project as TProjectWithTableFields;
+  const status = getProjectStatus(tableProject, progress, totalIssues);
+  const memberCount = analytics?.total_members ?? project.members?.length ?? 0;
+  const projectLeadName = getProjectLeadName(project.project_lead, getUserDetails);
+  const projectLeadId = getProjectLeadId(project.project_lead);
+  const dueDate = getProjectDueDate(tableProject);
+  const projectPriority = normalizeProjectPriority(tableProject.priority);
+  const priorityLabel = getPriorityLabel(tableProject.priority);
+  const priorityClassName = getPriorityClassName(priorityLabel);
+  const teamMemberIds = project.members ?? [];
+  const teamLabel = `${teamMemberIds.length || memberCount} ${
+    (teamMemberIds.length || memberCount) === 1 ? "member" : "members"
+  }`;
 
   const projectLink = `${workspaceSlug}/projects/${project.id}/issues`;
+  const workspaceSlugString = workspaceSlug?.toString();
+
+  const handleUpdateError = () =>
+    setToast({
+      type: TOAST_TYPE.ERROR,
+      title: "Update failed",
+      message: "Could not update the project. Please try again.",
+    });
+
+  const updateProjectDetails = async (data: TProjectUpdatePayload) => {
+    if (!workspaceSlugString) return;
+    await updateProject(workspaceSlugString, project.id, data as Partial<IProject>);
+  };
+
+  const handleStatusUpdate = (nextStatus: string) => {
+    if (!workspaceSlugString || nextStatus === status.label) return;
+
+    void (async () => {
+      if (nextStatus === "Archived") {
+        await archiveProject(workspaceSlugString, project.id);
+        return;
+      }
+
+      if (isArchived) await restoreProjectInStore(workspaceSlugString, project.id);
+      await updateProjectDetails({ status: nextStatus });
+    })().catch(handleUpdateError);
+  };
+
+  const handleProjectRowNavigation = () => {
+    if (!isMemberOfProject || isArchived) {
+      if (!isArchived) setJoinProjectModal(true);
+      return;
+    }
+
+    router.push(`/${projectLink}`);
+  };
+
+  const handleProjectClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!isMemberOfProject || isArchived) {
+      e.preventDefault();
+      if (!isArchived) setJoinProjectModal(true);
+    }
+  };
+
+  const handleProjectRowClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isInlineControlTarget(e.target)) return;
+    handleProjectRowNavigation();
+  };
+
+  const handleProjectRowKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    handleProjectRowNavigation();
+  };
+
   const handleCopyText = () =>
     copyUrlToClipboard(projectLink).then(() =>
       setToast({
@@ -142,7 +302,7 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
       action: handleOpenInNewTab,
       title: "Open in new tab",
       icon: NewTabIcon,
-      shouldRender: !isMemberOfProject && !isArchived,
+      shouldRender: isMemberOfProject && !isArchived,
     },
     {
       key: "copy-link",
@@ -153,7 +313,7 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
     },
     {
       key: "restore",
-      action: () => setRestoreProject(true),
+      action: () => setRestoreProjectModalOpen(true),
       title: "Restore",
       icon: ArchiveRestoreIcon,
       shouldRender: isArchived && hasAdminRole,
@@ -166,16 +326,15 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
       shouldRender: isArchived && hasAdminRole,
     },
   ];
+  const visibleMenuItems = MENU_ITEMS.filter((item) => item.shouldRender !== false);
 
   return (
     <>
-      {/* Delete Project Modal */}
       <DeleteProjectModal
         project={project}
         isOpen={deleteProjectModalOpen}
         onClose={() => setDeleteProjectModal(false)}
       />
-      {/* Join Project Modal */}
       {workspaceSlug && (
         <JoinProjectModal
           workspaceSlug={workspaceSlug.toString()}
@@ -184,193 +343,170 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
           handleClose={() => setJoinProjectModal(false)}
         />
       )}
-      {/* Restore project modal */}
       {workspaceSlug && project && (
         <ArchiveRestoreProjectModal
           workspaceSlug={workspaceSlug.toString()}
           projectId={project.id}
-          isOpen={restoreProject}
-          onClose={() => setRestoreProject(false)}
+          isOpen={restoreProjectModalOpen}
+          onClose={() => setRestoreProjectModalOpen(false)}
           archive={false}
         />
       )}
-      <Link
-        ref={projectCardRef}
-        href={`/${workspaceSlug}/projects/${project.id}/issues`}
-        onClick={(e) => {
-          if (!isMemberOfProject || isArchived) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (!isArchived) setJoinProjectModal(true);
-          }
-        }}
-        data-prevent-progress={!isMemberOfProject || isArchived}
-        className={cn(
-          "group/project-card flex w-full flex-col justify-between overflow-hidden rounded-lg border border-subtle bg-layer-2 transition-all duration-300 hover:border-strong hover:shadow-raised-200"
-        )}
-      >
+      <div className="flyers-soft-projects-row-wrap">
         <ContextMenu parentRef={projectCardRef} items={MENU_ITEMS} />
-        <div className="relative h-[118px] w-full rounded-t">
-          <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/60 to-transparent" />
-
-          <CoverImage
-            src={project.cover_image_url}
-            alt={project.name}
-            className="absolute top-0 left-0 h-full w-full rounded-t"
-          />
-
-          <div className="absolute bottom-4 z-[1] flex h-10 w-full items-center justify-between gap-3 px-4">
-            <div className="flex flex-grow items-center gap-2.5 truncate">
-              <div className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-sm bg-white/10">
-                <Logo logo={project.logo_props} size={18} />
-              </div>
-
-              <div className="flex w-full flex-col justify-between gap-0.5 truncate">
-                <h3 className="truncate font-semibold text-on-color">{project.name}</h3>
-                <span className="flex items-center gap-1.5">
-                  <p className="text-11 font-medium text-on-color">{project.identifier} </p>
-                  {project.network === 0 && <LockIcon className="h-2.5 w-2.5 text-on-color" />}
-                </span>
-              </div>
-            </div>
-
-            {!isArchived && (
-              <div data-prevent-progress className="flex h-full flex-shrink-0 items-center gap-2">
-                <button
-                  className="flex h-6 w-6 items-center justify-center rounded-sm bg-white/10"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    handleCopyText();
-                  }}
-                >
-                  <LinkIcon className="h-3 w-3 text-on-color" />
-                </button>
-                {shouldRenderFavorite && (
-                  <FavoriteStar
-                    buttonClassName="h-6 w-6 bg-white/10 rounded-sm"
-                    iconClassName={cn("h-3 w-3", {
-                      "text-on-color": !project.is_favorite,
-                    })}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      if (project.is_favorite) handleRemoveFromFavorites();
-                      else handleAddToFavorites();
-                    }}
-                    selected={!!project.is_favorite}
-                  />
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
         <div
-          className={cn("flex h-[104px] w-full flex-col justify-between rounded-b-sm p-4", {
-            "opacity-90": isArchived,
-          })}
+          ref={projectCardRef}
+          className="flyers-soft-projects-table-row"
+          data-prevent-progress={!isMemberOfProject || isArchived}
+          onClick={handleProjectRowClick}
+          onKeyDown={handleProjectRowKeyDown}
+          role="row"
+          tabIndex={0}
         >
-          <p className="line-clamp-2 text-13 break-words text-tertiary">
-            {project.description && project.description.trim() !== ""
-              ? project.description
-              : `Created on ${renderFormattedDate(project.created_at)}`}
-          </p>
-          <div className="item-center flex justify-between">
-            <div className="flex items-center justify-center gap-2">
-              <Tooltip
-                isMobile={isMobile}
-                tooltipHeading="Members"
-                tooltipContent={
-                  project.members && project.members.length > 0 ? `${project.members.length} Members` : "No Member"
-                }
-                position="top"
+          <div className="flyers-soft-projects-name-cell" role="cell">
+            <FileText className="h-4 w-4 shrink-0 text-tertiary" strokeWidth={1.8} aria-hidden="true" />
+            <div className="min-w-0">
+              <Link
+                href={`/${projectLink}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleProjectClick(e);
+                }}
+                data-prevent-progress={!isMemberOfProject || isArchived}
+                className="flyers-soft-projects-project-name"
               >
-                {projectMembersIds && projectMembersIds.length > 0 ? (
-                  <div className="flex cursor-pointer items-center gap-2 text-secondary">
-                    <AvatarGroup showTooltip={false}>
-                      {projectMembersIds.map((memberId) => {
-                        const member = getUserDetails(memberId);
-                        if (!member) return null;
-                        return (
-                          <Avatar key={member.id} name={member.display_name} src={getFileURL(member.avatar_url)} />
-                        );
-                      })}
-                    </AvatarGroup>
-                  </div>
-                ) : (
-                  <span className="text-13 text-placeholder italic">No Member Yet</span>
-                )}
-              </Tooltip>
-              {isArchived && <div className="text-11 font-medium text-placeholder">Archived</div>}
+                <span className="truncate">{project.name}</span>
+                {project.network === 0 && <LockIcon className="h-3 w-3 shrink-0 text-tertiary" />}
+              </Link>
+              <div className="flyers-soft-projects-project-key">{project.identifier}</div>
             </div>
-            {isArchived ? (
-              hasAdminRole && (
-                <div className="flex items-center justify-center gap-2">
-                  <div
-                    className="flex items-center justify-center text-11 font-medium text-placeholder hover:text-secondary"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setRestoreProject(true);
-                    }}
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <ArchiveRestoreIcon className="h-3.5 w-3.5" />
-                      Restore
-                    </div>
-                  </div>
-                  <div
-                    className="flex items-center justify-center text-11 font-medium text-placeholder hover:text-secondary"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setDeleteProjectModal(true);
-                    }}
-                  >
-                    <TrashIcon className="h-3.5 w-3.5" />
-                  </div>
-                </div>
-              )
-            ) : (
-              <>
-                {isMemberOfProject &&
-                  (hasAdminRole || hasMemberRole ? (
-                    <Link
-                      className="flex items-center justify-center rounded-sm p-1 text-placeholder hover:bg-layer-1 hover:text-secondary"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                      }}
-                      href={`/${workspaceSlug}/settings/projects/${project.id}`}
+          </div>
+          <div role="cell" data-project-inline-control>
+            <CustomMenu
+              customButton={
+                <span className={cn("flyers-soft-projects-pill flyers-soft-projects-inline-pill", status.className)}>
+                  <span className={cn("flyers-soft-projects-pill-dot", status.dotClassName)} />
+                  {status.label}
+                  <ChevronDown className="h-3 w-3 opacity-60" strokeWidth={2} />
+                </span>
+              }
+              customButtonClassName="flyers-soft-projects-inline-menu-button"
+              ariaLabel="Project status"
+              optionsClassName="flyers-soft-projects-inline-options"
+              placement="bottom-start"
+              closeOnSelect
+            >
+              {PROJECT_STATUS_OPTIONS.map((statusOption) => (
+                <CustomMenu.MenuItem
+                  key={statusOption}
+                  className="flex items-center justify-between gap-2"
+                  onClick={() => handleStatusUpdate(statusOption)}
+                >
+                  <span className="flex items-center gap-2">
+                    <span className={cn("flyers-soft-projects-pill-dot", getStatusTone(statusOption).dotClassName)} />
+                    {statusOption}
+                  </span>
+                  {statusOption === status.label && <Check className="h-3.5 w-3.5" strokeWidth={2} />}
+                </CustomMenu.MenuItem>
+              ))}
+            </CustomMenu>
+          </div>
+          <div className="flyers-soft-projects-muted-cell" role="cell" data-project-inline-control>
+            <MemberDropdown
+              value={projectLeadId}
+              onChange={(lead) => {
+                void updateProjectDetails({ project_lead: lead === projectLeadId ? null : lead }).catch(
+                  handleUpdateError
+                );
+              }}
+              placeholder="Owner"
+              multiple={false}
+              buttonVariant="transparent-with-text"
+              optionsClassName="flyers-soft-projects-inline-options"
+              placement="bottom-start"
+              button={<span className="flyers-soft-projects-inline-text">{projectLeadName}</span>}
+            />
+          </div>
+          <div className="flyers-soft-projects-muted-cell" role="cell" data-project-inline-control>
+            <MemberDropdown
+              value={teamMemberIds}
+              onChange={(members) => {
+                void updateProjectDetails({ members }).catch(handleUpdateError);
+              }}
+              placeholder="Team"
+              multiple
+              buttonVariant="transparent-with-text"
+              optionsClassName="flyers-soft-projects-inline-options"
+              placement="bottom-start"
+              button={<span className="flyers-soft-projects-inline-text">{teamLabel}</span>}
+            />
+          </div>
+          <div className="flyers-soft-projects-muted-cell" role="cell" data-project-inline-control>
+            <DateDropdown
+              value={dueDate}
+              onChange={(date) => {
+                void updateProjectDetails({
+                  target_date: date ? (renderFormattedPayloadDate(date) ?? null) : null,
+                }).catch(handleUpdateError);
+              }}
+              placeholder="No due date"
+              buttonVariant="transparent-with-text"
+              buttonClassName="flyers-soft-projects-inline-date-button"
+              buttonContainerClassName="flyers-soft-projects-inline-date"
+              hideIcon
+              optionsClassName="flyers-soft-projects-inline-options"
+              placement="bottom-start"
+            />
+          </div>
+          <div role="cell" data-project-inline-control>
+            <PriorityDropdown
+              value={projectPriority}
+              onChange={(priority) => {
+                void updateProjectDetails({ priority }).catch(handleUpdateError);
+              }}
+              buttonVariant="transparent-with-text"
+              optionsClassName="flyers-soft-projects-inline-options"
+              placement="bottom-start"
+              button={
+                <span className={cn("flyers-soft-projects-pill flyers-soft-projects-inline-pill", priorityClassName)}>
+                  {priorityLabel}
+                  <ChevronDown className="h-3 w-3 opacity-60" strokeWidth={2} />
+                </span>
+              }
+            />
+          </div>
+          <div className="flyers-soft-projects-plus-cell" role="cell" aria-hidden="true" />
+          <div className="flyers-soft-projects-more-cell" role="cell" data-project-inline-control>
+            {visibleMenuItems.length > 0 && (
+              <CustomMenu
+                customButton={
+                  <span className="flyers-soft-projects-action-button">
+                    <MoreHorizontal className="h-4 w-4" strokeWidth={2} />
+                  </span>
+                }
+                ariaLabel="Project actions"
+                placement="bottom-end"
+                closeOnSelect
+              >
+                {visibleMenuItems.map((item) => {
+                  const Icon = item.icon;
+
+                  return (
+                    <CustomMenu.MenuItem
+                      key={item.key}
+                      className="flex items-center gap-2"
+                      onClick={() => item.action()}
                     >
-                      <Settings className="h-3.5 w-3.5" />
-                    </Link>
-                  ) : (
-                    <span className="flex items-center gap-1 text-13 text-placeholder">
-                      <CheckIcon className="h-3.5 w-3.5" />
-                      Joined
-                    </span>
-                  ))}
-                {!isMemberOfProject && (
-                  <div className="flex items-center">
-                    <Button
-                      variant="link"
-                      className="!p-0 font-semibold"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setJoinProjectModal(true);
-                      }}
-                    >
-                      Join
-                    </Button>
-                  </div>
-                )}
-              </>
+                      {Icon && <Icon className="h-3.5 w-3.5" />}
+                      {item.title}
+                    </CustomMenu.MenuItem>
+                  );
+                })}
+              </CustomMenu>
             )}
           </div>
         </div>
-      </Link>
+      </div>
     </>
   );
 });

@@ -1619,12 +1619,6 @@ export default {
           },
         },
       },
-      billing_and_plans: {
-        title: "計費和方案",
-        current_plan: "目前方案",
-        free_plan: "您目前使用的是免費方案",
-        view_plans: "檢視方案",
-      },
       exports: {
         title: "匯出",
         exporting: "匯出中",

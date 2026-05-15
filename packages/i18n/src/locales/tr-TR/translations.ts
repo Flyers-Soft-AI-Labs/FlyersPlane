@@ -1647,12 +1647,6 @@ export default {
           },
         },
       },
-      billing_and_plans: {
-        title: "Faturalandırma ve Planlar",
-        current_plan: "Mevcut plan",
-        free_plan: "Şu anda ücretsiz planı kullanıyorsunuz",
-        view_plans: "Planları görüntüle",
-      },
       exports: {
         title: "Dışa Aktarımlar",
         exporting: "Dışa aktarılıyor",

@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useRef, useEffect } from "react";
+import { Ticket, Users, X } from "lucide-react";
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
@@ -373,6 +374,257 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
   // TODO: Remove this after the de-dupe feature is implemented
 
   const shouldRenderDuplicateModal = isDuplicateModalOpen && duplicateIssues?.length > 0;
+  const shouldUseCreateTicketLayout = !data?.id && !isDraft && !moveToIssue;
+
+  const handleSafeClose = () => {
+    if (editorRef.current?.isEditorReadyToDiscard()) {
+      onClose();
+    } else {
+      setToast({
+        type: TOAST_TYPE.ERROR,
+        title: "Error!",
+        message: "Editor is still processing changes. Please wait before proceeding.",
+      });
+    }
+  };
+
+  const handleTemplateModalClose = () => {
+    if (handleDraftAndClose) {
+      handleDraftAndClose();
+    } else {
+      onClose();
+    }
+  };
+
+  const duplicateModal = shouldRenderDuplicateModal ? (
+    <div
+      ref={modalContainerRef}
+      className="shadow-xl bg-pi-50 relative flex flex-col gap-2.5 rounded-lg px-3 py-4"
+      style={{ maxHeight: formRef?.current?.offsetHeight ? `${formRef.current.offsetHeight}px` : "436px" }}
+    >
+      <DuplicateModalRoot
+        workspaceSlug={workspaceSlug.toString()}
+        issues={duplicateIssues}
+        handleDuplicateIssueModal={handleDuplicateIssueModal}
+      />
+    </div>
+  ) : null;
+
+  if (shouldUseCreateTicketLayout) {
+    return (
+      <FormProvider {...methods}>
+        <div className="flex gap-3 bg-transparent">
+          <div className="w-full rounded-lg">
+            <form
+              ref={formRef}
+              onSubmit={handleSubmit((data) => handleFormSubmit(data))}
+              className="flyers-soft-ticket-modal flyers-soft-create-ticket-modal flex w-full flex-col"
+            >
+              <div className="flyers-soft-create-ticket-modal-header">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="flyers-soft-create-ticket-icon" aria-hidden="true">
+                    <Ticket className="h-5 w-5" />
+                  </span>
+                  <div className="min-w-0">
+                    <h2>Create New Ticket</h2>
+                    <p>Add the details of the issue or request.</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="flyers-soft-create-ticket-close"
+                  aria-label="Close"
+                  onClick={handleSafeClose}
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="flyers-soft-create-ticket-modal-body vertical-scrollbar scrollbar-sm">
+                {watch("parent_id") && selectedParentIssue && (
+                  <div>
+                    <IssueParentTag
+                      control={control}
+                      selectedParentIssue={selectedParentIssue}
+                      handleFormChange={handleFormChange}
+                      setSelectedParentIssue={setSelectedParentIssue}
+                    />
+                  </div>
+                )}
+
+                <div className="flyers-soft-create-ticket-title-row">
+                  <div className="flyers-soft-ticket-modal-field flyers-soft-ticket-title-field">
+                    <span className="flyers-soft-ticket-modal-field-label">
+                      Title <span aria-hidden="true">*</span>
+                    </span>
+                    <div className="flyers-soft-ticket-modal-field-control">
+                      <IssueTitleInput
+                        control={control}
+                        issueTitleRef={issueTitleRef}
+                        formState={formState}
+                        handleFormChange={handleFormChange}
+                      />
+                    </div>
+                  </div>
+                  {projectId && !data?.sourceIssueId && (
+                    <div className="flyers-soft-ticket-modal-field flyers-soft-ticket-template-field">
+                      <span className="flyers-soft-ticket-modal-field-label">
+                        Template <span>(Optional)</span>
+                      </span>
+                      <div className="flyers-soft-ticket-modal-field-control">
+                        <WorkItemTemplateSelect
+                          projectId={projectId}
+                          typeId={watch("type_id")}
+                          handleModalClose={handleTemplateModalClose}
+                          handleFormChange={handleFormChange}
+                          renderChevron
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {duplicateIssues.length > 0 && (
+                  <div className="flyers-soft-create-ticket-duplicates">
+                    <DeDupeButtonRoot
+                      workspaceSlug={workspaceSlug?.toString()}
+                      isDuplicateModalOpen={isDuplicateModalOpen}
+                      label={
+                        duplicateIssues.length === 1
+                          ? `${duplicateIssues.length} ${t("duplicate_issue_found")}`
+                          : `${duplicateIssues.length} ${t("duplicate_issues_found")}`
+                      }
+                      handleOnClick={() => handleDuplicateIssueModal(!isDuplicateModalOpen)}
+                    />
+                  </div>
+                )}
+
+                <div className="flyers-soft-create-ticket-description-block">
+                  <span className="flyers-soft-ticket-modal-field-label">Description</span>
+                  <IssueDescriptionEditor
+                    control={control}
+                    isDraft={isDraft}
+                    issueName={watch("name")}
+                    issueId={data?.id}
+                    descriptionHtmlData={data?.description_html}
+                    editorRef={editorRef}
+                    submitBtnRef={submitBtnRef}
+                    gptAssistantModal={gptAssistantModal}
+                    workspaceSlug={workspaceSlug?.toString()}
+                    projectId={projectId}
+                    handleFormChange={handleFormChange}
+                    handleDescriptionHTMLDataChange={(description_html) =>
+                      setValue<"description_html">("description_html", description_html)
+                    }
+                    setGptAssistantModal={setGptAssistantModal}
+                    handleGptAssistantClose={() => reset(getValues())}
+                    onAssetUpload={onAssetUpload}
+                    onClose={onClose}
+                  />
+                </div>
+
+                <div className="flyers-soft-create-ticket-fields-grid">
+                  <div className="flyers-soft-ticket-modal-field flyers-soft-ticket-field-project">
+                    <span className="flyers-soft-ticket-modal-field-label">Project</span>
+                    <div className="flyers-soft-ticket-modal-field-control">
+                      <IssueProjectSelect
+                        control={control}
+                        buttonClassName="flyers-soft-field-button"
+                        buttonContainerClassName="flyers-soft-field-trigger"
+                        disabled={!!data?.sourceIssueId || isProjectSelectionDisabled}
+                        dropdownArrow
+                        dropdownArrowClassName="flyers-soft-field-caret"
+                        emptyIcon={<Users className="flyers-soft-field-icon flyers-soft-field-icon-project" />}
+                        handleFormChange={handleFormChange}
+                        placeholder="Select project"
+                      />
+                    </div>
+                  </div>
+                  {projectId && (
+                    <div className="flyers-soft-ticket-modal-field flyers-soft-ticket-field-type">
+                      <span className="flyers-soft-ticket-modal-field-label">Type</span>
+                      <div className="flyers-soft-ticket-modal-field-control">
+                        <IssueTypeSelect
+                          control={control}
+                          projectId={projectId}
+                          editorRef={editorRef}
+                          disabled={!!data?.sourceIssueId}
+                          handleFormChange={handleFormChange}
+                          renderChevron
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <IssueDefaultProperties
+                    control={control}
+                    id={data?.id}
+                    projectId={projectId}
+                    workspaceSlug={workspaceSlug?.toString()}
+                    selectedParentIssue={selectedParentIssue}
+                    startDate={watch("start_date")}
+                    targetDate={watch("target_date")}
+                    parentId={watch("parent_id")}
+                    isDraft={isDraft}
+                    handleFormChange={handleFormChange}
+                    setSelectedParentIssue={setSelectedParentIssue}
+                    layout="grid"
+                  />
+                </div>
+
+                <WorkItemModalAdditionalProperties
+                  isDraft={isDraft}
+                  workItemId={data?.id ?? data?.sourceIssueId}
+                  projectId={projectId}
+                  workspaceSlug={workspaceSlug?.toString()}
+                />
+              </div>
+
+              {showActionButtons && (
+                <div className="flyers-soft-create-ticket-modal-footer" tabIndex={getIndex("create_more")}>
+                  <div>
+                    <label className="flyers-soft-create-ticket-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={isCreateMoreToggleEnabled}
+                        onChange={(e) => onCreateMoreToggleChange(e.target.checked)}
+                      />
+                      <span>Create another ticket</span>
+                    </label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div tabIndex={getIndex("discard_button")}>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="flyers-soft-create-ticket-cancel"
+                        onClick={handleSafeClose}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                    <div tabIndex={getIndex("draft_button")}>
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        type="submit"
+                        ref={submitBtnRef}
+                        loading={isSubmitting}
+                        disabled={isDisabled}
+                        className="flyers-soft-create-ticket-submit"
+                      >
+                        {isSubmitting ? primaryButtonText.loading : "Create Ticket"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </form>
+          </div>
+          {duplicateModal}
+        </div>
+      </FormProvider>
+    );
+  }
 
   return (
     <FormProvider {...methods}>

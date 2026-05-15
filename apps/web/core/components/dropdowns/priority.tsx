@@ -31,6 +31,7 @@ type Props = TDropdownProps & {
   button?: ReactNode;
   dropdownArrow?: boolean;
   dropdownArrowClassName?: string;
+  emptyIcon?: ReactNode;
   highlightUrgent?: boolean;
   onChange: (val: TIssuePriorities) => void;
   onClose?: () => void;
@@ -42,6 +43,7 @@ type ButtonProps = {
   className?: string;
   dropdownArrow: boolean;
   dropdownArrowClassName: string;
+  emptyIcon?: ReactNode;
   hideIcon?: boolean;
   hideText?: boolean;
   isActive?: boolean;
@@ -57,6 +59,7 @@ function BorderButton(props: ButtonProps) {
     className,
     dropdownArrow,
     dropdownArrowClassName,
+    emptyIcon,
     hideIcon = false,
     hideText = false,
     highlightUrgent,
@@ -123,7 +126,7 @@ function BorderButton(props: ButtonProps) {
               />
             </div>
           ) : (
-            <SignalHigh className="size-3" />
+            (emptyIcon ?? <SignalHigh className="size-3" />)
           ))}
         {!hideText && (
           <span
@@ -148,6 +151,7 @@ function BackgroundButton(props: ButtonProps) {
     className,
     dropdownArrow,
     dropdownArrowClassName,
+    emptyIcon,
     hideIcon = false,
     hideText = false,
     highlightUrgent,
@@ -214,7 +218,7 @@ function BackgroundButton(props: ButtonProps) {
               />
             </div>
           ) : (
-            <SignalHigh className="size-3" />
+            (emptyIcon ?? <SignalHigh className="size-3" />)
           ))}
         {!hideText && (
           <span
@@ -239,6 +243,7 @@ function TransparentButton(props: ButtonProps) {
     className,
     dropdownArrow,
     dropdownArrowClassName,
+    emptyIcon,
     hideIcon = false,
     hideText = false,
     isActive = false,
@@ -298,7 +303,7 @@ function TransparentButton(props: ButtonProps) {
               />
             </div>
           ) : (
-            <SignalHigh className="size-3" />
+            (emptyIcon ?? <SignalHigh className="size-3" />)
           ))}
         {!hideText && (
           <span
@@ -328,12 +333,15 @@ export function PriorityDropdown(props: Props) {
     buttonVariant,
     className = "",
     disabled = false,
+    dropdownStrategy = "absolute",
     dropdownArrow = false,
     dropdownArrowClassName = "",
+    emptyIcon,
     hideIcon = false,
     highlightUrgent = true,
     onChange,
     onClose,
+    optionsClassName = "",
     placeholder = t("common.priority"),
     placement,
     showTooltip = false,
@@ -352,12 +360,21 @@ export function PriorityDropdown(props: Props) {
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
   // popper-js init
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
+    strategy: dropdownStrategy,
     placement: placement ?? "bottom-start",
     modifiers: [
       {
-        name: "preventOverflow",
+        name: "flip",
         options: {
           padding: 12,
+        },
+      },
+      {
+        name: "preventOverflow",
+        options: {
+          altAxis: true,
+          padding: 12,
+          rootBoundary: "viewport",
         },
       },
     ],
@@ -433,6 +450,7 @@ export function PriorityDropdown(props: Props) {
             highlightUrgent={highlightUrgent}
             dropdownArrow={dropdownArrow && !disabled}
             dropdownArrowClassName={dropdownArrowClassName}
+            emptyIcon={emptyIcon}
             hideIcon={hideIcon}
             placeholder={placeholder}
             showTooltip={showTooltip}
@@ -465,7 +483,10 @@ export function PriorityDropdown(props: Props) {
       {isOpen && (
         <Combobox.Options className="fixed z-10" static>
           <div
-            className="my-1 w-48 rounded-sm border-[0.5px] border-strong bg-surface-1 px-2 py-2.5 text-11 shadow-raised-200 focus:outline-none"
+            className={cn(
+              "my-1 w-48 rounded-sm border-[0.5px] border-strong bg-surface-1 px-2 py-2.5 text-11 shadow-raised-200 focus:outline-none",
+              optionsClassName
+            )}
             ref={setPopperElement}
             style={styles.popper}
             {...attributes.popper}

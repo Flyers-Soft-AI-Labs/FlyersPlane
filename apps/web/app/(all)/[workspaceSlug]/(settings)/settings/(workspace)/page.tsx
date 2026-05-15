@@ -13,8 +13,6 @@ import { SettingsContentWrapper } from "@/components/settings/content-wrapper";
 import { WorkspaceDetails } from "@/components/workspace/settings/workspace-details";
 // hooks
 import { useWorkspace } from "@/hooks/store/use-workspace";
-// local imports
-import { GeneralWorkspaceSettingsHeader } from "./header";
 
 function GeneralWorkspaceSettingsPage() {
   // store hooks
@@ -26,7 +24,7 @@ function GeneralWorkspaceSettingsPage() {
     : undefined;
 
   return (
-    <SettingsContentWrapper header={<GeneralWorkspaceSettingsHeader />}>
+    <SettingsContentWrapper hugging>
       <PageHead title={pageTitle} />
       <WorkspaceDetails />
     </SettingsContentWrapper>

@@ -5,14 +5,13 @@
  */
 
 import { useEffect, useRef } from "react";
-import { ChevronDown } from "lucide-react";
 import { observer } from "mobx-react";
 // plane helpers
 import { useOutsideClickDetector } from "@plane/hooks";
 import { ScrollArea } from "@plane/propel/scrollarea";
 // components
-import { FlyersLogo } from "@/components/common/flyers-logo";
-import { WorkspaceEditionBadge } from "@/plane-web/components/workspace/edition-badge";
+import { AppSidebarToggleButton } from "@/components/sidebar/sidebar-toggle-button";
+import { WorkspaceMenuRoot } from "@/components/workspace/sidebar/workspace-menu-root";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
 import useSize from "@/hooks/use-window-size";
@@ -24,12 +23,13 @@ type TSidebarWrapperProps = {
 };
 
 export const SidebarWrapper = observer(function SidebarWrapper(props: TSidebarWrapperProps) {
-  const { title, children, quickActions } = props;
+  const { children, quickActions } = props;
   // store hooks
   const { toggleSidebar, sidebarCollapsed } = useAppTheme();
   const windowSize = useSize();
   // refs
   const ref = useRef<HTMLDivElement>(null);
+  const openedByHoverRef = useRef(false);
 
   useOutsideClickDetector(ref, () => {
     if (sidebarCollapsed === false && window.innerWidth < 768) {
@@ -42,28 +42,36 @@ export const SidebarWrapper = observer(function SidebarWrapper(props: TSidebarWr
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [windowSize]);
 
+  const handleHoverOpen = () => {
+    openedByHoverRef.current = true;
+    toggleSidebar(false);
+  };
+
+  const handleShellMouseLeave = () => {
+    if (!openedByHoverRef.current || sidebarCollapsed !== false) return;
+
+    openedByHoverRef.current = false;
+    toggleSidebar(true);
+  };
+
   return (
     <>
-      <div ref={ref} className="flyers-soft-sidebar-shell flex h-full w-full animate-fade-in flex-col">
-        <div className="flex flex-col gap-3 px-3">
-          {/* Workspace switcher and settings */}
-
-          <div className="flyers-soft-sidebar-brand flex items-start justify-between gap-2 px-2">
-            <div className="flex min-w-0 items-center gap-2.5">
-              <FlyersLogo className="h-10 max-w-[120px] min-w-0 object-contain" />
-              <div className="min-w-0">
-                <span className="flyers-soft-sidebar-brand-text text-15 block min-w-0 truncate font-semibold text-primary">
-                  Flyers Soft
-                </span>
-                <span className="flyers-soft-sidebar-title flex min-w-0 items-center gap-1 text-13">
-                  <span className="truncate">{title}</span>
-                  <ChevronDown className="size-3.5 flex-shrink-0" strokeWidth={2} />
-                </span>
-              </div>
+      <div
+        ref={ref}
+        className="flyers-soft-sidebar-shell flex h-full w-full animate-fade-in flex-col"
+        onMouseLeave={handleShellMouseLeave}
+        onMouseEnter={() => {
+          if (!sidebarCollapsed) return;
+          handleHoverOpen();
+        }}
+      >
+        <div className="flyers-soft-sidebar-brand-wrap px-3 pt-3">
+          <div className="flyers-soft-sidebar-brand flex items-start gap-2">
+            <AppSidebarToggleButton openedByHoverRef={openedByHoverRef} onHoverOpen={handleHoverOpen} />
+            <div className="flyers-soft-sidebar-title min-w-0 flex-1">
+              <WorkspaceMenuRoot variant="sidebar-brand" label="Flyers Soft" />
             </div>
           </div>
-          {/* Quick actions */}
-          {quickActions}
         </div>
 
         <ScrollArea
@@ -71,18 +79,12 @@ export const SidebarWrapper = observer(function SidebarWrapper(props: TSidebarWr
           scrollType="hover"
           size="sm"
           rootClassName="size-full overflow-x-hidden overflow-y-auto"
-          viewportClassName="flex flex-col gap-3 overflow-x-hidden h-full w-full overflow-y-auto px-3 pt-3 pb-0.5"
+          viewportClassName="flyers-soft-sidebar-scroll-viewport flex flex-col overflow-x-hidden h-full w-full overflow-y-auto px-3 pt-5 pb-3"
         >
           {children}
         </ScrollArea>
-        {/* Help Section */}
-        <div className="flex h-12 items-center justify-between border-t border-subtle bg-surface-1 p-3">
-          <WorkspaceEditionBadge />
-          {/* TODO: To be checked if we need this */}
-          {/* <div className="flex items-center gap-2">
-          {!shouldRenderAppRail && <HelpMenu />}
-          {!isAppRailEnabled && <AppSidebarToggleButton />}
-        </div> */}
+        <div className="flyers-soft-sidebar-bottom-action border-t border-subtle bg-surface-1 px-3 py-3">
+          {quickActions}
         </div>
       </div>
     </>

@@ -36,7 +36,7 @@ import { getGroupByColumns, isWorkspaceLevel, getApproximateCardHeight } from ".
 import { HeaderGroupByCard } from "./headers/group-by-card";
 import { KanbanGroup } from "./kanban-group";
 
-const KANBAN_COLUMN_ACCENTS = ["#6c2bd9", "#38bdf8", "#f59e0b", "#22c55e", "#f97316", "#8b5cf6"];
+const KANBAN_COLUMN_ACCENTS = ["#6b7280", "#9ca3af", "#d1d5db", "#6b7280", "#9ca3af", "#d1d5db"];
 
 export interface IKanBan {
   issuesMap: IIssueMap;

@@ -5,11 +5,11 @@
  */
 
 import { observer } from "mobx-react";
+import { CalendarDays, Circle, List, MoreHorizontal, Plus, User, Users } from "lucide-react";
 // plane imports
 import { EUserPermissionsLevel, EUserPermissions } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
 import { EmptyStateDetailed } from "@plane/propel/empty-state";
-import { ContentWrapper } from "@plane/ui";
 // components
 import { calculateTotalFilters } from "@plane/utils";
 import { ProjectsLoader } from "@/components/ui/loader/projects-loader";
@@ -101,14 +101,52 @@ export const ProjectCardList = observer(function ProjectCardList(props: TProject
     );
 
   return (
-    <ContentWrapper>
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-        {filteredProjectIds.map((projectId) => {
-          const projectDetails = getProjectById(projectId);
-          if (!projectDetails) return;
-          return <ProjectCard key={projectDetails.id} project={projectDetails} />;
-        })}
+    <section className="flyers-soft-projects-table-section">
+      <div className="flyers-soft-projects-table-scroll">
+        <div className="flyers-soft-projects-table" role="table" aria-label="Projects">
+          <div className="flyers-soft-projects-table-header" role="row">
+            <div className="flyers-soft-projects-header-cell" role="columnheader">
+              <span className="flyers-soft-projects-header-text-icon">Aa</span>
+              <span>Name</span>
+            </div>
+            <div className="flyers-soft-projects-header-cell" role="columnheader">
+              <Circle className="h-4 w-4" strokeWidth={1.8} />
+              <span>Status</span>
+            </div>
+            <div className="flyers-soft-projects-header-cell" role="columnheader">
+              <User className="h-4 w-4" strokeWidth={1.8} />
+              <span>Owner</span>
+            </div>
+            <div className="flyers-soft-projects-header-cell" role="columnheader">
+              <Users className="h-4 w-4" strokeWidth={1.8} />
+              <span>Team</span>
+            </div>
+            <div className="flyers-soft-projects-header-cell" role="columnheader">
+              <CalendarDays className="h-4 w-4" strokeWidth={1.8} />
+              <span>Due date</span>
+            </div>
+            <div className="flyers-soft-projects-header-cell" role="columnheader">
+              <List className="h-4 w-4" strokeWidth={1.8} />
+              <span>Priority</span>
+            </div>
+            <div className="flyers-soft-projects-header-icon-cell" role="columnheader" aria-label="Add property">
+              <Plus className="h-4 w-4" strokeWidth={1.8} />
+            </div>
+            <div className="flyers-soft-projects-header-icon-cell" role="columnheader" aria-label="More options">
+              <MoreHorizontal className="h-4 w-4" strokeWidth={1.8} />
+            </div>
+          </div>
+          {filteredProjectIds.map((projectId) => {
+            const projectDetails = getProjectById(projectId);
+            if (!projectDetails) return;
+            return <ProjectCard key={projectDetails.id} project={projectDetails} />;
+          })}
+          <div className="flyers-soft-projects-table-footer">
+            <span>COUNT</span>
+            <strong>{filteredProjectIds.length}</strong>
+          </div>
+        </div>
       </div>
-    </ContentWrapper>
+    </section>
   );
 });

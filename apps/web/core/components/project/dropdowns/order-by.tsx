@@ -19,7 +19,7 @@ type Props = {
   isMobile?: boolean;
 };
 
-const DISABLED_ORDERING_OPTIONS = ["sort_order"];
+const DISABLED_ORDERING_OPTIONS = new Set<TProjectOrderByOptions>(["sort_order"]);
 
 export function ProjectOrderByDropdown(props: Props) {
   const { onChange, value, isMobile = false } = props;
@@ -28,7 +28,7 @@ export function ProjectOrderByDropdown(props: Props) {
   const orderByDetails = PROJECT_ORDER_BY_OPTIONS.find((option) => value?.includes(option.key));
 
   const isDescending = value?.[0] === "-";
-  const isOrderingDisabled = !!value && DISABLED_ORDERING_OPTIONS.includes(value);
+  const isOrderingDisabled = !!value && DISABLED_ORDERING_OPTIONS.has(value);
 
   return (
     <CustomMenu
@@ -36,15 +36,18 @@ export function ProjectOrderByDropdown(props: Props) {
       customButton={
         <>
           {isMobile ? (
-            <div className={getButtonStyling("secondary", "lg")}>
+            <span className={getButtonStyling("secondary", "lg")}>
               <ArrowDownWideNarrow className="size-3.5 shrink-0" strokeWidth={2} />
               {orderByDetails && t(orderByDetails?.i18n_label)}
-            </div>
+            </span>
           ) : (
-            <div className={getButtonStyling("secondary", "lg")}>
+            <span
+              title={`Sort: ${orderByDetails ? t(orderByDetails?.i18n_label) : ""}`}
+              className={`${getButtonStyling("secondary", "lg")} flyers-soft-projects-sort-button !h-9 !rounded-lg px-3 !text-12 shadow-[0_6px_18px_rgba(15,23,42,0.04)]`}
+            >
               <ArrowDownWideNarrow className="size-3.5 shrink-0" strokeWidth={2} />
-              {orderByDetails && t(orderByDetails?.i18n_label)}
-            </div>
+              <span className="sr-only">{`Sort: ${orderByDetails ? t(orderByDetails?.i18n_label) : ""}`}</span>
+            </span>
           )}
         </>
       }

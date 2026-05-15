@@ -9,13 +9,11 @@ import { observer } from "mobx-react";
 // types
 import { EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
-import { SearchIcon } from "@plane/propel/icons";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { IWorkspaceBulkInviteFormData } from "@plane/types";
 import { cn } from "@plane/utils";
 // components
 import { NotAuthorizedView } from "@/components/auth-screens/not-authorized-view";
-import { CountChip } from "@/components/common/count-chip";
 import { PageHead } from "@/components/core/page-title";
 import { MemberListFiltersDropdown } from "@/components/project/dropdowns/filters/member-list";
 import { WorkspaceMembersList } from "@/components/workspace/settings/members-list";
@@ -39,7 +37,7 @@ const WorkspaceMembersSettingsPage = observer(function WorkspaceMembersSettingsP
   // store hooks
   const { workspaceUserInfo, allowPermissions } = useUserPermissions();
   const {
-    workspace: { workspaceMemberIds, inviteMembersToWorkspace, filtersStore },
+    workspace: { inviteMembersToWorkspace, filtersStore },
   } = useMember();
   const { currentWorkspace } = useWorkspace();
   const { t } = useTranslation();
@@ -104,6 +102,15 @@ const WorkspaceMembersSettingsPage = observer(function WorkspaceMembersSettingsP
         <MembersWorkspaceSettingsHeader
           onInviteClick={() => setInviteModal(true)}
           canInvite={canPerformWorkspaceAdminActions}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          filters={
+            <MemberListFiltersDropdown
+              appliedFilters={appliedRoleFilters}
+              handleUpdate={handleRoleFilterUpdate}
+              memberType="workspace"
+            />
+          }
         />
       }
       hugging
@@ -119,37 +126,6 @@ const WorkspaceMembersSettingsPage = observer(function WorkspaceMembersSettingsP
           "opacity-60": !canPerformWorkspaceMemberActions,
         })}
       >
-        <div className="flyers-soft-teams-toolbar flex items-center justify-between gap-4 pb-3.5">
-          <div className="min-w-0">
-            <h4 className="flyers-soft-teams-section-title flex items-center gap-2.5 text-h4-medium">
-              Team Members
-            {workspaceMemberIds && workspaceMemberIds.length > 0 && (
-              <CountChip count={workspaceMemberIds.length} className="m-auto h-5" />
-            )}
-            </h4>
-            <p className="flyers-soft-teams-section-copy mt-1 text-12 text-tertiary">
-              Active teammates and invited collaborators for this workspace.
-            </p>
-          </div>
-          <div className="flyers-soft-teams-actions flex items-center gap-2">
-            <div className="flyers-soft-teams-search flex items-center gap-1.5 rounded-md border border-subtle bg-surface-1 px-2.5 py-1.5">
-              <SearchIcon className="h-3.5 w-3.5 text-placeholder" />
-              <input
-                className="w-full max-w-[234px] border-none bg-transparent text-body-xs-regular outline-none placeholder:text-placeholder"
-                placeholder="Search teams..."
-                value={searchQuery}
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <MemberListFiltersDropdown
-              appliedFilters={appliedRoleFilters}
-              handleUpdate={handleRoleFilterUpdate}
-              memberType="workspace"
-            />
-          </div>
-        </div>
         <WorkspaceMembersList searchQuery={searchQuery} isAdmin={canPerformWorkspaceAdminActions} />
       </section>
     </SettingsContentWrapper>

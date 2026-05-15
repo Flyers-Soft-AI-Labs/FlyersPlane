@@ -10,6 +10,7 @@ import { useParams } from "next/navigation";
 import { ListFilter } from "lucide-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
+import { getButtonStyling } from "@plane/propel/button";
 import type { TProjectFilters } from "@plane/types";
 import { cn, calculateTotalFilters } from "@plane/utils";
 // components
@@ -70,26 +71,29 @@ const HeaderFilters = observer(function HeaderFilters({
     [filters, updateFilters, workspaceSlug]
   );
   const isFiltersApplied = calculateTotalFilters(filters ?? {}) !== 0;
+  const defaultFilterMenuButton = (
+    <span
+      title={t("common.filters")}
+      className={cn(
+        getButtonStyling("secondary", "lg"),
+        "flyers-soft-projects-filter-button relative !h-9 !rounded-lg px-3 !text-12 shadow-[0_6px_18px_rgba(15,23,42,0.04)]"
+      )}
+    >
+      <ListFilter className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+      <span className="sr-only">{t("common.filters")}</span>
+      {isFiltersApplied && <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-accent-primary" />}
+    </span>
+  );
 
   return (
-    <div className={cn("flex gap-3", classname)}>
-      <ProjectOrderByDropdown
-        value={displayFilters?.order_by}
-        onChange={(val) => {
-          if (!workspaceSlug || val === displayFilters?.order_by) return;
-          updateDisplayFilters(workspaceSlug.toString(), {
-            order_by: val,
-          });
-        }}
-        isMobile={isMobile}
-      />
+    <div className={cn("flex items-center gap-2.5", classname)}>
       <div className={cn(filterClassname)}>
         <FiltersDropdown
           icon={<ListFilter className="h-3 w-3" />}
           title={t("common.filters")}
           placement="bottom-end"
           isFiltersApplied={isFiltersApplied}
-          menuButton={filterMenuButton || null}
+          menuButton={filterMenuButton || defaultFilterMenuButton}
         >
           <ProjectFiltersSelection
             displayFilters={displayFilters ?? {}}
@@ -103,6 +107,16 @@ const HeaderFilters = observer(function HeaderFilters({
           />
         </FiltersDropdown>
       </div>
+      <ProjectOrderByDropdown
+        value={displayFilters?.order_by}
+        onChange={(val) => {
+          if (!workspaceSlug || val === displayFilters?.order_by) return;
+          updateDisplayFilters(workspaceSlug.toString(), {
+            order_by: val,
+          });
+        }}
+        isMobile={isMobile}
+      />
     </div>
   );
 });

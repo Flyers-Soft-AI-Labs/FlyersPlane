@@ -21,8 +21,15 @@ export const PowerKModalFooter = observer(function PowerKModalFooter(props: Prop
   const { t } = useTranslation();
 
   return (
-    <div className="flex w-full items-center justify-between rounded-b-lg border-t border-subtle bg-surface-2/80 px-4 py-2">
-      <div />
+    <div className="flyers-soft-command-palette-footer flex w-full items-center justify-between rounded-b-lg border-t border-subtle bg-surface-2/80 px-4 py-2">
+      <div className="flyers-soft-command-palette-footer-hints flex min-w-0 items-center gap-1.5" aria-hidden="true">
+        <kbd>↑↓</kbd>
+        <span>Navigate</span>
+        <kbd>Enter</kbd>
+        <span>Select</span>
+        <kbd>Esc</kbd>
+        <span>Close</span>
+      </div>
       <div className="flex items-center gap-2">
         <span className="text-11 text-tertiary">{t("power_k.footer.workspace_level")}</span>
         <ToggleSwitch

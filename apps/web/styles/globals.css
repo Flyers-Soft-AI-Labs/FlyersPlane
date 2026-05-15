@@ -4,6 +4,7 @@
 @import "./power-k.css";
 @import "./emoji.css";
 @import "./flyers-soft-theme.css";
+@import "./flyers-soft-theme-system.css";
 @plugin "@tailwindcss/typography";
 
 /* stickies and editor colors */

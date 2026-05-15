@@ -1638,12 +1638,6 @@ export default {
           },
         },
       },
-      billing_and_plans: {
-        title: "Fakturácia a plány",
-        current_plan: "Aktuálny plán",
-        free_plan: "Používate bezplatný plán",
-        view_plans: "Zobraziť plány",
-      },
       exports: {
         title: "Exporty",
         exporting: "Exportovanie",
