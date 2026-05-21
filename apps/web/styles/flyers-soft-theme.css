@@ -47,16 +47,6 @@
   object-fit: contain;
 }
 
-.flyers-logo-spinner {
-  animation: flyers-soft-spin 900ms linear infinite;
-}
-
-@keyframes flyers-soft-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 #main-sidebar,
 .flyers-soft-sidebar-peek {
   background: var(--flyers-soft-sidebar-bg) !important;
@@ -8271,7 +8261,8 @@ body.flyers-soft-create-ticket-modal-open .fixed.inset-0.bg-backdrop {
   height: 14px;
   background-color: #8b9098;
   content: "";
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+    center / contain no-repeat;
   transform: translateY(-50%);
 }
 
@@ -8306,7 +8297,8 @@ body.flyers-soft-create-ticket-modal-open .fixed.inset-0.bg-backdrop {
   height: 16px;
   background-color: #6d737c;
   content: "";
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E")
+    center / contain no-repeat;
   transform: translateY(-50%);
 }
 
@@ -8314,7 +8306,9 @@ body.flyers-soft-create-ticket-modal-open .fixed.inset-0.bg-backdrop {
   position: relative;
 }
 
-.flyers-soft-create-ticket-modal .flyers-soft-ticket-field-type .flyers-soft-ticket-modal-field-control:not(:empty)::before {
+.flyers-soft-create-ticket-modal
+  .flyers-soft-ticket-field-type
+  .flyers-soft-ticket-modal-field-control:not(:empty)::before {
   position: absolute;
   top: 50%;
   left: 14px;
@@ -8328,7 +8322,9 @@ body.flyers-soft-create-ticket-modal-open .fixed.inset-0.bg-backdrop {
   transform: translateY(-50%);
 }
 
-.flyers-soft-create-ticket-modal .flyers-soft-ticket-field-type .flyers-soft-ticket-modal-field-control:not(:empty)::after {
+.flyers-soft-create-ticket-modal
+  .flyers-soft-ticket-field-type
+  .flyers-soft-ticket-modal-field-control:not(:empty)::after {
   position: absolute;
   top: 50%;
   left: 19px;
@@ -10129,7 +10125,10 @@ body:has(.flyers-soft-home-content-wrapper) #main-sidebar .flex.h-12.items-cente
   font-weight: 500 !important;
   text-decoration: none !important;
   border-bottom: 2px solid transparent !important;
-  transition: color 100ms ease, border-color 100ms ease, background 100ms ease !important;
+  transition:
+    color 100ms ease,
+    border-color 100ms ease,
+    background 100ms ease !important;
   border-radius: 4px 4px 0 0 !important;
 }
 
@@ -11741,7 +11740,9 @@ body:has(.flyers-soft-home-content-wrapper) #main-sidebar .flex.h-12.items-cente
   background: #ffffff !important;
   color: #667085 !important;
   box-shadow: 0 1px 4px rgba(16, 24, 40, 0.06) !important;
-  transition: background-color 120ms ease, border-color 120ms ease !important;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease !important;
 }
 
 .flyers-soft-team-invite-actions button:hover {
@@ -11815,13 +11816,13 @@ button:has(> .flyers-soft-team-invite-role):hover {
 
 /* ── Tabs: no gray hover block, minimal underline only ── */
 .flyers-soft-teams-tab {
-  border-radius: 0 !important;    /* strip the rounded-top-corner block */
+  border-radius: 0 !important; /* strip the rounded-top-corner block */
   background: transparent !important;
-  padding: 0 4px !important;      /* tight horizontal padding so hit-area is small */
+  padding: 0 4px !important; /* tight horizontal padding so hit-area is small */
 }
 
 .flyers-soft-teams-tab:hover {
-  background: transparent !important;  /* kill the gray block */
+  background: transparent !important; /* kill the gray block */
   color: #111827 !important;
   border-bottom-color: #d1d5db !important;
 }
@@ -11841,6 +11842,6 @@ button:has(> .flyers-soft-team-invite-role):hover {
   box-shadow:
     0 1px 2px rgba(16, 24, 40, 0.04),
     0 3px 10px rgba(16, 24, 40, 0.05) !important;
-  overflow: hidden !important;    /* clips rows cleanly to the rounded corners */
+  overflow: hidden !important; /* clips rows cleanly to the rounded corners */
   background: #ffffff !important;
 }
