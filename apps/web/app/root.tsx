@@ -23,7 +23,7 @@ import { AppProvider } from "./provider";
 // fonts
 import "@fontsource-variable/inter";
 import interVariableWoff2 from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
-import "@fontsource/material-symbols-rounded";
+import "@fontsource/material-symbols-rounded/400.css";
 import "@fontsource/ibm-plex-mono";
 
 const APP_TITLE = "Flyers Soft | Simple, extensible, open-source project management tool.";
