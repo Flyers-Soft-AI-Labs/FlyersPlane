@@ -4,6 +4,7 @@
  * See the LICENSE file for details.
  */
 
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { observer } from "mobx-react";
 import Link from "next/link";
@@ -46,6 +47,35 @@ interface IWorkspaceAuthWrapper {
   isLoading?: boolean;
 }
 
+function useDeferredWorkspaceBootstrap(isReady: boolean) {
+  const [canFetch, setCanFetch] = useState(false);
+
+  useEffect(() => {
+    if (!isReady) {
+      setCanFetch(false);
+      return;
+    }
+
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    let idleId: number | undefined;
+
+    const startFetching = () => setCanFetch(true);
+
+    if (typeof window.requestIdleCallback === "function") {
+      idleId = window.requestIdleCallback(startFetching, { timeout: 1200 });
+    } else {
+      timeoutId = setTimeout(startFetching, 0);
+    }
+
+    return () => {
+      if (idleId !== undefined && typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(idleId);
+      if (timeoutId !== undefined) clearTimeout(timeoutId);
+    };
+  }, [isReady]);
+
+  return canFetch;
+}
+
 export const WorkspaceAuthWrapper = observer(function WorkspaceAuthWrapper(props: IWorkspaceAuthWrapper) {
   const { children, isLoading: isParentLoading = false } = props;
   // router params
@@ -71,6 +101,7 @@ export const WorkspaceAuthWrapper = observer(function WorkspaceAuthWrapper(props
   const currentWorkspace =
     (allWorkspaces && allWorkspaces.find((workspace) => workspace?.slug === workspaceSlug)) || undefined;
   const currentWorkspaceInfo = workspaceSlug && workspaceInfoBySlug(workspaceSlug.toString());
+  const canFetchDeferredWorkspaceData = useDeferredWorkspaceBootstrap(!!currentWorkspaceInfo);
 
   // fetching user workspace information
   useSWR(
@@ -86,44 +117,58 @@ export const WorkspaceAuthWrapper = observer(function WorkspaceAuthWrapper(props
 
   // fetching workspace projects
   useSWR(
-    workspaceSlug && currentWorkspace ? WORKSPACE_PARTIAL_PROJECTS(workspaceSlug.toString()) : null,
-    workspaceSlug && currentWorkspace ? () => fetchPartialProjects(workspaceSlug.toString()) : null,
+    workspaceSlug && currentWorkspace && canFetchDeferredWorkspaceData
+      ? WORKSPACE_PARTIAL_PROJECTS(workspaceSlug.toString())
+      : null,
+    workspaceSlug && currentWorkspace && canFetchDeferredWorkspaceData
+      ? () => fetchPartialProjects(workspaceSlug.toString())
+      : null,
     { revalidateIfStale: false, revalidateOnFocus: false }
   );
   // fetch workspace members
   useSWR(
-    workspaceSlug && currentWorkspace ? WORKSPACE_MEMBERS(workspaceSlug.toString()) : null,
-    workspaceSlug && currentWorkspace ? () => fetchWorkspaceMembers(workspaceSlug.toString()) : null,
+    workspaceSlug && currentWorkspace && canFetchDeferredWorkspaceData
+      ? WORKSPACE_MEMBERS(workspaceSlug.toString())
+      : null,
+    workspaceSlug && currentWorkspace && canFetchDeferredWorkspaceData
+      ? () => fetchWorkspaceMembers(workspaceSlug.toString())
+      : null,
     { revalidateIfStale: false, revalidateOnFocus: false }
   );
   // fetch workspace favorite
   useSWR(
-    workspaceSlug && currentWorkspace && canPerformWorkspaceMemberActions
+    workspaceSlug && currentWorkspace && canFetchDeferredWorkspaceData && canPerformWorkspaceMemberActions
       ? WORKSPACE_FAVORITE(workspaceSlug.toString())
       : null,
-    workspaceSlug && currentWorkspace && canPerformWorkspaceMemberActions
+    workspaceSlug && currentWorkspace && canFetchDeferredWorkspaceData && canPerformWorkspaceMemberActions
       ? () => fetchFavorite(workspaceSlug.toString())
       : null,
     { revalidateIfStale: false, revalidateOnFocus: false }
   );
   // fetch workspace states
   useSWR(
-    workspaceSlug ? WORKSPACE_STATES(workspaceSlug.toString()) : null,
-    workspaceSlug ? () => fetchWorkspaceStates(workspaceSlug.toString()) : null,
+    workspaceSlug && canFetchDeferredWorkspaceData ? WORKSPACE_STATES(workspaceSlug.toString()) : null,
+    workspaceSlug && canFetchDeferredWorkspaceData ? () => fetchWorkspaceStates(workspaceSlug.toString()) : null,
     { revalidateIfStale: false, revalidateOnFocus: false }
   );
 
   // fetch workspace sidebar preferences
   useSWR(
-    workspaceSlug ? WORKSPACE_SIDEBAR_PREFERENCES(workspaceSlug.toString()) : null,
-    workspaceSlug ? () => fetchSidebarNavigationPreferences(workspaceSlug.toString()) : null,
+    workspaceSlug && canFetchDeferredWorkspaceData ? WORKSPACE_SIDEBAR_PREFERENCES(workspaceSlug.toString()) : null,
+    workspaceSlug && canFetchDeferredWorkspaceData
+      ? () => fetchSidebarNavigationPreferences(workspaceSlug.toString())
+      : null,
     { revalidateIfStale: false, revalidateOnFocus: false }
   );
 
   // fetch workspace project navigation preferences
   useSWR(
-    workspaceSlug ? WORKSPACE_PROJECT_NAVIGATION_PREFERENCES(workspaceSlug.toString()) : null,
-    workspaceSlug ? () => fetchProjectNavigationPreferences(workspaceSlug.toString()) : null,
+    workspaceSlug && canFetchDeferredWorkspaceData
+      ? WORKSPACE_PROJECT_NAVIGATION_PREFERENCES(workspaceSlug.toString())
+      : null,
+    workspaceSlug && canFetchDeferredWorkspaceData
+      ? () => fetchProjectNavigationPreferences(workspaceSlug.toString())
+      : null,
     { revalidateIfStale: false, revalidateOnFocus: false }
   );
 
