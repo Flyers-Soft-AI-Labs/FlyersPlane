@@ -138,9 +138,9 @@ export const SidebarMenuItems = observer(function SidebarMenuItems() {
     {
       key: "templates",
       label: "Templates",
-      href: `${workspaceRoot}/workspace-views`,
+      href: `${workspaceRoot}/templates`,
       icon: FileText,
-      isActive: pathname === `${workspaceRoot}/workspace-views`,
+      isActive: pathname === `${workspaceRoot}/templates` || pathname === `${workspaceRoot}/templates/`,
     },
     {
       key: "trash",
