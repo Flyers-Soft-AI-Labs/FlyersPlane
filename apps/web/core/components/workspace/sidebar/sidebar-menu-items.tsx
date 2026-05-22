@@ -4,6 +4,7 @@
  * See the LICENSE file for details.
  */
 
+import { Dialog, Transition } from "@headlessui/react";
 import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
@@ -13,16 +14,19 @@ import {
   HelpCircle,
   Home,
   Inbox,
+  Mail,
   Search,
   Settings,
   Ticket,
   Trash2,
   Users,
   ListTodo,
+  X,
 } from "lucide-react";
 import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
+import { Fragment, useState } from "react";
 // plane imports
 import { cn } from "@plane/utils";
 // components
@@ -40,11 +44,30 @@ type TFlyersSidebarItem = {
   onClick?: () => void;
 };
 
+const HELP_CONTACTS = [
+  {
+    name: "Krishna Kompalli",
+    email: "krishna.kompalli@flyerssoft.com",
+    initials: "KK",
+  },
+  {
+    name: "Shalini Priya",
+    email: "shalini.p@flyerssoft.com",
+    initials: "SP",
+  },
+  {
+    name: "Pavan Kumar",
+    email: "pavankumarduddi@gmail.com",
+    initials: "PK",
+  },
+] as const;
+
 export const SidebarMenuItems = observer(function SidebarMenuItems() {
   const params = useParams();
   const pathname = usePathname();
   const { togglePowerKModal } = usePowerK();
   const { currentWorkspace } = useWorkspace();
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
 
   const workspaceSlug = params.workspaceSlug?.toString();
   const projectId = params.projectId?.toString();
@@ -154,41 +177,126 @@ export const SidebarMenuItems = observer(function SidebarMenuItems() {
       label: "Help & support",
       icon: HelpCircle,
       isActive: false,
-      onClick: () => window.open("https://go.plane.so/p-docs", "_blank", "noopener,noreferrer"),
+      onClick: () => setIsHelpModalOpen(true),
     },
   ];
 
   return (
-    <nav className="flyers-soft-sidebar-nav-group flex flex-col" aria-label="Flyers Soft navigation">
-      <div className="flyers-soft-sidebar-section">
-        {topItems.map((item) => (
-          <FlyersSidebarItem key={item.key} item={item} />
-        ))}
-      </div>
+    <>
+      <HelpSupportModal isOpen={isHelpModalOpen} onClose={() => setIsHelpModalOpen(false)} />
 
-      <div className="flyers-soft-sidebar-section flyers-soft-sidebar-teamspace-section">
-        <div className="flyers-soft-sidebar-section-label">Teamspaces</div>
-        <Link href={workspaceRoot} className="flyers-soft-sidebar-workspace-row">
-          <span className="flyers-soft-sidebar-workspace-icon">{workspaceInitial}</span>
-          <span className="min-w-0 flex-1 truncate">{workspaceName}</span>
-          <ChevronDown className="size-3.5 flex-shrink-0" strokeWidth={2} />
-        </Link>
-        <div className="flyers-soft-sidebar-nested-list">
-          {teamspaceItems.map((item) => (
-            <FlyersSidebarItem key={item.key} item={item} nested />
+      <nav className="flyers-soft-sidebar-nav-group flex flex-col" aria-label="Flyers Soft navigation">
+        <div className="flyers-soft-sidebar-section">
+          {topItems.map((item) => (
+            <FlyersSidebarItem key={item.key} item={item} />
           ))}
         </div>
-      </div>
 
-      <div className="flyers-soft-sidebar-section flyers-soft-sidebar-private-section">
-        <div className="flyers-soft-sidebar-section-label">Private</div>
-        {privateItems.map((item) => (
-          <FlyersSidebarItem key={item.key} item={item} />
-        ))}
-      </div>
-    </nav>
+        <div className="flyers-soft-sidebar-section flyers-soft-sidebar-teamspace-section">
+          <div className="flyers-soft-sidebar-section-label">Teamspaces</div>
+          <Link href={workspaceRoot} className="flyers-soft-sidebar-workspace-row">
+            <span className="flyers-soft-sidebar-workspace-icon">{workspaceInitial}</span>
+            <span className="min-w-0 flex-1 truncate">{workspaceName}</span>
+            <ChevronDown className="size-3.5 flex-shrink-0" strokeWidth={2} />
+          </Link>
+          <div className="flyers-soft-sidebar-nested-list">
+            {teamspaceItems.map((item) => (
+              <FlyersSidebarItem key={item.key} item={item} nested />
+            ))}
+          </div>
+        </div>
+
+        <div className="flyers-soft-sidebar-section flyers-soft-sidebar-private-section">
+          <div className="flyers-soft-sidebar-section-label">Private</div>
+          {privateItems.map((item) => (
+            <FlyersSidebarItem key={item.key} item={item} />
+          ))}
+        </div>
+      </nav>
+    </>
   );
 });
+
+function HelpSupportModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  return (
+    <Transition.Root show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative z-50" onClose={onClose}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-200"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-150"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-[rgba(0,0,0,0.25)] backdrop-blur-[1px] transition-opacity" />
+        </Transition.Child>
+
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-200"
+              enterFrom="translate-y-2 scale-95 opacity-0"
+              enterTo="translate-y-0 scale-100 opacity-100"
+              leave="ease-in duration-150"
+              leaveFrom="translate-y-0 scale-100 opacity-100"
+              leaveTo="translate-y-2 scale-95 opacity-0"
+            >
+              <Dialog.Panel className="border-neutral-200 relative w-full max-w-[30rem] overflow-hidden rounded-2xl border bg-white p-6 text-left shadow-[0_20px_72px_rgba(0,0,0,0.16)]">
+                <button
+                  type="button"
+                  className="text-neutral-500 hover:bg-neutral-100 hover:text-neutral-950 absolute top-4 right-4 grid size-8 place-items-center rounded-md transition"
+                  onClick={onClose}
+                  aria-label="Close help and support"
+                >
+                  <X className="size-4" strokeWidth={2} />
+                </button>
+
+                <div className="flex items-center gap-4 pr-9">
+                  <div className="bg-neutral-100 text-neutral-600 grid size-12 flex-shrink-0 place-items-center rounded-xl">
+                    <HelpCircle className="size-6" strokeWidth={1.8} />
+                  </div>
+                  <div className="min-w-0">
+                    <Dialog.Title className="text-xl text-neutral-950 leading-7 font-semibold">Need help?</Dialog.Title>
+                    <p className="text-sm text-neutral-600 mt-1">Reach out to us.</p>
+                  </div>
+                </div>
+
+                <div className="divide-neutral-200 border-neutral-200 mt-6 divide-y border-y">
+                  {HELP_CONTACTS.map((contact) => (
+                    <div key={contact.email} className="flex items-center gap-3 py-3.5">
+                      <div className="bg-neutral-100 text-sm text-neutral-900 grid size-10 flex-shrink-0 place-items-center rounded-full font-medium">
+                        {contact.initials}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm text-neutral-950 truncate font-semibold">{contact.name}</div>
+                        <a
+                          href={`mailto:${contact.email}`}
+                          className="text-sm text-neutral-600 hover:text-neutral-950 block truncate transition"
+                        >
+                          {contact.email}
+                        </a>
+                      </div>
+                      <a
+                        href={`mailto:${contact.email}`}
+                        className="border-neutral-200 text-neutral-700 hover:bg-neutral-100 hover:text-neutral-950 grid size-10 flex-shrink-0 place-items-center rounded-xl border transition"
+                        aria-label={`Email ${contact.name}`}
+                      >
+                        <Mail className="size-4" strokeWidth={1.8} />
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </div>
+      </Dialog>
+    </Transition.Root>
+  );
+}
 
 function FlyersSidebarItem({ item, nested = false }: { item: TFlyersSidebarItem; nested?: boolean }) {
   const Icon = item.icon;

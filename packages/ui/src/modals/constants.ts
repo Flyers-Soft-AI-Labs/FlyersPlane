@@ -5,7 +5,7 @@
  */
 
 export enum EModalPosition {
-  TOP = "flex items-center justify-center text-center mx-4 my-10 md:my-20",
+  TOP = "flex items-center justify-center text-center mx-4 my-4 md:my-8",
   CENTER = "flex items-end sm:items-center justify-center p-4 min-h-full",
 }
 

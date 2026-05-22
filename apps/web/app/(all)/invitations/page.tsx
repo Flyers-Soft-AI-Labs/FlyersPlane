@@ -6,28 +6,15 @@
 
 import { useState } from "react";
 import { observer } from "mobx-react";
-import Link from "next/link";
-
 import useSWR, { mutate } from "swr";
-import { CheckCircle2 } from "lucide-react";
 // plane imports
-import { ROLE } from "@plane/constants";
-import { useTranslation } from "@plane/i18n";
-// types
-import { Button } from "@plane/propel/button";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import type { IWorkspaceMemberInvitation } from "@plane/types";
-import { truncateText } from "@plane/utils";
-// assets
-import emptyInvitation from "@/app/assets/empty-state/invitation.svg?url";
-// components
-import { EmptyState } from "@/components/common/empty-state";
-import { FlyersLogo } from "@/components/common/flyers-logo";
-import { WorkspaceLogo } from "@/components/workspace/logo";
+import { getFileURL } from "@plane/utils";
 import { USER_WORKSPACES_LIST } from "@/constants/fetch-keys";
 // hooks
 import { useWorkspace } from "@/hooks/store/use-workspace";
-import { useUser, useUserProfile } from "@/hooks/store/user";
+import { useUserProfile } from "@/hooks/store/user";
 import { useAppRouter } from "@/hooks/use-app-router";
 // services
 import { AuthenticationWrapper } from "@/lib/wrappers/authentication-wrapper";
@@ -35,166 +22,339 @@ import { AuthenticationWrapper } from "@/lib/wrappers/authentication-wrapper";
 import { WorkspaceService } from "@/services/workspace.service";
 
 const workspaceService = new WorkspaceService();
+const USER_WORKSPACE_INVITATIONS_KEY = "USER_WORKSPACE_INVITATIONS";
+
+type TProcessingInvitation = {
+  action: "accept" | "decline";
+  id: string;
+};
+
+type TInviteUserSummary = {
+  display_name?: string | null;
+  email?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  name?: string | null;
+};
+
+type TWorkspaceInvitationDisplay = IWorkspaceMemberInvitation & {
+  created_at?: Date | string | null;
+  created_by?: string | TInviteUserSummary | null;
+  created_by_detail?: TInviteUserSummary | null;
+  created_by_email?: string | null;
+  created_by_name?: string | null;
+  invited_by?: string | TInviteUserSummary | null;
+  invited_by_detail?: TInviteUserSummary | null;
+  inviter?: string | TInviteUserSummary | null;
+  inviter_email?: string | null;
+  inviter_name?: string | null;
+  updated_at?: Date | string | null;
+};
+
+const isUuidLike = (value: string) =>
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+
+const getWorkspaceInitials = (name: string | undefined) => {
+  if (!name) return "?";
+
+  const words = name
+    .split(/\s+/)
+    .map((word) => word.trim())
+    .filter(Boolean);
+
+  return (words.length > 1 ? `${words[0][0]}${words[1][0]}` : words[0]?.slice(0, 2) || "?").toUpperCase();
+};
+
+const getUserSummaryName = (user: TInviteUserSummary | undefined | null) => {
+  if (!user) return undefined;
+
+  const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ").trim();
+  return user.display_name || user.name || fullName || undefined;
+};
+
+const getStringUserDetails = (value: string | null | undefined) => {
+  if (!value || isUuidLike(value)) return {};
+  if (value.includes("@")) return { email: value };
+
+  return { name: value };
+};
+
+const getInviterDetails = (invitation: IWorkspaceMemberInvitation) => {
+  const invite = invitation as TWorkspaceInvitationDisplay;
+  const candidates = [
+    invite.invited_by_detail,
+    invite.inviter,
+    invite.invited_by,
+    invite.created_by_detail,
+    invite.created_by,
+  ];
+  let name = invite.inviter_name || invite.created_by_name || undefined;
+  let email = invite.inviter_email || invite.created_by_email || undefined;
+
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+
+    if (typeof candidate === "string") {
+      const details = getStringUserDetails(candidate);
+      name ||= details.name;
+      email ||= details.email;
+    } else {
+      name ||= getUserSummaryName(candidate);
+      email ||= candidate.email || undefined;
+    }
+
+    if (name && email) break;
+  }
+
+  return { email, name };
+};
+
+const getInvitationDate = (invitation: IWorkspaceMemberInvitation) => {
+  const invite = invitation as TWorkspaceInvitationDisplay;
+  const dateValue = invite.created_at || invite.updated_at;
+
+  if (!dateValue) return undefined;
+
+  const parsedDate = new Date(dateValue);
+  if (Number.isNaN(parsedDate.getTime())) return undefined;
+
+  return new Intl.DateTimeFormat(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(parsedDate);
+};
+
+function InvitationLineArt() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-32 w-40 text-[#6b7280]"
+      fill="none"
+      viewBox="0 0 180 140"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M40 62h100v58H40V62Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="m41 64 49 34 49-34" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="m42 118 38-32m58 32-38-32" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M70 24h40v60H70V24Z" fill="#fff" stroke="currentColor" />
+      <circle cx="90" cy="46" r="9" stroke="currentColor" />
+      <path d="M76 70c4-9 24-9 28 0" stroke="currentColor" strokeLinecap="round" />
+      <path d="M75 91c-15 11-28 17-42 17" stroke="currentColor" strokeDasharray="4 6" strokeLinecap="round" />
+      <path d="M121 80c15-7 25-17 31-32" stroke="currentColor" strokeDasharray="4 6" strokeLinecap="round" />
+      <path d="m151 48 12-16-22 7 10 9Z" stroke="currentColor" strokeLinejoin="round" />
+      <path d="m31 108-14-10 22-4-8 14Z" stroke="currentColor" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 function UserInvitationsPage() {
   // states
-  const [invitationsRespond, setInvitationsRespond] = useState<string[]>([]);
-  const [isJoiningWorkspaces, setIsJoiningWorkspaces] = useState(false);
+  const [processingInvitation, setProcessingInvitation] = useState<TProcessingInvitation | null>(null);
   // router
   const router = useAppRouter();
   // store hooks
-  const { t } = useTranslation();
-  const { data: currentUser } = useUser();
   const { updateUserProfile } = useUserProfile();
-
   const { fetchWorkspaces } = useWorkspace();
 
-  const { data: invitations } = useSWR("USER_WORKSPACE_INVITATIONS", () => workspaceService.userWorkspaceInvitations());
+  const {
+    data: invitations,
+    isLoading: isInvitationsLoading,
+    mutate: mutateInvitations,
+  } = useSWR(USER_WORKSPACE_INVITATIONS_KEY, () => workspaceService.userWorkspaceInvitations());
 
-  const redirectWorkspaceSlug =
-    // currentUserSettings?.workspace?.last_workspace_slug ||
-    // currentUserSettings?.workspace?.fallback_workspace_slug ||
-    "";
+  const handleAcceptInvitation = async (invitation: IWorkspaceMemberInvitation) => {
+    setProcessingInvitation({ action: "accept", id: invitation.id });
 
-  const handleInvitation = (workspace_invitation: IWorkspaceMemberInvitation, action: "accepted" | "withdraw") => {
-    if (action === "accepted") {
-      setInvitationsRespond((prevData) => [...prevData, workspace_invitation.id]);
-    } else if (action === "withdraw") {
-      setInvitationsRespond((prevData) => prevData.filter((item: string) => item !== workspace_invitation.id));
+    try {
+      await workspaceService.joinWorkspaces({ invitations: [invitation.id] });
+      await mutate(USER_WORKSPACES_LIST);
+      await updateUserProfile({ last_workspace_id: invitation.workspace.id });
+      await fetchWorkspaces();
+      router.push(`/${invitation.workspace.slug}`);
+    } catch (_err) {
+      setToast({
+        type: TOAST_TYPE.ERROR,
+        title: "Error",
+        message: "Something went wrong. Please try again.",
+      });
+      setProcessingInvitation(null);
     }
   };
 
-  const submitInvitations = () => {
-    if (invitationsRespond.length === 0) {
+  const handleDeclineInvitation = async (invitation: IWorkspaceMemberInvitation) => {
+    setProcessingInvitation({ action: "decline", id: invitation.id });
+
+    try {
+      await workspaceService.joinWorkspace(invitation.workspace.slug, invitation.id, {
+        accepted: false,
+        token: invitation.token,
+      });
+      await mutateInvitations(
+        (currentInvitations) =>
+          currentInvitations?.filter((currentInvitation) => currentInvitation.id !== invitation.id),
+        { revalidate: false }
+      );
+      setProcessingInvitation(null);
+    } catch (_err) {
       setToast({
         type: TOAST_TYPE.ERROR,
-        title: t("error"),
-        message: t("please_select_at_least_one_invitation"),
+        title: "Error",
+        message: "Something went wrong. Please try again.",
       });
-      return;
+      setProcessingInvitation(null);
     }
-
-    setIsJoiningWorkspaces(true);
-
-    workspaceService
-      .joinWorkspaces({ invitations: invitationsRespond })
-      .then(() => {
-        mutate(USER_WORKSPACES_LIST);
-        const firstInviteId = invitationsRespond[0];
-        const redirectWorkspace = invitations?.find((i) => i.id === firstInviteId)?.workspace;
-        updateUserProfile({ last_workspace_id: redirectWorkspace?.id })
-          .then(() => {
-            setIsJoiningWorkspaces(false);
-            fetchWorkspaces().then(() => {
-              router.push(`/${redirectWorkspace?.slug}`);
-            });
-          })
-          .catch(() => {
-            setToast({
-              type: TOAST_TYPE.ERROR,
-              title: t("error"),
-              message: t("something_went_wrong_please_try_again"),
-            });
-            setIsJoiningWorkspaces(false);
-          });
-      })
-      .catch((_err) => {
-        setToast({
-          type: TOAST_TYPE.ERROR,
-          title: t("error"),
-          message: t("something_went_wrong_please_try_again"),
-        });
-        setIsJoiningWorkspaces(false);
-      });
   };
 
   return (
     <AuthenticationWrapper>
-      <div className="flex h-full flex-col gap-y-2 overflow-hidden sm:flex-row sm:gap-y-0">
-        <div className="relative h-1/6 flex-shrink-0 sm:w-2/12 md:w-3/12 lg:w-1/5">
-          <div className="absolute top-1/2 left-0 h-[0.5px] w-full -translate-y-1/2 border-b-[0.5px] border-subtle sm:top-0 sm:left-1/2 sm:h-screen sm:w-[0.5px] sm:-translate-x-1/2 sm:translate-y-0 sm:border-r-[0.5px] md:left-1/3" />
-          <Link
-            href="/"
-            className="absolute top-1/2 left-5 z-10 grid -translate-y-1/2 place-items-center px-3 sm:top-12 sm:left-1/2 sm:-translate-x-[15px] sm:translate-y-0 sm:px-0 sm:py-5 md:left-1/3"
-          >
-            <FlyersLogo />
-          </Link>
-          <div className="absolute top-1/4 right-4 -translate-y-1/2 text-13 text-primary sm:fixed sm:top-12 sm:right-16 sm:translate-y-0 sm:py-5">
-            {currentUser?.email}
-          </div>
-        </div>
-        {invitations ? (
-          invitations.length > 0 ? (
-            <div className="relative flex h-full justify-center px-8 pb-8 sm:w-10/12 sm:items-center sm:justify-start sm:p-0 sm:pr-[8.33%] md:w-9/12 lg:w-4/5">
-              <div className="w-full space-y-10">
-                <h5 className="text-16">{t("we_see_that_someone_has_invited_you_to_join_a_workspace")}</h5>
-                <h4 className="text-20 font-semibold">{t("join_a_workspace")}</h4>
-                <div className="max-h-[37vh] space-y-4 overflow-y-auto md:w-3/5">
-                  {invitations.map((invitation) => {
-                    const isSelected = invitationsRespond.includes(invitation.id);
+      <main className="min-h-screen w-full overflow-y-auto bg-white text-[#111827]">
+        <section className="mx-auto flex min-h-screen w-full max-w-[1520px] flex-col px-6 py-10 sm:px-10 lg:px-12">
+          <h1 className="text-2xl tracking-normal font-semibold text-[#111827]">Invitations</h1>
 
-                    return (
-                      <div
-                        key={invitation.id}
-                        className={`flex cursor-pointer items-center gap-2 rounded-sm border px-3.5 py-5 ${
-                          isSelected ? "border-accent-strong" : "border-subtle hover:bg-layer-1"
-                        }`}
-                        onClick={() => handleInvitation(invitation, isSelected ? "withdraw" : "accepted")}
-                      >
-                        <div className="flex-shrink-0">
-                          <WorkspaceLogo
-                            logo={invitation.workspace.logo_url}
-                            name={invitation.workspace.name}
-                            classNames="size-9 flex-shrink-0"
-                          />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="text-13 font-medium">{truncateText(invitation.workspace.name, 30)}</div>
-                          <p className="text-11 text-secondary">{ROLE[invitation.role]}</p>
-                        </div>
-                        <span className={`flex-shrink-0 ${isSelected ? "text-accent-primary" : "text-secondary"}`}>
-                          <CheckCircle2 className="h-5 w-5" />
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="primary"
-                    type="submit"
-                    size="lg"
-                    onClick={submitInvitations}
-                    disabled={isJoiningWorkspaces || invitationsRespond.length === 0}
-                    loading={isJoiningWorkspaces}
+          {isInvitationsLoading ? (
+            <div className="mt-14 w-full max-w-[1240px]">
+              <div className="mb-7 space-y-2">
+                <div className="h-5 w-52 rounded bg-[#f0f1f2]" />
+                <div className="h-4 w-72 rounded bg-[#f5f5f4]" />
+              </div>
+              <div className="overflow-hidden rounded-lg border border-[#d8dee4] bg-white">
+                {[0, 1, 2].map((item) => (
+                  <div
+                    key={item}
+                    className="grid min-h-[96px] grid-cols-[minmax(0,1fr)_180px_260px] items-center gap-8 border-b border-[#eceff3] px-7 py-5 last:border-b-0"
                   >
-                    {t("accept_and_join")}
-                  </Button>
-                  <Link href={`/${redirectWorkspaceSlug}`}>
-                    <span>
-                      <Button variant="secondary" size="lg">
-                        {t("go_home")}
-                      </Button>
-                    </span>
-                  </Link>
-                </div>
+                    <div className="flex items-center gap-5">
+                      <div className="h-12 w-12 rounded-lg bg-[#f1f2f3]" />
+                      <div className="space-y-2">
+                        <div className="h-4 w-44 rounded bg-[#f0f1f2]" />
+                        <div className="h-3 w-64 rounded bg-[#f5f5f4]" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="h-3 w-20 rounded bg-[#f5f5f4]" />
+                      <div className="h-4 w-28 rounded bg-[#f0f1f2]" />
+                    </div>
+                    <div className="flex justify-end gap-4">
+                      <div className="h-10 w-28 rounded-lg bg-[#f5f5f4]" />
+                      <div className="h-10 w-28 rounded-lg bg-[#e5e7eb]" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : invitations && invitations.length > 0 ? (
+            <div className="mt-14 w-full max-w-[1240px]">
+              <div className="mb-7">
+                <h2 className="text-lg tracking-normal font-semibold text-[#111827]">
+                  Pending invitations ({invitations.length})
+                </h2>
+                <p className="text-base font-normal mt-3 leading-6 text-[#5f6b7a]">
+                  Invitations to workspaces you can join.
+                </p>
+              </div>
+
+              <div className="overflow-hidden rounded-lg border border-[#d8dee4] bg-white">
+                {invitations.map((invitation) => {
+                  const inviteDate = getInvitationDate(invitation);
+                  const inviter = getInviterDetails(invitation);
+                  const inviterLabel = inviter.name || inviter.email;
+                  const isAccepting =
+                    processingInvitation?.id === invitation.id && processingInvitation.action === "accept";
+                  const isDeclining =
+                    processingInvitation?.id === invitation.id && processingInvitation.action === "decline";
+                  const isProcessing = processingInvitation?.id === invitation.id;
+
+                  return (
+                    <div
+                      key={invitation.id}
+                      className="grid min-h-[96px] grid-cols-1 items-center gap-5 border-b border-[#eceff3] px-5 py-5 last:border-b-0 sm:px-7 lg:grid-cols-[minmax(0,1fr)_180px_260px] lg:gap-8"
+                    >
+                      <div className="flex min-w-0 items-center gap-5">
+                        <div className="text-base grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-lg border border-[#ebeef2] bg-[#f5f5f4] font-semibold text-[#111827]">
+                          {invitation.workspace.logo_url ? (
+                            <img
+                              src={getFileURL(invitation.workspace.logo_url)}
+                              alt=""
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            getWorkspaceInitials(invitation.workspace.name)
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="text-base truncate leading-5 font-semibold text-[#111827]">
+                            {invitation.workspace.name}
+                          </h3>
+                          {inviterLabel ? (
+                            <>
+                              <p className="text-sm mt-1 truncate leading-5 text-[#5f6b7a]">
+                                Invited by {inviterLabel}
+                              </p>
+                              {inviter.email && inviter.email !== inviterLabel && (
+                                <p className="text-sm truncate leading-5 text-[#5f6b7a]">{inviter.email}</p>
+                              )}
+                            </>
+                          ) : (
+                            <p className="text-sm mt-1 truncate leading-5 text-[#5f6b7a]">
+                              Inviter details unavailable
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="text-sm leading-5 text-[#5f6b7a]">
+                        {inviteDate && (
+                          <>
+                            <p>Invited on</p>
+                            <p>{inviteDate}</p>
+                          </>
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-start gap-4 lg:justify-end">
+                        <button
+                          type="button"
+                          onClick={() => handleDeclineInvitation(invitation)}
+                          disabled={Boolean(processingInvitation)}
+                          className="text-base inline-flex h-10 min-w-28 items-center justify-center rounded-lg border border-[#d8dee4] bg-white px-4 font-medium text-[#111827] shadow-none transition-colors hover:bg-[#f7f7f5] disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {isDeclining ? "Declining..." : "Decline"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleAcceptInvitation(invitation)}
+                          disabled={Boolean(processingInvitation)}
+                          className="text-base inline-flex h-10 min-w-28 items-center justify-center rounded-lg border border-[#111827] bg-[#111827] px-4 font-medium text-white shadow-[0_6px_18px_rgba(17,24,39,0.14)] transition-colors hover:bg-[#1f2937] disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {isAccepting ? "Accepting..." : isProcessing ? "Accept" : "Accept"}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ) : (
-            <div className="fixed top-0 left-0 grid h-full w-full place-items-center">
-              <EmptyState
-                title={t("no_pending_invites")}
-                description={t("you_can_see_here_if_someone_invites_you_to_a_workspace")}
-                image={emptyInvitation}
-                primaryButton={{
-                  text: t("back_to_home"),
-                  onClick: () => router.push("/"),
-                }}
-              />
+            <div className="flex flex-1 items-center justify-center px-4 pt-20 pb-12">
+              <div className="flex max-w-[460px] flex-col items-center text-center">
+                <InvitationLineArt />
+                <h2 className="text-xl tracking-normal mt-5 font-semibold text-[#111827]">No pending invites</h2>
+                <p className="text-base mt-3 leading-6 text-[#5f6b7a]">
+                  You&apos;ll see workspace invitations here when someone invites you.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => router.push("/")}
+                  className="text-base mt-7 inline-flex h-11 items-center justify-center rounded-lg border border-[#d8dee4] bg-white px-5 font-medium text-[#111827] shadow-none transition-colors hover:bg-[#f7f7f5]"
+                >
+                  Back to home
+                </button>
+              </div>
             </div>
-          )
-        ) : null}
-      </div>
+          )}
+        </section>
+      </main>
     </AuthenticationWrapper>
   );
 }
