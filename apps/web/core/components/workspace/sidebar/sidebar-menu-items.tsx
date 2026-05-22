@@ -9,6 +9,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
   ChevronDown,
+  Clock,
   FileText,
   Folder,
   HelpCircle,
@@ -131,6 +132,13 @@ export const SidebarMenuItems = observer(function SidebarMenuItems() {
       href: `${workspaceRoot}/workspace-views/assigned`,
       icon: ListTodo,
       isActive: pathname?.startsWith(`${workspaceRoot}/workspace-views/assigned`),
+    },
+    {
+      key: "timesheet",
+      label: "Time Sheet",
+      href: `${workspaceRoot}/timesheet/`,
+      icon: Clock,
+      isActive: pathname === `${workspaceRoot}/timesheet` || pathname?.startsWith(`${workspaceRoot}/timesheet/`),
     },
     {
       key: "tickets",

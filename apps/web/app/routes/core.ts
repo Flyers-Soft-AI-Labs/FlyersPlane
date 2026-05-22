@@ -114,6 +114,9 @@ export const coreRoutes: RouteConfigEntry[] = [
         // Templates
         route(":workspaceSlug/templates", "./(all)/[workspaceSlug]/templates/page.tsx"),
 
+        // Time Sheet
+        route(":workspaceSlug/timesheet", "./(all)/[workspaceSlug]/timesheet/page.tsx"),
+
         // Workspace Views
         layout("./(all)/[workspaceSlug]/(projects)/workspace-views/layout.tsx", [
           route(":workspaceSlug/workspace-views", "./(all)/[workspaceSlug]/(projects)/workspace-views/page.tsx"),
