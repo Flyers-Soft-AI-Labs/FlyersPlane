@@ -3870,11 +3870,6 @@ textarea:focus {
 [role="dialog"],
 [role="menu"],
 [role="listbox"],
-[data-headlessui-state],
-[class*="dropdown"],
-[class*="popover"],
-[class*="modal"],
-[class*="card"],
 table,
 tbody,
 thead,
@@ -4386,8 +4381,9 @@ body,
 [role="dialog"],
 [role="menu"],
 [role="listbox"],
-[class*="dropdown"],
-[class*="popover"] {
+.flyers-soft-dropdown,
+.flyers-soft-popover,
+[data-slot="popover-content"] {
   border-radius: var(--flyers-density-radius) !important;
 }
 
@@ -4395,11 +4391,7 @@ body,
 .flyers-soft-teams-stat-card,
 .flyers-soft-kanban-card,
 .flyers-soft-base-kanban-item > *,
-[role="dialog"],
-[role="menu"],
-[role="listbox"],
-[class*="dropdown"],
-[class*="popover"] {
+[role="dialog"] {
   padding: var(--flyers-density-card-padding) !important;
 }
 
