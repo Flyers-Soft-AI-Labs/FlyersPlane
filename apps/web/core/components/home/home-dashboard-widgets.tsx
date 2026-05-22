@@ -4,7 +4,7 @@
  * See the LICENSE file for details.
  */
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { CSSProperties, FC, ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -101,6 +101,14 @@ const formatDashboardDate = (date: string | undefined) => {
     day: "numeric",
     year: "numeric",
   }).format(parsedDate);
+};
+
+const getDashboardGreeting = () => {
+  const hour = new Date().getHours();
+
+  if (hour >= 5 && hour < 12) return "Good morning";
+  if (hour >= 12 && hour < 17) return "Good afternoon";
+  return "Good evening";
 };
 
 type TRecentTicketUpdate = (
@@ -276,6 +284,7 @@ export const DashboardWidgets = observer(function DashboardWidgets() {
   const workspaceSlugString = workspaceSlug?.toString();
   const { toggleCreateIssueModal } = useCommandPalette();
   const { data: currentUser } = useUser();
+  const [greeting, setGreeting] = useState(getDashboardGreeting);
   const globalIssueActions = useIssuesActions(EIssuesStoreType.GLOBAL);
   const epicIssueActions = useIssuesActions(EIssuesStoreType.EPIC);
 
@@ -328,6 +337,15 @@ export const DashboardWidgets = observer(function DashboardWidgets() {
     [epicIssueActions.updateIssue, globalIssueActions.updateIssue, mutateRecentTickets, recentTickets]
   );
 
+  useEffect(() => {
+    const updateGreeting = () => setGreeting(getDashboardGreeting());
+
+    updateGreeting();
+    const intervalId = window.setInterval(updateGreeting, 60 * 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
+
   if (!workspaceSlugString) return null;
 
   const visibleRecentTickets = (recentTickets ?? []).filter(
@@ -335,7 +353,6 @@ export const DashboardWidgets = observer(function DashboardWidgets() {
   );
 
   const displayName = currentUser?.first_name || currentUser?.display_name || "Shalini";
-  const greeting = "Good afternoon";
 
   return (
     <div className="flyers-soft-dashboard-shell flyers-soft-notion-home">
