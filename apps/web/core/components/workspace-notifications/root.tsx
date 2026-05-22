@@ -9,7 +9,6 @@ import { observer } from "mobx-react";
 import useSWR from "swr";
 // plane imports
 import { ENotificationLoader, ENotificationQueryParamType } from "@plane/constants";
-import { EmptyStateCompact } from "@plane/propel/empty-state";
 import { cn } from "@plane/utils";
 // components
 import { LogoSpinner } from "@/components/common/logo-spinner";
@@ -26,6 +25,42 @@ import { InboxContentRoot } from "../inbox/content";
 type NotificationsRootProps = {
   workspaceSlug?: string;
 };
+
+function NotificationsEmptyDetailPanel() {
+  return (
+    <div className="flyers-soft-notifications-empty-detail flex size-full items-center justify-center px-8 text-center">
+      <div className="flex max-w-sm flex-col items-center">
+        <svg
+          className="flyers-soft-notifications-empty-illustration mb-7 h-32 w-32 text-[#a3a3a3]"
+          viewBox="0 0 160 160"
+          fill="none"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path
+            d="M43 72.5 80 95l37-22.5"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path d="M43 72.5h74v48H43z" stroke="currentColor" strokeWidth="3" strokeLinejoin="round" />
+          <path
+            d="M43 72.5 80 42l37 30.5"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path d="M61 63h38M61 76h28" stroke="currentColor" strokeWidth="3" strokeLinecap="round" opacity="0.55" />
+          <path d="M80 30v-12M58 38l-8-10M102 38l8-10" stroke="#5b3cc4" strokeWidth="4" strokeLinecap="round" />
+        </svg>
+        <h2 className="text-2xl tracking-normal font-semibold text-primary">All caught up!</h2>
+        <p className="text-15 mt-3 leading-6 text-secondary">{"You\u2019ve seen all the latest updates."}</p>
+      </div>
+    </div>
+  );
+}
 
 export const NotificationsRoot = observer(function NotificationsRoot({ workspaceSlug }: NotificationsRootProps) {
   // hooks
@@ -84,11 +119,11 @@ export const NotificationsRoot = observer(function NotificationsRoot({ workspace
   );
 
   return (
-    <div className={cn("h-full w-full overflow-hidden", isWorkItem && "overflow-y-auto")}>
+    <div
+      className={cn("flyers-soft-notifications-detail h-full w-full overflow-hidden", isWorkItem && "overflow-y-auto")}
+    >
       {!currentSelectedNotificationId ? (
-        <div className="flex size-full items-center justify-center">
-          <EmptyStateCompact assetKey="unknown" assetClassName="size-20" />
-        </div>
+        <NotificationsEmptyDetailPanel />
       ) : (
         <>
           {is_inbox_issue === true && workspace_slug && project_id && issue_id ? (
