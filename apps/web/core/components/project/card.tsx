@@ -4,27 +4,31 @@
  * See the LICENSE file for details.
  */
 
+import type { Placement, PositioningStrategy } from "@popperjs/core";
 import React, { useRef, useState } from "react";
 import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArchiveRestoreIcon, Check, ChevronDown, FileText, MoreHorizontal, Settings, UserPlus } from "lucide-react";
+import { createPortal } from "react-dom";
+import { usePopper } from "react-popper";
+import { ArchiveRestoreIcon, ChevronDown, FileText, MoreHorizontal, Settings, UserPlus } from "lucide-react";
+import { Combobox } from "@headlessui/react";
 // plane imports
 import { EUserPermissions, ISSUE_PRIORITIES } from "@plane/constants";
-import { LinkIcon, LockIcon, NewTabIcon, TrashIcon } from "@plane/propel/icons";
+import { CheckIcon, LinkIcon, LockIcon, NewTabIcon, PriorityIcon, SearchIcon, TrashIcon } from "@plane/propel/icons";
 import { setToast, TOAST_TYPE } from "@plane/propel/toast";
 import type { IProject, TIssuePriorities } from "@plane/types";
 import type { TContextMenuItem } from "@plane/ui";
-import { ContextMenu, CustomMenu } from "@plane/ui";
+import { ComboDropDown, ContextMenu, CustomMenu } from "@plane/ui";
 import { copyUrlToClipboard, cn, renderFormattedPayloadDate } from "@plane/utils";
 // components
 import { DateDropdown } from "@/components/dropdowns/date";
 import { MemberDropdown } from "@/components/dropdowns/member/dropdown";
-import { PriorityDropdown } from "@/components/dropdowns/priority";
 // hooks
 import { useMember } from "@/hooks/store/use-member";
 import { useProject } from "@/hooks/store/use-project";
 import { useAppRouter } from "@/hooks/use-app-router";
+import { useDropdown } from "@/hooks/use-dropdown";
 // local imports
 import { ArchiveRestoreProjectModal } from "./archive-restore-modal";
 import { DeleteProjectModal } from "./delete-project-modal";
@@ -51,7 +55,7 @@ type TProjectWithTableFields = IProject & {
 type TProjectUpdatePayload = Partial<IProject> & Partial<TProjectWithTableFields>;
 
 const PROJECT_STATUS_OPTIONS = ["To Do", "Planning", "In Progress", "Completed", "Active", "Archived"];
-const PROJECT_PRIORITY_KEYS: TIssuePriorities[] = ["none", "low", "medium", "high", "urgent"];
+const PROJECT_PRIORITY_KEYS = new Set<TIssuePriorities>(["none", "low", "medium", "high", "urgent"]);
 
 function getProjectProgress(completedIssues = 0, totalIssues = 0) {
   if (totalIssues <= 0) return 0;
@@ -155,7 +159,7 @@ function getProjectLeadName(
 
 function normalizeProjectPriority(priority: string | null | undefined): TIssuePriorities {
   const priorityValue = priority?.toLowerCase() as TIssuePriorities | undefined;
-  return priorityValue && PROJECT_PRIORITY_KEYS.includes(priorityValue) ? priorityValue : "none";
+  return priorityValue && PROJECT_PRIORITY_KEYS.has(priorityValue) ? priorityValue : "none";
 }
 
 function getPriorityLabel(priority: string | null | undefined) {
@@ -169,6 +173,165 @@ function isInlineControlTarget(target: EventTarget | null) {
     !!target.closest(
       "a, button, input, textarea, select, [role='button'], [role='menuitem'], [data-project-inline-control]"
     )
+  );
+}
+
+type TProjectInlineDropdownOption<TValue extends string> = {
+  content: React.ReactNode;
+  query: string;
+  value: TValue;
+};
+
+type TProjectInlineDropdownProps<TValue extends string> = {
+  ariaLabel: string;
+  button: React.ReactNode;
+  buttonClassName?: string;
+  className?: string;
+  dropdownStrategy?: PositioningStrategy;
+  onChange: (value: TValue) => void;
+  options: TProjectInlineDropdownOption<TValue>[];
+  optionsClassName?: string;
+  placement?: Placement;
+  searchPlaceholder?: string;
+  value: TValue;
+};
+
+function ProjectInlineDropdown<TValue extends string>(props: TProjectInlineDropdownProps<TValue>) {
+  const {
+    ariaLabel,
+    button,
+    buttonClassName,
+    className = "",
+    dropdownStrategy = "absolute",
+    onChange,
+    options,
+    optionsClassName = "",
+    placement,
+    searchPlaceholder = "Search",
+    value,
+  } = props;
+  const [query, setQuery] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
+  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
+
+  const { styles, attributes } = usePopper(referenceElement, popperElement, {
+    strategy: dropdownStrategy,
+    placement: placement ?? "bottom-start",
+    modifiers: [
+      {
+        name: "flip",
+        options: {
+          padding: 12,
+        },
+      },
+      {
+        name: "preventOverflow",
+        options: {
+          altAxis: true,
+          padding: 12,
+          rootBoundary: "viewport",
+        },
+      },
+    ],
+  });
+
+  const filteredOptions =
+    query === "" ? options : options.filter((option) => option.query.toLowerCase().includes(query.toLowerCase()));
+
+  const { handleClose, handleKeyDown, handleOnClick, searchInputKeyDown } = useDropdown({
+    dropdownRef,
+    inputRef,
+    isOpen,
+    query,
+    setIsOpen,
+    setQuery,
+  });
+
+  const dropdownOnChange = (nextValue: TValue) => {
+    onChange(nextValue);
+    handleClose();
+  };
+
+  return (
+    <ComboDropDown
+      as="div"
+      ref={dropdownRef}
+      className={cn("h-full", className)}
+      value={value}
+      onChange={dropdownOnChange}
+      onKeyDown={handleKeyDown}
+      button={
+        <button
+          ref={setReferenceElement}
+          type="button"
+          className={cn("clickable block h-full w-full outline-none", buttonClassName)}
+          onClick={handleOnClick}
+          aria-label={ariaLabel}
+        >
+          {button}
+        </button>
+      }
+    >
+      {isOpen &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <Combobox.Options data-prevent-outside-click static>
+            <div
+              className={cn(
+                "z-30 my-1 w-48 rounded-sm border-[0.5px] border-strong bg-surface-1 px-2 py-2.5 text-11 shadow-raised-200 focus:outline-none",
+                optionsClassName
+              )}
+              ref={setPopperElement}
+              style={styles.popper}
+              {...attributes.popper}
+            >
+              <div className="flex items-center gap-1.5 rounded-sm border border-subtle bg-surface-2 px-2">
+                <SearchIcon className="h-3.5 w-3.5 text-placeholder" strokeWidth={1.5} />
+                <Combobox.Input
+                  as="input"
+                  ref={inputRef}
+                  className="w-full bg-transparent py-1 text-11 text-secondary placeholder:text-placeholder focus:outline-none"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder={searchPlaceholder}
+                  displayValue={(selected: TValue) => selected}
+                  onKeyDown={searchInputKeyDown}
+                />
+              </div>
+              <div className="mt-2 max-h-48 space-y-1 overflow-y-scroll">
+                {filteredOptions.length > 0 ? (
+                  filteredOptions.map((option) => (
+                    <Combobox.Option
+                      key={option.value}
+                      value={option.value}
+                      className={({ active, selected }) =>
+                        cn(
+                          "flex w-full cursor-pointer items-center justify-between gap-2 truncate rounded-sm px-1 py-1.5 select-none",
+                          active && "bg-layer-transparent-hover",
+                          selected ? "text-primary" : "text-secondary"
+                        )
+                      }
+                    >
+                      {({ selected }) => (
+                        <>
+                          <span className="flex-grow truncate">{option.content}</span>
+                          {selected && <CheckIcon className="h-3.5 w-3.5 flex-shrink-0" />}
+                        </>
+                      )}
+                    </Combobox.Option>
+                  ))
+                ) : (
+                  <p className="px-1.5 py-1 text-placeholder italic">No matching results</p>
+                )}
+              </div>
+            </div>
+          </Combobox.Options>,
+          document.body
+        )}
+    </ComboDropDown>
   );
 }
 
@@ -327,6 +490,28 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
     },
   ];
   const visibleMenuItems = MENU_ITEMS.filter((item) => item.shouldRender !== false);
+  const statusOptions = PROJECT_STATUS_OPTIONS.map((statusOption) => ({
+    value: statusOption,
+    query: statusOption,
+    content: (
+      <span className="flex items-center gap-2">
+        <span className={cn("flyers-soft-projects-pill-dot", getStatusTone(statusOption).dotClassName)} />
+        {statusOption}
+      </span>
+    ),
+  }));
+  const priorityOptions = ISSUE_PRIORITIES.filter((priority) =>
+    PROJECT_PRIORITY_KEYS.has(priority.key as TIssuePriorities)
+  ).map((priority) => ({
+    value: priority.key as TIssuePriorities,
+    query: `${priority.key} ${priority.title}`,
+    content: (
+      <div className="flex items-center gap-2">
+        <PriorityIcon priority={priority.key} size={14} withContainer />
+        <span className="flex-grow truncate">{priority.title}</span>
+      </div>
+    ),
+  }));
 
   return (
     <>
@@ -382,34 +567,22 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
             </div>
           </div>
           <div role="cell" data-project-inline-control>
-            <CustomMenu
-              customButton={
+            <ProjectInlineDropdown
+              value={status.label}
+              onChange={handleStatusUpdate}
+              ariaLabel="Project status"
+              buttonClassName="flyers-soft-projects-inline-menu-button"
+              options={statusOptions}
+              optionsClassName="flyers-soft-projects-inline-options"
+              placement="bottom-start"
+              button={
                 <span className={cn("flyers-soft-projects-pill flyers-soft-projects-inline-pill", status.className)}>
                   <span className={cn("flyers-soft-projects-pill-dot", status.dotClassName)} />
                   {status.label}
                   <ChevronDown className="h-3 w-3 opacity-60" strokeWidth={2} />
                 </span>
               }
-              customButtonClassName="flyers-soft-projects-inline-menu-button"
-              ariaLabel="Project status"
-              optionsClassName="flyers-soft-projects-inline-options"
-              placement="bottom-start"
-              closeOnSelect
-            >
-              {PROJECT_STATUS_OPTIONS.map((statusOption) => (
-                <CustomMenu.MenuItem
-                  key={statusOption}
-                  className="flex items-center justify-between gap-2"
-                  onClick={() => handleStatusUpdate(statusOption)}
-                >
-                  <span className="flex items-center gap-2">
-                    <span className={cn("flyers-soft-projects-pill-dot", getStatusTone(statusOption).dotClassName)} />
-                    {statusOption}
-                  </span>
-                  {statusOption === status.label && <Check className="h-3.5 w-3.5" strokeWidth={2} />}
-                </CustomMenu.MenuItem>
-              ))}
-            </CustomMenu>
+            />
           </div>
           <div className="flyers-soft-projects-muted-cell" role="cell" data-project-inline-control>
             <MemberDropdown
@@ -459,12 +632,13 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
             />
           </div>
           <div role="cell" data-project-inline-control>
-            <PriorityDropdown
+            <ProjectInlineDropdown
               value={projectPriority}
               onChange={(priority) => {
                 void updateProjectDetails({ priority }).catch(handleUpdateError);
               }}
-              buttonVariant="transparent-with-text"
+              ariaLabel="Project priority"
+              options={priorityOptions}
               optionsClassName="flyers-soft-projects-inline-options"
               placement="bottom-start"
               button={

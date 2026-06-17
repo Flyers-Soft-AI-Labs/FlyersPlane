@@ -4,8 +4,9 @@
  * See the LICENSE file for details.
  */
 
-import type { ChangeEvent, ReactNode } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import type { ChangeEvent, Dispatch, ReactNode, SetStateAction } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { Combobox, Dialog, Transition } from "@headlessui/react";
 import { orderBy } from "lodash-es";
 import { observer } from "mobx-react";
 import Link from "next/link";
@@ -34,7 +35,9 @@ import { EIssuesStoreType } from "@plane/types";
 import { CustomSelect } from "@plane/ui";
 import { cn, generateWorkItemLink } from "@plane/utils";
 // hooks
+import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
+import { getValueFromLocalStorage, setValueIntoLocalStorage } from "@/hooks/use-local-storage";
 import { useMember } from "@/hooks/store/use-member";
 import { useProject } from "@/hooks/store/use-project";
 import { useUser } from "@/hooks/store/user";
@@ -73,11 +76,13 @@ type TTimeEntry = {
   ticketId: string;
   ticketNo: string;
   hours: number;
+  notes?: string;
   status: TTimeSheetStatus;
 };
 
 type TEntryDraft = Omit<TTimeEntry, "id" | "hours"> & {
   hours: string;
+  notes: string;
 };
 
 type TImportedTimesheetRow = Record<string, unknown>;
@@ -93,6 +98,8 @@ type TTimeSheetSelectOption = {
   value: string;
   label: string;
 };
+
+type TAddEntryStep = "ticket" | "confirm";
 
 const STATUS_OPTIONS: TTimeSheetStatus[] = ["Draft", "Submitted", "Approved", "Rejected"];
 
@@ -131,6 +138,10 @@ const TIME_SHEET_SELECT_MENU_CLASS =
 const TIME_SHEET_SELECT_OPTION_CLASS = "h-9 rounded-md px-2 py-0 text-13 font-medium text-[#374151] hover:bg-[#f5f5f5]";
 
 const EMPTY_FILTER_VALUE = "all";
+const TIME_SHEET_STORAGE_KEY_PREFIX = "flyers-soft-timesheet-entries";
+
+const getTimeSheetStorageKey = (workspaceSlug: string | undefined) =>
+  workspaceSlug ? `${TIME_SHEET_STORAGE_KEY_PREFIX}/${workspaceSlug}` : undefined;
 
 const getDateInputValue = (date: Date) => {
   const year = date.getFullYear();
@@ -164,6 +175,59 @@ const getHoursValue = (value: string | number | null | undefined) => {
 const getMemberName = (member: { display_name?: string; first_name?: string; last_name?: string; email?: string }) => {
   const fullName = [member.first_name, member.last_name].filter(Boolean).join(" ").trim();
   return member.display_name || fullName || member.email || "Unassigned";
+};
+
+const getTicketIdentifierParts = (ticketNo: string) => {
+  const identifierMatch = /^(.+)-(\d+)$/.exec(ticketNo.trim());
+  if (!identifierMatch) return undefined;
+
+  return {
+    projectIdentifier: identifierMatch[1].toUpperCase(),
+    sequenceId: identifierMatch[2],
+  };
+};
+
+const createTicketOptionFromIssue = (
+  issue: TIssue,
+  projectIdentifier: string,
+  projectOptions: TProjectOption[]
+): TTicketOption | undefined => {
+  if (!issue.project_id) return undefined;
+
+  const project = projectOptions.find((option) => option.id === issue.project_id);
+  if (!project) return undefined;
+
+  return {
+    id: issue.id,
+    issue,
+    projectId: issue.project_id,
+    projectIdentifier,
+    projectName: project.name,
+    task: issue.name,
+    ticketNo: `${projectIdentifier}-${issue.sequence_id}`,
+  };
+};
+
+const getTicketAutofillUpdates = (
+  ticketOption: TTicketOption,
+  employeeOptions: TEmployeeOption[],
+  currentEmployee: TEmployeeOption | undefined
+): Partial<TEntryDraft> => {
+  const assigneeId = ticketOption.issue.assignee_ids?.[0];
+  const assignee = assigneeId ? employeeOptions.find((employee) => employee.id === assigneeId) : undefined;
+  const employee = assignee ?? currentEmployee;
+
+  return {
+    ...(employee ? { employeeId: employee.id, employeeName: employee.name } : {}),
+    projectId: ticketOption.projectId,
+    projectName: ticketOption.projectName,
+    task: ticketOption.task,
+    ticketId: ticketOption.id,
+    ticketNo: ticketOption.ticketNo,
+    date: getTodayInputValue(),
+    hours: "0.00",
+    status: "Draft",
+  };
 };
 
 const isDateWithinRange = (dateValue: string, filter: TDateRangeFilter) => {
@@ -202,8 +266,85 @@ const createEmptyDraft = (employee: TEmployeeOption | undefined): TEntryDraft =>
   ticketId: "",
   ticketNo: "",
   hours: "0.00",
+  notes: "",
   status: "Draft",
 });
+
+const getTimeSheetEntryId = () => {
+  const randomId =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+  return `timesheet-${randomId}`;
+};
+
+const getTimeEntryFromTicketOption = (
+  ticketOption: TTicketOption,
+  index: number,
+  getEmployeeDetails: (employeeId: string) => ({ id?: string } & Parameters<typeof getMemberName>[0]) | undefined,
+  fallbackEmployee: TEmployeeOption | undefined
+): TTimeEntry => {
+  const assigneeId = ticketOption.issue.assignee_ids?.[0];
+  const assignee = assigneeId ? getEmployeeDetails(assigneeId) : undefined;
+  const employeeId = assignee?.id ?? fallbackEmployee?.id ?? "";
+  const employeeName = assignee ? getMemberName(assignee) : fallbackEmployee?.name || "Unassigned";
+
+  return {
+    id: `ticket-${ticketOption.id}`,
+    date: getInputDate(ticketOption.issue.updated_at || ticketOption.issue.created_at),
+    employeeId,
+    employeeName,
+    projectId: ticketOption.projectId,
+    projectName: ticketOption.projectName,
+    task: ticketOption.task,
+    ticketId: ticketOption.id,
+    ticketNo: ticketOption.ticketNo,
+    hours: getHoursValue(ticketOption.issue.estimate_point),
+    status: index < 2 ? "Draft" : index < 4 ? "Submitted" : "Approved",
+  };
+};
+
+const isTimeSheetStatus = (value: unknown): value is TTimeSheetStatus =>
+  STATUS_OPTIONS.includes(value as TTimeSheetStatus);
+
+const normalizeStoredTimeEntry = (entry: unknown): TTimeEntry | undefined => {
+  if (!entry || typeof entry !== "object") return undefined;
+
+  const row = entry as Partial<TTimeEntry>;
+  const id = getStringCellValue(row.id);
+  const task = getStringCellValue(row.task);
+  const ticketNo = getStringCellValue(row.ticketNo);
+  if (!id || !task) return undefined;
+
+  return {
+    id,
+    date: getInputDate(row.date),
+    employeeId: getStringCellValue(row.employeeId),
+    employeeName: getStringCellValue(row.employeeName) || "Unassigned",
+    projectId: getStringCellValue(row.projectId),
+    projectName: getStringCellValue(row.projectName),
+    task,
+    ticketId: getStringCellValue(row.ticketId),
+    ticketNo,
+    hours: getHoursValue(row.hours),
+    notes: getStringCellValue(row.notes),
+    status: isTimeSheetStatus(row.status) ? row.status : "Draft",
+  };
+};
+
+const loadPersistedTimeEntries = (storageKey: string): TTimeEntry[] | undefined => {
+  const storedEntries = getValueFromLocalStorage(storageKey, undefined);
+  if (storedEntries === undefined) return undefined;
+  if (!Array.isArray(storedEntries)) return [];
+
+  return storedEntries.map((entry) => normalizeStoredTimeEntry(entry)).filter((entry): entry is TTimeEntry => !!entry);
+};
+
+const persistTimeEntries = (storageKey: string | undefined, entries: TTimeEntry[]) => {
+  if (!storageKey) return false;
+  return setValueIntoLocalStorage(storageKey, entries);
+};
 
 const normalizeColumnName = (value: string) =>
   value
@@ -380,6 +521,7 @@ async function importTimesheetFromExcel(file: File, context: TNormalizeTimesheet
 export const TimeSheetPage = observer(function TimeSheetPage() {
   const { workspaceSlug } = useParams();
   const workspaceSlugString = workspaceSlug?.toString();
+  const timeSheetStorageKey = getTimeSheetStorageKey(workspaceSlugString);
 
   const projectStore = useProject();
   const memberStore = useMember();
@@ -392,7 +534,7 @@ export const TimeSheetPage = observer(function TimeSheetPage() {
 
   const [entries, setEntries] = useState<TTimeEntry[]>([]);
   const [hasSeededEntries, setHasSeededEntries] = useState(false);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isAddEntryModalOpen, setIsAddEntryModalOpen] = useState(false);
   const [draft, setDraft] = useState<TEntryDraft>(() => createEmptyDraft(undefined));
   const [editingRowId, setEditingRowId] = useState<string | undefined>();
   const [activeActionId, setActiveActionId] = useState<string | undefined>();
@@ -448,6 +590,9 @@ export const TimeSheetPage = observer(function TimeSheetPage() {
   }, [currentUser?.id, currentUserName, memberStore]);
 
   const defaultEmployee = employeeOptions[0];
+  const currentEmployee = currentUser?.id
+    ? employeeOptions.find((employee) => employee.id === currentUser.id)
+    : undefined;
 
   const projectOptions = useMemo(() => {
     const projectIds = projectStore.workspaceProjectIds ?? projectStore.joinedProjectIds ?? [];
@@ -491,33 +636,52 @@ export const TimeSheetPage = observer(function TimeSheetPage() {
     return orderBy(tickets, [(ticket) => ticket.issue.updated_at], ["desc"]);
   }, [issueIds, issueMap, projectStore]);
 
-  useEffect(() => {
-    if (hasSeededEntries || ticketOptions.length === 0) return;
-
-    const seededEntries = ticketOptions.slice(0, 6).map((ticketOption, index): TTimeEntry => {
-      const assigneeId = ticketOption.issue.assignee_ids?.[0];
-      const assignee = assigneeId ? memberStore.getUserDetails(assigneeId) : undefined;
-      const employeeId = assignee?.id ?? currentUser?.id ?? "";
-      const employeeName = assignee ? getMemberName(assignee) : currentUserName || "Unassigned";
-
-      return {
-        id: `ticket-${ticketOption.id}`,
-        date: getInputDate(ticketOption.issue.updated_at || ticketOption.issue.created_at),
-        employeeId,
-        employeeName,
-        projectId: ticketOption.projectId,
-        projectName: ticketOption.projectName,
-        task: ticketOption.task,
-        ticketId: ticketOption.id,
-        ticketNo: ticketOption.ticketNo,
-        hours: getHoursValue(ticketOption.issue.estimate_point),
-        status: index < 2 ? "Draft" : index < 4 ? "Submitted" : "Approved",
-      };
+  const updatePersistedEntries = (getNextEntries: (currentEntries: TTimeEntry[]) => TTimeEntry[]) => {
+    setEntries((currentEntries) => {
+      const nextEntries = getNextEntries(currentEntries);
+      persistTimeEntries(timeSheetStorageKey, nextEntries);
+      return nextEntries;
     });
+  };
+
+  useEffect(() => {
+    setEntries([]);
+    setHasSeededEntries(false);
+  }, [timeSheetStorageKey]);
+
+  useEffect(() => {
+    if (hasSeededEntries || !timeSheetStorageKey) return;
+
+    const persistedEntries = loadPersistedTimeEntries(timeSheetStorageKey);
+    if (persistedEntries) {
+      setEntries(persistedEntries);
+      setHasSeededEntries(true);
+      return;
+    }
+
+    if (ticketOptions.length === 0) return;
+
+    const fallbackEmployee = currentUser?.id
+      ? {
+          id: currentUser.id,
+          name: currentUserName || "Unassigned",
+        }
+      : undefined;
+    const seededEntries = ticketOptions
+      .slice(0, 6)
+      .map((ticketOption, index) =>
+        getTimeEntryFromTicketOption(
+          ticketOption,
+          index,
+          (memberId) => memberStore.getUserDetails(memberId),
+          fallbackEmployee
+        )
+      );
 
     setEntries(seededEntries);
+    persistTimeEntries(timeSheetStorageKey, seededEntries);
     setHasSeededEntries(true);
-  }, [currentUser?.id, currentUserName, hasSeededEntries, memberStore, ticketOptions]);
+  }, [currentUser?.id, currentUserName, hasSeededEntries, memberStore, ticketOptions, timeSheetStorageKey]);
 
   const filteredEntries = useMemo(() => {
     const query = searchText.trim().toLowerCase();
@@ -593,7 +757,7 @@ export const TimeSheetPage = observer(function TimeSheetPage() {
         ticketOptions,
       });
 
-      setEntries((currentEntries) => [...currentEntries, ...importedEntries]);
+      updatePersistedEntries((currentEntries) => [...currentEntries, ...importedEntries]);
       setHasSeededEntries(true);
       setToast({
         type: TOAST_TYPE.SUCCESS,
@@ -613,7 +777,7 @@ export const TimeSheetPage = observer(function TimeSheetPage() {
   };
 
   const updateEntry = (entryId: string, updates: Partial<TTimeEntry>) => {
-    setEntries((currentEntries) =>
+    updatePersistedEntries((currentEntries) =>
       currentEntries.map((entry) => (entry.id === entryId ? { ...entry, ...updates } : entry))
     );
   };
@@ -645,33 +809,33 @@ export const TimeSheetPage = observer(function TimeSheetPage() {
     });
   };
 
-  const openAddEntryDrawer = () => {
+  const openAddEntryModal = () => {
     setDraft(createEmptyDraft(defaultEmployee));
-    setIsDrawerOpen(true);
+    setIsAddEntryModalOpen(true);
   };
 
-  const closeDrawer = () => {
-    setIsDrawerOpen(false);
+  const closeAddEntryModal = () => {
+    setIsAddEntryModalOpen(false);
   };
 
   const saveEntry = () => {
-    if (!draft.projectId || !draft.task.trim()) return;
+    if (!draft.ticketId || !draft.projectId || !draft.task.trim()) return;
 
-    setEntries((currentEntries) => [
+    updatePersistedEntries((currentEntries) => [
       ...currentEntries,
       {
         ...draft,
-        id: `local-${Date.now()}`,
+        id: getTimeSheetEntryId(),
         employeeName: draft.employeeName || defaultEmployee?.name || "Unassigned",
         hours: getHoursValue(draft.hours),
       },
     ]);
-    setIsDrawerOpen(false);
+    setIsAddEntryModalOpen(false);
     setHasSeededEntries(true);
   };
 
   const deleteEntry = (entryId: string) => {
-    setEntries((currentEntries) => currentEntries.filter((entry) => entry.id !== entryId));
+    updatePersistedEntries((currentEntries) => currentEntries.filter((entry) => entry.id !== entryId));
     setActiveActionId(undefined);
   };
 
@@ -721,7 +885,7 @@ export const TimeSheetPage = observer(function TimeSheetPage() {
               <Upload className="size-4" strokeWidth={2} />
               Import Excel
             </TimeSheetButton>
-            <TimeSheetButton variant="primary" onClick={openAddEntryDrawer}>
+            <TimeSheetButton variant="primary" onClick={openAddEntryModal}>
               <Plus className="size-4" strokeWidth={2} />
               Add Entry
             </TimeSheetButton>
@@ -844,7 +1008,7 @@ export const TimeSheetPage = observer(function TimeSheetPage() {
           <button
             type="button"
             className="flex min-h-[52px] w-full items-center gap-2 border-b border-[#e5e7eb] px-4 text-left text-13 font-medium text-[#374151] transition hover:bg-[#fbfbfa] hover:text-[#111827]"
-            onClick={openAddEntryDrawer}
+            onClick={openAddEntryModal}
           >
             <Plus className="size-4" strokeWidth={2} />
             Add new entry
@@ -864,17 +1028,18 @@ export const TimeSheetPage = observer(function TimeSheetPage() {
         </section>
       </main>
 
-      {isDrawerOpen && (
-        <TimeEntryDrawer
-          draft={draft}
-          employeeOptions={employeeOptions}
-          projectOptions={projectOptions}
-          ticketOptions={ticketOptions}
-          onChange={setDraft}
-          onClose={closeDrawer}
-          onSave={saveEntry}
-        />
-      )}
+      <TimeEntryModal
+        currentEmployee={currentEmployee}
+        draft={draft}
+        employeeOptions={employeeOptions}
+        isOpen={isAddEntryModalOpen}
+        projectOptions={projectOptions}
+        ticketOptions={ticketOptions}
+        workspaceSlug={workspaceSlugString}
+        onChange={setDraft}
+        onClose={closeAddEntryModal}
+        onSave={saveEntry}
+      />
     </div>
   );
 });
@@ -1094,151 +1259,367 @@ function TimeSheetRow({
   );
 }
 
-function TimeEntryDrawer({
+function TimeEntryModal({
+  currentEmployee,
   draft,
   employeeOptions,
+  isOpen,
   onChange,
   onClose,
   onSave,
   projectOptions,
   ticketOptions,
+  workspaceSlug,
 }: {
+  currentEmployee: TEmployeeOption | undefined;
   draft: TEntryDraft;
   employeeOptions: TEmployeeOption[];
-  onChange: (draft: TEntryDraft) => void;
+  isOpen: boolean;
+  onChange: Dispatch<SetStateAction<TEntryDraft>>;
   onClose: () => void;
   onSave: () => void;
   projectOptions: TProjectOption[];
   ticketOptions: TTicketOption[];
+  workspaceSlug: string | undefined;
 }) {
-  const availableTickets = draft.projectId
-    ? ticketOptions.filter((ticketOption) => ticketOption.projectId === draft.projectId)
-    : ticketOptions;
+  const { fetchIssueWithIdentifier } = useIssueDetail();
+  const [step, setStep] = useState<TAddEntryStep>("ticket");
+  const [ticketQuery, setTicketQuery] = useState("");
+  const [ticketLookupError, setTicketLookupError] = useState<string | undefined>();
+  const [isTicketLookupLoading, setIsTicketLookupLoading] = useState(false);
+  const ticketLookupRequestRef = useRef(0);
   const canSave = !!draft.projectId && !!draft.task.trim();
+  const normalizedTicketQuery = ticketQuery.trim().toLowerCase();
+  const selectedTicketOption = ticketOptions.find((ticketOption) => ticketOption.id === draft.ticketId) ?? null;
+  const exactTicketOption = ticketOptions.find(
+    (ticketOption) => ticketOption.ticketNo.toLowerCase() === normalizedTicketQuery
+  );
+  const ticketIdentifier = getTicketIdentifierParts(ticketQuery);
+  const visibleTicketOptions = ticketOptions
+    .filter((ticketOption) => {
+      if (!normalizedTicketQuery) return true;
 
-  const updateDraft = (updates: Partial<TEntryDraft>) => onChange({ ...draft, ...updates });
+      return [ticketOption.ticketNo, ticketOption.task, ticketOption.projectName]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedTicketQuery);
+    })
+    .slice(0, 8);
 
-  const handleProjectChange = (projectId: string) => {
-    const project = projectOptions.find((option) => option.id === projectId);
-    updateDraft({
-      projectId,
-      projectName: project?.name ?? "",
-      ticketId: "",
-      ticketNo: "",
-    });
+  const updateDraft = (updates: Partial<TEntryDraft>) => onChange((currentDraft) => ({ ...currentDraft, ...updates }));
+
+  useEffect(() => {
+    ticketLookupRequestRef.current += 1;
+    if (!isOpen) return;
+
+    setStep("ticket");
+    setTicketQuery("");
+    setTicketLookupError(undefined);
+    setIsTicketLookupLoading(false);
+  }, [isOpen]);
+
+  const fillTicketDetails = (ticketOption: TTicketOption) => {
+    onChange((currentDraft) => ({
+      ...currentDraft,
+      ...getTicketAutofillUpdates(ticketOption, employeeOptions, currentEmployee),
+    }));
+    setTicketQuery(ticketOption.ticketNo);
+    setTicketLookupError(undefined);
+    setIsTicketLookupLoading(false);
+    setStep("confirm");
   };
 
-  const handleTicketChange = (ticketId: string) => {
-    const ticketOption = ticketOptions.find((option) => option.id === ticketId);
-    if (!ticketOption) {
-      updateDraft({ ticketId: "", ticketNo: "" });
+  const lookupTicket = async (ticketNo: string) => {
+    const storedTicketOption = ticketOptions.find(
+      (ticketOption) => ticketOption.ticketNo.toLowerCase() === ticketNo.trim().toLowerCase()
+    );
+    if (storedTicketOption) {
+      fillTicketDetails(storedTicketOption);
       return;
     }
 
-    updateDraft({
-      projectId: ticketOption.projectId,
-      projectName: ticketOption.projectName,
-      task: draft.task || ticketOption.task,
-      ticketId: ticketOption.id,
-      ticketNo: ticketOption.ticketNo,
-    });
+    const typedIdentifier = getTicketIdentifierParts(ticketNo);
+    if (!typedIdentifier || !workspaceSlug) {
+      setTicketLookupError("No matching ticket found.");
+      return;
+    }
+
+    const ticketLookupRequest = ++ticketLookupRequestRef.current;
+    setIsTicketLookupLoading(true);
+    setTicketLookupError(undefined);
+
+    try {
+      const issue = await fetchIssueWithIdentifier(
+        workspaceSlug,
+        typedIdentifier.projectIdentifier,
+        typedIdentifier.sequenceId
+      );
+      if (ticketLookupRequest !== ticketLookupRequestRef.current) return;
+
+      const fetchedTicketOption =
+        ticketOptions.find((ticketOption) => ticketOption.id === issue.id) ??
+        createTicketOptionFromIssue(issue, typedIdentifier.projectIdentifier, projectOptions);
+
+      if (!fetchedTicketOption) {
+        setTicketLookupError("No matching ticket found.");
+        setIsTicketLookupLoading(false);
+        return;
+      }
+
+      fillTicketDetails(fetchedTicketOption);
+    } catch {
+      if (ticketLookupRequest === ticketLookupRequestRef.current) {
+        setTicketLookupError("No matching ticket found.");
+        setIsTicketLookupLoading(false);
+      }
+    }
   };
 
   return (
-    <div
-      role="presentation"
-      className="fixed inset-0 z-50 flex justify-end bg-[rgba(17,24,39,0.08)]"
-      onMouseDown={onClose}
-    >
-      <aside
-        role="dialog"
-        aria-modal="true"
-        className="flex h-full w-full max-w-[360px] flex-col border-l border-[#e5e7eb] bg-white shadow-none"
-        onMouseDown={(event) => event.stopPropagation()}
-      >
-        <header className="flex min-h-[64px] items-center justify-between border-b border-[#e5e7eb] px-5">
-          <h2 className="text-16 font-semibold text-[#111827]">Add Time Entry</h2>
-          <button
-            type="button"
-            className="grid size-8 place-items-center rounded-md text-[#374151] transition hover:bg-[#f5f5f4]"
-            onClick={onClose}
-            aria-label="Close add time entry drawer"
-          >
-            <X className="size-4" strokeWidth={2} />
-          </button>
-        </header>
+    <Transition.Root show={isOpen} appear as={Fragment}>
+      <Dialog as="div" className="relative z-[80]" onClose={onClose}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-200"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-150"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-[rgba(17,24,39,0.34)] backdrop-blur-[3px] transition-opacity" />
+        </Transition.Child>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-5">
-          <DrawerField label="Date">
-            <DrawerInput type="date" value={draft.date} onChange={(date) => updateDraft({ date })} />
-          </DrawerField>
-          <DrawerField label="Employee Name">
-            <DrawerSelect
-              value={draft.employeeId}
-              options={employeeOptions.map((employee) => ({ value: employee.id, label: employee.name }))}
-              onChange={(employeeId) => {
-                const employee = employeeOptions.find((option) => option.id === employeeId);
-                updateDraft({ employeeId, employeeName: employee?.name ?? draft.employeeName });
-              }}
-            />
-          </DrawerField>
-          <DrawerField label="Project">
-            <DrawerSelect
-              value={draft.projectId}
-              placeholder="Select project"
-              options={projectOptions.map((project) => ({ value: project.id, label: project.name }))}
-              onChange={handleProjectChange}
-            />
-          </DrawerField>
-          <DrawerField label="Task">
-            <DrawerInput
-              value={draft.task}
-              placeholder="Describe the work you did..."
-              onChange={(task) => updateDraft({ task })}
-            />
-          </DrawerField>
-          <DrawerField label="Ticket No">
-            <DrawerSelect
-              value={draft.ticketId}
-              placeholder="Select ticket"
-              options={availableTickets.map((ticketOption) => ({
-                value: ticketOption.id,
-                label: ticketOption.ticketNo,
-              }))}
-              onChange={handleTicketChange}
-            />
-          </DrawerField>
-          <DrawerField label="Hours">
-            <DrawerInput type="number" value={draft.hours} onChange={(hours) => updateDraft({ hours })} />
-          </DrawerField>
-          <DrawerField label="Status">
-            <DrawerSelect
-              value={draft.status}
-              options={STATUS_OPTIONS.map((status) => ({ value: status, label: status }))}
-              onChange={(status) => updateDraft({ status: status as TTimeSheetStatus })}
-            />
-          </DrawerField>
+        <div className="fixed inset-0 z-[80] overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-200"
+              enterFrom="translate-y-2 scale-95 opacity-0"
+              enterTo="translate-y-0 scale-100 opacity-100"
+              leave="ease-in duration-150"
+              leaveFrom="translate-y-0 scale-100 opacity-100"
+              leaveTo="translate-y-2 scale-95 opacity-0"
+            >
+              <Dialog.Panel className="w-full max-w-[620px] transform overflow-hidden rounded-[10px] border border-[#e5e7eb] bg-white text-[#111827] shadow-[0_28px_80px_rgba(15,23,42,0.28)] transition-all">
+                <header className="flex h-14 items-center justify-between border-b border-[#e5e7eb] px-5">
+                  <Dialog.Title className="text-16 font-semibold">Add Time Entry</Dialog.Title>
+                  <button
+                    type="button"
+                    className="grid size-8 place-items-center rounded-md text-[#4b5563] transition hover:bg-[#f5f5f4] hover:text-[#111827]"
+                    onClick={onClose}
+                    aria-label="Close add time entry modal"
+                  >
+                    <X className="size-4" strokeWidth={2} />
+                  </button>
+                </header>
+
+                <div className="px-5 py-5">
+                  <TimeEntryStepper step={step} />
+
+                  {step === "ticket" ? (
+                    <div className="mt-5">
+                      <label htmlFor="timesheet-ticket-search" className="flex flex-col gap-1.5">
+                        <span className="text-13 font-semibold">Ticket No</span>
+                        <span className="text-12 text-[#6b7280]">Search or select a ticket to auto-fill details</span>
+                      </label>
+
+                      <Combobox
+                        value={selectedTicketOption}
+                        onChange={(ticketOption: TTicketOption | null) => {
+                          if (ticketOption) fillTicketDetails(ticketOption);
+                        }}
+                      >
+                        <div className="relative mt-3">
+                          <div className="flex h-11 items-center gap-2 rounded-lg border border-[#d1d5db] bg-white px-3 transition focus-within:border-[#111827]">
+                            <Search className="size-4 flex-shrink-0 text-[#6b7280]" strokeWidth={2} />
+                            <Combobox.Input
+                              id="timesheet-ticket-search"
+                              value={ticketQuery}
+                              displayValue={(ticketOption: TTicketOption | null) =>
+                                ticketQuery || ticketOption?.ticketNo || ""
+                              }
+                              placeholder="Select or type ticket number"
+                              className="min-w-0 flex-1 bg-transparent text-13 font-medium outline-none placeholder:text-[#6b7280]"
+                              onChange={(event) => {
+                                setTicketQuery(event.target.value);
+                                setTicketLookupError(undefined);
+                              }}
+                              onKeyDown={(event) => {
+                                if (event.key === "Enter" && getTicketIdentifierParts(ticketQuery)) {
+                                  event.preventDefault();
+                                  void lookupTicket(ticketQuery);
+                                }
+                              }}
+                            />
+                          </div>
+
+                          <Combobox.Options
+                            static
+                            className="mt-2 max-h-[264px] overflow-y-auto rounded-lg border border-[#e5e7eb] bg-white p-1 shadow-[0_18px_42px_rgba(15,23,42,0.12)] focus:outline-none"
+                          >
+                            {visibleTicketOptions.map((ticketOption) => (
+                              <Combobox.Option
+                                key={ticketOption.id}
+                                value={ticketOption}
+                                className={({ active, selected }) =>
+                                  cn(
+                                    "flex cursor-pointer items-center justify-between gap-4 rounded-md border border-transparent px-3 py-2.5 text-left text-13 transition",
+                                    active && "bg-[#f5f5f4]",
+                                    selected && "border-[#bfdbfe] bg-[#eff6ff] text-[#2563eb]"
+                                  )
+                                }
+                              >
+                                <span className="min-w-[92px] flex-shrink-0 font-semibold">
+                                  {ticketOption.ticketNo}
+                                </span>
+                                <span className="min-w-0 flex-1 truncate text-[#4b5563]">{ticketOption.task}</span>
+                              </Combobox.Option>
+                            ))}
+
+                            {visibleTicketOptions.length === 0 && (
+                              <div className="px-3 py-2 text-13 text-[#6b7280]">
+                                No loaded tickets match this search.
+                              </div>
+                            )}
+
+                            {ticketIdentifier && !exactTicketOption && (
+                              <button
+                                type="button"
+                                className="mt-1 flex h-10 w-full items-center justify-between rounded-md border border-[#e5e7eb] px-3 text-left text-13 font-semibold text-[#111827] transition hover:bg-[#fbfbfa] disabled:cursor-wait disabled:text-[#6b7280]"
+                                disabled={isTicketLookupLoading}
+                                onClick={() => void lookupTicket(ticketQuery)}
+                              >
+                                <span>
+                                  {isTicketLookupLoading ? "Searching ticket..." : `Find ${ticketQuery.trim()}`}
+                                </span>
+                                <span className="text-12 font-medium text-[#6b7280]">Existing ticket</span>
+                              </button>
+                            )}
+                          </Combobox.Options>
+                        </div>
+                      </Combobox>
+
+                      {ticketLookupError && (
+                        <p aria-live="polite" className="mt-2 text-12 font-medium text-[#b91c1c]">
+                          {ticketLookupError}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <>
+                      <div className="mt-5 rounded-lg border border-[#e5e7eb] bg-white p-4">
+                        <h3 className="text-13 font-semibold">Ticket Details</h3>
+                        <div className="mt-4 grid gap-x-6 gap-y-4 sm:grid-cols-2">
+                          <TimeEntryDetail label="Ticket No">{draft.ticketNo || "-"}</TimeEntryDetail>
+                          <TimeEntryDetail label="Task">{draft.task || "-"}</TimeEntryDetail>
+                          <TimeEntryDetail label="Project">{draft.projectName || "-"}</TimeEntryDetail>
+                          <TimeEntryDetail label="Status">
+                            <StatusPill status={draft.status} />
+                          </TimeEntryDetail>
+                          <TimeEntryDetail label="Assignee">{draft.employeeName || "Unassigned"}</TimeEntryDetail>
+                          <TimeEntryDetail label="Date">{getDisplayDate(draft.date)}</TimeEntryDetail>
+                          <ModalField label="Hours">
+                            <input
+                              type="number"
+                              value={draft.hours}
+                              step="0.25"
+                              min="0"
+                              className="h-10 w-full rounded-lg border border-[#d1d5db] bg-white px-3 text-13 font-medium transition outline-none focus:border-[#111827]"
+                              onChange={(event) => updateDraft({ hours: event.target.value })}
+                            />
+                          </ModalField>
+                          <ModalField label="Notes (optional)">
+                            <textarea
+                              rows={2}
+                              value={draft.notes}
+                              placeholder="Add a note..."
+                              className="min-h-10 w-full resize-none rounded-lg border border-[#d1d5db] bg-white px-3 py-2.5 text-13 font-medium transition outline-none placeholder:text-[#6b7280] focus:border-[#111827]"
+                              onChange={(event) => updateDraft({ notes: event.target.value })}
+                            />
+                          </ModalField>
+                        </div>
+                      </div>
+                      <p className="mt-3 text-12 text-[#6b7280]">Details auto-filled from the selected ticket.</p>
+                    </>
+                  )}
+                </div>
+
+                {step === "confirm" && (
+                  <footer className="flex items-center justify-between border-t border-[#e5e7eb] px-5 py-4">
+                    <button
+                      type="button"
+                      className="inline-flex h-10 items-center justify-center rounded-lg border border-[#e5e7eb] bg-white px-4 text-13 font-semibold text-[#111827] transition hover:bg-[#fbfbfa]"
+                      onClick={() => setStep("ticket")}
+                    >
+                      Back
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!canSave}
+                      className="inline-flex h-10 items-center justify-center rounded-lg border border-[#2563eb] bg-[#2563eb] px-5 text-13 font-semibold text-white transition hover:border-[#1d4ed8] hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:border-[#d1d5db] disabled:bg-[#d1d5db]"
+                      onClick={onSave}
+                    >
+                      Add Entry
+                    </button>
+                  </footer>
+                )}
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
         </div>
+      </Dialog>
+    </Transition.Root>
+  );
+}
 
-        <footer className="flex items-center justify-end gap-3 border-t border-[#e5e7eb] px-5 py-4">
-          <button
-            type="button"
-            className="inline-flex h-10 items-center justify-center rounded-lg border border-[#e5e7eb] bg-white px-5 text-13 font-semibold text-[#111827] transition hover:bg-[#fbfbfa]"
-            onClick={onClose}
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            disabled={!canSave}
-            className="inline-flex h-10 items-center justify-center rounded-lg border border-[#111827] bg-[#111827] px-5 text-13 font-semibold text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:border-[#d1d5db] disabled:bg-[#d1d5db]"
-            onClick={onSave}
-          >
-            Save Entry
-          </button>
-        </footer>
-      </aside>
+function TimeEntryStepper({ step }: { step: TAddEntryStep }) {
+  return (
+    <ol className="grid grid-cols-[1fr_auto_1fr] items-start gap-3">
+      <li className="flex flex-col items-center gap-2 text-center">
+        <span
+          className={cn(
+            "grid size-8 place-items-center rounded-full border text-13 font-semibold",
+            step === "ticket" ? "border-[#2563eb] bg-[#2563eb] text-white" : "border-[#d1d5db] bg-white text-[#111827]"
+          )}
+        >
+          1
+        </span>
+        <span className="text-12 font-medium text-[#374151]">Select Ticket</span>
+      </li>
+      <li aria-hidden="true" className="mt-4 h-px w-24 bg-[#e5e7eb] sm:w-48" />
+      <li className="flex flex-col items-center gap-2 text-center">
+        <span
+          className={cn(
+            "grid size-8 place-items-center rounded-full border text-13 font-semibold",
+            step === "confirm"
+              ? "border-[#2563eb] bg-[#2563eb] text-white"
+              : "border-[#e5e7eb] bg-[#f5f5f4] text-[#6b7280]"
+          )}
+        >
+          2
+        </span>
+        <span className="text-12 font-medium text-[#374151]">Confirm Details</span>
+      </li>
+    </ol>
+  );
+}
+
+function TimeEntryDetail({ children, label }: { children: ReactNode; label: string }) {
+  return (
+    <div className="min-w-0">
+      <p className="text-12 font-medium text-[#4b5563]">{label}</p>
+      <div className="mt-1 min-h-6 min-w-0 text-13 font-medium text-[#111827]">{children}</div>
     </div>
+  );
+}
+
+function ModalField({ children, label }: { children: ReactNode; label: string }) {
+  return (
+    <label className="flex min-w-0 flex-col gap-1.5">
+      <span className="text-12 font-medium text-[#4b5563]">{label}</span>
+      {children}
+    </label>
   );
 }
 
@@ -1411,62 +1792,5 @@ function InlineSelect({
         menuWidthClassName="w-[180px] min-w-[180px]"
       />
     </div>
-  );
-}
-
-function DrawerField({ children, label }: { children: ReactNode; label: string }) {
-  return (
-    <label className="flex flex-col gap-1.5">
-      <span className="text-12 font-medium text-[#374151]">{label}</span>
-      {children}
-    </label>
-  );
-}
-
-function DrawerInput({
-  onChange,
-  placeholder,
-  type = "text",
-  value,
-}: {
-  onChange: (value: string) => void;
-  placeholder?: string;
-  type?: "date" | "number" | "text";
-  value: string;
-}) {
-  return (
-    <input
-      type={type}
-      value={value}
-      placeholder={placeholder}
-      step={type === "number" ? "0.25" : undefined}
-      min={type === "number" ? "0" : undefined}
-      className="h-10 rounded-lg border border-[#e5e7eb] bg-white px-3 text-13 font-medium text-[#111827] transition outline-none placeholder:text-[#6b7280] focus:border-[#d1d5db]"
-      onChange={(event: ChangeEvent<HTMLInputElement>) => onChange(event.target.value)}
-    />
-  );
-}
-
-function DrawerSelect({
-  onChange,
-  options,
-  placeholder,
-  value,
-}: {
-  onChange: (value: string) => void;
-  options: { value: string; label: string }[];
-  placeholder?: string;
-  value: string;
-}) {
-  return (
-    <TimeSheetSelect
-      value={value}
-      options={options}
-      placeholder={placeholder}
-      onChange={onChange}
-      className="w-full"
-      buttonClassName="h-10 w-full rounded-lg border border-[#e5e7eb] bg-white px-3 py-0 text-13 font-medium text-[#111827] shadow-none transition hover:bg-[#fbfbfa] focus:border-[#d1d5db] focus:outline-none focus:ring-0"
-      menuWidthClassName="w-[320px] min-w-0 max-w-[calc(100vw-40px)]"
-    />
   );
 }
