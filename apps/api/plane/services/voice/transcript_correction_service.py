@@ -24,22 +24,26 @@ logger = logging.getLogger("plane.voice")
 # Deterministic, high-confidence phrase-level fixes for specific known Whisper mishearings of
 # dev vocabulary. Checked first and take priority over fuzzy matching below. Longer/more-specific
 # patterns are listed first so they aren't pre-empted by a shorter overlapping pattern.
+#
+# Multi-word patterns use \W+ (one or more non-word characters) between words instead of a
+# literal space, so a pause or punctuation Whisper inserts between words ("payment, issue",
+# "payment - issue", "payment     issue") still matches the same known mishearing.
 PHRASE_CORRECTIONS: list[tuple[re.Pattern, str]] = [
-    (re.compile(r"\bdocker container help check\b", re.IGNORECASE), "docker container health check"),
-    (re.compile(r"\bin\s+voice\b", re.IGNORECASE), "invoice"),
-    (re.compile(r"\bpayment issue\b", re.IGNORECASE), "parent issue"),
-    (re.compile(r"\bfriend the end\b", re.IGNORECASE), "frontend"),
-    (re.compile(r"\bfriend end\b", re.IGNORECASE), "frontend"),
-    (re.compile(r"\bback end\b", re.IGNORECASE), "backend"),
+    (re.compile(r"\bdocker\W+container\W+help\W+check\b", re.IGNORECASE), "docker container health check"),
+    (re.compile(r"\bin\W+voice\b", re.IGNORECASE), "invoice"),
+    (re.compile(r"\bpayment\W+issue\b", re.IGNORECASE), "parent issue"),
+    (re.compile(r"\bfriend\W+the\W+end\b", re.IGNORECASE), "frontend"),
+    (re.compile(r"\bfriend\W+end\b", re.IGNORECASE), "frontend"),
+    (re.compile(r"\bback\W+end\b", re.IGNORECASE), "backend"),
     (re.compile(r"\bAPD\b"), "API"),
-    (re.compile(r"\bhelp check\b", re.IGNORECASE), "health check"),
-    (re.compile(r"\bdata page\b", re.IGNORECASE), "database"),
-    (re.compile(r"\bstar cut\b", re.IGNORECASE), "startup"),
-    (re.compile(r"\bweb socket\b", re.IGNORECASE), "WebSocket"),
-    (re.compile(r"\bgraph\s*q\s*l\b", re.IGNORECASE), "GraphQL"),
+    (re.compile(r"\bhelp\W+check\b", re.IGNORECASE), "health check"),
+    (re.compile(r"\bdata\W+page\b", re.IGNORECASE), "database"),
+    (re.compile(r"\bstar\W+cut\b", re.IGNORECASE), "startup"),
+    (re.compile(r"\bweb\W*socket\b", re.IGNORECASE), "WebSocket"),
+    (re.compile(r"\bgraph\W*q\W*l\b", re.IGNORECASE), "GraphQL"),
     (re.compile(r"\bpostgress\b", re.IGNORECASE), "PostgreSQL"),
     (re.compile(r"\bjwt\b", re.IGNORECASE), "JWT"),
-    (re.compile(r"\bci\s*cd\b", re.IGNORECASE), "CI/CD"),
+    (re.compile(r"\bci\W*cd\b", re.IGNORECASE), "CI/CD"),
 ]
 
 # Canonical software-engineering vocabulary used for fuzzy matching. Multi-word entries are
@@ -49,10 +53,17 @@ DICTIONARY = [
     "Frontend", "Backend", "API", "Database", "Authentication", "Authorization",
     "JWT", "OAuth", "Docker", "Kubernetes", "GraphQL", "PostgreSQL", "MySQL",
     "Redis", "Nginx", "WebSocket", "CI/CD", "Deployment", "Migration", "Invoice",
-    "Parent Issue", "Cycle Assignment", "Validation", "Analytics", "Dashboard",
+    "Validation", "Analytics", "Dashboard",
     "CSV", "Export", "Mobile App", "Android", "iOS", "Crash", "Timeout",
     "Latency", "Dependency",
 ]
+
+# Workflow-specific Plane entities ("Parent Issue", "Cycle Assignment") are intentionally NOT in
+# DICTIONARY above, so generic fuzzy matching can never produce them. Fuzzy similarity on short,
+# ordinary-word phrases is too easy to satisfy by accident (e.g. "urgent issue" ~ "Parent Issue"
+# at ratio 0.82, well past _FUZZY_THRESHOLD) and would silently turn plain English into a
+# project-management concept the speaker never said. These terms are only ever produced by exact,
+# known Whisper mishearings in PHRASE_CORRECTIONS above (e.g. "payment issue" -> "parent issue").
 
 # Acronyms/very short terms are excluded from fuzzy matching - at that length, near-arbitrary
 # words can cross a similarity threshold, risking false positives. They're already covered by

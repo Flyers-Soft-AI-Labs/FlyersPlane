@@ -34,10 +34,11 @@ class VoiceTranscriptionError(Exception):
 # Maps common mis-transcriptions / shorthand speech onto the phrasing the
 # ticket-generation prompt expects, so priority intent survives Whisper's
 # transcription (e.g. "hyper" is a frequent mis-hearing of "high priority").
+# "urgent" is intentionally NOT normalized here - it is its own distinct priority
+# level (separate from "high"), and the LLM prompt maps it directly to "urgent".
 _NORMALIZATION_RULES = [
     (re.compile(r"\bhyper\b", re.IGNORECASE), "high priority"),
     (re.compile(r"\bhi[\s-]?priority\b", re.IGNORECASE), "high priority"),
-    (re.compile(r"\burgent\b", re.IGNORECASE), "high priority"),
 ]
 
 # Filler words Whisper frequently transcribes verbatim from hesitant speech.

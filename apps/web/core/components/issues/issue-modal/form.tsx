@@ -26,6 +26,7 @@ import {
   getTextContent,
   getChangedIssuefields,
   getTabIndex,
+  renderFormattedPayloadDate,
 } from "@plane/utils";
 // components
 import {
@@ -121,6 +122,27 @@ const fuzzyFind = <T,>(items: T[], getName: (item: T) => string | undefined, nee
   );
 };
 
+// Assignee auto-selection must never guess: at each match tier (exact, then partial), if more
+// than one member matches, the name is ambiguous and we stop instead of falling through to a
+// looser tier or picking the first hit. Only a single unambiguous match is auto-applied.
+const findUniqueAssigneeMatch = <T,>(
+  items: T[],
+  getName: (item: T) => string | undefined,
+  needle: string
+): T | undefined => {
+  const normalizedNeedle = normalizeForMatch(needle);
+  if (!normalizedNeedle) return undefined;
+
+  const exactMatches = items.filter((item) => normalizeForMatch(getName(item) ?? "") === normalizedNeedle);
+  if (exactMatches.length > 0) return exactMatches.length === 1 ? exactMatches[0] : undefined;
+
+  const partialMatches = items.filter((item) => normalizeForMatch(getName(item) ?? "").includes(normalizedNeedle));
+  if (partialMatches.length > 0) return partialMatches.length === 1 ? partialMatches[0] : undefined;
+
+  const inclusionMatches = items.filter((item) => normalizedNeedle.includes(normalizeForMatch(getName(item) ?? "")));
+  return inclusionMatches.length === 1 ? inclusionMatches[0] : undefined;
+};
+
 export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormProps) {
   const { t } = useTranslation();
   const {
@@ -165,6 +187,7 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
     description_html: string | null;
     priority: TIssue["priority"] | null;
     target_date: string | null;
+    start_date: string | null;
     assignee_ids: string[] | null;
     label_ids: string[] | null;
     state_id: string | null;
@@ -173,6 +196,7 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
     description_html: null,
     priority: null,
     target_date: null,
+    start_date: null,
     assignee_ids: null,
     label_ids: null,
     state_id: null,
@@ -518,12 +542,27 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
       aiOwned.target_date = result.due_date;
     }
 
+    // Start Date is never driven by voice input - it always defaults to the date the draft was
+    // generated (today), and only if the user hasn't already set/touched it themselves.
+    const currentStartDate = getValues("start_date");
+    const startDateIsAiOwned = !currentStartDate || currentStartDate === aiOwned.start_date;
+    if (startDateIsAiOwned) {
+      const todayDate = renderFormattedPayloadDate(new Date()) ?? null;
+      if (todayDate && todayDate !== currentStartDate) {
+        setValue("start_date", todayDate, { shouldDirty: true, shouldTouch: true });
+      }
+      aiOwned.start_date = todayDate;
+    }
+
+    // Assignee auto-selection must be unambiguous: only apply when exactly one workspace member
+    // matches the spoken name. Multiple matches, no matches, or low-confidence names are left
+    // blank for the user to pick manually - never guess.
     const currentAssigneeIds = getValues("assignee_ids") ?? [];
     const assigneeIdsAreAiOwned =
       currentAssigneeIds.length === 0 || arraysHaveSameItems(currentAssigneeIds, aiOwned.assignee_ids);
     if (result.assignee_name && projectId && assigneeIdsAreAiOwned) {
       const memberIds = getProjectMemberIds(projectId, true) ?? [];
-      const matchedId = fuzzyFind(memberIds, (id) => getUserDetails(id)?.display_name, result.assignee_name);
+      const matchedId = findUniqueAssigneeMatch(memberIds, (id) => getUserDetails(id)?.display_name, result.assignee_name);
       if (matchedId) {
         setValue("assignee_ids", [matchedId], { shouldDirty: true, shouldTouch: true });
         aiOwned.assignee_ids = [matchedId];

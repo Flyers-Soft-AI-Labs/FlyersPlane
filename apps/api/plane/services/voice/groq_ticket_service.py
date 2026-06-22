@@ -29,16 +29,23 @@ Return ONLY a single valid JSON object, no markdown, no commentary, with exactly
 - "description": 2-4 professional sentences written for an engineering ticket. State what the user was trying to do,
   what actually happened (the concrete symptom/error), and any relevant detail mentioned (browser, page, steps,
   frequency). Make it actionable for whoever picks up the ticket - avoid restating the title without new detail.
-- "priority": one of "urgent", "high", "medium", "low", "none". Judge this realistically from the content:
+- "priority": one of "urgent", "high", "medium", "low", "none". If the speaker explicitly names a priority word,
+  use it directly: "urgent" (e.g. "urgent issue", "this is urgent") -> "urgent"; "high priority" -> "high";
+  "medium priority" -> "medium"; "low priority" -> "low". Otherwise, judge it realistically from the content:
   "urgent" for things like data loss, security issues, or a production system fully down/unusable for many users;
   "high" for a major feature broken or blocking the user's work; "medium" for a real but workaround-able bug or a
   meaningful task; "low" for cosmetic issues, minor annoyances, or small asks; "none" only when severity truly
   cannot be inferred. Do not default to "medium" - pick the level the description actually supports.
-- "assignee_name": an assignee name mentioned in the request, or null
+- "assignee_name": the exact name mentioned when the speaker assigns the work to someone (e.g. "assign this to
+  Pavan", "assign it to John") - just the name itself, or null if no one is mentioned. Do not guess a name that
+  isn't explicitly said.
 - "labels": an array of short, relevant label names implied by the request (e.g. ["Bug"], ["Feature Request"],
   ["Performance"], ["UI/UX"]), or [] if none clearly apply
 - "status_name": a workflow status mentioned in the request, or null
-- "due_date": a due date in YYYY-MM-DD format when clearly implied, or null
+- "due_date": a due date in YYYY-MM-DD format when clearly implied, or null. Resolve relative dates against
+  today's date: "by tomorrow" -> today + 1 day; "before/by Friday" -> the date of the next upcoming Friday;
+  "in 3 days" / "in three days" -> today + 3 days; "due on June 30" / "by June 30" -> June 30 of the current
+  year (or next year if that date already passed this year). If no due date is mentioned, use null.
 
 Today's date is {today}.
 """
@@ -93,5 +100,8 @@ async def generate_ticket_fields(api_key: str, transcript: str) -> dict:
         "labels": [str(label).strip() for label in labels if str(label).strip()],
         "status_name": str(status_name).strip() if status_name else None,
         "due_date": str(due_date).strip() if due_date else None,
+        # Start date always tracks the ticket's creation date rather than anything inferred from
+        # speech - voice input is not allowed to override it (see frontend applyVoiceTicketResult).
+        "start_date": today,
     }
     return fields

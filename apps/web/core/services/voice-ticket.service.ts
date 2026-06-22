@@ -17,6 +17,9 @@ export type TVoiceTicketFields = {
   labels: string[];
   status_name: string | null;
   due_date: string | null;
+  // Always the ticket-creation date from the server; voice input never overrides Start Date
+  // (see applyVoiceTicketResult in form.tsx), this is kept for schema completeness only.
+  start_date: string | null;
   transcript: string;
 };
 
