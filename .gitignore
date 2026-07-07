@@ -112,3 +112,4 @@ build/
 temp/
 scripts/
 *.log
+voice_debug_audio/

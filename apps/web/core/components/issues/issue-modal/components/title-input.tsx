@@ -16,15 +16,21 @@ import type { TIssue } from "@plane/types";
 // ui
 import { Input } from "@plane/ui";
 // helpers
-import { getTabIndex } from "@plane/utils";
+import { cn, getTabIndex } from "@plane/utils";
 // hooks
 import { usePlatformOS } from "@/hooks/use-platform-os";
+import type { TVoiceTicketState } from "@/hooks/use-voice-ticket";
+// components
+import { VoiceTicketButton } from "./voice";
 
 type TIssueTitleInputProps = {
   control: Control<TIssue>;
   issueTitleRef: React.MutableRefObject<HTMLInputElement | null>;
   formState: FormState<TIssue>;
   handleFormChange: () => void;
+  onVoiceClick?: () => void;
+  voiceState?: TVoiceTicketState;
+  isVoiceDisabled?: boolean;
 };
 
 export const IssueTitleInput = observer(function IssueTitleInput(props: TIssueTitleInputProps) {
@@ -33,6 +39,9 @@ export const IssueTitleInput = observer(function IssueTitleInput(props: TIssueTi
     issueTitleRef,
     formState: { errors },
     handleFormChange,
+    onVoiceClick,
+    voiceState = "idle",
+    isVoiceDisabled,
   } = props;
   // store hooks
   const { isMobile } = usePlatformOS();
@@ -60,22 +69,30 @@ export const IssueTitleInput = observer(function IssueTitleInput(props: TIssueTi
           },
         }}
         render={({ field: { value, onChange, ref } }) => (
-          <Input
-            id="name"
-            name="name"
-            type="text"
-            value={value}
-            onChange={(e) => {
-              onChange(e.target.value);
-              handleFormChange();
-            }}
-            ref={issueTitleRef || ref}
-            hasError={Boolean(errors.name)}
-            placeholder={t("title")}
-            className="w-full text-body-sm-regular"
-            autoFocus
-            tabIndex={getIndex("name")}
-          />
+          <div className="flyers-soft-title-input-shell relative flex w-full items-stretch">
+            <Input
+              id="name"
+              name="name"
+              type="text"
+              value={value}
+              onChange={(e) => {
+                onChange(e.target.value);
+                handleFormChange();
+              }}
+              ref={issueTitleRef || ref}
+              hasError={Boolean(errors.name)}
+              placeholder={t("title")}
+              className={cn(
+                "w-full min-w-0 flex-1 text-body-sm-regular",
+                onVoiceClick && "flyers-soft-title-input-with-voice pr-1"
+              )}
+              autoFocus
+              tabIndex={getIndex("name")}
+            />
+            {onVoiceClick && (
+              <VoiceTicketButton onClick={onVoiceClick} disabled={isVoiceDisabled} state={voiceState} />
+            )}
+          </div>
         )}
       />
       <span className="text-caption-sm-medium text-danger-primary">{errors?.name?.message}</span>

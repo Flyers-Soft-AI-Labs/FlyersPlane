@@ -10,6 +10,8 @@ import type { UseFormReset, UseFormWatch } from "react-hook-form";
 // plane imports
 import type { EditorRefApi } from "@plane/editor";
 import type { ISearchIssueResponse, TIssue } from "@plane/types";
+// hooks
+import type { useVoiceTicket } from "@/hooks/use-voice-ticket";
 // plane web imports
 import type { TIssuePropertyValues, TIssuePropertyValueErrors } from "@/plane-web/types/issue-types";
 import type { TIssueFields } from "@/plane-web/components/issues/issue-modal";
@@ -60,6 +62,11 @@ export type THandleParentWorkItemDetailsProps = {
 };
 
 export type TIssueModalContext = {
+  // Lives here (above the issue-modal's own conditional rendering / project-permission
+  // guards) so an in-flight or just-completed voice-ticket recording survives the inner
+  // form tree being torn down and remounted (e.g. while `allowedProjectIds` momentarily
+  // recomputes). See CreateUpdateIssueModalBase's `if (...) return null;` guard.
+  voiceTicket: ReturnType<typeof useVoiceTicket>;
   allowedProjectIds: string[];
   workItemTemplateId: string | null;
   setWorkItemTemplateId: React.Dispatch<React.SetStateAction<string | null>>;

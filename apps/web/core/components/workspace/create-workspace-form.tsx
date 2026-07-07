@@ -110,18 +110,18 @@ export const CreateWorkspaceForm = observer(function CreateWorkspaceForm(props: 
 
   return (
     <form
-      className="space-y-6 sm:space-y-9"
+      className="flyers-soft-create-workspace-form"
       onSubmit={(e) => {
         void handleSubmit(handleCreateWorkspace)(e);
       }}
     >
-      <div className="space-y-6 sm:space-y-7">
-        <div className="flex flex-col gap-2 text-13">
+      <div className="flyers-soft-create-workspace-fields">
+        <div className="flyers-soft-create-workspace-field">
           <label htmlFor="workspaceName">
             {t("workspace_creation.form.name.label")}
             <span className="ml-0.5 text-danger-primary">*</span>
           </label>
-          <div className="flex flex-col gap-1">
+          <div className="flyers-soft-create-workspace-control">
             <Controller
               control={control}
               name="name"
@@ -148,20 +148,20 @@ export const CreateWorkspaceForm = observer(function CreateWorkspaceForm(props: 
                   ref={ref}
                   hasError={Boolean(errors.name)}
                   placeholder={t("workspace_creation.form.name.placeholder")}
-                  className="w-full"
+                  className="flyers-soft-create-workspace-input"
                 />
               )}
             />
-            <span className="text-11 text-danger-primary">{errors?.name?.message}</span>
+            <span className="flyers-soft-create-workspace-error">{errors?.name?.message}</span>
           </div>
         </div>
-        <div className="flex flex-col gap-2 text-13">
+        <div className="flyers-soft-create-workspace-field">
           <label htmlFor="workspaceUrl">
             {t("workspace_creation.form.url.label")}
             <span className="ml-0.5 text-danger-primary">*</span>
           </label>
-          <div className="flex w-full items-center rounded-md border border-subtle bg-layer-2 px-3">
-            <span className="text-12 whitespace-nowrap text-secondary">{window && window.location.host}/</span>
+          <div className="flyers-soft-create-workspace-url-field">
+            <span>{typeof window !== "undefined" ? window.location.host : ""}/</span>
             <Controller
               control={control}
               name="slug"
@@ -186,23 +186,25 @@ export const CreateWorkspaceForm = observer(function CreateWorkspaceForm(props: 
                   ref={ref}
                   hasError={Boolean(errors.slug)}
                   placeholder={t("workspace_creation.form.url.placeholder")}
-                  className="block w-full rounded-md border-none bg-transparent !px-0 py-2 text-12"
+                  className="flyers-soft-create-workspace-url-input"
                 />
               )}
             />
           </div>
           {slugError && (
-            <p className="-mt-3 text-13 text-danger-primary">
+            <p className="flyers-soft-create-workspace-error">
               {t("workspace_creation.errors.validation.url_already_taken")}
             </p>
           )}
           {invalidSlug && (
-            <p className="text-13 text-danger-primary">{t("workspace_creation.errors.validation.url_alphanumeric")}</p>
+            <p className="flyers-soft-create-workspace-error">
+              {t("workspace_creation.errors.validation.url_alphanumeric")}
+            </p>
           )}
-          {errors.slug && <span className="text-11 text-danger-primary">{errors.slug.message}</span>}
+          {errors.slug && <span className="flyers-soft-create-workspace-error">{errors.slug.message}</span>}
         </div>
-        <div className="flex flex-col gap-2 text-13">
-          <span>
+        <div className="flyers-soft-create-workspace-field">
+          <span className="flyers-soft-create-workspace-label">
             {t("workspace_creation.form.organization_size.label")}
             <span className="ml-0.5 text-danger-primary">*</span>
           </span>
@@ -222,11 +224,12 @@ export const CreateWorkspaceForm = observer(function CreateWorkspaceForm(props: 
                       </span>
                     )
                   }
-                  buttonClassName="border border-subtle bg-layer-2 !shadow-none !rounded-md"
+                  buttonClassName="flyers-soft-create-workspace-select-button"
+                  optionsClassName="flyers-soft-create-workspace-select-options"
                   input
                 >
                   {ORGANIZATION_SIZE.map((item) => (
-                    <CustomSelect.Option key={item} value={item}>
+                    <CustomSelect.Option key={item} value={item} className="flyers-soft-create-workspace-select-option">
                       {item}
                     </CustomSelect.Option>
                   ))}
@@ -234,18 +237,31 @@ export const CreateWorkspaceForm = observer(function CreateWorkspaceForm(props: 
               )}
             />
             {errors.organization_size && (
-              <span className="text-13 text-danger-primary">{errors.organization_size.message}</span>
+              <span className="flyers-soft-create-workspace-error">{errors.organization_size.message}</span>
             )}
           </div>
         </div>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flyers-soft-create-workspace-actions">
         {secondaryButton}
-        <Button variant="primary" type="submit" size="xl" disabled={!isValid} loading={isSubmitting}>
+        <Button
+          variant="primary"
+          type="submit"
+          size="xl"
+          disabled={!isValid}
+          loading={isSubmitting}
+          className="flyers-soft-create-workspace-primary-button"
+        >
           {isSubmitting ? t(primaryButtonText.loading) : t(primaryButtonText.default)}
         </Button>
         {!secondaryButton && (
-          <Button variant="secondary" type="button" size="xl" onClick={() => router.back()}>
+          <Button
+            variant="secondary"
+            type="button"
+            size="xl"
+            onClick={() => router.back()}
+            className="flyers-soft-create-workspace-secondary-button"
+          >
             {t("common.go_back")}
           </Button>
         )}

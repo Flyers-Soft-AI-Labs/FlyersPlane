@@ -398,7 +398,9 @@ export const CreateUpdateIssueModalBase = observer(function CreateUpdateIssueMod
   const handleDuplicateIssueModal = (value: boolean) => setIsDuplicateModalOpen(value);
 
   // don't open the modal if there are no projects
-  if (!allowedProjectIds || allowedProjectIds.length === 0 || !activeProjectId) return null;
+  if (!allowedProjectIds || allowedProjectIds.length === 0 || !activeProjectId) {
+    return null;
+  }
 
   const commonIssueModalProps: IssueFormProps = {
     issueTitleRef: issueTitleRef,

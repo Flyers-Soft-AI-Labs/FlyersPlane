@@ -5,44 +5,11 @@
  */
 
 import { observer } from "mobx-react";
-// plane imports
-import { useTranslation } from "@plane/i18n";
-import { InboxIcon } from "@plane/propel/icons";
-import { Breadcrumbs, Header } from "@plane/ui";
-// components
-import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
-// local imports
-import { NotificationSidebarHeaderOptions } from "./options";
 
-type TNotificationSidebarHeader = {
-  workspaceSlug: string;
-};
-
-export const NotificationSidebarHeader = observer(function NotificationSidebarHeader(
-  props: TNotificationSidebarHeader
-) {
-  const { workspaceSlug } = props;
-  const { t } = useTranslation();
-
-  if (!workspaceSlug) return <></>;
+export const NotificationSidebarHeader = observer(function NotificationSidebarHeader() {
   return (
-    <Header className="my-auto bg-surface-1">
-      <Header.LeftItem>
-        <Breadcrumbs>
-          <Breadcrumbs.Item
-            component={
-              <BreadcrumbLink
-                label={t("notification.label")}
-                icon={<InboxIcon className="h-4 w-4 text-primary" />}
-                disableTooltip
-              />
-            }
-          />
-        </Breadcrumbs>
-      </Header.LeftItem>
-      <Header.RightItem>
-        <NotificationSidebarHeaderOptions workspaceSlug={workspaceSlug} />
-      </Header.RightItem>
-    </Header>
+    <header className="flyers-soft-notifications-header flex h-[86px] flex-shrink-0 items-center border-b border-subtle px-8">
+      <h1 className="text-2xl tracking-normal font-semibold text-primary">Inbox</h1>
+    </header>
   );
 });

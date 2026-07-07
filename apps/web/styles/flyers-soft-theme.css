@@ -3870,11 +3870,6 @@ textarea:focus {
 [role="dialog"],
 [role="menu"],
 [role="listbox"],
-[data-headlessui-state],
-[class*="dropdown"],
-[class*="popover"],
-[class*="modal"],
-[class*="card"],
 table,
 tbody,
 thead,
@@ -4386,8 +4381,9 @@ body,
 [role="dialog"],
 [role="menu"],
 [role="listbox"],
-[class*="dropdown"],
-[class*="popover"] {
+.flyers-soft-dropdown,
+.flyers-soft-popover,
+[data-slot="popover-content"] {
   border-radius: var(--flyers-density-radius) !important;
 }
 
@@ -4395,11 +4391,7 @@ body,
 .flyers-soft-teams-stat-card,
 .flyers-soft-kanban-card,
 .flyers-soft-base-kanban-item > *,
-[role="dialog"],
-[role="menu"],
-[role="listbox"],
-[class*="dropdown"],
-[class*="popover"] {
+[role="dialog"] {
   padding: var(--flyers-density-card-padding) !important;
 }
 
@@ -7848,6 +7840,83 @@ body.flyers-soft-create-ticket-modal-open .fixed.inset-0.bg-backdrop {
 .flyers-soft-ticket-title-field input {
   font-size: 15px !important;
   font-weight: 560 !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control .flyers-soft-title-input-shell {
+  position: relative !important;
+  display: flex !important;
+  width: 100% !important;
+  align-items: stretch !important;
+}
+
+.flyers-soft-create-ticket-modal
+  .flyers-soft-ticket-modal-field-control
+  .flyers-soft-title-input-shell:has(input.flyers-soft-title-input-with-voice) {
+  border: 1px solid #e5e7eb !important;
+  border-radius: 9px !important;
+  background: #ffffff !important;
+  box-shadow: inset 0 1px 0 rgba(17, 24, 39, 0.03) !important;
+}
+
+.flyers-soft-create-ticket-modal
+  .flyers-soft-ticket-modal-field-control
+  .flyers-soft-title-input-shell:has(input.flyers-soft-title-input-with-voice:focus) {
+  border-color: #d1d5db !important;
+  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.16) !important;
+}
+
+.flyers-soft-create-ticket-modal
+  .flyers-soft-ticket-modal-field-control
+  input.flyers-soft-title-input-with-voice:not([type="checkbox"]) {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding-right: 4px !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control button.flyers-soft-voice-ticket-trigger {
+  position: static !important;
+  flex: 0 0 auto !important;
+  align-self: center !important;
+  margin: 0 4px !important;
+  display: grid !important;
+  width: 40px !important;
+  min-width: 40px !important;
+  max-width: 40px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  place-items: center !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  color: #6b7280 !important;
+  transition: background-color 0.15s ease, color 0.15s ease !important;
+}
+
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control button.flyers-soft-voice-ticket-trigger:hover,
+.flyers-soft-create-ticket-modal
+  .flyers-soft-ticket-modal-field-control
+  button.flyers-soft-voice-ticket-trigger:focus-visible {
+  border: 0 !important;
+  background: #f3f4f6 !important;
+  box-shadow: none !important;
+  color: #111827 !important;
+}
+
+.flyers-soft-create-ticket-modal
+  .flyers-soft-ticket-modal-field-control
+  button.flyers-soft-voice-ticket-trigger
+  svg {
+  width: 18px !important;
+  height: 18px !important;
 }
 
 .flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control input::placeholder,
@@ -11844,4 +11913,222 @@ button:has(> .flyers-soft-team-invite-role):hover {
     0 3px 10px rgba(16, 24, 40, 0.05) !important;
   overflow: hidden !important; /* clips rows cleanly to the rounded corners */
   background: #ffffff !important;
+}
+
+/* ================================================================
+   Notifications inbox - Notion-style minimal page shell
+   ================================================================ */
+
+.flyers-soft-notifications-layout {
+  background: #ffffff !important;
+  color: #111827;
+}
+
+.flyers-soft-notifications-sidebar {
+  border-color: #e5e7eb !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-notifications-detail-panel,
+.flyers-soft-notifications-detail {
+  background: #ffffff !important;
+}
+
+.flyers-soft-notifications-header {
+  border-color: #e5e7eb !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-notifications-header h1 {
+  letter-spacing: 0 !important;
+}
+
+.flyers-soft-notifications-tabs {
+  border-color: #e5e7eb !important;
+  background: #ffffff !important;
+}
+
+.flyers-soft-notifications-tabs button {
+  box-shadow: none !important;
+}
+
+.flyers-soft-notifications-tabs button:hover,
+.flyers-soft-notifications-tabs button:focus-visible {
+  background: transparent !important;
+}
+
+.flyers-soft-notifications-tabs button:focus-visible {
+  outline: 2px solid rgba(91, 60, 196, 0.2) !important;
+  outline-offset: -2px !important;
+}
+
+.flyers-soft-notifications-tab-count {
+  display: inline-flex;
+  min-width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(91, 60, 196, 0.08);
+  padding-inline: 6px;
+  color: #3d2aa6;
+  font-size: 11px;
+  line-height: 18px;
+}
+
+.flyers-soft-notifications-list-scroll,
+.flyers-soft-notification-list {
+  background: #ffffff !important;
+}
+
+.flyers-soft-notification-row {
+  min-height: 76px;
+  border-color: rgba(17, 24, 39, 0.08) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-notification-row:hover {
+  background: #fafafa !important;
+}
+
+.flyers-soft-notification-row:focus-visible {
+  background: #fafafa !important;
+  box-shadow: inset 0 0 0 2px rgba(91, 60, 196, 0.16) !important;
+}
+
+.flyers-soft-notification-row-selected {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+.flyers-soft-notification-row-unread {
+  background: rgba(91, 60, 196, 0.035) !important;
+}
+
+.flyers-soft-notification-row-selected.flyers-soft-notification-row-unread,
+.flyers-soft-notification-row-unread:hover {
+  background: rgba(91, 60, 196, 0.055) !important;
+}
+
+.flyers-soft-notification-row .text-primary,
+.flyers-soft-notification-row .text-secondary,
+.flyers-soft-notification-row .text-tertiary,
+.flyers-soft-notification-row span,
+.flyers-soft-notification-row p {
+  box-shadow: none !important;
+}
+
+.flyers-soft-notification-row .text-primary,
+.flyers-soft-notification-row span.text-primary {
+  color: #111827 !important;
+}
+
+.flyers-soft-notification-row .text-secondary,
+.flyers-soft-notification-row .text-tertiary {
+  color: #6b7280 !important;
+}
+
+.flyers-soft-notification-row > button {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-notification-row > button:hover,
+.flyers-soft-notification-row > button:focus-visible {
+  background: transparent !important;
+}
+
+.flyers-soft-notification-row-actions button {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-notification-row-actions button:hover,
+.flyers-soft-notification-row-actions button:focus-visible {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-radius: 6px !important;
+}
+
+.flyers-soft-notifications-loader {
+  background: #ffffff !important;
+}
+
+.flyers-soft-notifications-loader .bg-layer-1 {
+  background: #f1f1ef !important;
+}
+
+.flyers-soft-notifications-list-empty {
+  color: #111827;
+}
+
+.flyers-soft-notifications-empty-detail {
+  background: #ffffff !important;
+}
+
+.flyers-soft-notifications-empty-illustration {
+  filter: none !important;
+}
+
+.flyers-soft-notifications-layout .shadow-raised-100,
+.flyers-soft-notifications-layout .shadow-raised-200,
+.flyers-soft-notifications-layout .shadow-raised-300 {
+  box-shadow: none !important;
+}
+
+.flyers-soft-notifications-layout :is([role="option"], [role="menuitem"], [cmdk-item]) {
+  min-height: 32px !important;
+  padding: 6px 8px !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.flyers-soft-notifications-layout :is([role="option"], [role="menuitem"], [cmdk-item]):hover,
+.flyers-soft-notifications-layout :is([role="option"], [role="menuitem"], [cmdk-item])[data-active="true"],
+.flyers-soft-notifications-layout :is([role="option"], [role="menuitem"], [cmdk-item])[aria-selected="true"] {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+body:has(.flyers-soft-notifications-layout) [data-radix-popper-content-wrapper] {
+  filter: none !important;
+}
+
+body:has(.flyers-soft-notifications-layout)
+  [data-radix-popper-content-wrapper]
+  :is([role="option"], [role="menuitem"]) {
+  min-height: 32px !important;
+  padding: 6px 8px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body:has(.flyers-soft-notifications-layout)
+  [data-radix-popper-content-wrapper]
+  :is([role="option"], [role="menuitem"]):hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+body:has(.flyers-soft-notifications-layout) #main-sidebar,
+body:has(.flyers-soft-notifications-layout) .flyers-soft-sidebar-peek {
+  border-color: #e5e7eb !important;
+  box-shadow: none !important;
+}
+
+body:has(.flyers-soft-notifications-layout) .flyers-soft-sidebar-simple-item {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body:has(.flyers-soft-notifications-layout) .flyers-soft-sidebar-simple-item:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+body:has(.flyers-soft-notifications-layout) .flyers-soft-sidebar-simple-item:has(a.text-primary),
+body:has(.flyers-soft-notifications-layout) .flyers-soft-sidebar-simple-item:has(button.text-primary) {
+  background: rgba(0, 0, 0, 0.04) !important;
+  box-shadow: none !important;
 }
