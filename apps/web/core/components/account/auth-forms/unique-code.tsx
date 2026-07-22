@@ -4,7 +4,7 @@
  * See the LICENSE file for details.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CircleCheck, XCircle } from "lucide-react";
 import { API_BASE_URL } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -44,10 +44,12 @@ export function AuthUniqueCodeForm(props: TAuthUniqueCodeForm) {
   const { mode, email, handleEmailClear, generateEmailUniqueCode, nextPath } = props;
   // derived values
   const defaultResetTimerValue = 5;
+  // ref
+  const formRef = useRef<HTMLFormElement>(null);
   // states
   const [uniqueCodeFormData, setUniqueCodeFormData] = useState<TUniqueCodeFormValues>({ ...defaultValues, email });
   const [isRequestingNewCode, setIsRequestingNewCode] = useState(false);
-  const [csrfToken, setCsrfToken] = useState<string | undefined>(undefined);
+  const [csrfPromise, setCsrfPromise] = useState<Promise<{ csrf_token: string }> | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
   // timer
   const { timer: resendTimerCode, setTimer: setResendCodeTimer } = useTimer(0);
@@ -57,10 +59,10 @@ export function AuthUniqueCodeForm(props: TAuthUniqueCodeForm) {
   const handleFormChange = (key: keyof TUniqueCodeFormValues, value: string) =>
     setUniqueCodeFormData((prev) => ({ ...prev, [key]: value }));
 
-  const generateNewCode = async (email: string) => {
+  const generateNewCode = async (userEmail: string) => {
     try {
       setIsRequestingNewCode(true);
-      const uniqueCode = await generateEmailUniqueCode(email);
+      const uniqueCode = await generateEmailUniqueCode(userEmail);
       setResendCodeTimer(defaultResetTimerValue);
       handleFormChange("code", uniqueCode?.code || "");
       setIsRequestingNewCode(false);
@@ -72,26 +74,40 @@ export function AuthUniqueCodeForm(props: TAuthUniqueCodeForm) {
   };
 
   useEffect(() => {
-    if (csrfToken === undefined)
-      authService.requestCSRFToken().then((data) => data?.csrf_token && setCsrfToken(data.csrf_token));
-  }, [csrfToken]);
+    if (csrfPromise === undefined) {
+      const promise = authService.requestCSRFToken();
+      setCsrfPromise(promise);
+    }
+  }, [csrfPromise]);
+
+  const handleCSRFToken = async () => {
+    if (!formRef.current) return;
+    const token = await csrfPromise;
+    if (!token?.csrf_token) return;
+    const csrfElement = formRef.current.querySelector("input[name=csrfmiddlewaretoken]");
+    csrfElement?.setAttribute("value", token.csrf_token);
+  };
 
   const isRequestNewCodeDisabled = isRequestingNewCode || resendTimerCode > 0;
   const isButtonDisabled = isRequestingNewCode || !uniqueCodeFormData.code || isSubmitting;
 
   return (
     <form
+      ref={formRef}
       className="space-y-4"
       method="POST"
       action={`${API_BASE_URL}/auth/${mode === EAuthModes.SIGN_IN ? "magic-sign-in" : "magic-sign-up"}/`}
-      onSubmit={() => {
+      onSubmit={async (event) => {
+        event.preventDefault();
+        await handleCSRFToken();
         setIsSubmitting(true);
+        if (formRef.current) formRef.current.submit();
       }}
       onError={() => {
         setIsSubmitting(false);
       }}
     >
-      <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />
+      <input type="hidden" name="csrfmiddlewaretoken" />
       <input type="hidden" value={uniqueCodeFormData.email} name="email" />
       {nextPath && <input type="hidden" value={nextPath} name="next_path" />}
       <div className="space-y-1">
@@ -135,6 +151,7 @@ export function AuthUniqueCodeForm(props: TAuthUniqueCodeForm) {
           placeholder={t("auth.common.unique_code.placeholder")}
           className="h-10 w-full border border-strong !bg-surface-1 pr-12 disable-autofill-style placeholder:text-placeholder"
           autoComplete="off"
+          // oxlint-disable-next-line jsx-a11y/no-autofocus -- intentional: this is the primary field on the unique-code step
           autoFocus
         />
         <div className="flex w-full items-center justify-between px-1 pt-1 text-11">
