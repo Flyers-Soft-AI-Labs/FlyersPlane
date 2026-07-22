@@ -12132,3 +12132,75 @@ body:has(.flyers-soft-notifications-layout) .flyers-soft-sidebar-simple-item:has
   background: rgba(0, 0, 0, 0.04) !important;
   box-shadow: none !important;
 }
+
+/* ---------------------------------------------------------------------- */
+/* Product tour (onboarding) — Flyers Soft purple accent moments          */
+/* ---------------------------------------------------------------------- */
+
+.flyers-tour-progress-track {
+  position: relative;
+  height: 3px;
+  width: 100%;
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--background-color-surface-2) 100%, transparent);
+}
+
+.flyers-tour-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #8b5cf6, #7c3aed);
+  transition: width 300ms ease;
+}
+
+.flyers-tour-hero {
+  background: radial-gradient(120% 140% at 20% 0%, #a78bfa 0%, #7c3aed 60%, #6d28d9 100%);
+}
+
+.flyers-tour-screenshot-area {
+  background: linear-gradient(180deg, color-mix(in srgb, #8b5cf6 10%, var(--background-color-surface-2)) 0%, var(--background-color-surface-2) 100%);
+}
+
+.flyers-tour-screenshot-fallback {
+  background:
+    radial-gradient(60% 80% at 50% 20%, rgba(139, 92, 246, 0.16) 0%, rgba(139, 92, 246, 0) 70%),
+    repeating-linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0px, rgba(139, 92, 246, 0.05) 1px, transparent 1px, transparent 14px);
+}
+
+.flyers-tour-rail-item-active {
+  border-color: #8b5cf6 !important;
+  background: rgba(139, 92, 246, 0.08);
+  color: #7c3aed !important;
+}
+
+[data-theme*="dark"] .flyers-tour-rail-item-active {
+  color: #c4b5fd !important;
+  background: rgba(139, 92, 246, 0.14);
+}
+
+.flyers-tour-rail-dot-active {
+  background: #8b5cf6;
+  color: #ffffff;
+}
+
+.flyers-tour-slide-enter {
+  animation: flyers-tour-fade-slide-in 280ms ease;
+}
+
+@keyframes flyers-tour-fade-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flyers-tour-slide-enter {
+    animation: none;
+  }
+  .flyers-tour-progress-fill {
+    transition: none;
+  }
+}
