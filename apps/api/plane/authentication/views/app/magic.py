@@ -2,11 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # See the LICENSE file for details.
 
-# Python imports
-import logging
-
 # Django imports
-from django.conf import settings
 from django.core.validators import validate_email
 from django.http import HttpResponseRedirect
 from django.views import View
@@ -32,8 +28,6 @@ from plane.authentication.adapter.error import (
 )
 from plane.authentication.rate_limit import AuthenticationThrottle
 from plane.utils.path_validator import get_safe_redirect_url
-
-logger = logging.getLogger("plane.authentication")
 
 
 class MagicGenerateEndpoint(APIView):
@@ -66,14 +60,6 @@ class MagicGenerateEndpoint(APIView):
 
 class MagicSignInEndpoint(View):
     def post(self, request):
-        # TEMP DEBUG LOGGING - remove after CSRF investigation
-        logger.info(
-            "magic-sign-in POST received | csrf_cookie_present=%s | session_cookie_present=%s | origin=%s | referer=%s",
-            settings.CSRF_COOKIE_NAME in request.COOKIES,
-            settings.SESSION_COOKIE_NAME in request.COOKIES,
-            request.META.get("HTTP_ORIGIN"),
-            request.META.get("HTTP_REFERER"),
-        )
         # set the referer as session to redirect after login
         code = request.POST.get("code", "").strip()
         email = request.POST.get("email", "").strip().lower()
@@ -145,14 +131,6 @@ class MagicSignInEndpoint(View):
 
 class MagicSignUpEndpoint(View):
     def post(self, request):
-        # TEMP DEBUG LOGGING - remove after CSRF investigation
-        logger.info(
-            "magic-sign-up POST received | csrf_cookie_present=%s | session_cookie_present=%s | origin=%s | referer=%s",
-            settings.CSRF_COOKIE_NAME in request.COOKIES,
-            settings.SESSION_COOKIE_NAME in request.COOKIES,
-            request.META.get("HTTP_ORIGIN"),
-            request.META.get("HTTP_REFERER"),
-        )
         # set the referer as session to redirect after login
         code = request.POST.get("code", "").strip()
         email = request.POST.get("email", "").strip().lower()

@@ -4,7 +4,7 @@
  * See the LICENSE file for details.
  */
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 // plane internal packages
@@ -55,11 +55,9 @@ export function InstanceSignInForm() {
   const emailParam = searchParams.get("email") || undefined;
   const errorCode = searchParams.get("error_code") || undefined;
   const errorMessage = searchParams.get("error_message") || undefined;
-  // ref
-  const formRef = useRef<HTMLFormElement>(null);
   // state
   const [showPassword, setShowPassword] = useState(false);
-  const [csrfPromise, setCsrfPromise] = useState<Promise<{ csrf_token: string }> | undefined>(undefined);
+  const [csrfToken, setCsrfToken] = useState<string | undefined>(undefined);
   const [formData, setFormData] = useState<TFormData>(defaultFromData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorInfo, setErrorInfo] = useState<TAdminAuthErrorInfo | undefined>(undefined);
@@ -68,19 +66,9 @@ export function InstanceSignInForm() {
     setFormData((prev) => ({ ...prev, [key]: value }));
 
   useEffect(() => {
-    if (csrfPromise === undefined) {
-      const promise = authService.requestCSRFToken();
-      setCsrfPromise(promise);
-    }
-  }, [csrfPromise]);
-
-  const handleCSRFToken = async () => {
-    if (!formRef.current) return;
-    const token = await csrfPromise;
-    if (!token?.csrf_token) return;
-    const csrfElement = formRef.current.querySelector("input[name=csrfmiddlewaretoken]");
-    csrfElement?.setAttribute("value", token.csrf_token);
-  };
+    if (csrfToken === undefined)
+      authService.requestCSRFToken().then((data) => data?.csrf_token && setCsrfToken(data.csrf_token));
+  }, [csrfToken]);
 
   useEffect(() => {
     if (emailParam) setFormData((prev) => ({ ...prev, email: emailParam }));
@@ -107,7 +95,7 @@ export function InstanceSignInForm() {
   }, [errorCode, errorMessage]);
 
   const isButtonDisabled = useMemo(
-    () => !(!isSubmitting && formData.email && formData.password),
+    () => (!isSubmitting && formData.email && formData.password ? false : true),
     [formData.email, formData.password, isSubmitting]
   );
 
@@ -130,16 +118,10 @@ export function InstanceSignInForm() {
             subHeading="Configure instance-wide settings to secure your instance"
           />
           <form
-            ref={formRef}
             className="space-y-4"
             method="POST"
             action={`${API_BASE_URL}/api/instances/admins/sign-in/`}
-            onSubmit={async (event) => {
-              event.preventDefault();
-              await handleCSRFToken();
-              setIsSubmitting(true);
-              if (formRef.current) formRef.current.submit();
-            }}
+            onSubmit={() => setIsSubmitting(true)}
             onError={() => setIsSubmitting(false)}
           >
             {errorData.type && errorData?.message ? (
@@ -149,7 +131,7 @@ export function InstanceSignInForm() {
                 {errorInfo && <AuthBanner bannerData={errorInfo} handleBannerData={(value) => setErrorInfo(value)} />}
               </>
             )}
-            <input type="hidden" name="csrfmiddlewaretoken" />
+            <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />
 
             <div className="w-full space-y-1">
               <label className="text-13 font-medium text-tertiary" htmlFor="email">
@@ -165,7 +147,6 @@ export function InstanceSignInForm() {
                 value={formData.email}
                 onChange={(e) => handleFormChange("email", e.target.value)}
                 autoComplete="off"
-                // oxlint-disable-next-line jsx-a11y/no-autofocus -- intentional: first field on the sign-in form
                 autoFocus
               />
             </div>

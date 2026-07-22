@@ -2,11 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # See the LICENSE file for details.
 
-# Python imports
-import logging
-
 # Django imports
-from django.conf import settings
 from django.shortcuts import render
 
 # Third party imports
@@ -28,8 +24,6 @@ from django.middleware.csrf import get_token
 from plane.utils.cache import invalidate_cache
 from plane.authentication.utils.host import base_host
 
-logger = logging.getLogger("plane.authentication")
-
 
 class CSRFTokenEndpoint(APIView):
     permission_classes = [AllowAny]
@@ -37,33 +31,12 @@ class CSRFTokenEndpoint(APIView):
     def get(self, request):
         # Generate a CSRF token
         csrf_token = get_token(request)
-        # TEMP DEBUG LOGGING - remove after CSRF investigation
-        logger.info(
-            "csrf-token issued | incoming_csrf_cookie_present=%s | origin=%s | referer=%s | ua=%s",
-            settings.CSRF_COOKIE_NAME in request.COOKIES,
-            request.META.get("HTTP_ORIGIN"),
-            request.META.get("HTTP_REFERER"),
-            request.META.get("HTTP_USER_AGENT"),
-        )
         # Return the CSRF token in a JSON response
         return Response({"csrf_token": str(csrf_token)}, status=status.HTTP_200_OK)
 
 
 def csrf_failure(request, reason=""):
     """Custom CSRF failure view"""
-    # TEMP DEBUG LOGGING - remove after CSRF investigation
-    logger.warning(
-        "csrf verification failed | reason=%s | path=%s | csrf_cookie_present=%s | session_cookie_present=%s | "
-        "cookie_header=%s | origin=%s | referer=%s | ua=%s",
-        reason,
-        request.path,
-        settings.CSRF_COOKIE_NAME in request.COOKIES,
-        settings.SESSION_COOKIE_NAME in request.COOKIES,
-        request.META.get("HTTP_COOKIE"),
-        request.META.get("HTTP_ORIGIN"),
-        request.META.get("HTTP_REFERER"),
-        request.META.get("HTTP_USER_AGENT"),
-    )
     return render(
         request,
         "csrf_failure.html",
