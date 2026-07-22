@@ -21,9 +21,12 @@ import { LogoSpinner } from "@/components/common/logo-spinner";
 import { CustomErrorComponent } from "./error";
 import { AppProvider } from "./provider";
 // fonts
+// oxlint-disable-next-line import/no-unassigned-import -- side-effect import: registers the variable-weight font face
 import "@fontsource-variable/inter";
 import interVariableWoff2 from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
+// oxlint-disable-next-line import/no-unassigned-import -- side-effect import: registers the icon font face
 import "@fontsource/material-symbols-rounded/400.css";
+// oxlint-disable-next-line import/no-unassigned-import -- side-effect import: registers the monospace font face
 import "@fontsource/ibm-plex-mono";
 
 const APP_TITLE = "Flyers Soft | Simple, extensible, open-source project management tool.";
@@ -71,8 +74,8 @@ export function Layout({ children }: { children: ReactNode }) {
         <ThemeProvider
           attribute="data-theme"
           themes={["light", "dark", "light-contrast", "dark-contrast", "custom"]}
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           storageKey="theme"
         >
           {children}

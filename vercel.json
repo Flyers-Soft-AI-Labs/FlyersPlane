@@ -11,12 +11,24 @@
   ],
   "rewrites": [
     {
+      "source": "/api/:path*/",
+      "destination": "https://flyersplane.onrender.com/api/:path*/"
+    },
+    {
       "source": "/api/:path*",
       "destination": "https://flyersplane.onrender.com/api/:path*"
     },
     {
+      "source": "/auth/:path*/",
+      "destination": "https://flyersplane.onrender.com/auth/:path*/"
+    },
+    {
       "source": "/auth/:path*",
       "destination": "https://flyersplane.onrender.com/auth/:path*"
+    },
+    {
+      "source": "/static/:path*/",
+      "destination": "https://flyersplane.onrender.com/static/:path*/"
     },
     {
       "source": "/static/:path*",

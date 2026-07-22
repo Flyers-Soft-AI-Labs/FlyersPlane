@@ -371,6 +371,16 @@ CSRF_TRUSTED_ORIGINS = cors_allowed_origins
 CSRF_COOKIE_DOMAIN = os.environ.get("COOKIE_DOMAIN", None)
 CSRF_FAILURE_VIEW = "plane.authentication.views.common.csrf_failure"
 
+# Browsers refuse to store or send a cookie with SameSite=None unless it is also
+# Secure. This matters when the frontend and backend are on different domains
+# (e.g. Vercel + Render): SESSION_COOKIE_SAMESITE/CSRF_COOKIE_SAMESITE must be set
+# to "None" in that setup for the browser to send cookies back on cross-site
+# requests, and Secure has to follow automatically or the cookie is dropped.
+if SESSION_COOKIE_SAMESITE == "None":
+    SESSION_COOKIE_SECURE = True
+if CSRF_COOKIE_SAMESITE == "None":
+    CSRF_COOKIE_SECURE = True
+
 ######  Base URLs ######
 
 # Admin Base URL
@@ -418,8 +428,7 @@ ATTACHMENT_MIME_TYPES = [
     "image/bmp",
     # Documents
     "application/pdf",
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "application/vnd.ms-excel",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     "application/vnd.ms-powerpoint",
