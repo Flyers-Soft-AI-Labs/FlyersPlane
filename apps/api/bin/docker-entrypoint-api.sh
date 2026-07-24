@@ -3,8 +3,28 @@ set -e
 python manage.py wait_for_db
 
 # Apply migrations before any startup command touches database tables.
+#
+# `migrate --check` builds the same migration graph as a full `migrate` and
+# still has to query django_migrations to compute the plan, but when the
+# plan is empty it exits immediately instead of also running post_migrate
+# signal work (content-type/permission sync, etc.) that a full `migrate
+# --noinput` performs on every invocation regardless of whether anything
+# was actually applied. Render's free tier has no Pre-Deploy Command to
+# move migrations out of the boot path entirely, so this keeps the common
+# "nothing to apply" case cheap on every cold start while still running
+# the real migrate whenever there's something pending.
+#
+# Note: this must use the `if <cmd>; then` form. Under `set -e`, a bare
+# non-zero exit would abort the script, but a command used directly as an
+# `if`/`while` condition is exempt from errexit - so a "migrations
+# pending" result (exit 1) is handled below instead of crashing the boot.
 if [ "${RUN_MIGRATIONS_ON_START:-1}" = "1" ]; then
-    python manage.py migrate --noinput
+    if python manage.py migrate --check --noinput; then
+        echo "No pending migrations, skipping full migrate."
+    else
+        echo "Pending migrations detected, applying..."
+        python manage.py migrate --noinput
+    fi
 fi
 
 # Wait for migrations
