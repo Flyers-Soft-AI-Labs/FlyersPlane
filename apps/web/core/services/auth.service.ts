@@ -35,7 +35,7 @@ export class AuthService extends APIService {
     return this.post(`/auth/forgot-password/`, data)
       .then((response) => response?.data)
       .catch((error) => {
-        throw error?.response;
+        throw error?.response?.data;
       });
   }
 
