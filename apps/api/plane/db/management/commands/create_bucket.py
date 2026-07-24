@@ -23,7 +23,15 @@ class Command(BaseCommand):
                 aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),  # MinIO access key
                 aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),  # MinIO secret key
                 region_name=os.environ.get("AWS_REGION"),  # MinIO region
-                config=boto3.session.Config(signature_version="s3v4"),
+                config=boto3.session.Config(
+                    signature_version="s3v4",
+                    # Without explicit timeouts, a slow/unreachable endpoint falls back to
+                    # botocore's long default socket timeout with retries on top, which can
+                    # turn this boot-time check into a multi-minute hang.
+                    connect_timeout=5,
+                    read_timeout=5,
+                    retries={"max_attempts": 1},
+                ),
             )
             # Get the bucket name from the environment
             bucket_name = os.environ.get("AWS_S3_BUCKET_NAME")

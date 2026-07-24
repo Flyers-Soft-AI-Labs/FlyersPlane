@@ -26,19 +26,29 @@ class Command(BaseCommand):
             if not os.environ.get(item):
                 raise CommandError(f"{item} env variable is required.")
 
+        # A single existence check replaces one get_or_create() round-trip per
+        # key (33+ sequential queries every boot, even when nothing is missing).
+        existing_keys = set(
+            InstanceConfiguration.objects.filter(
+                key__in=[item.get("key") for item in instance_config_variables]
+            ).values_list("key", flat=True)
+        )
+
         for item in instance_config_variables:
-            obj, created = InstanceConfiguration.objects.get_or_create(key=item.get("key"))
-            if created:
-                obj.category = item.get("category")
-                obj.is_encrypted = item.get("is_encrypted", False)
-                if item.get("is_encrypted", False):
-                    obj.value = encrypt_data(item.get("value"))
-                else:
-                    obj.value = item.get("value")
-                obj.save()
-                self.stdout.write(self.style.SUCCESS(f"{obj.key} loaded with value from environment variable."))
+            key = item.get("key")
+            if key in existing_keys:
+                self.stdout.write(self.style.WARNING(f"{key} configuration already exists"))
+                continue
+
+            obj = InstanceConfiguration(key=key)
+            obj.category = item.get("category")
+            obj.is_encrypted = item.get("is_encrypted", False)
+            if item.get("is_encrypted", False):
+                obj.value = encrypt_data(item.get("value"))
             else:
-                self.stdout.write(self.style.WARNING(f"{obj.key} configuration already exists"))
+                obj.value = item.get("value")
+            obj.save()
+            self.stdout.write(self.style.SUCCESS(f"{obj.key} loaded with value from environment variable."))
 
         keys = ["IS_GOOGLE_ENABLED", "IS_GITHUB_ENABLED", "IS_GITLAB_ENABLED", "IS_GITEA_ENABLED"]
         if not InstanceConfiguration.objects.filter(key__in=keys).exists():

@@ -52,6 +52,11 @@ RUN mkdir -p /code/plane/logs
 RUN chmod +x ./bin/*
 RUN chmod -R 777 /code
 
+# Static files are deterministic (filesystem-only, content-hashed by
+# whitenoise's ManifestStaticFilesStorage) so they're baked into the image
+# at build time instead of being regenerated on every container boot.
+RUN python manage.py collectstatic --noinput
+
 # Expose container port and run entry point script
 EXPOSE 8000
 

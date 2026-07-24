@@ -17,6 +17,10 @@ export abstract class APIService {
     this.axiosInstance = axios.create({
       baseURL,
       withCredentials: true,
+      // Prevents a slow/cold-starting backend from hanging the initial-load
+      // spinner indefinitely (InstanceWrapper/AuthenticationWrapper block
+      // render on these requests and only recover once the promise settles).
+      timeout: 15000,
     });
 
     this.setupInterceptors();

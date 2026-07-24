@@ -24,6 +24,8 @@ export abstract class APIService {
     this.axiosInstance = axios.create({
       baseURL,
       withCredentials: true,
+      // Prevents a slow/unresponsive backend from hanging callers indefinitely.
+      timeout: 15000,
     });
   }
 
