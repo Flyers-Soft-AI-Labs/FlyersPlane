@@ -33,8 +33,9 @@ class Command(BaseCommand):
                     retries={"max_attempts": 1},
                 ),
             )
-            # Get the bucket name from the environment
-            bucket_name = os.environ.get("AWS_S3_BUCKET_NAME")
+            # Get the bucket name from the environment (default matches
+            # AWS_STORAGE_BUCKET_NAME in settings/common.py)
+            bucket_name = os.environ.get("AWS_S3_BUCKET_NAME", "uploads")
             self.stdout.write(self.style.NOTICE("Checking bucket..."))
             # Check if the bucket exists
             s3_client.head_bucket(Bucket=bucket_name)
@@ -43,7 +44,7 @@ class Command(BaseCommand):
             return
         except ClientError as e:
             error_code = int(e.response["Error"]["Code"])
-            bucket_name = os.environ.get("AWS_S3_BUCKET_NAME")
+            bucket_name = os.environ.get("AWS_S3_BUCKET_NAME", "uploads")
             if error_code == 404:
                 # Bucket does not exist, create it
                 self.stdout.write(self.style.WARNING(f"Bucket '{bucket_name}' does not exist. Creating bucket..."))

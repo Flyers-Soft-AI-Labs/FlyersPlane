@@ -136,12 +136,9 @@ class Command(BaseCommand):
 
         # Check if the bucket exists
         s3_client = self.get_s3_client()
-        # Get the bucket name from the environment
-        bucket_name = os.environ.get("AWS_S3_BUCKET_NAME")
-
-        if not bucket_name:
-            self.stdout.write(self.style.ERROR("Please set the AWS_S3_BUCKET_NAME environment variable."))
-            return
+        # Get the bucket name from the environment (default matches
+        # AWS_STORAGE_BUCKET_NAME in settings/common.py)
+        bucket_name = os.environ.get("AWS_S3_BUCKET_NAME", "uploads")
 
         self.stdout.write(self.style.NOTICE("Checking bucket..."))
         # Check if the bucket exists
