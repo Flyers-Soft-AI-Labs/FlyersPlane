@@ -3,6 +3,10 @@
 # See the LICENSE file for details.
 
 from django.urls import path
-from plane.web.views import robots_txt, health_check
+from plane.web.views import robots_txt, health_check, readiness_check
 
-urlpatterns = [path("robots.txt", robots_txt), path("", health_check)]
+urlpatterns = [
+    path("robots.txt", robots_txt),
+    path("readyz", readiness_check),
+    path("", health_check),
+]
