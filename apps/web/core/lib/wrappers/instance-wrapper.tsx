@@ -38,8 +38,25 @@ const InstanceWrapper = observer(function InstanceWrapper(props: TInstanceWrappe
 
   if (instanceSWRError) return <MaintenanceView />;
 
-  // something went wrong while in the request
-  if (error && error?.status === "error") return <>{children}</>;
+  // The instance-info fetch failed (e.g. a slow/cold backend hitting the
+  // request timeout). Previously this rendered children anyway with
+  // `config` still undefined, which made AuthRoot conclude no auth methods
+  // were enabled and show "No authentication methods available" even
+  // though the instance is configured correctly. Offer a retry instead of
+  // silently rendering with missing data.
+  if (error && error?.status === "error")
+    return (
+      <div className="relative flex h-screen w-full flex-col items-center justify-center gap-4">
+        <p className="text-13 text-tertiary">{error.message || "Something went wrong. Please try again."}</p>
+        <button
+          type="button"
+          onClick={() => fetchInstanceInfo()}
+          className="rounded-md border border-strong px-4 py-2 text-13 font-medium text-primary hover:bg-surface-2"
+        >
+          Retry
+        </button>
+      </div>
+    );
 
   // instance is not ready and setup is not done
   if (instance?.is_setup_done === false) return <InstanceNotReady />;
