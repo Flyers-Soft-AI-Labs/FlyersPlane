@@ -9,7 +9,7 @@ import { observer } from "mobx-react";
 import useSWR from "swr";
 // components
 import { LogoSpinner } from "@/components/common/logo-spinner";
-import { InstanceNotReady, MaintenanceView } from "@/components/instance";
+import { InstanceNotReady } from "@/components/instance";
 // hooks
 import { useInstance } from "@/hooks/store/use-instance";
 
@@ -22,11 +22,13 @@ const InstanceWrapper = observer(function InstanceWrapper(props: TInstanceWrappe
   // store
   const { isLoading, instance, error, fetchInstanceInfo } = useInstance();
 
-  const { isLoading: isInstanceSWRLoading, error: instanceSWRError } = useSWR(
-    "INSTANCE_INFORMATION",
-    async () => await fetchInstanceInfo(),
-    { revalidateOnFocus: false }
-  );
+  // fetchInstanceInfo never throws (it swallows its own error into the store's
+  // `error` field below), so SWR's own error/retry state is never populated -
+  // only the store's `error` drives the fallback UI, and it flips exactly once
+  // per fetchInstanceInfo call.
+  const { isLoading: isInstanceSWRLoading } = useSWR("INSTANCE_INFORMATION", async () => await fetchInstanceInfo(), {
+    revalidateOnFocus: false,
+  });
 
   // loading state
   if ((isLoading || isInstanceSWRLoading) && !instance)
@@ -35,8 +37,6 @@ const InstanceWrapper = observer(function InstanceWrapper(props: TInstanceWrappe
         <LogoSpinner />
       </div>
     );
-
-  if (instanceSWRError) return <MaintenanceView />;
 
   // The instance-info fetch failed (e.g. a slow/cold backend hitting the
   // request timeout). Previously this rendered children anyway with
