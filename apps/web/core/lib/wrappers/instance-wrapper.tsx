@@ -22,23 +22,12 @@ const InstanceWrapper = observer(function InstanceWrapper(props: TInstanceWrappe
   // store
   const { isLoading, instance, error, fetchInstanceInfo } = useInstance();
 
-  // `fetchInstanceInfo` re-throws on failure so SWR's own retry/backoff below
-  // actually engages. Deliberately not reading SWR's own `error`/`isValidating`
-  // for rendering here - only the store's `error` (set once per attempt, by
-  // `fetchInstanceInfo` itself) drives the fallback UI. Two independent error
-  // states (SWR's + the store's) toggling the same subtree on every retry tick
-  // is what caused rapid mount/unmount cycles previously; there is now exactly
-  // one state driving the branch below, and it flips at the bounded cadence
-  // errorRetryCount/errorRetryInterval allow.
+  // fetchInstanceInfo never throws (it swallows its own error into the store's
+  // `error` field below), so SWR's own error/retry state is never populated -
+  // only the store's `error` drives the fallback UI, and it flips exactly once
+  // per fetchInstanceInfo call.
   const { isLoading: isInstanceSWRLoading } = useSWR("INSTANCE_INFORMATION", async () => await fetchInstanceInfo(), {
     revalidateOnFocus: false,
-    // A cold Render backend can reconnect mid-boot and flip the browser's
-    // online/offline state; without this, that event fires its own fetch on
-    // top of the error-retry timer below, doubling up attempts.
-    revalidateOnReconnect: false,
-    shouldRetryOnError: true,
-    errorRetryCount: 3,
-    errorRetryInterval: 3000,
   });
 
   // loading state
@@ -53,9 +42,8 @@ const InstanceWrapper = observer(function InstanceWrapper(props: TInstanceWrappe
   // request timeout). Previously this rendered children anyway with
   // `config` still undefined, which made AuthRoot conclude no auth methods
   // were enabled and show "No authentication methods available" even
-  // though the instance is configured correctly. SWR retries a few times
-  // with backoff first (see errorRetryCount above); this only shows once
-  // those are exhausted.
+  // though the instance is configured correctly. Offer a retry instead of
+  // silently rendering with missing data.
   if (error && error?.status === "error")
     return (
       <div className="relative flex h-screen w-full flex-col items-center justify-center gap-4">

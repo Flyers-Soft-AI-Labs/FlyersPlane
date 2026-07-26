@@ -64,7 +64,7 @@ export class InstanceStore implements IInstanceStore {
         this.instance = instanceInfo.instance;
         this.config = instanceInfo.config;
       });
-    } catch (error) {
+    } catch (_error) {
       runInAction(() => {
         this.isLoading = false;
         this.error = {
@@ -72,12 +72,10 @@ export class InstanceStore implements IInstanceStore {
           message: "Failed to fetch instance info",
         };
       });
-      // Re-throw so SWR sees the failure and drives its own errorRetryCount/
-      // errorRetryInterval backoff (see instance-wrapper.tsx). The render
-      // branch that used to flip on SWR's own error state was removed there
-      // instead of swallowing this - see that file for why re-throwing is
-      // safe now.
-      throw error;
+      // Do not re-throw: store error state drives the fallback render in
+      // InstanceWrapper (children are rendered). Re-throwing caused SWR to
+      // set instanceSWRError → MaintenanceView → rapid mount/unmount cycles
+      // that produced "Node cannot be found in the current page." in DevTools.
     }
   };
 }
