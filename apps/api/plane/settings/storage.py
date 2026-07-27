@@ -9,7 +9,7 @@ import uuid
 # Third party imports
 import boto3
 from botocore.exceptions import ClientError
-from urllib.parse import quote, urlparse
+from urllib.parse import quote
 
 # Module imports
 from plane.utils.exception_logger import log_exception
@@ -36,17 +36,6 @@ class S3Storage(S3Boto3Storage):
         # Use the SIGNED_URL_EXPIRATION environment variable for the expiration time (default: 3600 seconds)
         self.signed_url_expiration = int(os.environ.get("SIGNED_URL_EXPIRATION", "3600"))
 
-        # TEMP-DEBUG-S3REGION: remove after diagnosing the eu-north-1 presigned URL issue
-        print(
-            "TEMP-DEBUG-S3REGION init: "
-            f"USE_MINIO_env={os.environ.get('USE_MINIO')!r} "
-            f"AWS_REGION_env={os.environ.get('AWS_REGION')!r} "
-            f"self.aws_region={self.aws_region!r} "
-            f"aws_s3_endpoint_url={self.aws_s3_endpoint_url!r} "
-            f"bucket={self.aws_storage_bucket_name!r}",
-            flush=True,
-        )
-
         if os.environ.get("USE_MINIO") == "1":
             # Determine protocol based on environment variable
             if os.environ.get("MINIO_ENDPOINT_SSL") == "1":
@@ -72,14 +61,6 @@ class S3Storage(S3Boto3Storage):
                 endpoint_url=self.aws_s3_endpoint_url,
                 config=boto3.session.Config(signature_version="s3v4"),
             )
-
-        # TEMP-DEBUG-S3REGION: remove after diagnosing the eu-north-1 presigned URL issue
-        print(
-            "TEMP-DEBUG-S3REGION client: "
-            f"resolved_region={self.s3_client.meta.region_name!r} "
-            f"resolved_endpoint={self.s3_client.meta.endpoint_url!r}",
-            flush=True,
-        )
 
     def generate_presigned_post(self, object_name, file_type, file_size, expiration=None):
         """Generate a presigned URL to upload an S3 object"""
@@ -114,14 +95,6 @@ class S3Storage(S3Boto3Storage):
         except ClientError as e:
             print(f"Error generating presigned POST URL: {e}")
             return None
-
-        # TEMP-DEBUG-S3REGION: remove after diagnosing the eu-north-1 presigned URL issue
-        print(
-            "TEMP-DEBUG-S3REGION presigned_post: "
-            f"host={urlparse(response['url']).netloc!r} "
-            f"full_url={response['url']!r}",
-            flush=True,
-        )
 
         return response
 
