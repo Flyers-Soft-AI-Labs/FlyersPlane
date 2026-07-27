@@ -9,6 +9,20 @@
 
 /* stickies and editor colors */
 :root {
+  --flyers-font-family: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --flyers-type-title-size: 30px;
+  --flyers-type-title-weight: 600;
+  --flyers-type-title-line-height: 31.5px;
+  --flyers-type-body-size: 14px;
+  --flyers-type-body-weight: 400;
+  --flyers-type-body-line-height: 19.6px;
+  --flyers-type-action-weight: 600;
+  --flyers-type-field-weight: 500;
+  --flyers-type-table-header-size: 12px;
+  --flyers-type-table-header-weight: 600;
+  --flyers-type-table-header-line-height: 15.6px;
+  --flyers-type-letter-spacing: normal;
+
   /* text colors */
   --editor-colors-gray-text: #5c5e63;
   --editor-colors-peach-text: #ff5b59;
@@ -31,6 +45,171 @@
   --editor-colors-purple-background: #e3d8fd;
   /* end background colors */
 }
+
+html,
+body {
+  font-family: var(--flyers-font-family);
+  letter-spacing: var(--flyers-type-letter-spacing);
+  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* Match the measured Time Sheet typography roles across the app shell. */
+.desktop-app-container {
+  font-family: var(--flyers-font-family);
+  font-size: var(--flyers-type-body-size);
+  font-weight: var(--flyers-type-body-weight);
+  line-height: var(--flyers-type-body-line-height);
+  letter-spacing: var(--flyers-type-letter-spacing);
+  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+}
+
+.desktop-app-container
+  :is(
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p,
+    button,
+    input,
+    optgroup,
+    select,
+    textarea,
+    table,
+    [role="button"],
+    [role="dialog"],
+    [role="listbox"],
+    [role="menu"],
+    [role="menuitem"],
+    [role="option"],
+    [cmdk-item]
+  ) {
+  font-family: var(--flyers-font-family);
+  letter-spacing: var(--flyers-type-letter-spacing) !important;
+}
+
+.desktop-app-container
+  :is(
+    h1,
+    .flyers-soft-dashboard-greeting,
+    .flyers-soft-projects-hero > h1,
+    .flyers-soft-teams-page-title,
+    .flyers-soft-tickets-title,
+    .flyers-soft-issues-title
+  ) {
+  font-size: var(--flyers-type-title-size) !important;
+  font-weight: var(--flyers-type-title-weight) !important;
+  line-height: var(--flyers-type-title-line-height) !important;
+  letter-spacing: var(--flyers-type-letter-spacing) !important;
+}
+
+.desktop-app-container
+  :is(
+    p,
+    td,
+    [role="cell"],
+    .flyers-soft-dashboard-subtitle,
+    .flyers-soft-projects-hero > p,
+    .flyers-soft-teams-page-subtitle
+  ) {
+  font-size: var(--flyers-type-body-size) !important;
+  font-weight: var(--flyers-type-body-weight) !important;
+  line-height: var(--flyers-type-body-line-height) !important;
+  letter-spacing: var(--flyers-type-letter-spacing) !important;
+}
+
+.desktop-app-container
+  :is(
+    .text-13,
+    .text-14,
+    .text-15,
+    .text-16,
+    [class*="text-body-"],
+    .flyers-soft-ticket-list-title,
+    .flyers-soft-project-ticket-title,
+    .flyers-soft-dashboard-ticket-title,
+    .flyers-soft-dashboard-action-row
+  ) {
+  font-size: var(--flyers-type-body-size) !important;
+  line-height: var(--flyers-type-body-line-height) !important;
+  letter-spacing: var(--flyers-type-letter-spacing) !important;
+}
+
+.desktop-app-container :is(button, [role="button"], .flyers-soft-dashboard-action-row) {
+  font-size: var(--flyers-type-body-size) !important;
+  font-weight: var(--flyers-type-action-weight) !important;
+  line-height: var(--flyers-type-body-line-height) !important;
+  letter-spacing: var(--flyers-type-letter-spacing) !important;
+}
+
+.desktop-app-container :is(input, select, textarea) {
+  font-size: var(--flyers-type-body-size) !important;
+  font-weight: var(--flyers-type-field-weight) !important;
+  line-height: var(--flyers-type-body-line-height) !important;
+  letter-spacing: var(--flyers-type-letter-spacing) !important;
+}
+
+.desktop-app-container :is([role="menuitem"], [role="option"], [cmdk-item]) {
+  font-size: var(--flyers-type-body-size) !important;
+  font-weight: var(--flyers-type-field-weight) !important;
+  line-height: var(--flyers-type-body-line-height) !important;
+  letter-spacing: var(--flyers-type-letter-spacing) !important;
+}
+
+.desktop-app-container
+  :is(
+    thead,
+    thead tr,
+    th,
+    [role="columnheader"],
+    .flyers-soft-table-header,
+    .flyers-soft-all-issues-table-header,
+    .flyers-soft-dashboard-ticket-header,
+    .flyers-soft-projects-table-header,
+    .flyers-soft-teams-col-header,
+    .flyers-soft-teams-invites-table-header
+  ),
+.desktop-app-container
+  :is(
+    .flyers-soft-dashboard-ticket-header,
+    .flyers-soft-projects-table-header,
+    .flyers-soft-teams-col-header,
+    .flyers-soft-teams-invites-table-header
+  )
+  > * {
+  font-size: var(--flyers-type-table-header-size) !important;
+  font-weight: var(--flyers-type-table-header-weight) !important;
+  line-height: var(--flyers-type-table-header-line-height) !important;
+  letter-spacing: var(--flyers-type-letter-spacing) !important;
+}
+
+.desktop-app-container
+  #main-sidebar
+  :is(
+    .flyers-soft-sidebar-simple-link,
+    .flyers-soft-sidebar-workspace-row,
+    .flyers-soft-sidebar-title .group\/menu-button,
+    .flyers-soft-sidebar-bottom-action
+  ) {
+  font-size: var(--flyers-type-body-size) !important;
+  line-height: var(--flyers-type-body-line-height) !important;
+  letter-spacing: var(--flyers-type-letter-spacing) !important;
+}
+
 /* background colors */
 [data-theme*="light"] {
   --editor-colors-gray-background: #d6d6d8;

@@ -8,7 +8,7 @@ import { useState } from "react";
 import { observer } from "mobx-react";
 import { Clock } from "lucide-react";
 // plane imports
-import { Avatar, Row } from "@plane/ui";
+import { Avatar } from "@plane/ui";
 import { cn, calculateTimeAgo, renderFormattedDate, renderFormattedTime, getFileURL } from "@plane/utils";
 // hooks
 import { useWorkspaceNotifications } from "@/hooks/store/notifications";
@@ -69,36 +69,32 @@ export const NotificationItem = observer(function NotificationItem(props: TNotif
     return <></>;
 
   return (
-    <Row
-      className={cn(
-        "group relative flex cursor-pointer items-center gap-2 border-b border-subtle py-4 transition-all",
-        {
-          "bg-layer-1/30": currentSelectedNotificationId === notification?.id,
-          "bg-accent-primary/5": notification.read_at === null,
-        }
-      )}
-      onClick={handleNotificationIssuePeekOverview}
+    <div
+      className={cn("flyers-soft-notification-row group relative border-b border-subtle transition-colors", {
+        "flyers-soft-notification-row-selected": currentSelectedNotificationId === notification?.id,
+        "flyers-soft-notification-row-unread": notification.read_at === null,
+      })}
     >
-      {notification.read_at === null && (
-        <div className="absolute top-[50%] left-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent-primary" />
-      )}
-
-      <div className="relative flex w-full gap-2">
-        <div className="relative flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-layer-1">
+      <button
+        type="button"
+        className="relative flex w-full cursor-pointer items-center gap-3 bg-transparent px-8 py-3.5 text-left outline-none"
+        onClick={handleNotificationIssuePeekOverview}
+      >
+        <div className="relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#f1f1ef]">
           {notificationTriggeredBy && (
             <Avatar
               name={notificationTriggeredBy.display_name || notificationTriggeredBy?.first_name}
               src={getFileURL(notificationTriggeredBy.avatar_url)}
-              size={42}
+              size={34}
               shape="circle"
-              className="bg-layer-1 text-body-sm-medium"
+              className="bg-[#f1f1ef] text-13 font-medium text-primary"
             />
           )}
         </div>
 
-        <div className="-mt-2 w-full space-y-1">
-          <div className="relative flex h-8 items-center gap-3">
-            <div className="line-clamp-1 w-full truncate overflow-hidden text-body-xs-medium break-all whitespace-normal text-primary">
+        <div className="min-w-0 flex-1 space-y-1">
+          <div className="relative flex min-h-5 items-start gap-3">
+            <div className="line-clamp-1 min-w-0 flex-1 truncate overflow-hidden text-13 leading-5 font-medium break-all whitespace-normal text-primary">
               <NotificationContent
                 notification={notification}
                 workspaceId={workspace.id}
@@ -106,25 +102,17 @@ export const NotificationItem = observer(function NotificationItem(props: TNotif
                 projectId={projectId}
               />
             </div>
-            <NotificationOption
-              workspaceSlug={workspaceSlug}
-              notificationId={notification?.id}
-              isSnoozeStateModalOpen={isSnoozeStateModalOpen}
-              setIsSnoozeStateModalOpen={setIsSnoozeStateModalOpen}
-              customSnoozeModal={customSnoozeModal}
-              setCustomSnoozeModal={setCustomSnoozeModal}
-            />
           </div>
 
-          <div className="relative flex items-center gap-3 text-caption-sm-regular text-secondary">
-            <div className="line-clamp-1 w-full truncate overflow-hidden break-words whitespace-normal">
+          <div className="relative flex items-center gap-3 text-13 leading-5 text-secondary">
+            <div className="line-clamp-1 min-w-0 flex-1 truncate overflow-hidden break-words whitespace-normal">
               {notification?.data?.issue?.identifier}-{notification?.data?.issue?.sequence_id}&nbsp;
               {notification?.data?.issue?.name}
             </div>
-            <div className="flex-shrink-0">
+            <div className="flex flex-shrink-0 items-center gap-3">
               {notification?.snoozed_till ? (
                 <p className="flex flex-shrink-0 items-center justify-end gap-x-1 text-tertiary">
-                  <Clock className="h-4 w-4" />
+                  <Clock className="h-3.5 w-3.5" />
                   <span>
                     Till {renderFormattedDate(notification.snoozed_till)},&nbsp;
                     {renderFormattedTime(notification.snoozed_till, "12-hour")}
@@ -135,10 +123,23 @@ export const NotificationItem = observer(function NotificationItem(props: TNotif
                   {notification.created_at && calculateTimeAgo(notification.created_at)}
                 </p>
               )}
+              {notification.read_at === null && (
+                <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#5b3cc4]" aria-label="Unread" />
+              )}
             </div>
           </div>
         </div>
+      </button>
+      <div className="flyers-soft-notification-row-actions absolute top-3 right-8 z-[1]">
+        <NotificationOption
+          workspaceSlug={workspaceSlug}
+          notificationId={notification?.id}
+          isSnoozeStateModalOpen={isSnoozeStateModalOpen}
+          setIsSnoozeStateModalOpen={setIsSnoozeStateModalOpen}
+          customSnoozeModal={customSnoozeModal}
+          setCustomSnoozeModal={setCustomSnoozeModal}
+        />
       </div>
-    </Row>
+    </div>
   );
 });

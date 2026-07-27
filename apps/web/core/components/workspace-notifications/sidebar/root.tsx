@@ -11,10 +11,7 @@ import { useParams } from "next/navigation";
 import type { TNotificationTab } from "@plane/constants";
 import { NOTIFICATION_TABS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
-import { Header, Row, ERowVariant, EHeaderVariant, ContentWrapper } from "@plane/ui";
 import { cn, getNumberCount } from "@plane/utils";
-// components
-import { CountChip } from "@/components/common/count-chip";
 // hooks
 import { useWorkspaceNotifications } from "@/hooks/store/notifications";
 import { useWorkspace } from "@/hooks/store/use-workspace";
@@ -58,59 +55,57 @@ export const NotificationsSidebarRoot = observer(function NotificationsSidebarRo
   return (
     <div
       className={cn(
-        "relative z-[10] h-full flex-shrink-0 border-0 border-subtle bg-surface-1 transition-all max-md:overflow-hidden md:border-r",
-        currentSelectedNotificationId ? "w-0 md:w-3/12" : "w-full md:w-3/12"
+        "flyers-soft-notifications-sidebar relative z-[10] h-full flex-shrink-0 bg-surface-1 transition-all max-md:overflow-hidden md:border-r",
+        currentSelectedNotificationId ? "w-0 md:w-[420px] xl:w-[440px]" : "w-full md:w-[420px] xl:w-[440px]"
       )}
     >
       <div className="relative flex h-full w-full flex-col">
-        <Row className="flex h-header flex-shrink-0 border-b border-subtle">
-          <NotificationSidebarHeader workspaceSlug={workspaceSlug.toString()} />
-        </Row>
+        <NotificationSidebarHeader />
 
-        <Header variant={EHeaderVariant.SECONDARY} className="justify-start">
+        <div className="flyers-soft-notifications-tabs flex h-14 flex-shrink-0 items-end gap-7 border-b border-subtle px-8">
           {NOTIFICATION_TABS.map((tab) => (
-            <div
+            <button
+              type="button"
               key={tab.value}
-              className="relative h-full cursor-pointer px-3"
+              className="relative flex h-full cursor-pointer items-center border-0 bg-transparent p-0 text-14 transition-colors outline-none"
               onClick={() => handleTabClick(tab.value)}
             >
-              <div
-                className={cn(
-                  "relative flex h-full items-center justify-center gap-1 text-body-xs-medium transition-all",
-                  {
-                    "text-accent-primary": currentNotificationTab === tab.value,
-                    "text-primary hover:text-secondary": currentNotificationTab !== tab.value,
-                  }
-                )}
+              <span
+                className={cn("relative flex h-full items-center justify-center gap-2 font-medium transition-all", {
+                  "text-[#3d2aa6]": currentNotificationTab === tab.value,
+                  "text-secondary hover:text-primary": currentNotificationTab !== tab.value,
+                })}
               >
-                <div className="font-medium">{t(tab.i18n_label)}</div>
+                <span>{t(tab.i18n_label)}</span>
                 {tab.count(unreadNotificationsCount) > 0 && (
-                  <CountChip count={getNumberCount(tab.count(unreadNotificationsCount))} />
+                  <span className="flyers-soft-notifications-tab-count">
+                    {getNumberCount(tab.count(unreadNotificationsCount))}
+                  </span>
                 )}
-              </div>
+              </span>
               {currentNotificationTab === tab.value && (
-                <div className="absolute right-0 bottom-0 left-0 rounded-t-md border border-accent-strong" />
+                <span className="absolute right-0 bottom-0 left-0 h-px rounded-full bg-[#5b3cc4]" />
               )}
-            </div>
+            </button>
           ))}
-        </Header>
+        </div>
 
         {/* applied filters */}
         <AppliedFilters workspaceSlug={workspaceSlug.toString()} />
 
         {/* rendering notifications */}
         {loader === "init-loader" ? (
-          <div className="relative h-full w-full overflow-hidden">
+          <div className="relative min-h-0 w-full flex-1 overflow-hidden">
             <NotificationsLoader />
           </div>
         ) : (
           <>
             {notificationIds && notificationIds.length > 0 ? (
-              <ContentWrapper variant={ERowVariant.HUGGING}>
+              <div className="flyers-soft-notifications-list-scroll vertical-scrollbar scrollbar-sm min-h-0 flex-1 overflow-y-auto">
                 <NotificationListRoot workspaceSlug={workspaceSlug.toString()} workspaceId={workspace?.id} />
-              </ContentWrapper>
+              </div>
             ) : (
-              <div className="relative flex h-full w-full items-center justify-center">
+              <div className="relative flex min-h-0 w-full flex-1 items-center justify-center">
                 <NotificationEmptyState currentNotificationTab={currentNotificationTab} />
               </div>
             )}

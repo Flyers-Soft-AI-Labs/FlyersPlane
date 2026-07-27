@@ -1,185 +1,198 @@
-/**
- * Copyright (c) 2023-present Plane Software, Inc. and contributors
- * SPDX-License-Identifier: AGPL-3.0-only
- * See the LICENSE file for details.
- */
-
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react";
+import { ChevronLeft, ChevronRight, Sparkles, X } from "lucide-react";
 // plane imports
 import { Button } from "@plane/propel/button";
-import { CloseIcon } from "@plane/propel/icons";
-// assets
-import CyclesTour from "@/app/assets/onboarding/cycles.webp?url";
-import IssuesTour from "@/app/assets/onboarding/issues.webp?url";
-import ModulesTour from "@/app/assets/onboarding/modules.webp?url";
-import PagesTour from "@/app/assets/onboarding/pages.webp?url";
-import ViewsTour from "@/app/assets/onboarding/views.webp?url";
+import { cn } from "@plane/utils";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useUser } from "@/hooks/store/user";
 import { FlyersLogo } from "@/components/common/flyers-logo";
 // local imports
-import { TourSidebar } from "./sidebar";
+import { TourScreenshot } from "./screenshot";
+import { TourStepRail } from "./step-rail";
+import { TOUR_STEPS, type TTourStepKey } from "./steps";
 
 export type TOnboardingTourProps = {
   onComplete: () => void;
 };
 
-export type TTourSteps = "welcome" | "work-items" | "cycles" | "modules" | "views" | "pages";
-
-const TOUR_STEPS: {
-  key: TTourSteps;
-  title: string;
-  description: string;
-  image: string;
-  prevStep?: TTourSteps;
-  nextStep?: TTourSteps;
-}[] = [
-  {
-    key: "work-items",
-    title: "Plan with work items",
-    description:
-      "The work item is the building block of Flyers Soft. Most concepts in Flyers Soft are either associated with work items and their properties.",
-    image: IssuesTour,
-    nextStep: "cycles",
-  },
-  {
-    key: "cycles",
-    title: "Move with cycles",
-    description:
-      "Cycles help you and your team to progress faster, similar to the sprints commonly used in agile development.",
-    image: CyclesTour,
-    prevStep: "work-items",
-    nextStep: "modules",
-  },
-  {
-    key: "modules",
-    title: "Break into modules",
-    description: "Modules break your big thing into Projects or Features, to help you organize better.",
-    image: ModulesTour,
-    prevStep: "cycles",
-    nextStep: "views",
-  },
-  {
-    key: "views",
-    title: "Views",
-    description:
-      "Create custom filters to display only the work items that matter to you. Save and share your filters in just a few clicks.",
-    image: ViewsTour,
-    prevStep: "modules",
-    nextStep: "pages",
-  },
-  {
-    key: "pages",
-    title: "Document with pages",
-    description: "Use Pages to quickly jot down work items when you're in a meeting or starting a day.",
-    image: PagesTour,
-    prevStep: "views",
-  },
-];
+const TOTAL_SLIDES = TOUR_STEPS.length + 1;
 
 export const TourRoot = observer(function TourRoot(props: TOnboardingTourProps) {
   const { onComplete } = props;
   // states
-  const [step, setStep] = useState<TTourSteps>("welcome");
+  const [step, setStep] = useState<"welcome" | TTourStepKey>("welcome");
   // store hooks
   const { toggleCreateProjectModal } = useCommandPalette();
   const { data: currentUser } = useUser();
+  // refs
+  const primaryActionRef = useRef<HTMLButtonElement>(null);
 
-  const currentStepIndex = TOUR_STEPS.findIndex((tourStep) => tourStep.key === step);
-  const currentStep = TOUR_STEPS[currentStepIndex];
+  const currentIndex = TOUR_STEPS.findIndex((tourStep) => tourStep.key === step);
+  const currentStep = currentIndex >= 0 ? TOUR_STEPS[currentIndex] : undefined;
+  const slideNumber = step === "welcome" ? 1 : currentIndex + 2;
+  const progressPercent = Math.round((slideNumber / TOTAL_SLIDES) * 100);
+  const isFirstTourStep = currentIndex === 0;
+  const isLastTourStep = currentIndex === TOUR_STEPS.length - 1;
+
+  useEffect(() => {
+    primaryActionRef.current?.focus();
+  }, [step]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onComplete();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onComplete]);
+
+  const goToStep = (key: TTourStepKey) => setStep(key);
+  const goNext = () => {
+    if (step === "welcome") {
+      setStep(TOUR_STEPS[0].key);
+      return;
+    }
+    if (!isLastTourStep) setStep(TOUR_STEPS[currentIndex + 1].key);
+  };
+  const goBack = () => {
+    if (isFirstTourStep) {
+      setStep("welcome");
+      return;
+    }
+    if (currentIndex > 0) setStep(TOUR_STEPS[currentIndex - 1].key);
+  };
+  const handleFinish = () => {
+    onComplete();
+    toggleCreateProjectModal(true);
+  };
 
   return (
-    <>
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="FlyersPlane product tour"
+      className={cn(
+        "flyers-tour-card relative flex max-h-[90vh] w-[92%] flex-col overflow-hidden rounded-2xl border border-subtle bg-surface-1 shadow-2xl transition-all duration-300",
+        step === "welcome" ? "sm:w-[26rem] md:w-[28rem]" : "sm:w-[85%] lg:w-[64rem]"
+      )}
+    >
+      <div className="flyers-tour-progress-track" aria-hidden="true">
+        <div className="flyers-tour-progress-fill" style={{ width: `${progressPercent}%` }} />
+      </div>
+      <div
+        role="progressbar"
+        aria-valuenow={slideNumber}
+        aria-valuemin={1}
+        aria-valuemax={TOTAL_SLIDES}
+        className="sr-only"
+      >
+        Step {slideNumber} of {TOTAL_SLIDES}
+      </div>
+
+      <button
+        type="button"
+        onClick={onComplete}
+        aria-label="Close product tour"
+        className="absolute top-4 right-4 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-subtle bg-surface-1/90 text-secondary transition-colors hover:bg-surface-3 hover:text-primary"
+      >
+        <X className="h-3.5 w-3.5" strokeWidth={2} />
+      </button>
+
       {step === "welcome" ? (
-        <div className="w-4/5 overflow-hidden rounded-[10px] bg-surface-1 md:w-1/2 lg:w-2/5">
-          <div className="h-full overflow-hidden">
-            <div className="grid h-64 place-items-center bg-accent-primary">
-              <FlyersLogo className="h-12 max-w-44 object-contain" />
-            </div>
-            <div className="flex flex-col overflow-y-auto p-6">
-              <h3 className="font-semibold sm:text-18">
-                Welcome to Flyers Soft, {currentUser?.first_name} {currentUser?.last_name}
-              </h3>
-              <p className="mt-3 text-13 text-secondary">
-                We{"'"}re glad that you decided to try out Flyers Soft. You can now manage your projects with ease. Get
-                started by creating a project.
-              </p>
-              <div className="flex h-full items-end">
-                <div className="mt-12 flex items-center gap-6">
-                  <Button
-                    variant="primary"
-                    onClick={() => {
-                      setStep("work-items");
-                    }}
-                  >
-                    Take a Product Tour
-                  </Button>
-                  <button
-                    type="button"
-                    className="bg-transparent text-11 font-medium text-accent-primary outline-subtle-1"
-                    onClick={() => {
-                      onComplete();
-                    }}
-                  >
-                    No thanks, I will explore it myself
-                  </button>
-                </div>
-              </div>
+        <div key="welcome" className="flyers-tour-slide-enter flex flex-col overflow-y-auto">
+          <div className="flyers-tour-hero grid h-56 place-items-center">
+            <FlyersLogo className="h-12 max-w-44 object-contain" />
+          </div>
+          <div className="flex flex-col p-6">
+            <span className="mb-2 inline-flex w-fit items-center gap-1.5 rounded-full bg-[#8b5cf6]/10 px-2.5 py-1 text-11 font-medium text-[#7c3aed]">
+              <Sparkles className="h-3 w-3" strokeWidth={2} />
+              Step 1 of {TOTAL_SLIDES}
+            </span>
+            <h3 className="text-18 font-semibold text-primary">Welcome to FlyersPlane</h3>
+            <p className="mt-3 text-13 text-secondary">
+              Welcome to FlyersPlane by Flyers Soft{currentUser?.first_name ? `, ${currentUser.first_name}` : ""}.
+              Manage tickets, projects, templates, and team collaboration from one modern workspace.
+            </p>
+            <div className="mt-8 flex items-center gap-5">
+              <Button ref={primaryActionRef} variant="primary" onClick={goNext}>
+                Start Tour
+              </Button>
+              <button
+                type="button"
+                className="bg-transparent text-12 font-medium text-secondary underline-offset-2 hover:text-primary hover:underline"
+                onClick={onComplete}
+              >
+                Skip tour
+              </button>
             </div>
           </div>
         </div>
       ) : (
-        <div className="relative grid h-3/5 w-4/5 grid-cols-10 overflow-hidden rounded-[10px] bg-surface-1 sm:h-3/4 md:w-1/2 lg:w-3/5">
-          <button
-            type="button"
-            className="fixed top-[19%] right-[9%] z-10 translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full border border-strong p-1 sm:top-[11.5%] md:right-[24%] lg:right-[19%]"
-            onClick={onComplete}
-          >
-            <CloseIcon className="border-strong- h-3 w-3 text-primary" />
-          </button>
-          <TourSidebar step={step} setStep={setStep} />
-          <div className="col-span-10 h-full overflow-hidden lg:col-span-7">
-            <div
-              className={`flex h-1/2 items-end overflow-hidden bg-accent-primary sm:h-3/5 ${
-                currentStepIndex % 2 === 0 ? "justify-end" : "justify-start"
-              }`}
-            >
-              <img src={currentStep?.image} className="h-full w-full object-cover" alt={currentStep?.title} />
-            </div>
-            <div className="flex h-1/2 flex-col overflow-y-auto p-4 sm:h-2/5">
-              <h3 className="font-semibold sm:text-18">{currentStep?.title}</h3>
-              <p className="mt-3 text-13 text-secondary">{currentStep?.description}</p>
-              <div className="mt-3 flex h-full items-end justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  {currentStep?.prevStep && (
-                    <Button variant="secondary" onClick={() => setStep(currentStep.prevStep ?? "welcome")}>
+        currentStep && (
+          <div className="flex min-h-0 flex-1">
+            <TourStepRail steps={TOUR_STEPS} currentIndex={currentIndex} onSelect={goToStep} />
+            <div key={currentStep.key} className="flyers-tour-slide-enter flex min-h-0 flex-1 flex-col overflow-y-auto">
+              <div className="flyers-tour-screenshot-area relative h-56 shrink-0 overflow-hidden sm:h-72 lg:h-96">
+                <TourScreenshot
+                  src={currentStep.screenshot}
+                  alt={`${currentStep.title} in FlyersPlane`}
+                  Icon={currentStep.Icon}
+                />
+              </div>
+              <div className="flex flex-1 flex-col p-6">
+                <span className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-[#8b5cf6]/10 text-[#7c3aed]">
+                  <currentStep.Icon className="h-4.5 w-4.5" strokeWidth={2} aria-hidden="true" />
+                </span>
+                <h3 className="text-18 font-semibold text-primary">{currentStep.title}</h3>
+                <p className="mt-2 text-13 text-secondary">{currentStep.description}</p>
+
+                <div className="mt-6 flex items-center gap-1.5 lg:hidden" aria-hidden="true">
+                  {TOUR_STEPS.map((tourStep, index) => (
+                    <span
+                      key={tourStep.key}
+                      className={cn(
+                        "h-1.5 rounded-full transition-all duration-200",
+                        index === currentIndex ? "w-5 bg-[#8b5cf6]" : "w-1.5 bg-[#8b5cf6]/20"
+                      )}
+                    />
+                  ))}
+                </div>
+
+                <div className="mt-6 flex flex-1 items-end justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <Button variant="secondary" onClick={goBack} prependIcon={<ChevronLeft />}>
                       Back
                     </Button>
-                  )}
-                  {currentStep?.nextStep && (
-                    <Button variant="primary" onClick={() => setStep(currentStep.nextStep ?? "work-items")}>
-                      Next
-                    </Button>
-                  )}
+                    {!isLastTourStep && (
+                      <Button ref={primaryActionRef} variant="primary" onClick={goNext} appendIcon={<ChevronRight />}>
+                        Next
+                      </Button>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-4">
+                    {!isLastTourStep && (
+                      <button
+                        type="button"
+                        className="hidden bg-transparent text-12 font-medium text-secondary underline-offset-2 hover:text-primary hover:underline sm:inline"
+                        onClick={onComplete}
+                      >
+                        Skip tour
+                      </button>
+                    )}
+                    {isLastTourStep && (
+                      <Button ref={primaryActionRef} variant="primary" onClick={handleFinish}>
+                        {currentStep.buttonLabel ?? "Create Your First Project"}
+                      </Button>
+                    )}
+                  </div>
                 </div>
-                {currentStepIndex === TOUR_STEPS.length - 1 && (
-                  <Button
-                    variant="primary"
-                    onClick={() => {
-                      onComplete();
-                      toggleCreateProjectModal(true);
-                    }}
-                  >
-                    Create your first project
-                  </Button>
-                )}
               </div>
             </div>
           </div>
-        </div>
+        )
       )}
-    </>
+    </div>
   );
 });

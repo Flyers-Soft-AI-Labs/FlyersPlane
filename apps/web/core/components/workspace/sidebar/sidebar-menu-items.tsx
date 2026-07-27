@@ -9,6 +9,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
   ChevronDown,
+  Clock,
   FileText,
   Folder,
   HelpCircle,
@@ -26,9 +27,9 @@ import {
 import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 // plane imports
-import { cn } from "@plane/utils";
+import { cn, orderWorkspacesList } from "@plane/utils";
 // components
 import { SidebarNavItem } from "@/components/sidebar/sidebar-navigation";
 // hooks
@@ -66,20 +67,21 @@ export const SidebarMenuItems = observer(function SidebarMenuItems() {
   const params = useParams();
   const pathname = usePathname();
   const { togglePowerKModal } = usePowerK();
-  const { currentWorkspace } = useWorkspace();
+  const { currentWorkspace, workspaces } = useWorkspace();
+  const [isTeamspaceOpen, setIsTeamspaceOpen] = useState(true);
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
 
-  const workspaceSlug = params.workspaceSlug?.toString();
+  const workspacesList = orderWorkspacesList(Object.values(workspaces ?? {}));
+  const fallbackWorkspace = currentWorkspace ?? workspacesList[0];
+  const workspaceSlug = params.workspaceSlug?.toString() ?? fallbackWorkspace?.slug;
   const projectId = params.projectId?.toString();
 
-  if (!workspaceSlug) return null;
-
-  const workspaceRoot = `/${workspaceSlug}`;
+  const workspaceRoot = workspaceSlug ? `/${workspaceSlug}` : "";
   const ticketsHref = projectId
     ? `${workspaceRoot}/projects/${projectId}/issues/`
     : `${workspaceRoot}/workspace-views/all-issues/`;
 
-  const workspaceName = currentWorkspace?.name ?? "Flyers Plane";
+  const workspaceName = fallbackWorkspace?.name ?? "Flyers Plane";
   const workspaceInitial = (workspaceName.trim().charAt(0) || "F").toUpperCase();
 
   const topItems: TFlyersSidebarItem[] = [
@@ -132,6 +134,13 @@ export const SidebarMenuItems = observer(function SidebarMenuItems() {
       isActive: pathname?.startsWith(`${workspaceRoot}/workspace-views/assigned`),
     },
     {
+      key: "timesheet",
+      label: "Time Sheet",
+      href: `${workspaceRoot}/timesheet/`,
+      icon: Clock,
+      isActive: pathname === `${workspaceRoot}/timesheet` || pathname?.startsWith(`${workspaceRoot}/timesheet/`),
+    },
+    {
       key: "tickets",
       label: "Tickets",
       href: ticketsHref,
@@ -156,6 +165,13 @@ export const SidebarMenuItems = observer(function SidebarMenuItems() {
       isActive: pathname?.startsWith(`${workspaceRoot}/analytics`),
     },
   ];
+  const hasActiveTeamspaceItem = teamspaceItems.some((item) => item.isActive);
+
+  useEffect(() => {
+    if (hasActiveTeamspaceItem) setIsTeamspaceOpen(true);
+  }, [hasActiveTeamspaceItem]);
+
+  if (!workspaceSlug) return null;
 
   const privateItems: TFlyersSidebarItem[] = [
     {
@@ -194,12 +210,34 @@ export const SidebarMenuItems = observer(function SidebarMenuItems() {
 
         <div className="flyers-soft-sidebar-section flyers-soft-sidebar-teamspace-section">
           <div className="flyers-soft-sidebar-section-label">Teamspaces</div>
-          <Link href={workspaceRoot} className="flyers-soft-sidebar-workspace-row">
+          <button
+            type="button"
+            className="flyers-soft-sidebar-workspace-row w-full text-left"
+            onClick={() => setIsTeamspaceOpen((prev) => !prev)}
+            aria-expanded={isTeamspaceOpen}
+            aria-controls="flyers-soft-sidebar-teamspace-list"
+          >
             <span className="flyers-soft-sidebar-workspace-icon">{workspaceInitial}</span>
             <span className="min-w-0 flex-1 truncate">{workspaceName}</span>
-            <ChevronDown className="size-3.5 flex-shrink-0" strokeWidth={2} />
-          </Link>
-          <div className="flyers-soft-sidebar-nested-list">
+            <ChevronDown
+              className={cn("size-3.5 flex-shrink-0 transition-transform duration-200", {
+                "rotate-180": isTeamspaceOpen,
+              })}
+              style={{ transform: isTeamspaceOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+              strokeWidth={2}
+            />
+          </button>
+          <div
+            id="flyers-soft-sidebar-teamspace-list"
+            className={cn(
+              "flyers-soft-sidebar-nested-list overflow-hidden transition-[max-height,opacity] duration-200 ease-in-out",
+              isTeamspaceOpen ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"
+            )}
+            style={{
+              maxHeight: isTeamspaceOpen ? "384px" : "0px",
+              opacity: isTeamspaceOpen ? 1 : 0,
+            }}
+          >
             {teamspaceItems.map((item) => (
               <FlyersSidebarItem key={item.key} item={item} nested />
             ))}

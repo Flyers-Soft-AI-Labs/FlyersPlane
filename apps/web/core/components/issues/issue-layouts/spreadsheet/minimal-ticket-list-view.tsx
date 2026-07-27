@@ -197,9 +197,9 @@ const MinimalTicketRow = observer(function MinimalTicketRow(props: MinimalTicket
           )}
         </div>
 
-        {/* ticket ID — monospace, muted */}
+        {/* ticket ID, muted */}
         {ticketKey && (
-          <span className="w-14 flex-shrink-0 font-mono text-xs font-medium text-tertiary">{ticketKey}</span>
+          <span className="w-14 flex-shrink-0 text-xs font-medium text-tertiary">{ticketKey}</span>
         )}
 
         {/* title — flex-1, dark readable text */}

@@ -2,7 +2,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # See the LICENSE file for details.
 
+# Python imports
+import logging
+
 # Django imports
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.http import HttpResponseRedirect
@@ -22,9 +26,19 @@ from plane.authentication.adapter.error import (
 )
 from plane.utils.path_validator import get_safe_redirect_url
 
+logger = logging.getLogger("plane.authentication")
+
 
 class SignInAuthEndpoint(View):
     def post(self, request):
+        # TEMP DEBUG LOGGING - remove after CSRF investigation
+        logger.info(
+            "sign-in POST received | csrf_cookie_present=%s | session_cookie_present=%s | origin=%s | referer=%s",
+            settings.CSRF_COOKIE_NAME in request.COOKIES,
+            settings.SESSION_COOKIE_NAME in request.COOKIES,
+            request.META.get("HTTP_ORIGIN"),
+            request.META.get("HTTP_REFERER"),
+        )
         next_path = request.POST.get("next_path")
         # Check instance configuration
         instance = Instance.objects.first()
@@ -134,6 +148,14 @@ class SignInAuthEndpoint(View):
 
 class SignUpAuthEndpoint(View):
     def post(self, request):
+        # TEMP DEBUG LOGGING - remove after CSRF investigation
+        logger.info(
+            "sign-up POST received | csrf_cookie_present=%s | session_cookie_present=%s | origin=%s | referer=%s",
+            settings.CSRF_COOKIE_NAME in request.COOKIES,
+            settings.SESSION_COOKIE_NAME in request.COOKIES,
+            request.META.get("HTTP_ORIGIN"),
+            request.META.get("HTTP_REFERER"),
+        )
         next_path = request.POST.get("next_path")
         # Check instance configuration
         instance = Instance.objects.first()

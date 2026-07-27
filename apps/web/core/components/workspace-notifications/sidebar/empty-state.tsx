@@ -7,8 +7,6 @@
 import { observer } from "mobx-react";
 // plane imports
 import { ENotificationTab } from "@plane/constants";
-import { useTranslation } from "@plane/i18n";
-import { EmptyStateCompact } from "@plane/propel/empty-state";
 
 type TNotificationEmptyStateProps = {
   currentNotificationTab: ENotificationTab;
@@ -17,21 +15,15 @@ type TNotificationEmptyStateProps = {
 export const NotificationEmptyState = observer(function NotificationEmptyState({
   currentNotificationTab,
 }: TNotificationEmptyStateProps) {
-  // plane imports
-  const { t } = useTranslation();
+  const title = currentNotificationTab === ENotificationTab.ALL ? "No notifications" : "No mentions";
 
   return (
-    <>
-      <EmptyStateCompact
-        assetKey="inbox"
-        assetClassName="size-24"
-        title={
-          currentNotificationTab === ENotificationTab.ALL
-            ? t("workspace_empty_state.inbox_sidebar_all.title")
-            : t("workspace_empty_state.inbox_sidebar_mentions.title")
-        }
-        className="max-w-56"
-      />
-    </>
+    <div className="flyers-soft-notifications-list-empty px-8 text-center">
+      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-subtle text-[#5b3cc4]">
+        <span className="h-2 w-2 rounded-full bg-[#5b3cc4]" />
+      </div>
+      <h2 className="text-15 font-semibold text-primary">{title}</h2>
+      <p className="mt-2 text-13 leading-5 text-secondary">New updates will appear here.</p>
+    </div>
   );
 });

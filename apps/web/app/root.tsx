@@ -71,8 +71,8 @@ export function Layout({ children }: { children: ReactNode }) {
         <ThemeProvider
           attribute="data-theme"
           themes={["light", "dark", "light-contrast", "dark-contrast", "custom"]}
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           storageKey="theme"
         >
           {children}

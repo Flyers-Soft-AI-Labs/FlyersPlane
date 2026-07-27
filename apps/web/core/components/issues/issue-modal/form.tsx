@@ -5,7 +5,7 @@
  */
 
 import React, { useState, useRef, useEffect } from "react";
-import { Ticket, Users, X } from "lucide-react";
+import { Sparkles, Ticket, Users, X } from "lucide-react";
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
@@ -26,6 +26,7 @@ import {
   getTextContent,
   getChangedIssuefields,
   getTabIndex,
+  renderFormattedPayloadDate,
 } from "@plane/utils";
 // components
 import {
@@ -35,15 +36,19 @@ import {
   IssueProjectSelect,
   IssueTitleInput,
 } from "@/components/issues/issue-modal/components";
+import { VoiceTicketModal } from "@/components/issues/issue-modal/components/voice";
 // helpers
 // hooks
 import { useIssueModal } from "@/hooks/context/use-issue-modal";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
+import { useLabel } from "@/hooks/store/use-label";
+import { useMember } from "@/hooks/store/use-member";
 import { useProject } from "@/hooks/store/use-project";
 import { useProjectState } from "@/hooks/store/use-project-state";
 import { useWorkspaceDraftIssues } from "@/hooks/store/workspace-draft";
 import { usePlatformOS } from "@/hooks/use-platform-os";
 import { useProjectIssueProperties } from "@/hooks/use-project-issue-properties";
+import type { TVoiceTicketFields } from "@/services/voice-ticket.service";
 // plane web imports
 import { DeDupeButtonRoot } from "@/plane-web/components/de-dupe/de-dupe-button";
 import { DuplicateModalRoot } from "@/plane-web/components/de-dupe/duplicate-modal";
@@ -76,6 +81,68 @@ export interface IssueFormProps {
   dataResetProperties?: any[];
 }
 
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
+const plainTextToDescriptionHtml = (value: string) => {
+  const blocks = value
+    .trim()
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+
+  if (blocks.length === 0) return "<p></p>";
+
+  return blocks.map((block) => `<p>${escapeHtml(block).replace(/\n/g, "<br />")}</p>`).join("");
+};
+
+// normalizes a name for fuzzy matching against store records whose naming
+// (casing, spacing, "To Do" vs "Todo") won't exactly match what the LLM returns
+const normalizeForMatch = (value: string) => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "");
+
+const arraysHaveSameItems = (a: string[] | null | undefined, b: string[] | null | undefined) => {
+  if (!a || !b || a.length !== b.length) return false;
+  const sortedA = [...a].sort();
+  const sortedB = [...b].sort();
+  return sortedA.every((value, index) => value === sortedB[index]);
+};
+
+const fuzzyFind = <T,>(items: T[], getName: (item: T) => string | undefined, needle: string): T | undefined => {
+  const normalizedNeedle = normalizeForMatch(needle);
+  if (!normalizedNeedle) return undefined;
+  return (
+    items.find((item) => normalizeForMatch(getName(item) ?? "") === normalizedNeedle) ??
+    items.find((item) => normalizeForMatch(getName(item) ?? "").includes(normalizedNeedle)) ??
+    items.find((item) => normalizedNeedle.includes(normalizeForMatch(getName(item) ?? "")))
+  );
+};
+
+// Assignee auto-selection must never guess: at each match tier (exact, then partial), if more
+// than one member matches, the name is ambiguous and we stop instead of falling through to a
+// looser tier or picking the first hit. Only a single unambiguous match is auto-applied.
+const findUniqueAssigneeMatch = <T,>(
+  items: T[],
+  getName: (item: T) => string | undefined,
+  needle: string
+): T | undefined => {
+  const normalizedNeedle = normalizeForMatch(needle);
+  if (!normalizedNeedle) return undefined;
+
+  const exactMatches = items.filter((item) => normalizeForMatch(getName(item) ?? "") === normalizedNeedle);
+  if (exactMatches.length > 0) return exactMatches.length === 1 ? exactMatches[0] : undefined;
+
+  const partialMatches = items.filter((item) => normalizeForMatch(getName(item) ?? "").includes(normalizedNeedle));
+  if (partialMatches.length > 0) return partialMatches.length === 1 ? partialMatches[0] : undefined;
+
+  const inclusionMatches = items.filter((item) => normalizedNeedle.includes(normalizeForMatch(getName(item) ?? "")));
+  return inclusionMatches.length === 1 ? inclusionMatches[0] : undefined;
+};
+
 export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormProps) {
   const { t } = useTranslation();
   const {
@@ -106,8 +173,34 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
   // states
   const [gptAssistantModal, setGptAssistantModal] = useState(false);
   const [isMoving, setIsMoving] = useState<boolean>(false);
+  const [voiceTitleSuggestion, setVoiceTitleSuggestion] = useState<string | null>(null);
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
 
   // refs
+  // Tracks the last value voice autofill itself wrote to each field, so a later
+  // recording/regenerate can tell "the AI filled this and the user hasn't touched
+  // it since" (safe to overwrite) apart from "the user actually typed this" (must
+  // preserve). Without this, the first voice pass "claims" a field merely by being
+  // non-empty, and no later pass (even a deliberate regenerate) can ever fix it.
+  const aiOwnedValuesRef = useRef<{
+    name: string | null;
+    description_html: string | null;
+    priority: TIssue["priority"] | null;
+    target_date: string | null;
+    start_date: string | null;
+    assignee_ids: string[] | null;
+    label_ids: string[] | null;
+    state_id: string | null;
+  }>({
+    name: null,
+    description_html: null,
+    priority: null,
+    target_date: null,
+    start_date: null,
+    assignee_ids: null,
+    label_ids: null,
+    state_id: null,
+  });
   const editorRef = useRef<EditorRefApi>(null);
   const submitBtnRef = useRef<HTMLButtonElement | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -129,6 +222,7 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
     handlePropertyValuesValidation,
     handleCreateUpdatePropertyValues,
     handleTemplateChange,
+    voiceTicket,
   } = useIssueModal();
   const { isMobile } = usePlatformOS();
   const { moveIssue } = useWorkspaceDraftIssues();
@@ -137,7 +231,14 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
     issue: { getIssueById },
   } = useIssueDetail();
   const { fetchCycles } = useProjectIssueProperties();
-  const { getStateById } = useProjectState();
+  const { getStateById, getProjectStates } = useProjectState();
+  const { getProjectLabels } = useLabel();
+  const {
+    project: { getProjectMemberIds },
+    getUserDetails,
+  } = useMember();
+
+  const isVoiceProcessing = voiceTicket.state === "processing";
 
   // form info
   const methods = useForm<TIssue>({
@@ -396,6 +497,158 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
     }
   };
 
+  const applyVoiceTicketResult = (result: TVoiceTicketFields) => {
+    const aiOwned = aiOwnedValuesRef.current;
+    let titleSuggestion: string | null = null;
+
+    const suggestedTitle = result.title?.trim();
+    const currentTitle = getValues("name")?.trim() ?? "";
+    const titleIsAiOwned = !currentTitle || currentTitle === aiOwned.name;
+    if (suggestedTitle) {
+      if (titleIsAiOwned) {
+        setValue("name", suggestedTitle, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        aiOwned.name = suggestedTitle;
+      } else if (currentTitle !== suggestedTitle) {
+        titleSuggestion = suggestedTitle;
+      }
+    }
+
+    const suggestedDescription = result.description?.trim();
+    const currentDescription = getValues("description_html");
+    // Compare extracted plain text, not raw HTML: the editor re-serializes whatever
+    // we feed it (adds its own classes/data-id attributes), so a previously-applied
+    // value never matches itself again if compared as raw HTML, making the field
+    // look "user-owned" forever after the very first voice pass.
+    const currentDescriptionText = getTextContent(currentDescription);
+    const descriptionIsAiOwned = !currentDescriptionText || currentDescriptionText === aiOwned.description_html;
+    if (suggestedDescription && descriptionIsAiOwned) {
+      const descriptionHtml = plainTextToDescriptionHtml(suggestedDescription);
+      setValue("description_html", descriptionHtml, { shouldDirty: true, shouldTouch: true });
+      editorRef.current?.setEditorValue(descriptionHtml, true);
+      aiOwned.description_html = suggestedDescription;
+    }
+
+    const currentPriority = getValues("priority");
+    const priorityIsAiOwned = !currentPriority || currentPriority === "none" || currentPriority === aiOwned.priority;
+    if (result.priority && result.priority !== "none" && priorityIsAiOwned) {
+      setValue("priority", result.priority, { shouldDirty: true, shouldTouch: true });
+      aiOwned.priority = result.priority;
+    }
+
+    const currentTargetDate = getValues("target_date");
+    const targetDateIsAiOwned = !currentTargetDate || currentTargetDate === aiOwned.target_date;
+    if (result.due_date && targetDateIsAiOwned) {
+      setValue("target_date", result.due_date, { shouldDirty: true, shouldTouch: true });
+      aiOwned.target_date = result.due_date;
+    }
+
+    // Start Date is never driven by voice input - it always defaults to the date the draft was
+    // generated (today), and only if the user hasn't already set/touched it themselves.
+    const currentStartDate = getValues("start_date");
+    const startDateIsAiOwned = !currentStartDate || currentStartDate === aiOwned.start_date;
+    if (startDateIsAiOwned) {
+      const todayDate = renderFormattedPayloadDate(new Date()) ?? null;
+      if (todayDate && todayDate !== currentStartDate) {
+        setValue("start_date", todayDate, { shouldDirty: true, shouldTouch: true });
+      }
+      aiOwned.start_date = todayDate;
+    }
+
+    // Assignee auto-selection must be unambiguous: only apply when exactly one workspace member
+    // matches the spoken name. Multiple matches, no matches, or low-confidence names are left
+    // blank for the user to pick manually - never guess.
+    const currentAssigneeIds = getValues("assignee_ids") ?? [];
+    const assigneeIdsAreAiOwned =
+      currentAssigneeIds.length === 0 || arraysHaveSameItems(currentAssigneeIds, aiOwned.assignee_ids);
+    if (result.assignee_name && projectId && assigneeIdsAreAiOwned) {
+      const memberIds = getProjectMemberIds(projectId, true) ?? [];
+      const matchedId = findUniqueAssigneeMatch(memberIds, (id) => getUserDetails(id)?.display_name, result.assignee_name);
+      if (matchedId) {
+        setValue("assignee_ids", [matchedId], { shouldDirty: true, shouldTouch: true });
+        aiOwned.assignee_ids = [matchedId];
+      }
+    }
+
+    const currentLabelIds = getValues("label_ids") ?? [];
+    const labelIdsAreAiOwned = currentLabelIds.length === 0 || arraysHaveSameItems(currentLabelIds, aiOwned.label_ids);
+    if ((result.labels ?? []).length > 0 && projectId && labelIdsAreAiOwned) {
+      const projectLabels = getProjectLabels(projectId) ?? [];
+      const matchedLabelIds = result.labels
+        .map((labelName) => fuzzyFind(projectLabels, (label) => label.name, labelName)?.id)
+        .filter((id): id is string => Boolean(id));
+      if (matchedLabelIds.length > 0) {
+        setValue("label_ids", matchedLabelIds, { shouldDirty: true, shouldTouch: true });
+        aiOwned.label_ids = matchedLabelIds;
+      }
+    }
+
+    const currentStateId = getValues("state_id");
+    const stateIsAiOwned = !currentStateId || currentStateId === aiOwned.state_id;
+    if (result.status_name && projectId && stateIsAiOwned) {
+      const projectStates = getProjectStates(projectId) ?? [];
+      const matchedState = fuzzyFind(projectStates, (state) => state.name, result.status_name);
+      if (matchedState) {
+        setValue("state_id", matchedState.id, { shouldDirty: true, shouldTouch: true });
+        aiOwned.state_id = matchedState.id;
+      }
+    }
+
+    handleFormChange();
+
+    return { titleSuggestion };
+  };
+
+  useEffect(() => {
+    if (
+      voiceTicket.state !== "success" ||
+      !voiceTicket.result ||
+      voiceTicket.resultVersion === voiceTicket.appliedResultVersion
+    )
+      return;
+
+    const { titleSuggestion } = applyVoiceTicketResult(voiceTicket.result);
+    setVoiceTitleSuggestion(titleSuggestion);
+    voiceTicket.markResultApplied();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [voiceTicket.state, voiceTicket.resultVersion, voiceTicket.appliedResultVersion]);
+
+  const handleVoiceStart = () => {
+    if (voiceTicket.state === "recording" || voiceTicket.state === "processing") return;
+    setVoiceTitleSuggestion(null);
+    voiceTicket.reset();
+    setIsVoiceModalOpen(true);
+    void voiceTicket.startRecording();
+  };
+
+  const handleVoiceButtonClick = () => {
+    if (voiceTicket.state === "recording") {
+      voiceTicket.stopRecording();
+      return;
+    }
+
+    handleVoiceStart();
+  };
+
+  const handleVoiceModalClose = () => {
+    if (voiceTicket.state === "recording") {
+      voiceTicket.cancelRecording();
+    }
+    setIsVoiceModalOpen(false);
+  };
+
+  const handleVoiceRetry = () => {
+    if (voiceTicket.state === "processing") return;
+    setVoiceTitleSuggestion(null);
+    voiceTicket.reset();
+    void voiceTicket.startRecording();
+  };
+
+  const handleVoiceRegenerate = () => {
+    if (voiceTicket.state === "recording" || voiceTicket.state === "processing") return;
+    setVoiceTitleSuggestion(null);
+    void voiceTicket.generateFromTranscript(voiceTicket.transcript);
+  };
+
   const duplicateModal = shouldRenderDuplicateModal ? (
     <div
       ref={modalContainerRef}
@@ -463,6 +716,9 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
                         issueTitleRef={issueTitleRef}
                         formState={formState}
                         handleFormChange={handleFormChange}
+                        onVoiceClick={handleVoiceButtonClick}
+                        voiceState={voiceTicket.state}
+                        isVoiceDisabled={isVoiceProcessing}
                       />
                     </div>
                   </div>
@@ -483,6 +739,29 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
                     </div>
                   )}
                 </div>
+
+                {voiceTitleSuggestion && (
+                  <div className="flyers-soft-voice-title-suggestion flex items-center gap-2 rounded-md bg-layer-1 px-3 py-2 text-13">
+                    <Sparkles className="size-3.5 shrink-0 text-success-primary" />
+                    <span className="text-secondary">
+                      AI suggested title: <span className="font-medium text-primary">{voiceTitleSuggestion}</span>
+                    </span>
+                  </div>
+                )}
+
+                <VoiceTicketModal
+                  isOpen={isVoiceModalOpen}
+                  state={voiceTicket.state}
+                  elapsedSeconds={voiceTicket.elapsedSeconds}
+                  transcript={voiceTicket.transcript}
+                  result={voiceTicket.result}
+                  error={voiceTicket.error}
+                  onClose={handleVoiceModalClose}
+                  onStop={voiceTicket.stopRecording}
+                  onRetry={handleVoiceRetry}
+                  onRegenerate={handleVoiceRegenerate}
+                  onTranscriptChange={voiceTicket.setTranscript}
+                />
 
                 {duplicateIssues.length > 0 && (
                   <div className="flyers-soft-create-ticket-duplicates">

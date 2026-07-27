@@ -25,7 +25,11 @@ export class InstanceService extends APIService {
   }
 
   async getInstanceInfo(): Promise<IInstanceInfo> {
-    return this.get("/api/instances/")
+    // Longer timeout than the app default: this is the very first request on
+    // page load, so it's the one most likely to hit a Render free-tier cold
+    // start (which can take 50+ seconds). A single longer wait here avoids
+    // needing a client-side retry loop just to cover that case.
+    return this.get("/api/instances/", {}, { timeout: 60000 })
       .then((response) => response.data)
       .catch((error) => {
         throw error;
