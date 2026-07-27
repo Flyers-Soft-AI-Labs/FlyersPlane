@@ -21,7 +21,7 @@ class Command(BaseCommand):
             endpoint_url=os.environ.get("AWS_S3_ENDPOINT_URL"),  # MinIO endpoint
             aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),  # MinIO access key
             aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),  # MinIO secret key
-            region_name=os.environ.get("AWS_REGION"),  # MinIO region
+            region_name=os.environ.get("AWS_REGION") or None,  # MinIO region
             config=boto3.session.Config(signature_version="s3v4"),
         )
         return s3_client

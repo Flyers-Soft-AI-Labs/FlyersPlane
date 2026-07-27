@@ -29,8 +29,11 @@ class S3Storage(S3Boto3Storage):
         self.aws_secret_access_key = os.environ.get("AWS_SECRET_ACCESS_KEY")
         # Use the AWS_S3_BUCKET_NAME environment variable for the bucket name
         self.aws_storage_bucket_name = os.environ.get("AWS_S3_BUCKET_NAME")
-        # Use the AWS_REGION environment variable for the region
-        self.aws_region = os.environ.get("AWS_REGION")
+        # Use the AWS_REGION environment variable for the region. An empty
+        # string is normalized to None so boto3 falls through to its own
+        # region-resolution chain (or raises NoRegionError) instead of
+        # silently signing against the wrong global S3 endpoint.
+        self.aws_region = os.environ.get("AWS_REGION") or None
         # Use the AWS_S3_ENDPOINT_URL environment variable for the endpoint URL
         self.aws_s3_endpoint_url = os.environ.get("AWS_S3_ENDPOINT_URL") or os.environ.get("MINIO_ENDPOINT_URL")
         # Use the SIGNED_URL_EXPIRATION environment variable for the expiration time (default: 3600 seconds)
