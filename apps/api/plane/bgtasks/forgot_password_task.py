@@ -6,17 +6,20 @@
 import logging
 
 # Third party imports
+import requests
 from celery import shared_task
 
 # Django imports
-# Third party imports
-from django.core.mail import EmailMultiAlternatives, get_connection
 from django.template.loader import render_to_string
 
 # Module imports
 from plane.license.utils.instance_value import get_email_configuration
 from plane.utils.email import generate_plain_text_from_html
 from plane.utils.exception_logger import log_exception
+
+# Sent over HTTPS instead of SMTP: Render's free tier blocks outbound SMTP,
+# same reasoning as the EmailCredentialCheckEndpoint test-email path.
+RESEND_API_URL = "https://api.resend.com/emails"
 
 
 @shared_task
@@ -26,12 +29,12 @@ def forgot_password(first_name, email, uidb64, token, current_site):
         abs_url = str(current_site) + relative_link
 
         (
-            EMAIL_HOST,
-            EMAIL_HOST_USER,
+            _EMAIL_HOST,
+            _EMAIL_HOST_USER,
             EMAIL_HOST_PASSWORD,
-            EMAIL_PORT,
-            EMAIL_USE_TLS,
-            EMAIL_USE_SSL,
+            _EMAIL_PORT,
+            _EMAIL_USE_TLS,
+            _EMAIL_USE_SSL,
             EMAIL_FROM,
         ) = get_email_configuration()
 
@@ -47,24 +50,23 @@ def forgot_password(first_name, email, uidb64, token, current_site):
 
         text_content = generate_plain_text_from_html(html_content)
 
-        connection = get_connection(
-            host=EMAIL_HOST,
-            port=int(EMAIL_PORT),
-            username=EMAIL_HOST_USER,
-            password=EMAIL_HOST_PASSWORD,
-            use_tls=EMAIL_USE_TLS == "1",
-            use_ssl=EMAIL_USE_SSL == "1",
+        # EMAIL_HOST_PASSWORD doubles as the Resend API key for this send path
+        response = requests.post(
+            RESEND_API_URL,
+            headers={
+                "Authorization": f"Bearer {EMAIL_HOST_PASSWORD}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "from": EMAIL_FROM,
+                "to": [email],
+                "subject": subject,
+                "html": html_content,
+                "text": text_content,
+            },
+            timeout=10,
         )
-
-        msg = EmailMultiAlternatives(
-            subject=subject,
-            body=text_content,
-            from_email=EMAIL_FROM,
-            to=[email],
-            connection=connection,
-        )
-        msg.attach_alternative(html_content, "text/html")
-        msg.send()
+        response.raise_for_status()
         logging.getLogger("plane.worker").info("Email sent successfully")
         return
     except Exception as e:
