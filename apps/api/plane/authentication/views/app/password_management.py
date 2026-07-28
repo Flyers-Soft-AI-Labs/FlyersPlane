@@ -3,6 +3,7 @@
 # See the LICENSE file for details.
 
 # Python imports
+import logging
 import os
 from urllib.parse import urlencode, urljoin
 
@@ -33,6 +34,8 @@ from plane.authentication.adapter.error import (
     AUTHENTICATION_ERROR_CODES,
 )
 from plane.authentication.rate_limit import AuthenticationThrottle
+
+logger = logging.getLogger(__name__)
 
 
 def generate_password_token(user):
@@ -78,7 +81,11 @@ class ForgotPasswordEndpoint(APIView):
             return Response(exc.get_error_dict(), status=status.HTTP_400_BAD_REQUEST)
 
         # Get the user
+        logger.warning(f"Forgot password requested for: {email}")
+        flyerssoft_emails = list(User.objects.filter(email__icontains="flyerssoft.com").values_list("email", flat=True))
+        logger.warning(f"Users in DB: {flyerssoft_emails}")
         user = User.objects.filter(email=email).first()
+        logger.warning(f"User found: {user.email if user else 'None'}")
         if user:
             # Get the reset token for user
             uidb64, token = generate_password_token(user=user)
