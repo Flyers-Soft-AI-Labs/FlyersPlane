@@ -7,7 +7,7 @@
 import { observer } from "mobx-react";
 import { Bell, Home, Search } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { usePathname, useParams } from "next/navigation";
 import useSWR from "swr";
 // plane imports
 import { getNumberCount } from "@plane/utils";
@@ -16,13 +16,22 @@ import { UserMenuRoot } from "@/components/workspace/sidebar/user-menu-root";
 import { useWorkspaceNotifications } from "@/hooks/store/notifications";
 import { usePowerK } from "@/hooks/store/use-power-k";
 
-export const WorkspaceDashboardHeader = observer(function WorkspaceDashboardHeader() {
+/**
+ * Persistent top bar shared by every route under the (projects) layout — home, time sheet,
+ * drafts, analytics, etc. Only "Home" is a real nav item today, so it is styled as an
+ * active-state link (highlighted only while the user is actually on the workspace home
+ * route) rather than assuming the dashboard is always the current page.
+ */
+export const WorkspaceTopBar = observer(function WorkspaceTopBar() {
   const { workspaceSlug } = useParams();
+  const pathname = usePathname();
   // hooks
   const { togglePowerKModal } = usePowerK();
   const { unreadNotificationsCount, getUnreadNotificationsCount } = useWorkspaceNotifications();
 
   const workspaceSlugString = workspaceSlug?.toString();
+  const homeHref = workspaceSlugString ? `/${workspaceSlugString}` : "#";
+  const isHomeActive = pathname === homeHref;
   const totalNotifications =
     unreadNotificationsCount.mention_unread_notifications_count > 0
       ? unreadNotificationsCount.mention_unread_notifications_count
@@ -36,7 +45,12 @@ export const WorkspaceDashboardHeader = observer(function WorkspaceDashboardHead
   return (
     <div className="flyers-soft-dashboard-header">
       <nav className="flyers-soft-dashboard-main-tab" aria-label="Primary">
-        <Link href={workspaceSlugString ? `/${workspaceSlugString}` : "#"} className="flyers-soft-dashboard-home-tab">
+        <Link
+          href={homeHref}
+          className="flyers-soft-dashboard-home-tab"
+          aria-current={isHomeActive ? "page" : undefined}
+          data-active={isHomeActive || undefined}
+        >
           <Home className="size-4" strokeWidth={2} />
           <span>Home</span>
         </Link>

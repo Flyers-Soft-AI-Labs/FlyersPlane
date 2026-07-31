@@ -6,10 +6,12 @@
 
 import { observer } from "mobx-react";
 import { Outlet } from "react-router";
+import { AppHeader } from "@/components/core/app-header";
 import { ProjectsAppPowerKProvider } from "@/components/power-k/projects-app-provider";
 // plane web components
 import { ProjectAppSidebar } from "./_sidebar";
 import { ExtendedProjectSidebar } from "./extended-project-sidebar";
+import { WorkspaceTopBar } from "./header";
 
 function WorkspaceLayout() {
   return (
@@ -21,6 +23,7 @@ function WorkspaceLayout() {
           <ProjectAppSidebar />
           <ExtendedProjectSidebar />
           <main className="flyers-soft-notion-main relative flex h-full min-w-0 flex-1 flex-col overflow-hidden bg-surface-1">
+            <AppHeader header={<WorkspaceTopBar />} rowClassName="flyers-soft-dashboard-app-header" />
             <Outlet />
           </main>
         </div>

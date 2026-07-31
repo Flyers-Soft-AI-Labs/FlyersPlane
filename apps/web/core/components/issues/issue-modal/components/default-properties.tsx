@@ -16,7 +16,7 @@ import { ParentPropertyIcon } from "@plane/propel/icons";
 // types
 import type { ISearchIssueResponse, TIssue } from "@plane/types";
 // ui
-import { CustomMenu } from "@plane/ui";
+import { CustomMenu, EModalWidth } from "@plane/ui";
 import { cn, getDate, renderFormattedPayloadDate, getTabIndex } from "@plane/utils";
 // components
 import { CycleDropdown } from "@/components/dropdowns/cycle";
@@ -391,6 +391,7 @@ export const IssueDefaultProperties = observer(function IssueDefaultProperties(p
             }}
             projectId={projectId ?? undefined}
             issueId={isDraft ? undefined : id}
+            width={isGridLayout ? EModalWidth.LG : undefined}
           />
         )}
       />

@@ -141,7 +141,7 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
           <div className="overflow-hidden min-h-0">
             <div className="pt-3 pb-2">
               {/* Current user email */}
-              <p className="px-1 pb-3 text-11 text-[#9ca3af] truncate select-none leading-none">
+              <p className="px-1 pb-3 text-11 text-placeholder truncate select-none leading-none">
                 {currentUser?.email}
               </p>
 
@@ -161,23 +161,23 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
                         }}
                         className={cn(
                           "flex items-center gap-2.5 rounded-lg px-2 py-2 text-13 transition-colors duration-100",
-                          { "bg-[#f1f1ef]": isActive, "hover:bg-[#f5f5f4]": !isActive }
+                          { "bg-layer-1-active": isActive, "hover:bg-surface-3": !isActive }
                         )}
                       >
                         <WorkspaceLogo
                           logo={workspace?.logo_url}
                           name={workspace?.name}
-                          classNames="size-6 flex-shrink-0 rounded-md border border-[#ebebeb]"
+                          classNames="size-6 flex-shrink-0 rounded-md border border-subtle"
                         />
                         <span
                           className={cn("min-w-0 flex-1 truncate text-13 font-medium", {
-                            "text-[#111827]": isActive,
-                            "text-[#374151]": !isActive,
+                            "text-primary": isActive,
+                            "text-secondary": !isActive,
                           })}
                         >
                           {workspace.name}
                         </span>
-                        {isActive && <CheckIcon className="size-3.5 flex-shrink-0 text-[#374151]" />}
+                        {isActive && <CheckIcon className="size-3.5 flex-shrink-0 text-secondary" />}
                       </Link>
                     );
                   })}
@@ -198,7 +198,7 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
                     <Link
                       href={`/${activeWorkspace.slug}/settings`}
                       onClick={() => { handleItemClick(); handleClose(); }}
-                      className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-[#e5e7eb] bg-white px-2 py-1.5 text-12 font-medium text-[#374151] transition-colors hover:bg-[#f5f5f4]"
+                      className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-strong bg-surface-1 px-2 py-1.5 text-12 font-medium text-secondary transition-colors hover:bg-surface-3"
                     >
                       <Settings className="size-3.5 flex-shrink-0" />
                       <span className="truncate">{t("settings")}</span>
@@ -208,7 +208,7 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
                     <Link
                       href={`/${activeWorkspace.slug}/settings/members`}
                       onClick={() => { handleItemClick(); handleClose(); }}
-                      className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-[#e5e7eb] bg-white px-2 py-1.5 text-12 font-medium text-[#374151] transition-colors hover:bg-[#f5f5f4]"
+                      className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-strong bg-surface-1 px-2 py-1.5 text-12 font-medium text-secondary transition-colors hover:bg-surface-3"
                     >
                       <UserPlus className="size-3.5 flex-shrink-0" />
                       <span className="truncate">Invite</span>
@@ -218,12 +218,12 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
               )}
 
               {/* Footer actions */}
-              <div className="border-t border-[#ebebeb] pt-2 mt-0 flex flex-col gap-0.5">
+              <div className="border-t border-subtle pt-2 mt-0 flex flex-col gap-0.5">
                 {!isWorkspaceCreationDisabled && (
                   <Link
                     href="/create-workspace"
                     onClick={() => { handleItemClick(); handleClose(); }}
-                    className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-13 font-medium text-[#374151] transition-colors hover:bg-[#f5f5f4]"
+                    className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-13 font-medium text-secondary transition-colors hover:bg-surface-3"
                   >
                     <CirclePlus className="size-4 flex-shrink-0" />
                     <span>{t("create_workspace")}</span>
@@ -232,7 +232,7 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
                 <Link
                   href="/invitations"
                   onClick={() => { handleItemClick(); handleClose(); }}
-                  className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-13 font-medium text-[#374151] transition-colors hover:bg-[#f5f5f4]"
+                  className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-13 font-medium text-secondary transition-colors hover:bg-surface-3"
                 >
                   <Mails className="size-4 flex-shrink-0" />
                   <span>{t("workspace_invites")}</span>
@@ -240,7 +240,7 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
                 <button
                   type="button"
                   onClick={handleSignOut}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-13 font-medium text-[#374151] transition-colors hover:bg-[#f5f5f4]"
+                  className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-13 font-medium text-secondary transition-colors hover:bg-surface-3"
                 >
                   <LogOut className="size-4 flex-shrink-0" />
                   <span>{t("sign_out")}</span>
@@ -323,7 +323,7 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
               <Menu.Items as={Fragment}>
                 <div
                   className={cn(
-                    "flyers-soft-workspace-switcher fixed z-21 mt-1 flex w-[24rem] max-w-[calc(100vw-2rem)] origin-top-left flex-col overflow-hidden rounded-2xl border border-[#ebebeb] bg-white shadow-[0_22px_54px_rgba(17, 24, 39, 0.18)] outline-none",
+                    "flyers-soft-workspace-switcher fixed z-21 mt-1 flex w-[24rem] max-w-[calc(100vw-2rem)] origin-top-left flex-col overflow-hidden rounded-2xl border border-subtle bg-surface-1 shadow-[0_22px_54px_rgba(17, 24, 39, 0.18)] outline-none",
                     {
                       "top-11 left-14": variant === "sidebar",
                       "top-10 left-4": variant === "top-navigation",
@@ -331,7 +331,7 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
                   )}
                 >
                   <div className="flyers-soft-workspace-switcher-scroll vertical-scrollbar scrollbar-sm flex max-h-96 flex-col items-start justify-start overflow-x-hidden overflow-y-auto">
-                    <span className="flyers-soft-workspace-switcher-email sticky top-0 z-21 h-full w-full flex-shrink-0 truncate bg-white px-4 pt-3 pb-2 text-left text-13 font-medium text-[#6b7280]">
+                    <span className="flyers-soft-workspace-switcher-email sticky top-0 z-21 h-full w-full flex-shrink-0 truncate bg-surface-1 px-4 pt-3 pb-2 text-left text-13 font-medium text-tertiary">
                       {currentUser?.email}
                     </span>
                     {workspacesList ? (
@@ -362,12 +362,12 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
                       </div>
                     )}
                   </div>
-                  <div className="flyers-soft-workspace-switcher-footer flex w-full flex-col items-start justify-start gap-1.5 border-t border-[#ebebeb] px-3 py-3 text-13">
+                  <div className="flyers-soft-workspace-switcher-footer flex w-full flex-col items-start justify-start gap-1.5 border-t border-subtle px-3 py-3 text-13">
                     {!isWorkspaceCreationDisabled && (
                       <Link href="/create-workspace" className="w-full">
                         <Menu.Item
                           as="div"
-                          className="flyers-soft-workspace-switcher-footer-item flex min-h-9 w-full items-center gap-2 rounded-lg px-3 py-2 text-13 font-semibold text-[#374151] hover:bg-[#f5f5f4]"
+                          className="flyers-soft-workspace-switcher-footer-item flex min-h-9 w-full items-center gap-2 rounded-lg px-3 py-2 text-13 font-semibold text-secondary hover:bg-surface-3"
                         >
                           <CirclePlus className="size-4 flex-shrink-0" />
                           <span className="min-w-0 truncate">{t("create_workspace")}</span>
@@ -378,7 +378,7 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
                     <Link href="/invitations" className="w-full" onClick={handleItemClick}>
                       <Menu.Item
                         as="div"
-                        className="flyers-soft-workspace-switcher-footer-item flex min-h-9 w-full items-center gap-2 rounded-lg px-3 py-2 text-13 font-semibold text-[#374151] hover:bg-[#f5f5f4]"
+                        className="flyers-soft-workspace-switcher-footer-item flex min-h-9 w-full items-center gap-2 rounded-lg px-3 py-2 text-13 font-semibold text-secondary hover:bg-surface-3"
                       >
                         <Mails className="h-4 w-4 flex-shrink-0" />
                         <span className="min-w-0 truncate">{t("workspace_invites")}</span>
@@ -389,7 +389,7 @@ export const WorkspaceMenuRoot = observer(function WorkspaceMenuRoot(props: Work
                       <Menu.Item
                         as="button"
                         type="button"
-                        className="flyers-soft-workspace-switcher-footer-item flyers-soft-workspace-switcher-signout flex min-h-9 w-full items-center gap-2 rounded-lg px-3 py-2 text-13 font-semibold text-[#374151] hover:bg-[#f5f5f4]"
+                        className="flyers-soft-workspace-switcher-footer-item flyers-soft-workspace-switcher-signout flex min-h-9 w-full items-center gap-2 rounded-lg px-3 py-2 text-13 font-semibold text-secondary hover:bg-surface-3"
                         onClick={handleSignOut}
                       >
                         <LogOut className="size-4 flex-shrink-0" />

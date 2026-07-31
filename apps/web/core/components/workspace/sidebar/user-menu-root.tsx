@@ -102,7 +102,7 @@ export const UserMenuRoot = observer(function UserMenuRoot(props: UserMenuRootPr
         placement="bottom-end"
         maxHeight="2xl"
         menuItemsClassName="flyers-soft-user-profile-menu-layer"
-        optionsClassName="flyers-soft-user-profile-menu w-[20rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-[#e5e7eb] bg-white p-2 shadow-[0_22px_54px_rgba(17,24,39,0.12)] flex flex-col gap-y-2"
+        optionsClassName="flyers-soft-user-profile-menu w-[20rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-strong bg-surface-1 p-2 shadow-[0_22px_54px_rgba(17,24,39,0.12)] flex flex-col gap-y-2"
         portalElement={variant === "header" ? profileMenuPortalElement : undefined}
         closeOnSelect
       >
@@ -113,7 +113,7 @@ export const UserMenuRoot = observer(function UserMenuRoot(props: UserMenuRootPr
             className="h-29 w-full rounded-xl"
             showDefaultWhenEmpty
           />
-          <div className="absolute inset-0 bg-white/55 backdrop-blur-[1px]" />
+          <div className="absolute inset-0 bg-surface-1/55 backdrop-blur-[1px]" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <div className="flex flex-col items-center gap-y-2">
               <div>
@@ -126,10 +126,10 @@ export const UserMenuRoot = observer(function UserMenuRoot(props: UserMenuRootPr
                 />
               </div>
               <div className="text-center">
-                <p className="max-w-[16rem] truncate text-14 font-semibold text-[#111827]">
+                <p className="max-w-[16rem] truncate text-14 font-semibold text-primary">
                   {currentUser?.first_name} {currentUser?.last_name}
                 </p>
-                <p className="max-w-[16rem] truncate text-12 font-medium text-[#6b7280]">{currentUser?.email}</p>
+                <p className="max-w-[16rem] truncate text-12 font-medium text-tertiary">{currentUser?.email}</p>
               </div>
             </div>
           </div>
@@ -142,7 +142,7 @@ export const UserMenuRoot = observer(function UserMenuRoot(props: UserMenuRootPr
                 isOpen: true,
               })
             }
-            className="flyers-soft-user-profile-menu-item flex min-h-10 items-center gap-3 rounded-lg px-3 py-2 text-13 font-semibold text-[#374151]"
+            className="flyers-soft-user-profile-menu-item flex min-h-10 items-center gap-3 rounded-lg px-3 py-2 text-13 font-semibold text-secondary"
           >
             <Settings className="size-3.5 shrink-0" />
             <span className="min-w-0 truncate">{t("settings")}</span>
@@ -154,7 +154,7 @@ export const UserMenuRoot = observer(function UserMenuRoot(props: UserMenuRootPr
                 isOpen: true,
               })
             }
-            className="flyers-soft-user-profile-menu-item flex min-h-10 items-center gap-3 rounded-lg px-3 py-2 text-13 font-semibold text-[#374151]"
+            className="flyers-soft-user-profile-menu-item flex min-h-10 items-center gap-3 rounded-lg px-3 py-2 text-13 font-semibold text-secondary"
           >
             <Settings2 className="size-3.5 shrink-0" />
             <span className="min-w-0 truncate">{t("preferences")}</span>
@@ -162,7 +162,7 @@ export const UserMenuRoot = observer(function UserMenuRoot(props: UserMenuRootPr
         </div>
         <CustomMenu.MenuItem
           onClick={handleSignOut}
-          className="flyers-soft-user-profile-menu-item flyers-soft-user-profile-signout flex min-h-10 items-center gap-3 rounded-lg border-t border-[#e5e7eb] px-3 py-2 pt-3 text-13 font-semibold text-[#374151]"
+          className="flyers-soft-user-profile-menu-item flyers-soft-user-profile-signout flex min-h-10 items-center gap-3 rounded-lg border-t border-strong px-3 py-2 pt-3 text-13 font-semibold text-secondary"
         >
           <LogOut className="size-3.5 shrink-0" />
           <span className="min-w-0 truncate">{t("sign_out")}</span>

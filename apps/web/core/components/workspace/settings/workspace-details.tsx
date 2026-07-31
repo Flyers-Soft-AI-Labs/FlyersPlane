@@ -240,7 +240,7 @@ export const WorkspaceDetails = observer(function WorkspaceDetails() {
 
               <div className="flyers-soft-settings-side-card p-5">
                 <div className="flex items-start gap-3">
-                  <span className="grid size-8 shrink-0 place-items-center rounded-full border border-[#eadfcb] bg-white text-secondary">
+                  <span className="grid size-8 shrink-0 place-items-center rounded-full border border-[#eadfcb] bg-surface-1 text-secondary">
                     <HelpCircle className="h-4 w-4" strokeWidth={2} />
                   </span>
                   <div className="min-w-0">

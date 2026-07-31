@@ -19,7 +19,7 @@ function TemplatesPage() {
   return (
     <>
       <PageHead title={pageTitle} />
-      <div className="flex h-full w-full items-center justify-center bg-white px-6 py-10 text-center">
+      <div className="flex h-full w-full items-center justify-center bg-surface-1 px-6 py-10 text-center">
         <div className="flex max-w-sm -translate-y-6 flex-col items-center gap-3 sm:-translate-y-8">
           <svg
             className="mb-1 h-auto w-[220px] max-w-[70vw]"

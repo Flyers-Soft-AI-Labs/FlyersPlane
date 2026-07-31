@@ -282,10 +282,10 @@ function HelpSupportModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
               leaveFrom="translate-y-0 scale-100 opacity-100"
               leaveTo="translate-y-2 scale-95 opacity-0"
             >
-              <Dialog.Panel className="border-neutral-200 relative w-full max-w-[30rem] overflow-hidden rounded-2xl border bg-white p-6 text-left shadow-[0_20px_72px_rgba(0,0,0,0.16)]">
+              <Dialog.Panel className="border-subtle relative w-full max-w-[30rem] overflow-hidden rounded-2xl border bg-surface-1 p-6 text-left shadow-[0_20px_72px_rgba(0,0,0,0.16)]">
                 <button
                   type="button"
-                  className="text-neutral-500 hover:bg-neutral-100 hover:text-neutral-950 absolute top-4 right-4 grid size-8 place-items-center rounded-md transition"
+                  className="text-tertiary hover:bg-surface-3 hover:text-primary absolute top-4 right-4 grid size-8 place-items-center rounded-md transition"
                   onClick={onClose}
                   aria-label="Close help and support"
                 >
@@ -293,33 +293,33 @@ function HelpSupportModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                 </button>
 
                 <div className="flex items-center gap-4 pr-9">
-                  <div className="bg-neutral-100 text-neutral-600 grid size-12 flex-shrink-0 place-items-center rounded-xl">
+                  <div className="bg-surface-3 text-secondary grid size-12 flex-shrink-0 place-items-center rounded-xl">
                     <HelpCircle className="size-6" strokeWidth={1.8} />
                   </div>
                   <div className="min-w-0">
-                    <Dialog.Title className="text-xl text-neutral-950 leading-7 font-semibold">Need help?</Dialog.Title>
-                    <p className="text-sm text-neutral-600 mt-1">Reach out to us.</p>
+                    <Dialog.Title className="text-xl text-primary leading-7 font-semibold">Need help?</Dialog.Title>
+                    <p className="text-sm text-secondary mt-1">Reach out to us.</p>
                   </div>
                 </div>
 
-                <div className="divide-neutral-200 border-neutral-200 mt-6 divide-y border-y">
+                <div className="divide-subtle border-subtle mt-6 divide-y border-y">
                   {HELP_CONTACTS.map((contact) => (
                     <div key={contact.email} className="flex items-center gap-3 py-3.5">
-                      <div className="bg-neutral-100 text-sm text-neutral-900 grid size-10 flex-shrink-0 place-items-center rounded-full font-medium">
+                      <div className="bg-surface-3 text-sm text-primary grid size-10 flex-shrink-0 place-items-center rounded-full font-medium">
                         {contact.initials}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="text-sm text-neutral-950 truncate font-semibold">{contact.name}</div>
+                        <div className="text-sm text-primary truncate font-semibold">{contact.name}</div>
                         <a
                           href={`mailto:${contact.email}`}
-                          className="text-sm text-neutral-600 hover:text-neutral-950 block truncate transition"
+                          className="text-sm text-secondary hover:text-primary block truncate transition"
                         >
                           {contact.email}
                         </a>
                       </div>
                       <a
                         href={`mailto:${contact.email}`}
-                        className="border-neutral-200 text-neutral-700 hover:bg-neutral-100 hover:text-neutral-950 grid size-10 flex-shrink-0 place-items-center rounded-xl border transition"
+                        className="border-subtle text-secondary hover:bg-surface-3 hover:text-primary grid size-10 flex-shrink-0 place-items-center rounded-xl border transition"
                         aria-label={`Email ${contact.name}`}
                       >
                         <Mail className="size-4" strokeWidth={1.8} />

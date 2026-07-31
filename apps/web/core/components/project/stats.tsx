@@ -32,7 +32,7 @@ function ProjectStatsSkeleton() {
       {PROJECT_STATS_SKELETON_KEYS.map((key) => (
         <div
           key={key}
-          className="h-[108px] animate-pulse rounded-xl border border-[#edf0f5] bg-white p-5 shadow-[0_12px_32px_rgba(15,23,42,0.06)]"
+          className="h-[108px] animate-pulse rounded-xl border border-[#edf0f5] bg-surface-1 p-5 shadow-[0_12px_32px_rgba(15,23,42,0.06)]"
         >
           <div className="flex h-full items-center gap-4">
             <div className="size-12 rounded-xl bg-[#eef2ff]" />
@@ -95,7 +95,7 @@ export const ProjectStats = observer(function ProjectStats(props: TProjectStatsP
       value: completedProjects,
       icon: CheckCircle2,
       iconBoxClassName: "bg-[#e9fbef]",
-      iconClassName: "text-[#6b7280]",
+      iconClassName: "text-tertiary",
       helperText: "All tracked tickets done",
     },
     {
@@ -116,7 +116,7 @@ export const ProjectStats = observer(function ProjectStats(props: TProjectStatsP
         return (
           <div
             key={card.title}
-            className="group flex min-h-[108px] items-center gap-4 rounded-xl border border-[#edf0f5] bg-white p-5 shadow-[0_12px_32px_rgba(15,23,42,0.06)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_18px_42px_rgba(15,23,42,0.10)]"
+            className="group flex min-h-[108px] items-center gap-4 rounded-xl border border-[#edf0f5] bg-surface-1 p-5 shadow-[0_12px_32px_rgba(15,23,42,0.06)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_18px_42px_rgba(15,23,42,0.10)]"
           >
             <div
               className={cn(
@@ -128,7 +128,7 @@ export const ProjectStats = observer(function ProjectStats(props: TProjectStatsP
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-13 font-medium text-[#64748b]">{card.title}</p>
-              <p className="text-2xl mt-1 leading-none font-semibold text-[#111827]">{card.value}</p>
+              <p className="text-2xl mt-1 leading-none font-semibold text-primary">{card.value}</p>
               <p className="mt-2 truncate text-11 font-medium text-[#8a94a6]">{card.helperText}</p>
             </div>
           </div>

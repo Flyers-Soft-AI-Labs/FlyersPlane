@@ -172,11 +172,11 @@ export function ToDoListPage() {
   };
 
   return (
-    <div className="flyers-soft-todo-body text-[#111827]">
+    <div className="flyers-soft-todo-body text-primary">
       <div className="flyers-soft-todo-content flex flex-col gap-5">
           <section className="flex min-w-0 items-start justify-between gap-4">
             <div className="min-w-0">
-              <h1 className="truncate text-[30px] leading-9 font-semibold tracking-normal text-[#111827]">
+              <h1 className="truncate text-[30px] leading-9 font-semibold tracking-normal text-primary">
                 To Do List
               </h1>
             </div>
@@ -230,7 +230,7 @@ export function ToDoListPage() {
                 button={
                   <button
                     type="button"
-                    className="grid h-10 w-10 place-items-center rounded-lg border border-[#e5e7eb] bg-white text-[#374151] transition-colors hover:bg-[#f5f5f4]"
+                    className="grid h-10 w-10 place-items-center rounded-lg border border-strong bg-surface-1 text-secondary transition-colors hover:bg-surface-3"
                     aria-label="More options"
                     onClick={() => setOpenMenu(openMenu === "more" ? undefined : "more")}
                   >
@@ -251,14 +251,14 @@ export function ToDoListPage() {
             </div>
           </section>
 
-          <div className="flex items-center gap-1 border-b border-[#e5e7eb]">
+          <div className="flex items-center gap-1 border-b border-strong">
             {views.map((view) => (
               <button
                 key={view.key}
                 type="button"
                 className={cn(
-                  "h-9 rounded-t-md px-3 text-[13px] font-medium text-[#374151] transition-colors hover:bg-[#f5f5f4]",
-                  activeView === view.key && "bg-[#f1f1ef] text-[#111827]"
+                  "h-9 rounded-t-md px-3 text-[13px] font-medium text-secondary transition-colors hover:bg-surface-3",
+                  activeView === view.key && "bg-layer-1-active text-primary"
                 )}
                 onClick={() => setActiveView(view.key)}
               >
@@ -267,7 +267,7 @@ export function ToDoListPage() {
             ))}
             <button
               type="button"
-              className="inline-flex h-9 items-center gap-1.5 rounded-t-md px-3 text-[13px] font-medium text-[#6b7280] transition-colors hover:bg-[#f5f5f4] hover:text-[#374151]"
+              className="inline-flex h-9 items-center gap-1.5 rounded-t-md px-3 text-[13px] font-medium text-tertiary transition-colors hover:bg-surface-3 hover:text-secondary"
               onClick={addView}
             >
               <Plus className="h-3.5 w-3.5" strokeWidth={2} />
@@ -275,8 +275,8 @@ export function ToDoListPage() {
             </button>
           </div>
 
-          <section className="overflow-x-auto overflow-y-hidden rounded-[10px] border border-[#e5e7eb] bg-white">
-            <div className="grid min-h-10 min-w-[920px] grid-cols-[44px_minmax(260px,1.7fr)_150px_130px_130px_minmax(160px,1fr)_48px] items-center border-b border-[#e5e7eb] bg-[#fbfbfa] text-[12px] font-medium text-[#6b7280]">
+          <section className="overflow-x-auto overflow-y-hidden rounded-[10px] border border-strong bg-surface-1">
+            <div className="grid min-h-10 min-w-[920px] grid-cols-[44px_minmax(260px,1.7fr)_150px_130px_130px_minmax(160px,1fr)_48px] items-center border-b border-strong bg-canvas text-[12px] font-medium text-tertiary">
               <div />
               <div className="px-3">Task name</div>
               <div className="px-3">Status</div>
@@ -289,13 +289,13 @@ export function ToDoListPage() {
             {visibleItems.map((item) => (
               <div
                 key={item.id}
-                className="grid min-h-[52px] min-w-[920px] grid-cols-[44px_minmax(260px,1.7fr)_150px_130px_130px_minmax(160px,1fr)_48px] items-center border-b border-[#e5e7eb] text-[13px] text-[#374151] transition-colors last:border-b-0 hover:bg-[#fbfbfa]"
+                className="grid min-h-[52px] min-w-[920px] grid-cols-[44px_minmax(260px,1.7fr)_150px_130px_130px_minmax(160px,1fr)_48px] items-center border-b border-strong text-[13px] text-secondary transition-colors last:border-b-0 hover:bg-canvas"
               >
                 <div className="flex justify-center">
                   <button
                     type="button"
                     className={cn(
-                      "grid h-4 w-4 place-items-center rounded border border-[#d1d5db] bg-white text-white",
+                      "grid h-4 w-4 place-items-center rounded border border-[#d1d5db] bg-surface-1 text-white",
                       item.status === "Done" && "border-[#111827] bg-[#111827]"
                     )}
                     aria-label={item.status === "Done" ? "Mark task as not done" : "Mark task as done"}
@@ -308,8 +308,8 @@ export function ToDoListPage() {
                 <div className="min-w-0 px-3">
                   <input
                     className={cn(
-                      "block h-8 w-full truncate rounded-md border border-transparent bg-transparent px-1 text-[13px] font-medium text-[#111827] outline-none transition-colors hover:border-[#e5e7eb] focus:border-[#e5e7eb] focus:bg-white",
-                      item.status === "Done" && "text-[#6b7280] line-through"
+                      "block h-8 w-full truncate rounded-md border border-transparent bg-transparent px-1 text-[13px] font-medium text-primary outline-none transition-colors hover:border-strong focus:border-strong focus:bg-surface-1",
+                      item.status === "Done" && "text-tertiary line-through"
                     )}
                     value={item.name}
                     autoFocus={editingTaskId === item.id}
@@ -322,7 +322,7 @@ export function ToDoListPage() {
 
                 <div className="px-3">
                   <select
-                    className="h-6 max-w-full rounded-full border border-[#e5e7eb] bg-[#f5f5f4] px-2 text-[12px] font-medium text-[#374151] outline-none"
+                    className="h-6 max-w-full rounded-full border border-strong bg-surface-3 px-2 text-[12px] font-medium text-secondary outline-none"
                     value={item.status}
                     onChange={(event) => updateTask(item.id, { status: event.target.value as TTodoStatus })}
                     aria-label="Task status"
@@ -337,7 +337,7 @@ export function ToDoListPage() {
 
                 <div className="px-3">
                   <select
-                    className="h-6 max-w-full rounded-full border border-[#e5e7eb] bg-white px-2 text-[12px] font-medium text-[#374151] outline-none"
+                    className="h-6 max-w-full rounded-full border border-strong bg-surface-1 px-2 text-[12px] font-medium text-secondary outline-none"
                     value={item.priority}
                     onChange={(event) => updateTask(item.id, { priority: event.target.value as TTodoPriority })}
                     aria-label="Task priority"
@@ -350,11 +350,11 @@ export function ToDoListPage() {
                   </select>
                 </div>
 
-                <div className="flex min-w-0 items-center gap-1.5 px-3 text-[#6b7280]">
+                <div className="flex min-w-0 items-center gap-1.5 px-3 text-tertiary">
                   <CalendarDays className="h-3.5 w-3.5 flex-shrink-0" strokeWidth={1.8} />
                   <input
                     type="date"
-                    className="h-8 min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-1 text-[13px] text-[#6b7280] outline-none transition-colors hover:border-[#e5e7eb] focus:border-[#e5e7eb] focus:bg-white"
+                    className="h-8 min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-1 text-[13px] text-tertiary outline-none transition-colors hover:border-strong focus:border-strong focus:bg-surface-1"
                     value={item.dueDate}
                     onChange={(event) => updateTask(item.id, { dueDate: event.target.value })}
                     aria-label="Due date"
@@ -366,7 +366,7 @@ export function ToDoListPage() {
                     <button
                       key={`${item.id}-${tag}`}
                       type="button"
-                      className="inline-flex h-6 max-w-full items-center gap-1 rounded-full border border-[#e5e7eb] bg-[#fbfbfa] px-2 text-[12px] font-medium text-[#6b7280] transition-colors hover:bg-[#f5f5f4]"
+                      className="inline-flex h-6 max-w-full items-center gap-1 rounded-full border border-strong bg-canvas px-2 text-[12px] font-medium text-tertiary transition-colors hover:bg-surface-3"
                       onClick={() => toggleTag(item, tag)}
                       title="Remove tag"
                     >
@@ -376,13 +376,13 @@ export function ToDoListPage() {
                   ))}
                   <button
                     type="button"
-                    className="inline-flex h-6 items-center rounded-full border border-[#e5e7eb] bg-white px-2 text-[12px] font-medium text-[#6b7280] transition-colors hover:bg-[#f5f5f4] hover:text-[#374151]"
+                    className="inline-flex h-6 items-center rounded-full border border-strong bg-surface-1 px-2 text-[12px] font-medium text-tertiary transition-colors hover:bg-surface-3 hover:text-secondary"
                     onClick={() => setActiveTagMenuId(activeTagMenuId === item.id ? undefined : item.id)}
                   >
                     <Plus className="h-3 w-3" strokeWidth={2} />
                   </button>
                   {activeTagMenuId === item.id && (
-                    <div className="absolute top-7 left-3 z-20 w-36 rounded-lg border border-[#e5e7eb] bg-white p-1">
+                    <div className="absolute top-7 left-3 z-20 w-36 rounded-lg border border-strong bg-surface-1 p-1">
                       {TAG_OPTIONS.map((tag) => (
                         <MenuButton key={tag} active={item.tags.includes(tag)} onClick={() => toggleTag(item, tag)}>
                           {tag}
@@ -395,14 +395,14 @@ export function ToDoListPage() {
                 <div className="relative flex justify-center">
                   <button
                     type="button"
-                    className="grid h-8 w-8 place-items-center rounded-md text-[#6b7280] transition-colors hover:bg-[#f5f5f4] hover:text-[#111827]"
+                    className="grid h-8 w-8 place-items-center rounded-md text-tertiary transition-colors hover:bg-surface-3 hover:text-primary"
                     aria-label={`Actions for ${item.name}`}
                     onClick={() => setActiveActionId(activeActionId === item.id ? undefined : item.id)}
                   >
                     <MoreHorizontal className="h-4 w-4" strokeWidth={1.8} />
                   </button>
                   {activeActionId === item.id && (
-                    <div className="absolute top-8 right-2 z-20 w-40 rounded-lg border border-[#e5e7eb] bg-white p-1">
+                    <div className="absolute top-8 right-2 z-20 w-40 rounded-lg border border-strong bg-surface-1 p-1">
                       <MenuButton onClick={() => toggleTask(item.id)}>
                         {item.status === "Done" ? "Mark To Do" : "Mark Done"}
                       </MenuButton>
@@ -423,7 +423,7 @@ export function ToDoListPage() {
 
             <button
               type="button"
-              className="flex min-h-[52px] min-w-[920px] items-center gap-2 px-3 text-left text-[13px] font-medium text-[#6b7280] transition-colors hover:bg-[#fbfbfa] hover:text-[#111827]"
+              className="flex min-h-[52px] min-w-[920px] items-center gap-2 px-3 text-left text-[13px] font-medium text-tertiary transition-colors hover:bg-canvas hover:text-primary"
               onClick={addTask}
             >
               <Plus className="h-4 w-4" strokeWidth={2} />
@@ -452,7 +452,7 @@ function HeaderMenu({
       {active && (
         <div
           className={cn(
-            "absolute top-11 z-30 w-40 rounded-lg border border-[#e5e7eb] bg-white p-1",
+            "absolute top-11 z-30 w-40 rounded-lg border border-strong bg-surface-1 p-1",
             align === "right" ? "right-0" : "left-0"
           )}
         >
@@ -479,8 +479,8 @@ function MenuButton({
       type="button"
       className={cn(
         "flex h-8 w-full items-center gap-2 rounded-md px-2 text-left text-[13px] font-medium transition-colors",
-        active ? "bg-[#f1f1ef] text-[#111827]" : "text-[#374151] hover:bg-[#f5f5f4]",
-        tone === "danger" && "text-[#374151]"
+        active ? "bg-layer-1-active text-primary" : "text-secondary hover:bg-surface-3",
+        tone === "danger" && "text-secondary"
       )}
       onClick={onClick}
     >
@@ -505,7 +505,7 @@ function TodoActionButton({
         "inline-flex h-10 items-center gap-2 rounded-lg border px-3 text-[13px] font-medium transition-colors",
         variant === "primary"
           ? "border-[#111827] bg-[#111827] text-white hover:bg-[#374151]"
-          : "border-[#e5e7eb] bg-white text-[#374151] hover:bg-[#f5f5f4]"
+          : "border-strong bg-surface-1 text-secondary hover:bg-surface-3"
       )}
       onClick={onClick}
     >

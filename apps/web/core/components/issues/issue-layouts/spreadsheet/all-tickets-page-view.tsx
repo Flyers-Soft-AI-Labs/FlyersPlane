@@ -86,25 +86,25 @@ function getPriorityTone(priority: TIssue["priority"]) {
     case "urgent":
     case "high":
       return {
-        className: "text-[#6b7280]",
+        className: "text-tertiary",
         icon: ArrowUp,
         label: priority,
       };
     case "medium":
       return {
-        className: "text-[#6b7280]",
+        className: "text-tertiary",
         icon: Minus,
         label: priority,
       };
     case "low":
       return {
-        className: "text-[#6b7280]",
+        className: "text-tertiary",
         icon: ArrowDown,
         label: priority,
       };
     default:
       return {
-        className: "text-[#6b7280]",
+        className: "text-tertiary",
         icon: Minus,
         label: "None",
       };
@@ -335,13 +335,13 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
   };
 
   return (
-    <div className="flyers-soft-all-issues-view-body h-full overflow-hidden bg-[#fbfbfa] text-[#111827]">
+    <div className="flyers-soft-all-issues-view-body h-full overflow-hidden bg-canvas text-primary">
       <div ref={portalRef} className="spreadsheet-menu-portal" />
 
       <main ref={containerRef} className="h-full min-h-0 overflow-y-auto px-6 py-7">
         <section className="flex items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3">
-            <h1 className="text-[30px] font-semibold tracking-tight text-[#111827]">Tickets</h1>
+            <h1 className="text-[30px] font-semibold tracking-tight text-primary">Tickets</h1>
           </div>
 
           <div className="flex items-center gap-2">
@@ -362,7 +362,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
             {workspaceSlugString && (
               <Link
                 href={`/${workspaceSlugString}/analytics/overview/`}
-                className="flex h-10 items-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-4 text-13 font-medium text-[#374151] transition hover:bg-[#fbfbfa]"
+                className="flex h-10 items-center gap-2 rounded-lg border border-strong bg-surface-1 px-4 text-13 font-medium text-secondary transition hover:bg-canvas"
               >
                 <BarChart3 className="size-4" strokeWidth={2} />
                 Analytics
@@ -372,16 +372,16 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
         </section>
 
         <section className="mt-7 flex flex-wrap items-center justify-between gap-3">
-          <div className="flyers-soft-all-issues-search flex h-10 w-full max-w-[520px] items-center gap-3 rounded-lg border border-[#e5e7eb] bg-white px-3 focus-within:border-[#e5e7eb]">
-            <Search className="size-4 flex-shrink-0 text-[#374151]" strokeWidth={2} />
+          <div className="flyers-soft-all-issues-search flex h-10 w-full max-w-[520px] items-center gap-3 rounded-lg border border-strong bg-surface-1 px-3 focus-within:border-strong">
+            <Search className="size-4 flex-shrink-0 text-secondary" strokeWidth={2} />
             <input
               type="text"
               placeholder="Search tickets, projects, teams..."
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              className="min-w-0 flex-1 bg-transparent text-13 text-[#111827] outline-none placeholder:text-[#6b7280]"
+              className="min-w-0 flex-1 bg-transparent text-13 text-primary outline-none placeholder:text-tertiary"
             />
-            <span className="rounded-md bg-[#f5f5f4] px-2 py-0.5 text-11 font-medium text-[#6b7280]">Ctrl K</span>
+            <span className="rounded-md bg-surface-3 px-2 py-0.5 text-11 font-medium text-tertiary">Ctrl K</span>
           </div>
 
           <div className="flex flex-wrap items-center justify-end gap-2">
@@ -390,7 +390,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
               title="View settings"
               aria-label="View settings"
               aria-pressed="true"
-              className="grid size-10 place-items-center rounded-lg border border-[#e5e7eb] bg-white text-[#374151] transition hover:bg-[#fbfbfa]"
+              className="grid size-10 place-items-center rounded-lg border border-strong bg-surface-1 text-secondary transition hover:bg-canvas"
               onClick={handleLayoutChange}
             >
               <SlidersHorizontal className="size-4" strokeWidth={2} />
@@ -538,7 +538,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
             <button
               type="button"
               onClick={clearFilters}
-              className="h-10 px-2 text-13 font-medium text-[#374151] transition hover:text-[#111827]"
+              className="h-10 px-2 text-13 font-medium text-secondary transition hover:text-primary"
             >
               Clear
             </button>
@@ -556,13 +556,13 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
           <FilterPill label="Starred" active={activeFilter === "starred"} onClick={() => setActiveFilter("starred")} />
         </section>
 
-        <section className="flyers-soft-all-issues-table-card mt-5 overflow-visible rounded-[10px] border border-[#e5e7eb] bg-white">
+        <section className="flyers-soft-all-issues-table-card mt-5 overflow-visible rounded-[10px] border border-strong bg-surface-1">
           <div className="overflow-x-auto">
             <div className="min-w-[1080px]">
               <TicketTableHeader allSelected={allVisibleSelected} onToggleSelectAll={toggleSelectVisible} />
 
               {visibleIssueIds.length === 0 ? (
-                <div className="flex h-40 items-center justify-center text-13 text-[#6b7280]">
+                <div className="flex h-40 items-center justify-center text-13 text-tertiary">
                   No tickets match your filters.
                 </div>
               ) : (
@@ -587,7 +587,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
             </div>
           </div>
 
-          <div className="flyers-soft-all-issues-table-footer flex min-h-[64px] flex-wrap items-center justify-between gap-3 border-t border-[#e5e7eb] px-4 text-13 text-[#374151]">
+          <div className="flyers-soft-all-issues-table-footer flex min-h-[64px] flex-wrap items-center justify-between gap-3 border-t border-strong px-4 text-13 text-secondary">
             <span>
               Showing {showingStart} to {showingEnd} of {filteredIds.length} tickets
             </span>
@@ -605,8 +605,8 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
                   className={cn(
                     "grid size-8 place-items-center rounded-lg border text-13 font-semibold transition",
                     currentPage === page
-                      ? "border-[#e5e7eb] bg-[#f1f1ef] text-[#111827]"
-                      : "border-[#e5e7eb] bg-white text-[#374151] hover:bg-[#fbfbfa]"
+                      ? "border-strong bg-layer-1-active text-primary"
+                      : "border-strong bg-surface-1 text-secondary hover:bg-canvas"
                   )}
                 >
                   {page}
@@ -619,7 +619,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
               />
               <button
                 type="button"
-                className="ml-4 flex h-8 items-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-3 text-13 font-medium text-[#374151]"
+                className="ml-4 flex h-8 items-center gap-2 rounded-lg border border-strong bg-surface-1 px-3 text-13 font-medium text-secondary"
               >
                 {PAGE_SIZE} / page
                 <ChevronDown className="size-4" />
@@ -630,7 +630,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
           {canLoadMoreIssues && (
             <div ref={setSentinelEl} className="space-y-2 px-4 pb-4">
               {SKELETON_ROW_KEYS.map((key) => (
-                <div key={key} className="h-[44px] animate-pulse rounded-lg bg-[#fbfbfa]" />
+                <div key={key} className="h-[44px] animate-pulse rounded-lg bg-canvas" />
               ))}
             </div>
           )}
@@ -654,7 +654,7 @@ function DisplayMenu({
   return (
     <FiltersDropdown
       menuButton={
-        <span className="flex h-10 items-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-4 text-13 font-medium text-[#374151] transition hover:bg-[#fbfbfa]">
+        <span className="flex h-10 items-center gap-2 rounded-lg border border-strong bg-surface-1 px-4 text-13 font-medium text-secondary transition hover:bg-canvas">
           <SlidersHorizontal className="size-4" strokeWidth={2} />
           Display
         </span>
@@ -681,7 +681,7 @@ function FilterPill({ active, label, onClick }: { active: boolean; label: string
       onClick={onClick}
       className={cn(
         "flyers-soft-all-issues-filter-pill h-9 rounded-lg px-3.5 text-13 font-medium transition",
-        active ? "bg-[#f1f1ef] text-[#111827]" : "bg-transparent text-[#374151] hover:bg-[#fbfbfa]"
+        active ? "bg-layer-1-active text-primary" : "bg-transparent text-secondary hover:bg-canvas"
       )}
       data-active={active ? "true" : undefined}
     >
@@ -717,14 +717,14 @@ function ToolbarFilterDropdown({
       trigger={
         <span
           className={cn(
-            "flyers-soft-all-issues-filter-button flex h-10 min-w-24 items-center justify-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-3 text-13 font-medium text-[#374151] transition hover:bg-[#fbfbfa]",
-            active && "bg-[#f1f1ef] text-[#111827]"
+            "flyers-soft-all-issues-filter-button flex h-10 min-w-24 items-center justify-center gap-2 rounded-lg border border-strong bg-surface-1 px-3 text-13 font-medium text-secondary transition hover:bg-canvas",
+            active && "bg-layer-1-active text-primary"
           )}
           data-active={active ? "true" : undefined}
         >
           {Icon && <Icon className="size-4" strokeWidth={2} />}
           <span className="max-w-[112px] truncate">{label}</span>
-          {!Icon && <ChevronDown className="size-4 text-[#6b7280]" />}
+          {!Icon && <ChevronDown className="size-4 text-tertiary" />}
         </span>
       }
     >
@@ -750,7 +750,7 @@ function ToolbarMenuOption({
       onClick={onClick}
     >
       <span className="min-w-0 flex-1 truncate text-left">{label}</span>
-      {selected && <CheckCircle2 className="size-3.5 flex-shrink-0 text-[#6b7280]" strokeWidth={2.4} />}
+      {selected && <CheckCircle2 className="size-3.5 flex-shrink-0 text-tertiary" strokeWidth={2.4} />}
     </button>
   );
 }
@@ -764,7 +764,7 @@ function TicketTableHeader({
 }) {
   return (
     <div
-      className="flyers-soft-all-issues-table-header sticky top-0 z-[2] grid h-[52px] items-center border-b border-[#e5e7eb] px-4 text-13 font-medium text-[#374151]"
+      className="flyers-soft-all-issues-table-header sticky top-0 z-[2] grid h-[52px] items-center border-b border-strong px-4 text-13 font-medium text-secondary"
       style={{ gridTemplateColumns: COL_TEMPLATE }}
     >
       <div className="flex items-center justify-center">
@@ -772,7 +772,7 @@ function TicketTableHeader({
           type="checkbox"
           checked={allSelected}
           onChange={onToggleSelectAll}
-          className="size-4 rounded border-[#e5e7eb] accent-[#111827]"
+          className="size-4 rounded border-strong accent-[#111827]"
         />
       </div>
       <div />
@@ -783,7 +783,7 @@ function TicketTableHeader({
       <div>Assignee</div>
       <div>Updated</div>
       <div className="flex justify-center">
-        <SlidersHorizontal className="size-4 text-[#6b7280]" />
+        <SlidersHorizontal className="size-4 text-tertiary" />
       </div>
     </div>
   );
@@ -881,7 +881,7 @@ const TicketTableRow = observer(function TicketTableRow(props: TicketTableRowPro
   };
 
   const customActionButton = (
-    <span className="grid size-7 place-items-center rounded-lg text-[#6b7280] transition hover:bg-[#f5f5f4] hover:text-[#111827]">
+    <span className="grid size-7 place-items-center rounded-lg text-tertiary transition hover:bg-surface-3 hover:text-primary">
       <MoreHorizontal className="size-4" />
     </span>
   );
@@ -893,8 +893,8 @@ const TicketTableRow = observer(function TicketTableRow(props: TicketTableRowPro
       data-active={isPeeked ? "true" : undefined}
       data-selected={isSelected ? "true" : undefined}
       className={cn(
-        "flyers-soft-all-issues-ticket-row grid h-[52px] items-center border-b border-[#e5e7eb] px-4 text-13 text-[#111827] transition last:border-b-0 hover:bg-[#fbfbfa]",
-        (isSelected || isPeeked) && "flyers-soft-all-issues-ticket-row-active !bg-[#fbfbfa] !text-[#111827]"
+        "flyers-soft-all-issues-ticket-row grid h-[52px] items-center border-b border-strong px-4 text-13 text-primary transition last:border-b-0 hover:bg-canvas",
+        (isSelected || isPeeked) && "flyers-soft-all-issues-ticket-row-active !bg-canvas !text-primary"
       )}
       style={{ gridTemplateColumns: COL_TEMPLATE }}
     >
@@ -903,14 +903,14 @@ const TicketTableRow = observer(function TicketTableRow(props: TicketTableRowPro
           type="checkbox"
           checked={isSelected}
           onChange={onToggleSelect}
-          className="size-4 rounded border-[#e5e7eb] accent-[#111827]"
+          className="size-4 rounded border-strong accent-[#111827]"
         />
       </div>
 
       <button
         type="button"
-        className={cn("grid size-8 place-items-center rounded-lg text-[#6b7280] hover:text-[#374151]", {
-          "text-[#374151]": isStarred,
+        className={cn("grid size-8 place-items-center rounded-lg text-tertiary hover:text-secondary", {
+          "text-secondary": isStarred,
         })}
         onClick={onToggleStar}
         aria-label={isStarred ? "Unstar ticket" : "Star ticket"}
@@ -918,13 +918,13 @@ const TicketTableRow = observer(function TicketTableRow(props: TicketTableRowPro
         <Star className="size-4" fill={isStarred ? "currentColor" : "none"} />
       </button>
 
-      <Link href={workItemLink} className="font-semibold text-[#374151] hover:text-[#111827] hover:underline">
+      <Link href={workItemLink} className="font-semibold text-secondary hover:text-primary hover:underline">
         {ticketKey}
       </Link>
 
       <button
         type="button"
-        className="flyers-soft-ticket-title-cell min-w-0 text-left text-13 leading-5 font-medium text-[#111827] hover:text-[#374151]"
+        className="flyers-soft-ticket-title-cell min-w-0 text-left text-13 leading-5 font-medium text-primary hover:text-secondary"
         onClick={handlePeekOverview}
       >
         {issueDetail.name}
@@ -973,7 +973,7 @@ const TicketTableRow = observer(function TicketTableRow(props: TicketTableRowPro
         }}
       />
 
-      <span className="text-[#6b7280]">{updatedLabel}</span>
+      <span className="text-tertiary">{updatedLabel}</span>
 
       <div className="flex justify-center">
         {!disableUserActions &&
@@ -1047,12 +1047,12 @@ function InlineStatusEditor({
                   style={{ backgroundColor: getStateAccent(stateOption) }}
                 />
                 <span className="min-w-0 flex-1 truncate text-left">{stateOption.name}</span>
-                {isSelected && <CheckCircle2 className="size-3.5 flex-shrink-0 text-[#6b7280]" strokeWidth={2.4} />}
+                {isSelected && <CheckCircle2 className="size-3.5 flex-shrink-0 text-tertiary" strokeWidth={2.4} />}
               </button>
             );
           })
         ) : (
-          <span className="block px-3 py-2 text-13 text-[#6b7280]">No statuses found</span>
+          <span className="block px-3 py-2 text-13 text-tertiary">No statuses found</span>
         )}
       </InlineDropdownMenu>
     </div>
@@ -1121,7 +1121,7 @@ function InlinePriorityEditor({
             >
               <OptionIcon className={cn("size-3.5 flex-shrink-0", optionTone.className)} strokeWidth={2.2} />
               <span className="min-w-0 flex-1 truncate text-left">{priority.title}</span>
-              {isSelected && <CheckCircle2 className="size-3.5 flex-shrink-0 text-[#6b7280]" strokeWidth={2.4} />}
+              {isSelected && <CheckCircle2 className="size-3.5 flex-shrink-0 text-tertiary" strokeWidth={2.4} />}
             </button>
           );
         })}
@@ -1176,7 +1176,7 @@ function InlineAssigneeEditor({
         trigger={
           <span
             className={cn(
-              "flyers-soft-assignee-pill inline-flex max-w-full items-center gap-2 rounded-full border border-[#e5e7eb] bg-white px-2 py-1 text-13 font-medium text-[#374151]",
+              "flyers-soft-assignee-pill inline-flex max-w-full items-center gap-2 rounded-full border border-strong bg-surface-1 px-2 py-1 text-13 font-medium text-secondary",
               disabled && "cursor-not-allowed opacity-70"
             )}
           >
@@ -1193,11 +1193,11 @@ function InlineAssigneeEditor({
               </>
             ) : (
               <>
-                <span className="size-5 flex-shrink-0 rounded-full border border-dashed border-[#e5e7eb]" />
-                <span className="min-w-0 truncate text-[#6b7280]">Unassigned</span>
+                <span className="size-5 flex-shrink-0 rounded-full border border-dashed border-strong" />
+                <span className="min-w-0 truncate text-tertiary">Unassigned</span>
               </>
             )}
-            {!disabled && <ChevronDown className="size-3.5 flex-shrink-0 text-[#6b7280]" />}
+            {!disabled && <ChevronDown className="size-3.5 flex-shrink-0 text-tertiary" />}
           </span>
         }
       >
@@ -1215,9 +1215,9 @@ function InlineAssigneeEditor({
           data-selected={!selectedAssigneeId ? "true" : undefined}
           onClick={() => onChange([])}
         >
-          <span className="size-5 flex-shrink-0 rounded-full border border-dashed border-[#e5e7eb]" />
+          <span className="size-5 flex-shrink-0 rounded-full border border-dashed border-strong" />
           <span className="min-w-0 flex-1 truncate text-left">Unassigned</span>
-          {!selectedAssigneeId && <CheckCircle2 className="size-3.5 flex-shrink-0 text-[#6b7280]" strokeWidth={2.4} />}
+          {!selectedAssigneeId && <CheckCircle2 className="size-3.5 flex-shrink-0 text-tertiary" strokeWidth={2.4} />}
         </button>
         {filteredMembers.length ? (
           filteredMembers.map((member) => {
@@ -1239,12 +1239,12 @@ function InlineAssigneeEditor({
                   className="flex-shrink-0"
                 />
                 <span className="min-w-0 flex-1 truncate text-left">{member.display_name}</span>
-                {isSelected && <CheckCircle2 className="size-3.5 flex-shrink-0 text-[#6b7280]" strokeWidth={2.4} />}
+                {isSelected && <CheckCircle2 className="size-3.5 flex-shrink-0 text-tertiary" strokeWidth={2.4} />}
               </button>
             );
           })
         ) : (
-          <span className="block px-3 py-2 text-13 text-[#6b7280]">No members found</span>
+          <span className="block px-3 py-2 text-13 text-tertiary">No members found</span>
         )}
       </InlineDropdownMenu>
     </div>
@@ -1368,7 +1368,7 @@ function PaginationButton({
       type="button"
       disabled={isDisabled}
       onClick={onClick}
-      className="grid size-8 place-items-center rounded-lg border border-[#e5e7eb] bg-white text-[#374151] transition hover:bg-[#fbfbfa] disabled:cursor-not-allowed disabled:opacity-45"
+      className="grid size-8 place-items-center rounded-lg border border-strong bg-surface-1 text-secondary transition hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-45"
     >
       <Icon className="size-4" />
     </button>
