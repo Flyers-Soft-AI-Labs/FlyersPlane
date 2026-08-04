@@ -37,6 +37,7 @@ type Props = {
   projectId: string | undefined;
   issueId?: string;
   searchEpic?: boolean;
+  width?: EModalWidth;
 };
 
 // services
@@ -50,6 +51,7 @@ export function ParentIssuesListModal({
   projectId,
   issueId,
   searchEpic = false,
+  width = EModalWidth.XXL,
 }: Props) {
   // i18n
   const { t } = useTranslation();
@@ -92,7 +94,7 @@ export function ParentIssuesListModal({
   }, [debouncedSearchTerm, isOpen, issueId, projectId, workspaceSlug]);
 
   return (
-    <ModalCore isOpen={isOpen} handleClose={handleClose} position={EModalPosition.CENTER} width={EModalWidth.XXL}>
+    <ModalCore isOpen={isOpen} handleClose={handleClose} position={EModalPosition.CENTER} width={width}>
       <Combobox
         value={value}
         onChange={(val) => {

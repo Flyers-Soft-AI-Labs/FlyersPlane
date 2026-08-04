@@ -52,15 +52,15 @@ export const ActivityList = observer(function ActivityList(props: Props) {
                           alt={activityItem.actor_detail.display_name}
                           height={30}
                           width={30}
-                          className="bg-gray-500 grid h-7 w-7 place-items-center rounded-full border-2 border-white text-on-color"
+                          className="bg-accent-primary grid h-7 w-7 place-items-center rounded-full border-2 border-surface-1 text-on-color"
                         />
                       ) : (
-                        <div className="bg-gray-500 grid h-7 w-7 place-items-center rounded-full border-2 border-white text-on-color capitalize">
+                        <div className="bg-accent-primary grid h-7 w-7 place-items-center rounded-full border-2 border-surface-1 text-on-color capitalize">
                           {activityItem.actor_detail.display_name?.[0]}
                         </div>
                       )}
 
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-layer-1 text-secondary ring-6 ring-white">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-layer-1 text-secondary ring-6 ring-surface-1">
                         <MessageSquare className="h-6 w-6 !text-20 text-secondary" aria-hidden="true" />
                       </span>
                     </div>
@@ -134,7 +134,7 @@ export const ActivityList = observer(function ActivityList(props: Props) {
                                     className="h-full w-full rounded-full object-cover"
                                   />
                                 ) : (
-                                  <div className="bg-gray-700 grid h-6 w-6 place-items-center rounded-full border-2 border-white text-11 text-on-color capitalize">
+                                  <div className="bg-accent-primary grid h-6 w-6 place-items-center rounded-full border-2 border-surface-1 text-11 text-on-color capitalize">
                                     {activityItem.actor_detail.display_name?.[0]}
                                   </div>
                                 )}

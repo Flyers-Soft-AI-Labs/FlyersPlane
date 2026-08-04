@@ -129,7 +129,7 @@ function InvitationLineArt() {
   return (
     <svg
       aria-hidden="true"
-      className="h-32 w-40 text-[#6b7280]"
+      className="h-32 w-40 text-tertiary"
       fill="none"
       viewBox="0 0 180 140"
       xmlns="http://www.w3.org/2000/svg"
@@ -208,17 +208,17 @@ function UserInvitationsPage() {
 
   return (
     <AuthenticationWrapper>
-      <main className="min-h-screen w-full overflow-y-auto bg-white text-[#111827]">
+      <main className="min-h-screen w-full overflow-y-auto bg-surface-1 text-primary">
         <section className="mx-auto flex min-h-screen w-full max-w-[1520px] flex-col px-6 py-10 sm:px-10 lg:px-12">
-          <h1 className="text-2xl tracking-normal font-semibold text-[#111827]">Invitations</h1>
+          <h1 className="text-2xl tracking-normal font-semibold text-primary">Invitations</h1>
 
           {isInvitationsLoading ? (
             <div className="mt-14 w-full max-w-[1240px]">
               <div className="mb-7 space-y-2">
                 <div className="h-5 w-52 rounded bg-[#f0f1f2]" />
-                <div className="h-4 w-72 rounded bg-[#f5f5f4]" />
+                <div className="h-4 w-72 rounded bg-surface-3" />
               </div>
-              <div className="overflow-hidden rounded-lg border border-[#d8dee4] bg-white">
+              <div className="overflow-hidden rounded-lg border border-[#d8dee4] bg-surface-1">
                 {[0, 1, 2].map((item) => (
                   <div
                     key={item}
@@ -228,15 +228,15 @@ function UserInvitationsPage() {
                       <div className="h-12 w-12 rounded-lg bg-[#f1f2f3]" />
                       <div className="space-y-2">
                         <div className="h-4 w-44 rounded bg-[#f0f1f2]" />
-                        <div className="h-3 w-64 rounded bg-[#f5f5f4]" />
+                        <div className="h-3 w-64 rounded bg-surface-3" />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <div className="h-3 w-20 rounded bg-[#f5f5f4]" />
+                      <div className="h-3 w-20 rounded bg-surface-3" />
                       <div className="h-4 w-28 rounded bg-[#f0f1f2]" />
                     </div>
                     <div className="flex justify-end gap-4">
-                      <div className="h-10 w-28 rounded-lg bg-[#f5f5f4]" />
+                      <div className="h-10 w-28 rounded-lg bg-surface-3" />
                       <div className="h-10 w-28 rounded-lg bg-[#e5e7eb]" />
                     </div>
                   </div>
@@ -246,7 +246,7 @@ function UserInvitationsPage() {
           ) : invitations && invitations.length > 0 ? (
             <div className="mt-14 w-full max-w-[1240px]">
               <div className="mb-7">
-                <h2 className="text-lg tracking-normal font-semibold text-[#111827]">
+                <h2 className="text-lg tracking-normal font-semibold text-primary">
                   Pending invitations ({invitations.length})
                 </h2>
                 <p className="text-base font-normal mt-3 leading-6 text-[#5f6b7a]">
@@ -254,7 +254,7 @@ function UserInvitationsPage() {
                 </p>
               </div>
 
-              <div className="overflow-hidden rounded-lg border border-[#d8dee4] bg-white">
+              <div className="overflow-hidden rounded-lg border border-[#d8dee4] bg-surface-1">
                 {invitations.map((invitation) => {
                   const inviteDate = getInvitationDate(invitation);
                   const inviter = getInviterDetails(invitation);
@@ -271,7 +271,7 @@ function UserInvitationsPage() {
                       className="grid min-h-[96px] grid-cols-1 items-center gap-5 border-b border-[#eceff3] px-5 py-5 last:border-b-0 sm:px-7 lg:grid-cols-[minmax(0,1fr)_180px_260px] lg:gap-8"
                     >
                       <div className="flex min-w-0 items-center gap-5">
-                        <div className="text-base grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-lg border border-[#ebeef2] bg-[#f5f5f4] font-semibold text-[#111827]">
+                        <div className="text-base grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-lg border border-[#ebeef2] bg-surface-3 font-semibold text-primary">
                           {invitation.workspace.logo_url ? (
                             <img
                               src={getFileURL(invitation.workspace.logo_url)}
@@ -283,7 +283,7 @@ function UserInvitationsPage() {
                           )}
                         </div>
                         <div className="min-w-0">
-                          <h3 className="text-base truncate leading-5 font-semibold text-[#111827]">
+                          <h3 className="text-base truncate leading-5 font-semibold text-primary">
                             {invitation.workspace.name}
                           </h3>
                           {inviterLabel ? (
@@ -317,7 +317,7 @@ function UserInvitationsPage() {
                           type="button"
                           onClick={() => handleDeclineInvitation(invitation)}
                           disabled={Boolean(processingInvitation)}
-                          className="text-base inline-flex h-10 min-w-28 items-center justify-center rounded-lg border border-[#d8dee4] bg-white px-4 font-medium text-[#111827] shadow-none transition-colors hover:bg-[#f7f7f5] disabled:cursor-not-allowed disabled:opacity-60"
+                          className="text-base inline-flex h-10 min-w-28 items-center justify-center rounded-lg border border-[#d8dee4] bg-surface-1 px-4 font-medium text-primary shadow-none transition-colors hover:bg-[#f7f7f5] disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {isDeclining ? "Declining..." : "Decline"}
                         </button>
@@ -339,14 +339,14 @@ function UserInvitationsPage() {
             <div className="flex flex-1 items-center justify-center px-4 pt-20 pb-12">
               <div className="flex max-w-[460px] flex-col items-center text-center">
                 <InvitationLineArt />
-                <h2 className="text-xl tracking-normal mt-5 font-semibold text-[#111827]">No pending invites</h2>
+                <h2 className="text-xl tracking-normal mt-5 font-semibold text-primary">No pending invites</h2>
                 <p className="text-base mt-3 leading-6 text-[#5f6b7a]">
                   You&apos;ll see workspace invitations here when someone invites you.
                 </p>
                 <button
                   type="button"
                   onClick={() => router.push("/")}
-                  className="text-base mt-7 inline-flex h-11 items-center justify-center rounded-lg border border-[#d8dee4] bg-white px-5 font-medium text-[#111827] shadow-none transition-colors hover:bg-[#f7f7f5]"
+                  className="text-base mt-7 inline-flex h-11 items-center justify-center rounded-lg border border-[#d8dee4] bg-surface-1 px-5 font-medium text-primary shadow-none transition-colors hover:bg-[#f7f7f5]"
                 >
                   Back to home
                 </button>

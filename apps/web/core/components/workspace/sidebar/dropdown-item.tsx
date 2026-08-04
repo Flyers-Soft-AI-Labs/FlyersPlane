@@ -50,14 +50,14 @@ const SidebarDropdownItem = observer(function SidebarDropdownItem(props: TProps)
       <Menu.Item
         as="div"
         className={cn("flyers-soft-workspace-option rounded-xl px-3 py-2 transition-colors", {
-          "is-active bg-[#f1f1ef]": isActive,
-          "hover:bg-[#f5f5f4]": !isActive,
+          "is-active bg-layer-1-active": isActive,
+          "hover:bg-surface-3": !isActive,
         })}
       >
-        <div className="flex min-w-0 items-center justify-between gap-3 text-13 text-[#1f2937]">
+        <div className="flex min-w-0 items-center justify-between gap-3 text-13 text-primary">
           <div className="relative flex min-w-0 flex-1 items-center justify-start gap-3">
             <span
-              className={`flyers-soft-workspace-option-logo relative flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[#ebebeb] bg-[#f5f5f4] p-2 text-14 font-bold uppercase text-[#6b7280] ${
+              className={`flyers-soft-workspace-option-logo relative flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-subtle bg-surface-3 p-2 text-14 font-bold uppercase text-tertiary ${
                 !workspace?.logo_url && ""
               }`}
             >
@@ -73,19 +73,19 @@ const SidebarDropdownItem = observer(function SidebarDropdownItem(props: TProps)
             </span>
             <div className="min-w-0 flex-1">
               <div
-                className={`truncate text-left text-14 font-semibold text-ellipsis ${workspaceSlug === workspace.slug ? "text-[#111827]" : "text-[#374151]"}`}
+                className={`truncate text-left text-14 font-semibold text-ellipsis ${workspaceSlug === workspace.slug ? "text-primary" : "text-secondary"}`}
               >
                 {workspace.name}
               </div>
-              <div className="mt-0.5 flex min-w-0 items-center gap-2 text-12 text-[#6b7280] capitalize">
+              <div className="mt-0.5 flex min-w-0 items-center gap-2 text-12 text-tertiary capitalize">
                 <span>{getUserRole(workspace.role)?.toLowerCase() || "guest"}</span>
-                <div className="h-1 w-1 rounded-full bg-[#d1d5db]" />
+                <div className="h-1 w-1 rounded-full bg-accent-primary-hover" />
                 <span className="capitalize">{t("member", { count: workspace.total_members || 0 })}</span>
               </div>
             </div>
           </div>
           {isActive ? (
-            <span className="flyers-soft-workspace-check flex-shrink-0 rounded-full bg-[#f1f1ef] p-1 text-[#374151]">
+            <span className="flyers-soft-workspace-check flex-shrink-0 rounded-full bg-layer-1-active p-1 text-secondary">
               <CheckIcon className="h-4 w-4" />
             </span>
           ) : (
@@ -102,7 +102,7 @@ const SidebarDropdownItem = observer(function SidebarDropdownItem(props: TProps)
                     e.stopPropagation();
                     handleClose();
                   }}
-                  className="flyers-soft-workspace-action-button inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-lg border border-[#ebebeb] bg-white px-3 py-2 text-13 font-semibold text-[#374151] transition-colors hover:border-[#e5e7eb] hover:bg-[#f5f5f4]"
+                  className="flyers-soft-workspace-action-button inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-lg border border-subtle bg-surface-1 px-3 py-2 text-13 font-semibold text-secondary transition-colors hover:border-strong hover:bg-surface-3"
                 >
                   <Settings className="h-4 w-4 flex-shrink-0" />
                   <span className="whitespace-nowrap">{t("settings")}</span>
@@ -115,7 +115,7 @@ const SidebarDropdownItem = observer(function SidebarDropdownItem(props: TProps)
                     e.stopPropagation();
                     handleClose();
                   }}
-                  className="flyers-soft-workspace-action-button inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-lg border border-[#ebebeb] bg-white px-3 py-2 text-13 font-semibold text-[#374151] transition-colors hover:border-[#e5e7eb] hover:bg-[#f5f5f4]"
+                  className="flyers-soft-workspace-action-button inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-lg border border-subtle bg-surface-1 px-3 py-2 text-13 font-semibold text-secondary transition-colors hover:border-strong hover:bg-surface-3"
                 >
                   <UserPlus className="h-4 w-4 flex-shrink-0" />
                   <span className="whitespace-nowrap">

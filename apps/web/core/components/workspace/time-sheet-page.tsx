@@ -13,20 +13,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 import * as XLSX from "xlsx";
-import {
-  CalendarDays,
-  CheckCircle2,
-  Download,
-  ExternalLink,
-  Folder,
-  MoreHorizontal,
-  Plus,
-  Search,
-  SlidersHorizontal,
-  Upload,
-  User,
-  X,
-} from "lucide-react";
+import { Download, ExternalLink, MoreHorizontal, Plus, Search, Upload, X } from "lucide-react";
 // plane imports
 import { ALL_ISSUES } from "@plane/constants";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
@@ -42,15 +29,15 @@ import { useMember } from "@/hooks/store/use-member";
 import { useProject } from "@/hooks/store/use-project";
 import { useUser } from "@/hooks/store/user";
 
-type TTimeSheetStatus = "Draft" | "Submitted" | "Approved" | "Rejected";
-type TDateRangeFilter = "all" | "this-week" | "last-7-days" | "this-month";
+export type TTimeSheetStatus = "Draft" | "Submitted" | "Approved" | "Rejected";
+export type TDateRangeFilter = "all" | "this-week" | "last-7-days" | "this-month";
 
-type TProjectOption = {
+export type TProjectOption = {
   id: string;
   name: string;
 };
 
-type TEmployeeOption = {
+export type TEmployeeOption = {
   id: string;
   name: string;
 };
@@ -101,7 +88,7 @@ type TTimeSheetSelectOption = {
 
 type TAddEntryStep = "ticket" | "confirm";
 
-const STATUS_OPTIONS: TTimeSheetStatus[] = ["Draft", "Submitted", "Approved", "Rejected"];
+export const STATUS_OPTIONS: TTimeSheetStatus[] = ["Draft", "Submitted", "Approved", "Rejected"];
 
 const TIMESHEET_EXPORT_COLUMNS = ["Date", "Employee Name", "Project", "Task", "Ticket No", "Hours", "Status"] as const;
 
@@ -118,7 +105,7 @@ const IMPORT_COLUMN_ALIASES = {
   status: ["status"],
 } as const;
 
-const DATE_RANGE_OPTIONS: { value: TDateRangeFilter; label: string }[] = [
+export const DATE_RANGE_OPTIONS: { value: TDateRangeFilter; label: string }[] = [
   { value: "all", label: "Date range" },
   { value: "this-week", label: "This week" },
   { value: "last-7-days", label: "Last 7 days" },
@@ -126,18 +113,18 @@ const DATE_RANGE_OPTIONS: { value: TDateRangeFilter; label: string }[] = [
 ];
 
 const STATUS_PILL_STYLES: Record<TTimeSheetStatus, string> = {
-  Draft: "border-[#e5e7eb] bg-[#f5f5f4] text-[#374151] before:bg-[#6b7280]",
-  Submitted: "border-[#dbeafe] bg-[#eff6ff] text-[#1f2937] before:bg-[#2563eb]",
-  Approved: "border-[#dcfce7] bg-[#f0fdf4] text-[#1f2937] before:bg-[#16a34a]",
-  Rejected: "border-[#fee2e2] bg-[#fef2f2] text-[#1f2937] before:bg-[#dc2626]",
+  Draft: "border-subtle bg-surface-3 text-secondary before:bg-[#6b7280]",
+  Submitted: "border-[#dbeafe] bg-[#eff6ff] text-[#1e2939] before:bg-[#2563eb]",
+  Approved: "border-[#dcfce7] bg-[#f0fdf4] text-[#1e2939] before:bg-[#16a34a]",
+  Rejected: "border-[#fee2e2] bg-[#fef2f2] text-[#1e2939] before:bg-[#dc2626]",
 };
 
 const TIME_SHEET_SELECT_MENU_CLASS =
-  "z-[70] my-1 min-w-0 overflow-hidden rounded-[10px] border border-[#e5e7eb] bg-white p-1 text-13 shadow-[0_12px_28px_rgba(15,23,42,0.12)] focus:outline-none";
+  "z-[70] my-1 min-w-0 overflow-hidden rounded-[10px] border border-subtle bg-surface-1 p-1 text-13 shadow-[0_12px_28px_rgba(15,23,42,0.12)] focus:outline-none";
 
-const TIME_SHEET_SELECT_OPTION_CLASS = "h-9 rounded-md px-2 py-0 text-13 font-medium text-[#374151] hover:bg-[#f5f5f5]";
+const TIME_SHEET_SELECT_OPTION_CLASS = "h-9 rounded-md px-2 py-0 text-13 font-medium text-secondary hover:bg-surface-3";
 
-const EMPTY_FILTER_VALUE = "all";
+export const EMPTY_FILTER_VALUE = "all";
 const TIME_SHEET_STORAGE_KEY_PREFIX = "flyers-soft-timesheet-entries";
 
 const getTimeSheetStorageKey = (workspaceSlug: string | undefined) =>
@@ -518,7 +505,69 @@ async function importTimesheetFromExcel(file: File, context: TNormalizeTimesheet
   });
 }
 
-export const TimeSheetPage = observer(function TimeSheetPage() {
+/**
+ * Employee/project select options derived from the workspace member and project stores.
+ * Exposed on its own so the time sheet's filter row (rendered in the persistent AppHeader,
+ * separately from the table body) can build its dropdowns without needing entries/table
+ * state passed down from `TimeSheetPage`.
+ */
+export function useTimeSheetFilterOptions() {
+  const projectStore = useProject();
+  const memberStore = useMember();
+  const { data: currentUser } = useUser();
+
+  const currentUserName = currentUser ? getMemberName(currentUser) : "";
+
+  const employeeOptions = useMemo(() => {
+    const employeeMap = new Map<string, TEmployeeOption>();
+    const memberIds = memberStore.workspace.workspaceMemberIds ?? memberStore.getMemberIds();
+
+    memberIds.forEach((memberId) => {
+      const member = memberStore.getUserDetails(memberId);
+      if (member) employeeMap.set(member.id, { id: member.id, name: getMemberName(member) });
+    });
+
+    if (currentUser?.id && currentUserName) {
+      employeeMap.set(currentUser.id, { id: currentUser.id, name: currentUserName });
+    }
+
+    return orderBy([...employeeMap.values()], [(employee) => employee.name.toLowerCase()], ["asc"]);
+  }, [currentUser?.id, currentUserName, memberStore]);
+
+  const defaultEmployee = employeeOptions[0];
+  const currentEmployee = currentUser?.id
+    ? employeeOptions.find((employee) => employee.id === currentUser.id)
+    : undefined;
+
+  const projectOptions = useMemo(() => {
+    const projectIds = projectStore.workspaceProjectIds ?? projectStore.joinedProjectIds ?? [];
+
+    const projects = projectIds
+      .map((projectId) => projectStore.getProjectById(projectId))
+      .filter((project): project is NonNullable<ReturnType<typeof projectStore.getProjectById>> => !!project)
+      .map((project): TProjectOption => ({ id: project.id, name: project.name }));
+
+    return orderBy(projects, [(project) => project.name.toLowerCase()], ["asc"]);
+  }, [projectStore]);
+
+  return { employeeOptions, projectOptions, defaultEmployee, currentEmployee, currentUserName };
+}
+
+export interface TTimeSheetPageProps {
+  dateRange: TDateRangeFilter;
+  employeeFilter: string;
+  projectFilter: string;
+  statusFilter: TTimeSheetStatus | typeof EMPTY_FILTER_VALUE;
+  searchText: string;
+}
+
+export const TimeSheetPage = observer(function TimeSheetPage({
+  dateRange,
+  employeeFilter,
+  projectFilter,
+  statusFilter,
+  searchText,
+}: TTimeSheetPageProps) {
   const { workspaceSlug } = useParams();
   const workspaceSlugString = workspaceSlug?.toString();
   const timeSheetStorageKey = getTimeSheetStorageKey(workspaceSlugString);
@@ -538,11 +587,6 @@ export const TimeSheetPage = observer(function TimeSheetPage() {
   const [draft, setDraft] = useState<TEntryDraft>(() => createEmptyDraft(undefined));
   const [editingRowId, setEditingRowId] = useState<string | undefined>();
   const [activeActionId, setActiveActionId] = useState<string | undefined>();
-  const [dateRange, setDateRange] = useState<TDateRangeFilter>("all");
-  const [employeeFilter, setEmployeeFilter] = useState(EMPTY_FILTER_VALUE);
-  const [projectFilter, setProjectFilter] = useState(EMPTY_FILTER_VALUE);
-  const [statusFilter, setStatusFilter] = useState<TTimeSheetStatus | typeof EMPTY_FILTER_VALUE>(EMPTY_FILTER_VALUE);
-  const [searchText, setSearchText] = useState("");
   const importFileInputRef = useRef<HTMLInputElement | null>(null);
 
   useSWR(
@@ -839,34 +883,13 @@ export const TimeSheetPage = observer(function TimeSheetPage() {
     setActiveActionId(undefined);
   };
 
-  const clearFilters = () => {
-    setDateRange("all");
-    setEmployeeFilter(EMPTY_FILTER_VALUE);
-    setProjectFilter(EMPTY_FILTER_VALUE);
-    setStatusFilter(EMPTY_FILTER_VALUE);
-    setSearchText("");
-  };
-
-  const employeeFilterOptions = [
-    { value: EMPTY_FILTER_VALUE, label: "Employee" },
-    ...employeeOptions.map((employee) => ({ value: employee.id, label: employee.name })),
-  ];
-  const projectFilterOptions = [
-    { value: EMPTY_FILTER_VALUE, label: "Project" },
-    ...projectOptions.map((project) => ({ value: project.id, label: project.name })),
-  ];
-  const statusFilterOptions = [
-    { value: EMPTY_FILTER_VALUE, label: "Status" },
-    ...STATUS_OPTIONS.map((status) => ({ value: status, label: status })),
-  ];
-
   return (
-    <div className="min-h-full bg-white text-[#111827]">
+    <div className="min-h-full bg-surface-1 text-primary">
       <main className="mx-auto flex w-full max-w-[1440px] flex-col px-7 py-8">
         <section className="flex flex-wrap items-start justify-between gap-5">
           <div className="min-w-0">
-            <h1 className="tracking-normal truncate text-[30px] leading-9 font-semibold text-[#111827]">Time Sheet</h1>
-            <p className="mt-1 text-14 leading-5 text-[#4b5563]">Track daily work, projects, tickets, and hours</p>
+            <h1 className="tracking-normal truncate text-[30px] leading-9 font-semibold text-primary">Time Sheet</h1>
+            <p className="mt-1 text-14 leading-5 text-secondary">Track daily work, projects, tickets, and hours</p>
           </div>
 
           <div className="flex flex-wrap items-center justify-end gap-2">
@@ -892,58 +915,7 @@ export const TimeSheetPage = observer(function TimeSheetPage() {
           </div>
         </section>
 
-        <section className="mt-8 border-t border-[#e5e7eb] pt-5">
-          <div className="flex flex-wrap items-center gap-3">
-            <FilterSelect
-              ariaLabel="Date range"
-              icon={<CalendarDays className="size-4" strokeWidth={2} />}
-              value={dateRange}
-              options={DATE_RANGE_OPTIONS}
-              onChange={(value) => setDateRange(value as TDateRangeFilter)}
-            />
-            <FilterSelect
-              ariaLabel="Employee"
-              icon={<User className="size-4" strokeWidth={2} />}
-              value={employeeFilter}
-              options={employeeFilterOptions}
-              onChange={setEmployeeFilter}
-            />
-            <FilterSelect
-              ariaLabel="Project"
-              icon={<Folder className="size-4" strokeWidth={2} />}
-              value={projectFilter}
-              options={projectFilterOptions}
-              onChange={setProjectFilter}
-            />
-            <FilterSelect
-              ariaLabel="Status"
-              icon={<CheckCircle2 className="size-4" strokeWidth={2} />}
-              value={statusFilter}
-              options={statusFilterOptions}
-              onChange={(value) => setStatusFilter(value as TTimeSheetStatus | typeof EMPTY_FILTER_VALUE)}
-            />
-            <div className="flex h-10 min-w-[220px] flex-1 items-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-3 text-[#374151] transition focus-within:border-[#d1d5db]">
-              <Search className="size-4 flex-shrink-0" strokeWidth={2} />
-              <input
-                type="text"
-                value={searchText}
-                placeholder="Search entries..."
-                onChange={(event) => setSearchText(event.target.value)}
-                className="min-w-0 flex-1 bg-transparent text-13 font-medium text-[#111827] outline-none placeholder:text-[#6b7280]"
-              />
-            </div>
-            <button
-              type="button"
-              className="inline-flex h-10 items-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-4 text-13 font-semibold text-[#111827] transition hover:bg-[#fbfbfa]"
-              onClick={clearFilters}
-            >
-              <SlidersHorizontal className="size-4" strokeWidth={2} />
-              Filters
-            </button>
-          </div>
-        </section>
-
-        <section className="mt-5 overflow-hidden rounded-lg border border-[#e5e7eb] bg-white">
+        <section className="mt-5 overflow-hidden rounded-lg border border-subtle bg-surface-1">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1158px] table-fixed border-separate border-spacing-0 text-left">
               <colgroup>
@@ -957,13 +929,13 @@ export const TimeSheetPage = observer(function TimeSheetPage() {
                 <col className="w-[76px]" />
               </colgroup>
               <thead>
-                <tr className="h-12 border-b border-[#e5e7eb] bg-[#fbfbfa] text-12 font-semibold text-[#374151]">
+                <tr className="h-12 border-b border-subtle bg-canvas text-12 font-semibold text-secondary">
                   {["Date", "Employee Name", "Project", "Task", "Ticket No", "Hours", "Status", "Actions"].map(
                     (column) => (
                       <th
                         key={column}
                         className={cn(
-                          "border-b border-[#e5e7eb] px-4 font-semibold",
+                          "border-b border-subtle px-4 font-semibold",
                           column === "Date" && "whitespace-nowrap"
                         )}
                       >
@@ -976,7 +948,7 @@ export const TimeSheetPage = observer(function TimeSheetPage() {
               <tbody>
                 {filteredEntries.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="h-36 border-b border-[#e5e7eb] px-4 text-center text-13 text-[#6b7280]">
+                    <td colSpan={8} className="h-36 border-b border-subtle px-4 text-center text-13 text-tertiary">
                       No time entries match the current filters.
                     </td>
                   </tr>
@@ -1007,20 +979,20 @@ export const TimeSheetPage = observer(function TimeSheetPage() {
 
           <button
             type="button"
-            className="flex min-h-[52px] w-full items-center gap-2 border-b border-[#e5e7eb] px-4 text-left text-13 font-medium text-[#374151] transition hover:bg-[#fbfbfa] hover:text-[#111827]"
+            className="flex min-h-[52px] w-full items-center gap-2 border-b border-subtle px-4 text-left text-13 font-medium text-secondary transition hover:bg-canvas hover:text-primary"
             onClick={openAddEntryModal}
           >
             <Plus className="size-4" strokeWidth={2} />
             Add new entry
           </button>
 
-          <div className="flex min-h-[58px] flex-wrap items-center justify-between gap-3 px-4 text-13 text-[#374151]">
+          <div className="flex min-h-[58px] flex-wrap items-center justify-between gap-3 px-4 text-13 text-secondary">
             <span>
               Showing {filteredEntries.length} of {entries.length} entries
             </span>
             <div className="flex items-center gap-4">
-              <span className="font-medium text-[#374151]">Total Hours</span>
-              <span className="rounded-md bg-[#f5f5f4] px-4 py-2 font-semibold text-[#111827]">
+              <span className="font-medium text-secondary">Total Hours</span>
+              <span className="rounded-md bg-surface-3 px-4 py-2 font-semibold text-primary">
                 {totalHours.toFixed(2)} h
               </span>
             </div>
@@ -1114,8 +1086,8 @@ function TimeSheetRow({
   }, [isActionMenuOpen, onCloseActions]);
 
   return (
-    <tr className="group h-[60px] cursor-default text-13 text-[#111827] transition hover:bg-[#fbfbfa]" onClick={onEdit}>
-      <td className="border-b border-[#e5e7eb] px-4 whitespace-nowrap tabular-nums">
+    <tr className="group h-[60px] cursor-default text-13 text-primary transition hover:bg-canvas" onClick={onEdit}>
+      <td className="border-b border-subtle px-4 whitespace-nowrap tabular-nums">
         {isEditing ? (
           <InlineInput
             type="date"
@@ -1127,7 +1099,7 @@ function TimeSheetRow({
           getDisplayDate(entry.date)
         )}
       </td>
-      <td className="border-b border-[#e5e7eb] px-4">
+      <td className="border-b border-subtle px-4">
         {isEditing ? (
           <InlineSelect
             value={entry.employeeId}
@@ -1142,7 +1114,7 @@ function TimeSheetRow({
           <span className="line-clamp-2">{entry.employeeName || "Unassigned"}</span>
         )}
       </td>
-      <td className="border-b border-[#e5e7eb] px-4">
+      <td className="border-b border-subtle px-4">
         {isEditing ? (
           <InlineSelect
             value={entry.projectId}
@@ -1154,14 +1126,14 @@ function TimeSheetRow({
           <span className="line-clamp-2 font-medium">{entry.projectName || "-"}</span>
         )}
       </td>
-      <td className="border-b border-[#e5e7eb] px-4">
+      <td className="border-b border-subtle px-4">
         {isEditing ? (
           <InlineInput value={entry.task} onChange={(task) => onUpdate({ task })} ariaLabel="Task" />
         ) : (
           <span className="line-clamp-2 leading-5">{entry.task || "-"}</span>
         )}
       </td>
-      <td className="border-b border-[#e5e7eb] px-4">
+      <td className="border-b border-subtle px-4">
         {isEditing ? (
           <InlineSelect
             value={entry.ticketId}
@@ -1186,7 +1158,7 @@ function TimeSheetRow({
           <span className="font-medium">{entry.ticketNo || "-"}</span>
         )}
       </td>
-      <td className="border-b border-[#e5e7eb] px-4">
+      <td className="border-b border-subtle px-4">
         {isEditing ? (
           <InlineInput
             type="number"
@@ -1198,7 +1170,7 @@ function TimeSheetRow({
           entry.hours.toFixed(2)
         )}
       </td>
-      <td className="border-b border-[#e5e7eb] px-4">
+      <td className="border-b border-subtle px-4">
         {isEditing ? (
           <InlineSelect
             value={entry.status}
@@ -1210,10 +1182,10 @@ function TimeSheetRow({
           <StatusPill status={entry.status} />
         )}
       </td>
-      <td ref={actionCellRef} className="relative border-b border-[#e5e7eb] px-4">
+      <td ref={actionCellRef} className="relative border-b border-subtle px-4">
         <button
           type="button"
-          className="grid size-8 place-items-center rounded-md text-[#6b7280] transition hover:bg-[#f5f5f4] hover:text-[#374151] focus-visible:ring-2 focus-visible:ring-[#d1d5db] focus-visible:outline-none"
+          className="grid size-8 place-items-center rounded-md text-tertiary transition hover:bg-surface-3 hover:text-secondary focus-visible:ring-2 focus-visible:ring-[#d1d5db] focus-visible:outline-none"
           aria-label={`Actions for ${entry.task || entry.ticketNo || "time entry"}`}
           aria-expanded={isActionMenuOpen}
           aria-haspopup="menu"
@@ -1227,13 +1199,13 @@ function TimeSheetRow({
         {isActionMenuOpen && (
           <div
             role="menu"
-            className="absolute top-10 right-3 z-20 w-32 rounded-lg border border-[#e5e7eb] bg-white p-1 shadow-[0_12px_28px_rgba(15,23,42,0.12)]"
+            className="absolute top-10 right-3 z-20 w-32 rounded-lg border border-subtle bg-surface-1 p-1 shadow-[0_12px_28px_rgba(15,23,42,0.12)]"
             onMouseDown={(event) => event.stopPropagation()}
             onMouseLeave={onCloseActions}
           >
             <button
               type="button"
-              className="flex h-8 w-full items-center rounded-md px-2 text-left text-13 font-medium text-[#374151] hover:bg-[#f5f5f4]"
+              className="flex h-8 w-full items-center rounded-md px-2 text-left text-13 font-medium text-secondary hover:bg-surface-3"
               onClick={(event) => {
                 event.stopPropagation();
                 onEdit();
@@ -1244,7 +1216,7 @@ function TimeSheetRow({
             </button>
             <button
               type="button"
-              className="flex h-8 w-full items-center rounded-md px-2 text-left text-13 font-medium text-[#374151] hover:bg-[#f5f5f4]"
+              className="flex h-8 w-full items-center rounded-md px-2 text-left text-13 font-medium text-secondary hover:bg-surface-3"
               onClick={(event) => {
                 event.stopPropagation();
                 onDelete();
@@ -1401,12 +1373,12 @@ function TimeEntryModal({
               leaveFrom="translate-y-0 scale-100 opacity-100"
               leaveTo="translate-y-2 scale-95 opacity-0"
             >
-              <Dialog.Panel className="w-full max-w-[620px] transform overflow-hidden rounded-[10px] border border-[#e5e7eb] bg-white text-[#111827] shadow-[0_28px_80px_rgba(15,23,42,0.28)] transition-all">
-                <header className="flex h-14 items-center justify-between border-b border-[#e5e7eb] px-5">
+              <Dialog.Panel className="w-full max-w-[620px] transform overflow-hidden rounded-[10px] border border-subtle bg-surface-1 text-primary shadow-[0_28px_80px_rgba(15,23,42,0.28)] transition-all">
+                <header className="flex h-14 items-center justify-between border-b border-subtle px-5">
                   <Dialog.Title className="text-16 font-semibold">Add Time Entry</Dialog.Title>
                   <button
                     type="button"
-                    className="grid size-8 place-items-center rounded-md text-[#4b5563] transition hover:bg-[#f5f5f4] hover:text-[#111827]"
+                    className="grid size-8 place-items-center rounded-md text-secondary transition hover:bg-surface-3 hover:text-primary"
                     onClick={onClose}
                     aria-label="Close add time entry modal"
                   >
@@ -1421,7 +1393,7 @@ function TimeEntryModal({
                     <div className="mt-5">
                       <label htmlFor="timesheet-ticket-search" className="flex flex-col gap-1.5">
                         <span className="text-13 font-semibold">Ticket No</span>
-                        <span className="text-12 text-[#6b7280]">Search or select a ticket to auto-fill details</span>
+                        <span className="text-12 text-tertiary">Search or select a ticket to auto-fill details</span>
                       </label>
 
                       <Combobox
@@ -1431,8 +1403,8 @@ function TimeEntryModal({
                         }}
                       >
                         <div className="relative mt-3">
-                          <div className="flex h-11 items-center gap-2 rounded-lg border border-[#d1d5db] bg-white px-3 transition focus-within:border-[#111827]">
-                            <Search className="size-4 flex-shrink-0 text-[#6b7280]" strokeWidth={2} />
+                          <div className="flex h-11 items-center gap-2 rounded-lg border border-strong bg-surface-1 px-3 transition focus-within:border-accent-strong">
+                            <Search className="size-4 flex-shrink-0 text-tertiary" strokeWidth={2} />
                             <Combobox.Input
                               id="timesheet-ticket-search"
                               value={ticketQuery}
@@ -1440,7 +1412,7 @@ function TimeEntryModal({
                                 ticketQuery || ticketOption?.ticketNo || ""
                               }
                               placeholder="Select or type ticket number"
-                              className="min-w-0 flex-1 bg-transparent text-13 font-medium outline-none placeholder:text-[#6b7280]"
+                              className="min-w-0 flex-1 bg-transparent text-13 font-medium outline-none placeholder:text-tertiary"
                               onChange={(event) => {
                                 setTicketQuery(event.target.value);
                                 setTicketLookupError(undefined);
@@ -1456,7 +1428,7 @@ function TimeEntryModal({
 
                           <Combobox.Options
                             static
-                            className="mt-2 max-h-[264px] overflow-y-auto rounded-lg border border-[#e5e7eb] bg-white p-1 shadow-[0_18px_42px_rgba(15,23,42,0.12)] focus:outline-none"
+                            className="mt-2 max-h-[264px] overflow-y-auto rounded-lg border border-subtle bg-surface-1 p-1 shadow-[0_18px_42px_rgba(15,23,42,0.12)] focus:outline-none"
                           >
                             {visibleTicketOptions.map((ticketOption) => (
                               <Combobox.Option
@@ -1465,7 +1437,7 @@ function TimeEntryModal({
                                 className={({ active, selected }) =>
                                   cn(
                                     "flex cursor-pointer items-center justify-between gap-4 rounded-md border border-transparent px-3 py-2.5 text-left text-13 transition",
-                                    active && "bg-[#f5f5f4]",
+                                    active && "bg-surface-3",
                                     selected && "border-[#bfdbfe] bg-[#eff6ff] text-[#2563eb]"
                                   )
                                 }
@@ -1473,12 +1445,12 @@ function TimeEntryModal({
                                 <span className="min-w-[92px] flex-shrink-0 font-semibold">
                                   {ticketOption.ticketNo}
                                 </span>
-                                <span className="min-w-0 flex-1 truncate text-[#4b5563]">{ticketOption.task}</span>
+                                <span className="min-w-0 flex-1 truncate text-secondary">{ticketOption.task}</span>
                               </Combobox.Option>
                             ))}
 
                             {visibleTicketOptions.length === 0 && (
-                              <div className="px-3 py-2 text-13 text-[#6b7280]">
+                              <div className="px-3 py-2 text-13 text-tertiary">
                                 No loaded tickets match this search.
                               </div>
                             )}
@@ -1486,14 +1458,14 @@ function TimeEntryModal({
                             {ticketIdentifier && !exactTicketOption && (
                               <button
                                 type="button"
-                                className="mt-1 flex h-10 w-full items-center justify-between rounded-md border border-[#e5e7eb] px-3 text-left text-13 font-semibold text-[#111827] transition hover:bg-[#fbfbfa] disabled:cursor-wait disabled:text-[#6b7280]"
+                                className="mt-1 flex h-10 w-full items-center justify-between rounded-md border border-subtle px-3 text-left text-13 font-semibold text-primary transition hover:bg-canvas disabled:cursor-wait disabled:text-tertiary"
                                 disabled={isTicketLookupLoading}
                                 onClick={() => void lookupTicket(ticketQuery)}
                               >
                                 <span>
                                   {isTicketLookupLoading ? "Searching ticket..." : `Find ${ticketQuery.trim()}`}
                                 </span>
-                                <span className="text-12 font-medium text-[#6b7280]">Existing ticket</span>
+                                <span className="text-12 font-medium text-tertiary">Existing ticket</span>
                               </button>
                             )}
                           </Combobox.Options>
@@ -1508,7 +1480,7 @@ function TimeEntryModal({
                     </div>
                   ) : (
                     <>
-                      <div className="mt-5 rounded-lg border border-[#e5e7eb] bg-white p-4">
+                      <div className="mt-5 rounded-lg border border-subtle bg-surface-1 p-4">
                         <h3 className="text-13 font-semibold">Ticket Details</h3>
                         <div className="mt-4 grid gap-x-6 gap-y-4 sm:grid-cols-2">
                           <TimeEntryDetail label="Ticket No">{draft.ticketNo || "-"}</TimeEntryDetail>
@@ -1525,7 +1497,7 @@ function TimeEntryModal({
                               value={draft.hours}
                               step="0.25"
                               min="0"
-                              className="h-10 w-full rounded-lg border border-[#d1d5db] bg-white px-3 text-13 font-medium transition outline-none focus:border-[#111827]"
+                              className="h-10 w-full rounded-lg border border-strong bg-surface-1 px-3 text-13 font-medium transition outline-none focus:border-accent-strong"
                               onChange={(event) => updateDraft({ hours: event.target.value })}
                             />
                           </ModalField>
@@ -1534,22 +1506,22 @@ function TimeEntryModal({
                               rows={2}
                               value={draft.notes}
                               placeholder="Add a note..."
-                              className="min-h-10 w-full resize-none rounded-lg border border-[#d1d5db] bg-white px-3 py-2.5 text-13 font-medium transition outline-none placeholder:text-[#6b7280] focus:border-[#111827]"
+                              className="min-h-10 w-full resize-none rounded-lg border border-strong bg-surface-1 px-3 py-2.5 text-13 font-medium transition outline-none placeholder:text-tertiary focus:border-accent-strong"
                               onChange={(event) => updateDraft({ notes: event.target.value })}
                             />
                           </ModalField>
                         </div>
                       </div>
-                      <p className="mt-3 text-12 text-[#6b7280]">Details auto-filled from the selected ticket.</p>
+                      <p className="mt-3 text-12 text-tertiary">Details auto-filled from the selected ticket.</p>
                     </>
                   )}
                 </div>
 
                 {step === "confirm" && (
-                  <footer className="flex items-center justify-between border-t border-[#e5e7eb] px-5 py-4">
+                  <footer className="flex items-center justify-between border-t border-subtle px-5 py-4">
                     <button
                       type="button"
-                      className="inline-flex h-10 items-center justify-center rounded-lg border border-[#e5e7eb] bg-white px-4 text-13 font-semibold text-[#111827] transition hover:bg-[#fbfbfa]"
+                      className="inline-flex h-10 items-center justify-center rounded-lg border border-subtle bg-surface-1 px-4 text-13 font-semibold text-primary transition hover:bg-canvas"
                       onClick={() => setStep("ticket")}
                     >
                       Back
@@ -1557,7 +1529,7 @@ function TimeEntryModal({
                     <button
                       type="button"
                       disabled={!canSave}
-                      className="inline-flex h-10 items-center justify-center rounded-lg border border-[#2563eb] bg-[#2563eb] px-5 text-13 font-semibold text-white transition hover:border-[#1d4ed8] hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:border-[#d1d5db] disabled:bg-[#d1d5db]"
+                      className="inline-flex h-10 items-center justify-center rounded-lg border border-[#2563eb] bg-[#2563eb] px-5 text-13 font-semibold text-white transition hover:border-[#1d4ed8] hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:border-strong disabled:bg-[#d1d5db]"
                       onClick={onSave}
                     >
                       Add Entry
@@ -1580,12 +1552,12 @@ function TimeEntryStepper({ step }: { step: TAddEntryStep }) {
         <span
           className={cn(
             "grid size-8 place-items-center rounded-full border text-13 font-semibold",
-            step === "ticket" ? "border-[#2563eb] bg-[#2563eb] text-white" : "border-[#d1d5db] bg-white text-[#111827]"
+            step === "ticket" ? "border-[#2563eb] bg-[#2563eb] text-white" : "border-strong bg-surface-1 text-primary"
           )}
         >
           1
         </span>
-        <span className="text-12 font-medium text-[#374151]">Select Ticket</span>
+        <span className="text-12 font-medium text-secondary">Select Ticket</span>
       </li>
       <li aria-hidden="true" className="mt-4 h-px w-24 bg-[#e5e7eb] sm:w-48" />
       <li className="flex flex-col items-center gap-2 text-center">
@@ -1594,12 +1566,12 @@ function TimeEntryStepper({ step }: { step: TAddEntryStep }) {
             "grid size-8 place-items-center rounded-full border text-13 font-semibold",
             step === "confirm"
               ? "border-[#2563eb] bg-[#2563eb] text-white"
-              : "border-[#e5e7eb] bg-[#f5f5f4] text-[#6b7280]"
+              : "border-subtle bg-surface-3 text-tertiary"
           )}
         >
           2
         </span>
-        <span className="text-12 font-medium text-[#374151]">Confirm Details</span>
+        <span className="text-12 font-medium text-secondary">Confirm Details</span>
       </li>
     </ol>
   );
@@ -1608,8 +1580,8 @@ function TimeEntryStepper({ step }: { step: TAddEntryStep }) {
 function TimeEntryDetail({ children, label }: { children: ReactNode; label: string }) {
   return (
     <div className="min-w-0">
-      <p className="text-12 font-medium text-[#4b5563]">{label}</p>
-      <div className="mt-1 min-h-6 min-w-0 text-13 font-medium text-[#111827]">{children}</div>
+      <p className="text-12 font-medium text-secondary">{label}</p>
+      <div className="mt-1 min-h-6 min-w-0 text-13 font-medium text-primary">{children}</div>
     </div>
   );
 }
@@ -1617,7 +1589,7 @@ function TimeEntryDetail({ children, label }: { children: ReactNode; label: stri
 function ModalField({ children, label }: { children: ReactNode; label: string }) {
   return (
     <label className="flex min-w-0 flex-col gap-1.5">
-      <span className="text-12 font-medium text-[#4b5563]">{label}</span>
+      <span className="text-12 font-medium text-secondary">{label}</span>
       {children}
     </label>
   );
@@ -1650,8 +1622,8 @@ function TimeSheetSelect({
       value={value}
       label={
         <span className="flex min-w-0 items-center gap-2">
-          {icon && <span className="flex-shrink-0 text-[#374151]">{icon}</span>}
-          <span className={cn("truncate", !value && placeholder && "text-[#6b7280]")}>
+          {icon && <span className="flex-shrink-0 text-secondary">{icon}</span>}
+          <span className={cn("truncate", !value && placeholder && "text-tertiary")}>
             {selectedOption?.label ?? placeholder ?? ""}
           </span>
         </span>
@@ -1669,14 +1641,14 @@ function TimeSheetSelect({
           value={option.value}
           className={TIME_SHEET_SELECT_OPTION_CLASS}
         >
-          <span className={cn("truncate", !option.value && placeholder && "text-[#6b7280]")}>{option.label}</span>
+          <span className={cn("truncate", !option.value && placeholder && "text-tertiary")}>{option.label}</span>
         </CustomSelect.Option>
       ))}
     </CustomSelect>
   );
 }
 
-function FilterSelect({
+export function FilterSelect({
   ariaLabel,
   icon,
   onChange,
@@ -1697,7 +1669,7 @@ function FilterSelect({
         options={options}
         onChange={onChange}
         className="h-10 min-w-[150px]"
-        buttonClassName="h-10 min-w-[150px] rounded-lg border border-[#e5e7eb] bg-white px-3 py-0 text-13 font-semibold text-[#111827] shadow-none transition hover:bg-[#fbfbfa] focus:border-[#d1d5db] focus:outline-none focus:ring-0"
+        buttonClassName="h-10 min-w-[150px] rounded-lg border border-subtle bg-surface-1 px-3 py-0 text-13 font-semibold text-primary shadow-none transition hover:bg-canvas focus:border-strong focus:outline-none focus:ring-0"
         menuWidthClassName="w-[150px] min-w-[150px]"
       />
     </div>
@@ -1719,8 +1691,8 @@ function TimeSheetButton({
       className={cn(
         "inline-flex h-10 items-center gap-2 rounded-lg border px-4 text-13 font-semibold transition",
         variant === "primary"
-          ? "border-[#111827] bg-[#111827] text-white hover:bg-[#374151]"
-          : "border-[#e5e7eb] bg-white text-[#111827] hover:bg-[#fbfbfa]"
+          ? "border-accent-strong bg-[#111827] text-white hover:bg-[#374151]"
+          : "border-subtle bg-surface-1 text-primary hover:bg-canvas"
       )}
       onClick={onClick}
     >
@@ -1760,7 +1732,7 @@ function InlineInput({
       value={value}
       step={type === "number" ? "0.25" : undefined}
       min={type === "number" ? "0" : undefined}
-      className="h-8 w-full rounded-md border border-[#e5e7eb] bg-white px-2 text-13 font-medium text-[#111827] outline-none focus:border-[#d1d5db]"
+      className="h-8 w-full rounded-md border border-subtle bg-surface-1 px-2 text-13 font-medium text-primary outline-none focus:border-strong"
       onChange={(event) => onChange(event.target.value)}
       onClick={(event) => event.stopPropagation()}
     />
@@ -1788,7 +1760,7 @@ function InlineSelect({
         placeholder={placeholder}
         onChange={onChange}
         className="w-full"
-        buttonClassName="h-8 w-full rounded-md border border-[#e5e7eb] bg-white px-2 py-0 text-13 font-medium text-[#111827] shadow-none transition hover:bg-[#fbfbfa] focus:border-[#d1d5db] focus:outline-none focus:ring-0"
+        buttonClassName="h-8 w-full rounded-md border border-subtle bg-surface-1 px-2 py-0 text-13 font-medium text-primary shadow-none transition hover:bg-canvas focus:border-strong focus:outline-none focus:ring-0"
         menuWidthClassName="w-[180px] min-w-[180px]"
       />
     </div>
