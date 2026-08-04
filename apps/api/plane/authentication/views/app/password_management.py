@@ -48,7 +48,7 @@ class ForgotPasswordEndpoint(APIView):
     throttle_classes = [AuthenticationThrottle]
 
     def post(self, request):
-        email = request.data.get("email")
+        email = request.data.get("email", "").strip().lower()
 
         # Check instance configuration
         instance = Instance.objects.first()
