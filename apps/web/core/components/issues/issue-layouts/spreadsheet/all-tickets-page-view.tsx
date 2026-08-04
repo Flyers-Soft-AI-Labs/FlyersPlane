@@ -302,20 +302,6 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
     else if (canLoadMoreIssues) loadMoreIssues();
   };
 
-  const handleLayoutChange = () => {
-    if (!workspaceSlugString) return;
-
-    updateFilters(
-      workspaceSlugString,
-      undefined,
-      EIssueFilterType.DISPLAY_FILTERS,
-      {
-        layout: EIssueLayoutTypes.SPREADSHEET,
-      },
-      "all-issues"
-    );
-  };
-
   const handleDisplayFiltersUpdate = (updatedDisplayFilter: Partial<IIssueDisplayFilterOptions>) => {
     if (!workspaceSlugString) return;
 
@@ -348,7 +334,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
             <button
               type="button"
               onClick={() => toggleCreateIssueModal(true)}
-              className="flex h-10 items-center gap-2 whitespace-nowrap rounded-lg bg-[#111827] px-3.5 text-13 font-medium text-white transition hover:bg-[#374151]"
+              className="flex h-10 items-center gap-2 whitespace-nowrap rounded-lg border border-accent-strong bg-accent-primary px-3.5 text-13 font-medium text-on-color transition hover:bg-accent-primary/80"
             >
               <Plus className="size-4" strokeWidth={2} />
               Create Ticket
@@ -385,17 +371,6 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
           </div>
 
           <div className="flex flex-wrap items-center justify-end gap-2">
-            <button
-              type="button"
-              title="View settings"
-              aria-label="View settings"
-              aria-pressed="true"
-              className="grid size-10 place-items-center rounded-lg border border-strong bg-surface-1 text-secondary transition hover:bg-canvas"
-              onClick={handleLayoutChange}
-            >
-              <SlidersHorizontal className="size-4" strokeWidth={2} />
-            </button>
-
             <ToolbarFilterDropdown
               active={hasToolbarFilters || activeFilter !== "all"}
               icon={Filter}

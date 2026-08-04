@@ -4,8 +4,9 @@
  * See the LICENSE file for details.
  */
 
-import type { ReactNode } from "react";
-import { useMemo, useState } from "react";
+import type { CSSProperties, MutableRefObject, ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ArrowUpDown, CalendarDays, Check, Copy, Filter, MoreHorizontal, Plus, Tag, Trash2 } from "lucide-react";
 import { cn } from "@plane/utils";
 
@@ -77,6 +78,8 @@ export function ToDoListPage() {
   const [activeTagMenuId, setActiveTagMenuId] = useState<string | undefined>();
   const [statusFilter, setStatusFilter] = useState<TStatusFilter>("all");
   const [sortMode, setSortMode] = useState<TSortMode>("manual");
+  const tagMenuTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const actionMenuTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   const visibleItems = useMemo(() => {
     let nextItems = [...items];
@@ -276,7 +279,7 @@ export function ToDoListPage() {
           </div>
 
           <section className="overflow-x-auto overflow-y-hidden rounded-[10px] border border-strong bg-surface-1">
-            <div className="grid min-h-10 min-w-[920px] grid-cols-[44px_minmax(260px,1.7fr)_150px_130px_130px_minmax(160px,1fr)_48px] items-center border-b border-strong bg-canvas text-[12px] font-medium text-tertiary">
+            <div className="grid min-h-10 min-w-[950px] grid-cols-[44px_minmax(260px,1.7fr)_150px_130px_160px_minmax(160px,1fr)_48px] items-center border-b border-strong bg-canvas text-[12px] font-medium text-tertiary">
               <div />
               <div className="px-3">Task name</div>
               <div className="px-3">Status</div>
@@ -289,14 +292,14 @@ export function ToDoListPage() {
             {visibleItems.map((item) => (
               <div
                 key={item.id}
-                className="grid min-h-[52px] min-w-[920px] grid-cols-[44px_minmax(260px,1.7fr)_150px_130px_130px_minmax(160px,1fr)_48px] items-center border-b border-strong text-[13px] text-secondary transition-colors last:border-b-0 hover:bg-canvas"
+                className="grid min-h-[52px] min-w-[950px] grid-cols-[44px_minmax(260px,1.7fr)_150px_130px_160px_minmax(160px,1fr)_48px] items-center border-b border-strong text-[13px] text-secondary transition-colors last:border-b-0 hover:bg-canvas"
               >
                 <div className="flex justify-center">
                   <button
                     type="button"
                     className={cn(
-                      "grid h-4 w-4 place-items-center rounded border border-[#d1d5db] bg-surface-1 text-white",
-                      item.status === "Done" && "border-[#111827] bg-[#111827]"
+                      "grid h-4 w-4 place-items-center rounded border border-strong bg-surface-1 text-on-color",
+                      item.status === "Done" && "border-accent-strong bg-accent-primary"
                     )}
                     aria-label={item.status === "Done" ? "Mark task as not done" : "Mark task as done"}
                     onClick={() => toggleTask(item.id)}
@@ -354,7 +357,7 @@ export function ToDoListPage() {
                   <CalendarDays className="h-3.5 w-3.5 flex-shrink-0" strokeWidth={1.8} />
                   <input
                     type="date"
-                    className="h-8 min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-1 text-[13px] text-tertiary outline-none transition-colors hover:border-strong focus:border-strong focus:bg-surface-1"
+                    className="h-8 min-w-[110px] flex-1 rounded-md border border-transparent bg-transparent px-1 text-[13px] text-tertiary outline-none transition-colors hover:border-strong focus:border-strong focus:bg-surface-1"
                     value={item.dueDate}
                     onChange={(event) => updateTask(item.id, { dueDate: event.target.value })}
                     aria-label="Due date"
@@ -377,19 +380,33 @@ export function ToDoListPage() {
                   <button
                     type="button"
                     className="inline-flex h-6 items-center rounded-full border border-strong bg-surface-1 px-2 text-[12px] font-medium text-tertiary transition-colors hover:bg-surface-3 hover:text-secondary"
-                    onClick={() => setActiveTagMenuId(activeTagMenuId === item.id ? undefined : item.id)}
+                    onClick={(event) => {
+                      tagMenuTriggerRef.current = event.currentTarget;
+                      setActiveTagMenuId(activeTagMenuId === item.id ? undefined : item.id);
+                    }}
                   >
                     <Plus className="h-3 w-3" strokeWidth={2} />
                   </button>
-                  {activeTagMenuId === item.id && (
-                    <div className="absolute top-7 left-3 z-20 w-36 rounded-lg border border-strong bg-surface-1 p-1">
-                      {TAG_OPTIONS.map((tag) => (
-                        <MenuButton key={tag} active={item.tags.includes(tag)} onClick={() => toggleTag(item, tag)}>
-                          {tag}
-                        </MenuButton>
-                      ))}
-                    </div>
-                  )}
+                  <RowMenu
+                    align="left"
+                    isOpen={activeTagMenuId === item.id}
+                    onClose={() => setActiveTagMenuId(undefined)}
+                    triggerRef={tagMenuTriggerRef}
+                    width={144}
+                  >
+                    {TAG_OPTIONS.map((tag) => (
+                      <MenuButton
+                        key={tag}
+                        active={item.tags.includes(tag)}
+                        onClick={() => {
+                          toggleTag(item, tag);
+                          setActiveTagMenuId(undefined);
+                        }}
+                      >
+                        {tag}
+                      </MenuButton>
+                    ))}
+                  </RowMenu>
                 </div>
 
                 <div className="relative flex justify-center">
@@ -397,33 +414,52 @@ export function ToDoListPage() {
                     type="button"
                     className="grid h-8 w-8 place-items-center rounded-md text-tertiary transition-colors hover:bg-surface-3 hover:text-primary"
                     aria-label={`Actions for ${item.name}`}
-                    onClick={() => setActiveActionId(activeActionId === item.id ? undefined : item.id)}
+                    onClick={(event) => {
+                      actionMenuTriggerRef.current = event.currentTarget;
+                      setActiveActionId(activeActionId === item.id ? undefined : item.id);
+                    }}
                   >
                     <MoreHorizontal className="h-4 w-4" strokeWidth={1.8} />
                   </button>
-                  {activeActionId === item.id && (
-                    <div className="absolute top-8 right-2 z-20 w-40 rounded-lg border border-strong bg-surface-1 p-1">
-                      <MenuButton onClick={() => toggleTask(item.id)}>
-                        {item.status === "Done" ? "Mark To Do" : "Mark Done"}
-                      </MenuButton>
-                      <MenuButton onClick={() => duplicateTask(item)}>
-                        <Copy className="h-3.5 w-3.5" strokeWidth={1.8} />
-                        Duplicate
-                      </MenuButton>
-                      <MenuButton onClick={() => updateTask(item.id, { dueDate: "" })}>Clear due date</MenuButton>
-                      <MenuButton tone="danger" onClick={() => deleteTask(item.id)}>
-                        <Trash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
-                        Delete
-                      </MenuButton>
-                    </div>
-                  )}
+                  <RowMenu
+                    align="right"
+                    isOpen={activeActionId === item.id}
+                    onClose={() => setActiveActionId(undefined)}
+                    triggerRef={actionMenuTriggerRef}
+                    width={160}
+                  >
+                    <MenuButton
+                      onClick={() => {
+                        toggleTask(item.id);
+                        setActiveActionId(undefined);
+                      }}
+                    >
+                      {item.status === "Done" ? "Mark To Do" : "Mark Done"}
+                    </MenuButton>
+                    <MenuButton onClick={() => duplicateTask(item)}>
+                      <Copy className="h-3.5 w-3.5" strokeWidth={1.8} />
+                      Duplicate
+                    </MenuButton>
+                    <MenuButton
+                      onClick={() => {
+                        updateTask(item.id, { dueDate: "" });
+                        setActiveActionId(undefined);
+                      }}
+                    >
+                      Clear due date
+                    </MenuButton>
+                    <MenuButton tone="danger" onClick={() => deleteTask(item.id)}>
+                      <Trash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
+                      Delete
+                    </MenuButton>
+                  </RowMenu>
                 </div>
               </div>
             ))}
 
             <button
               type="button"
-              className="flex min-h-[52px] min-w-[920px] items-center gap-2 px-3 text-left text-[13px] font-medium text-tertiary transition-colors hover:bg-canvas hover:text-primary"
+              className="flex min-h-[52px] min-w-[950px] items-center gap-2 px-3 text-left text-[13px] font-medium text-tertiary transition-colors hover:bg-canvas hover:text-primary"
               onClick={addTask}
             >
               <Plus className="h-4 w-4" strokeWidth={2} />
@@ -432,6 +468,93 @@ export function ToDoListPage() {
           </section>
       </div>
     </div>
+  );
+}
+
+function RowMenu({
+  align = "left",
+  children,
+  isOpen,
+  onClose,
+  triggerRef,
+  width = 160,
+}: {
+  align?: "left" | "right";
+  children: ReactNode;
+  isOpen: boolean;
+  onClose: () => void;
+  triggerRef: MutableRefObject<HTMLButtonElement | null>;
+  width?: number;
+}) {
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const [panelStyle, setPanelStyle] = useState<CSSProperties>({});
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (!triggerRef.current?.contains(target) && !panelRef.current?.contains(target)) onClose();
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose, triggerRef]);
+
+  useEffect(() => {
+    if (!isOpen || !triggerRef.current) return;
+
+    const updatePosition = () => {
+      const triggerRect = triggerRef.current?.getBoundingClientRect();
+      if (!triggerRect) return;
+
+      const margin = 12;
+      const gap = 6;
+      const panelHeight = panelRef.current?.offsetHeight ?? 200;
+      const spaceBelow = window.innerHeight - triggerRect.bottom;
+      const openUpward = spaceBelow < panelHeight + margin && triggerRect.top > panelHeight + margin;
+
+      const left =
+        align === "right"
+          ? Math.min(Math.max(margin, triggerRect.right - width), window.innerWidth - width - margin)
+          : Math.min(Math.max(margin, triggerRect.left), window.innerWidth - width - margin);
+      const top = openUpward
+        ? Math.max(margin, triggerRect.top - panelHeight - gap)
+        : Math.min(triggerRect.bottom + gap, window.innerHeight - panelHeight - margin);
+
+      setPanelStyle({ position: "fixed", left, top, width, zIndex: 50 });
+    };
+
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [align, isOpen, triggerRef, width]);
+
+  if (!isOpen || typeof document === "undefined") return null;
+
+  return createPortal(
+    <div
+      ref={panelRef}
+      className="rounded-lg border border-strong bg-surface-1 p-1 shadow-lg"
+      style={panelStyle}
+      onClick={(event) => event.stopPropagation()}
+    >
+      {children}
+    </div>,
+    document.body
   );
 }
 
@@ -504,7 +627,7 @@ function TodoActionButton({
       className={cn(
         "inline-flex h-10 items-center gap-2 rounded-lg border px-3 text-[13px] font-medium transition-colors",
         variant === "primary"
-          ? "border-[#111827] bg-[#111827] text-white hover:bg-[#374151]"
+          ? "border-accent-strong bg-accent-primary text-on-color hover:bg-accent-primary/80"
           : "border-strong bg-surface-1 text-secondary hover:bg-surface-3"
       )}
       onClick={onClick}

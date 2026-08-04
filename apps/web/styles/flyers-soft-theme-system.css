@@ -1588,6 +1588,38 @@ select:focus-visible,
   box-shadow: 0 0 0 2px #f1f1ef;
 }
 
+[data-theme*="dark"] .flyers-soft-inline-menu-panel {
+  border: 1px solid var(--fs-border-strong);
+  background: var(--fs-popover-bg);
+  color: var(--fs-text-primary);
+  box-shadow: var(--fs-popover-shadow);
+}
+
+[data-theme*="dark"] .flyers-soft-inline-menu-option {
+  color: var(--fs-text-secondary);
+}
+
+[data-theme*="dark"] .flyers-soft-inline-menu-option:hover,
+[data-theme*="dark"] .flyers-soft-inline-menu-option[data-selected="true"] {
+  background: var(--fs-surface-3);
+  color: var(--fs-text-primary);
+}
+
+[data-theme*="dark"] .flyers-soft-inline-menu-search {
+  border: 1px solid var(--fs-border-strong);
+  background: var(--fs-input-bg);
+  color: var(--fs-text-primary);
+}
+
+[data-theme*="dark"] .flyers-soft-inline-menu-search::placeholder {
+  color: var(--fs-text-tertiary);
+}
+
+[data-theme*="dark"] .flyers-soft-inline-menu-search:focus {
+  border-color: var(--fs-border-strong);
+  box-shadow: 0 0 0 2px var(--fs-accent-softer);
+}
+
 .flyers-soft-all-issues-view-body .flyers-soft-status-pill,
 .flyers-soft-all-issues-view-body .flyers-soft-priority-pill,
 .flyers-soft-all-issues-view-body .flyers-soft-assignee-pill {
