@@ -17,12 +17,15 @@ export type TOnboardingTourProps = {
   onComplete: () => void;
 };
 
+const SLIDE_FADE_DURATION_MS = 140;
 const TOTAL_SLIDES = TOUR_STEPS.length + 1;
 
 export const TourRoot = observer(function TourRoot(props: TOnboardingTourProps) {
   const { onComplete } = props;
   // states
   const [step, setStep] = useState<"welcome" | TTourStepKey>("welcome");
+  const [renderedStep, setRenderedStep] = useState<"welcome" | TTourStepKey>("welcome");
+  const [isSlideVisible, setIsSlideVisible] = useState(true);
   // store hooks
   const { toggleCreateProjectModal } = useCommandPalette();
   const { data: currentUser } = useUser();
@@ -30,15 +33,34 @@ export const TourRoot = observer(function TourRoot(props: TOnboardingTourProps) 
   const primaryActionRef = useRef<HTMLButtonElement>(null);
 
   const currentIndex = TOUR_STEPS.findIndex((tourStep) => tourStep.key === step);
-  const currentStep = currentIndex >= 0 ? TOUR_STEPS[currentIndex] : undefined;
+  const renderedIndex = TOUR_STEPS.findIndex((tourStep) => tourStep.key === renderedStep);
+  const renderedCurrentStep = renderedIndex >= 0 ? TOUR_STEPS[renderedIndex] : undefined;
   const slideNumber = step === "welcome" ? 1 : currentIndex + 2;
   const progressPercent = Math.round((slideNumber / TOTAL_SLIDES) * 100);
   const isFirstTourStep = currentIndex === 0;
   const isLastTourStep = currentIndex === TOUR_STEPS.length - 1;
+  const slideTransitionClassName = cn(
+    "flyers-tour-slide-transition",
+    isSlideVisible ? "flyers-tour-slide-transition-visible" : "flyers-tour-slide-transition-hidden"
+  );
 
   useEffect(() => {
-    primaryActionRef.current?.focus();
-  }, [step]);
+    if (step === renderedStep) {
+      const animationFrame = window.requestAnimationFrame(() => setIsSlideVisible(true));
+      return () => window.cancelAnimationFrame(animationFrame);
+    }
+
+    setIsSlideVisible(false);
+    const transitionTimeout = window.setTimeout(() => {
+      setRenderedStep(step);
+    }, SLIDE_FADE_DURATION_MS);
+
+    return () => window.clearTimeout(transitionTimeout);
+  }, [renderedStep, step]);
+
+  useEffect(() => {
+    if (isSlideVisible) primaryActionRef.current?.focus();
+  }, [isSlideVisible, renderedStep]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -74,7 +96,7 @@ export const TourRoot = observer(function TourRoot(props: TOnboardingTourProps) 
       aria-modal="true"
       aria-label="FlyersPlane product tour"
       className={cn(
-        "flyers-tour-card relative flex max-h-[90vh] w-[92%] flex-col overflow-hidden rounded-2xl border border-subtle bg-surface-1 shadow-2xl transition-all duration-300",
+        "flyers-tour-card shadow-2xl relative flex max-h-[90vh] w-[92%] flex-col overflow-hidden rounded-2xl border border-subtle bg-surface-1 transition-all duration-300",
         step === "welcome" ? "sm:w-[26rem] md:w-[28rem]" : "sm:w-[85%] lg:w-[64rem]"
       )}
     >
@@ -95,13 +117,13 @@ export const TourRoot = observer(function TourRoot(props: TOnboardingTourProps) 
         type="button"
         onClick={onComplete}
         aria-label="Close product tour"
-        className="absolute top-4 right-4 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-subtle bg-surface-1/90 text-secondary transition-colors hover:bg-surface-3 hover:text-primary"
+        className="hover:bg-surface-3 absolute top-4 right-4 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-subtle bg-surface-1/90 text-secondary transition-colors hover:text-primary"
       >
         <X className="h-3.5 w-3.5" strokeWidth={2} />
       </button>
 
-      {step === "welcome" ? (
-        <div key="welcome" className="flyers-tour-slide-enter flex flex-col overflow-y-auto">
+      {renderedStep === "welcome" ? (
+        <div key="welcome" className={cn(slideTransitionClassName, "flex flex-col overflow-y-auto")}>
           <div className="flyers-tour-hero grid h-56 place-items-center">
             <FlyersLogo className="h-12 max-w-44 object-contain" />
           </div>
@@ -130,23 +152,26 @@ export const TourRoot = observer(function TourRoot(props: TOnboardingTourProps) 
           </div>
         </div>
       ) : (
-        currentStep && (
+        renderedCurrentStep && (
           <div className="flex min-h-0 flex-1">
             <TourStepRail steps={TOUR_STEPS} currentIndex={currentIndex} onSelect={goToStep} />
-            <div key={currentStep.key} className="flyers-tour-slide-enter flex min-h-0 flex-1 flex-col overflow-y-auto">
-              <div className="flyers-tour-screenshot-area relative h-56 shrink-0 overflow-hidden sm:h-72 lg:h-96">
+            <div
+              key={renderedCurrentStep.key}
+              className={cn(slideTransitionClassName, "flex min-h-0 flex-1 flex-col overflow-y-auto")}
+            >
+              <div className="flyers-tour-screenshot-area relative shrink-0 overflow-hidden">
                 <TourScreenshot
-                  src={currentStep.screenshot}
-                  alt={`${currentStep.title} in FlyersPlane`}
-                  Icon={currentStep.Icon}
+                  src={renderedCurrentStep.screenshot}
+                  alt={`${renderedCurrentStep.title} in FlyersPlane`}
+                  Icon={renderedCurrentStep.Icon}
                 />
               </div>
               <div className="flex flex-1 flex-col p-6">
                 <span className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-[#8b5cf6]/10 text-[#7c3aed]">
-                  <currentStep.Icon className="h-4.5 w-4.5" strokeWidth={2} aria-hidden="true" />
+                  <renderedCurrentStep.Icon className="h-4.5 w-4.5" strokeWidth={2} aria-hidden="true" />
                 </span>
-                <h3 className="text-18 font-semibold text-primary">{currentStep.title}</h3>
-                <p className="mt-2 text-13 text-secondary">{currentStep.description}</p>
+                <h3 className="text-18 font-semibold text-primary">{renderedCurrentStep.title}</h3>
+                <p className="mt-2 text-13 text-secondary">{renderedCurrentStep.description}</p>
 
                 <div className="mt-6 flex items-center gap-1.5 lg:hidden" aria-hidden="true">
                   {TOUR_STEPS.map((tourStep, index) => (
@@ -183,7 +208,7 @@ export const TourRoot = observer(function TourRoot(props: TOnboardingTourProps) 
                     )}
                     {isLastTourStep && (
                       <Button ref={primaryActionRef} variant="primary" onClick={handleFinish}>
-                        {currentStep.buttonLabel ?? "Create Your First Project"}
+                        {renderedCurrentStep.buttonLabel ?? "Create Your First Project"}
                       </Button>
                     )}
                   </div>

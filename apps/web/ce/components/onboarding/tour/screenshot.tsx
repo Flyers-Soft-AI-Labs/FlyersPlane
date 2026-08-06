@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 
 type Props = {
@@ -15,6 +15,10 @@ type Props = {
 export function TourScreenshot({ src, alt, Icon }: Props) {
   const [failed, setFailed] = useState(false);
 
+  useEffect(() => {
+    setFailed(false);
+  }, [src]);
+
   if (failed) {
     return (
       <div className="flyers-tour-screenshot-fallback flex h-full w-full items-center justify-center">
@@ -27,7 +31,7 @@ export function TourScreenshot({ src, alt, Icon }: Props) {
     <img
       src={src}
       alt={alt}
-      className="h-full w-full object-cover object-top"
+      className="h-full w-full object-contain object-top"
       loading="lazy"
       onError={() => setFailed(true)}
     />
