@@ -5,7 +5,6 @@
  */
 
 import { Dialog, Transition } from "@headlessui/react";
-import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
   ChevronDown,
@@ -27,8 +26,9 @@ import {
 import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState, type ElementType } from "react";
 // plane imports
+import { DraftIcon } from "@plane/propel/icons";
 import { cn, orderWorkspacesList } from "@plane/utils";
 // components
 import { SidebarNavItem } from "@/components/sidebar/sidebar-navigation";
@@ -39,7 +39,7 @@ import { useWorkspace } from "@/hooks/store/use-workspace";
 type TFlyersSidebarItem = {
   key: string;
   label: string;
-  icon: LucideIcon;
+  icon: ElementType;
   isActive: boolean;
   href?: string;
   onClick?: () => void;
@@ -125,6 +125,13 @@ export const SidebarMenuItems = observer(function SidebarMenuItems() {
         pathname?.startsWith(`${workspaceRoot}/projects`) &&
         !pathname?.includes("/issues") &&
         !pathname?.startsWith(`${workspaceRoot}/projects/archives`),
+    },
+    {
+      key: "drafts",
+      label: "Drafts",
+      href: `${workspaceRoot}/drafts`,
+      icon: DraftIcon,
+      isActive: pathname?.startsWith(`${workspaceRoot}/drafts`),
     },
     {
       key: "tasks",
