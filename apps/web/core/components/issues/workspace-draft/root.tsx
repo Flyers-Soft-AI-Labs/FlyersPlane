@@ -21,13 +21,34 @@ import { useUserPermissions } from "@/hooks/store/user";
 import { useWorkspaceDraftIssues } from "@/hooks/store/workspace-draft";
 import { useWorkspaceIssueProperties } from "@/hooks/use-workspace-issue-properties";
 // components
-import { DraftIssueBlock } from "./draft-issue-block";
+import { DRAFT_TICKET_COL_TEMPLATE, DraftIssueBlock } from "./draft-issue-block";
 import { WorkspaceDraftEmptyState } from "./empty-state";
 import { WorkspaceDraftIssuesLoader } from "./loader";
 
 type TWorkspaceDraftIssuesRoot = {
   workspaceSlug: string;
 };
+
+// Column headers matching the Tickets table's column set/styling (all-tickets-page-view.tsx's
+// TicketTableHeader) - Ticket / Status / Priority / Assignee / Due date, plus an unlabeled
+// "Move to Tickets" column and an unlabeled actions column, using the same
+// DRAFT_TICKET_COL_TEMPLATE grid as each DraftIssueBlock row so header and row cells line up.
+function DraftTicketTableHeader() {
+  return (
+    <div
+      className="flyers-soft-all-issues-table-header sticky top-0 z-[2] grid h-[52px] items-center border-b border-strong px-4 text-13 font-medium text-secondary"
+      style={{ gridTemplateColumns: DRAFT_TICKET_COL_TEMPLATE }}
+    >
+      <div>Ticket</div>
+      <div>Status</div>
+      <div>Priority</div>
+      <div>Assignee</div>
+      <div>Due date</div>
+      <div />
+      <div />
+    </div>
+  );
+}
 
 export const WorkspaceDraftIssuesRoot = observer(function WorkspaceDraftIssuesRoot(props: TWorkspaceDraftIssuesRoot) {
   const { workspaceSlug } = props;
@@ -87,30 +108,38 @@ export const WorkspaceDraftIssuesRoot = observer(function WorkspaceDraftIssuesRo
   if (issueIds.length <= 0) return <WorkspaceDraftEmptyState />;
 
   return (
-    <div className="relative">
-      <div className="relative">
-        {issueIds.map((issueId: string) => (
-          <DraftIssueBlock key={issueId} workspaceSlug={workspaceSlug} issueId={issueId} />
-        ))}
-      </div>
+    <div className="flyers-soft-all-issues-view-body relative px-6 py-6">
+      <div className="flyers-soft-all-issues-table-card relative overflow-visible rounded-[10px] border border-strong bg-surface-1">
+        <div className="overflow-x-auto">
+          <div className="min-w-[900px]">
+            <DraftTicketTableHeader />
 
-      {paginationInfo?.next_page_results && (
-        <Fragment>
-          {loader === "pagination" && issueIds.length >= 0 ? (
-            <WorkspaceDraftIssuesLoader items={1} />
-          ) : (
-            <div
-              className={cn("h-11 border-b border-subtle bg-surface-1 p-3 pl-6 text-13 font-medium transition-all", {
-                "cursor-pointer text-accent-primary underline-offset-2 hover:text-accent-secondary hover:underline":
-                  paginationInfo?.next_page_results,
-              })}
-              onClick={handleNextIssues}
-            >
-              Load More &darr;
+            <div className="relative">
+              {issueIds.map((issueId: string) => (
+                <DraftIssueBlock key={issueId} workspaceSlug={workspaceSlug} issueId={issueId} />
+              ))}
             </div>
-          )}
-        </Fragment>
-      )}
+          </div>
+        </div>
+
+        {paginationInfo?.next_page_results && (
+          <Fragment>
+            {loader === "pagination" && issueIds.length >= 0 ? (
+              <WorkspaceDraftIssuesLoader items={1} />
+            ) : (
+              <div
+                className={cn("h-11 border-b border-subtle bg-surface-1 p-3 pl-6 text-13 font-medium transition-all", {
+                  "cursor-pointer text-accent-primary underline-offset-2 hover:text-accent-secondary hover:underline":
+                    paginationInfo?.next_page_results,
+                })}
+                onClick={handleNextIssues}
+              >
+                Load More &darr;
+              </div>
+            )}
+          </Fragment>
+        )}
+      </div>
     </div>
   );
 });

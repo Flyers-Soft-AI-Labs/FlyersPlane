@@ -340,6 +340,25 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
     )
       return;
 
+    // TEMPORARY debug logging - remove once date persistence from this modal is confirmed fixed.
+    // Confirms whether the DateDropdown -> Controller.field.onChange chain is actually reaching
+    // react-hook-form's tracked state for this specific modal instance, and whether dirtyFields
+    // is (or isn't) flagging start_date/target_date by the time we get here.
+    if (data?.id) {
+      console.log("[draft-edit-modal] submit debug", {
+        issueId: data.id,
+        "data.start_date (original)": data.start_date,
+        "data.target_date (original)": data.target_date,
+        "formData.start_date (handleSubmit payload)": formData.start_date,
+        "formData.target_date (handleSubmit payload)": formData.target_date,
+        "getValues start_date (live)": getValues<"start_date">("start_date"),
+        "getValues target_date (live)": getValues<"target_date">("target_date"),
+        "dirtyFields.start_date": dirtyFields.start_date,
+        "dirtyFields.target_date": dirtyFields.target_date,
+        isDirty,
+      });
+    }
+
     const submitData = !data?.id
       ? formData
       : {
@@ -348,6 +367,14 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
           id: data.id,
           description_html: formData.description_html ?? "<p></p>",
           type_id: getValues<"type_id">("type_id"),
+          // start_date/target_date go through DateDropdown -> Controller.field.onChange like every
+          // other field, but on this edit path react-hook-form's dirtyFields doesn't reliably end up
+          // flagging them, so getChangedIssuefields() silently drops date edits. Read them straight
+          // off the live form state instead - the same unconditional getValues() pattern already
+          // used (and confirmed working) for project_id/type_id above - rather than trusting
+          // dirtyFields bookkeeping for these two fields.
+          start_date: getValues<"start_date">("start_date"),
+          target_date: getValues<"target_date">("target_date"),
         };
 
     // this condition helps to move the issues from draft to project issues
@@ -914,52 +941,80 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
             onSubmit={handleSubmit((data) => handleFormSubmit(data))}
             className="flyers-soft-ticket-modal flex w-full flex-col"
           >
-            {/* ── Context bar: project + type + template selectors ── */}
-            <div className="flyers-soft-ticket-modal-context flex items-center justify-between gap-x-1 border-b border-subtle px-4 py-2.5">
-              <div className="flex items-center gap-x-1">
-                <IssueProjectSelect
-                  control={control}
-                  disabled={!!data?.id || !!data?.sourceIssueId || isProjectSelectionDisabled}
-                  handleFormChange={handleFormChange}
-                />
-                {projectId && (
-                  <IssueTypeSelect
-                    control={control}
-                    projectId={projectId}
-                    editorRef={editorRef}
-                    disabled={!!data?.sourceIssueId}
-                    handleFormChange={handleFormChange}
-                    renderChevron
-                  />
-                )}
-                {projectId && !data?.id && !data?.sourceIssueId && (
-                  <WorkItemTemplateSelect
-                    projectId={projectId}
-                    typeId={watch("type_id")}
-                    handleModalClose={() => {
-                      if (handleDraftAndClose) {
-                        handleDraftAndClose();
-                      } else {
-                        onClose();
-                      }
-                    }}
-                    handleFormChange={handleFormChange}
-                    renderChevron
-                  />
-                )}
+            {/*
+              ── Header: icon + title + close, matching the Create Ticket branch's
+              flyers-soft-create-ticket-modal-header. The type select (and the
+              create-only template select) that used to live in a bare, floating
+              flyers-soft-ticket-modal-context bar now sit inside this header row,
+              properly aligned next to the close button. Project itself moved out
+              of this header entirely and into the properties grid below as a real
+              labeled field, next to Priority/Assignee/etc.
+            ── */}
+            <div className="flyers-soft-create-ticket-modal-header">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flyers-soft-create-ticket-icon" aria-hidden="true">
+                  <Ticket className="h-5 w-5" />
+                </span>
+                <div className="min-w-0">
+                  <h2>{moveToIssue ? "Move to project" : modalTitle}</h2>
+                  <p>
+                    {moveToIssue
+                      ? "Review the details before moving this draft into the project."
+                      : data?.id
+                        ? "Update the details of this work item."
+                        : "Add the details of the issue or request."}
+                  </p>
+                </div>
               </div>
-              {duplicateIssues.length > 0 && (
-                <DeDupeButtonRoot
-                  workspaceSlug={workspaceSlug?.toString()}
-                  isDuplicateModalOpen={isDuplicateModalOpen}
-                  label={
-                    duplicateIssues.length === 1
-                      ? `${duplicateIssues.length} ${t("duplicate_issue_found")}`
-                      : `${duplicateIssues.length} ${t("duplicate_issues_found")}`
-                  }
-                  handleOnClick={() => handleDuplicateIssueModal(!isDuplicateModalOpen)}
-                />
-              )}
+              <div className="flex flex-shrink-0 items-center gap-2">
+                <div className="flyers-soft-ticket-modal-context !min-h-0 flex items-center gap-x-1 !bg-transparent">
+                  {projectId && (
+                    <IssueTypeSelect
+                      control={control}
+                      projectId={projectId}
+                      editorRef={editorRef}
+                      disabled={!!data?.sourceIssueId}
+                      handleFormChange={handleFormChange}
+                      renderChevron
+                    />
+                  )}
+                  {projectId && !data?.id && !data?.sourceIssueId && (
+                    <WorkItemTemplateSelect
+                      projectId={projectId}
+                      typeId={watch("type_id")}
+                      handleModalClose={() => {
+                        if (handleDraftAndClose) {
+                          handleDraftAndClose();
+                        } else {
+                          onClose();
+                        }
+                      }}
+                      handleFormChange={handleFormChange}
+                      renderChevron
+                    />
+                  )}
+                </div>
+                {duplicateIssues.length > 0 && (
+                  <DeDupeButtonRoot
+                    workspaceSlug={workspaceSlug?.toString()}
+                    isDuplicateModalOpen={isDuplicateModalOpen}
+                    label={
+                      duplicateIssues.length === 1
+                        ? `${duplicateIssues.length} ${t("duplicate_issue_found")}`
+                        : `${duplicateIssues.length} ${t("duplicate_issues_found")}`
+                    }
+                    handleOnClick={() => handleDuplicateIssueModal(!isDuplicateModalOpen)}
+                  />
+                )}
+                <button
+                  type="button"
+                  className="flyers-soft-create-ticket-close"
+                  aria-label="Close"
+                  onClick={handleSafeClose}
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             </div>
 
             {/* ── Parent tag (conditional) ── */}
@@ -974,67 +1029,103 @@ export const IssueFormRoot = observer(function IssueFormRoot(props: IssueFormPro
               </div>
             )}
 
-            {/* ── Title input ── */}
-            <div className="flyers-soft-ticket-modal-title px-5 pt-4 pb-1">
-              <IssueTitleInput
-                control={control}
-                issueTitleRef={issueTitleRef}
-                formState={formState}
-                handleFormChange={handleFormChange}
-              />
-            </div>
+            {/*
+              flyers-soft-create-ticket-modal here is scoping only: it makes the field-control
+              pill/dropdown styling below match Create Ticket. The modal-shell box styles that
+              class also carries (border/shadow/max-height) are neutralized by the
+              ".flyers-soft-ticket-modal .flyers-soft-create-ticket-modal" override in
+              flyers-soft-theme.css, so the existing context bar / footer chrome is untouched.
+            */}
+            <div className="flyers-soft-create-ticket-modal">
+              {/* ── Title input ── */}
+              <div className="flyers-soft-ticket-modal-title px-5 pt-4 pb-1">
+                <div className="flyers-soft-ticket-modal-field flyers-soft-ticket-title-field">
+                  <span className="flyers-soft-ticket-modal-field-label">
+                    Title <span aria-hidden="true">*</span>
+                  </span>
+                  <div className="flyers-soft-ticket-modal-field-control">
+                    <IssueTitleInput
+                      control={control}
+                      issueTitleRef={issueTitleRef}
+                      formState={formState}
+                      handleFormChange={handleFormChange}
+                    />
+                  </div>
+                </div>
+              </div>
 
-            {/* ── Description + additional properties ── */}
-            <div
-              className={cn(
-                "flyers-soft-ticket-modal-desc px-5 pb-3",
-                activeAdditionalPropertiesLength > 4 &&
-                  "vertical-scrollbar scrollbar-sm max-h-[30vh] overflow-hidden overflow-y-auto"
-              )}
-            >
-              <IssueDescriptionEditor
-                control={control}
-                isDraft={isDraft}
-                issueName={watch("name")}
-                issueId={data?.id}
-                descriptionHtmlData={data?.description_html}
-                editorRef={editorRef}
-                submitBtnRef={submitBtnRef}
-                gptAssistantModal={gptAssistantModal}
-                workspaceSlug={workspaceSlug?.toString()}
-                projectId={projectId}
-                handleFormChange={handleFormChange}
-                handleDescriptionHTMLDataChange={(description_html) =>
-                  setValue<"description_html">("description_html", description_html)
-                }
-                setGptAssistantModal={setGptAssistantModal}
-                handleGptAssistantClose={() => reset(getValues())}
-                onAssetUpload={onAssetUpload}
-                onClose={onClose}
-              />
-              <WorkItemModalAdditionalProperties
-                isDraft={isDraft}
-                workItemId={data?.id ?? data?.sourceIssueId}
-                projectId={projectId}
-                workspaceSlug={workspaceSlug?.toString()}
-              />
-            </div>
+              {/* ── Description + additional properties ── */}
+              <div
+                className={cn(
+                  "flyers-soft-ticket-modal-desc px-5 pb-3",
+                  activeAdditionalPropertiesLength > 4 &&
+                    "vertical-scrollbar scrollbar-sm max-h-[30vh] overflow-hidden overflow-y-auto"
+                )}
+              >
+                <div className="flyers-soft-create-ticket-description-block">
+                  <span className="flyers-soft-ticket-modal-field-label">Description</span>
+                  <IssueDescriptionEditor
+                    control={control}
+                    isDraft={isDraft}
+                    issueName={watch("name")}
+                    issueId={data?.id}
+                    descriptionHtmlData={data?.description_html}
+                    editorRef={editorRef}
+                    submitBtnRef={submitBtnRef}
+                    gptAssistantModal={gptAssistantModal}
+                    workspaceSlug={workspaceSlug?.toString()}
+                    projectId={projectId}
+                    handleFormChange={handleFormChange}
+                    handleDescriptionHTMLDataChange={(description_html) =>
+                      setValue<"description_html">("description_html", description_html)
+                    }
+                    setGptAssistantModal={setGptAssistantModal}
+                    handleGptAssistantClose={() => reset(getValues())}
+                    onAssetUpload={onAssetUpload}
+                    onClose={onClose}
+                  />
+                </div>
+                <WorkItemModalAdditionalProperties
+                  isDraft={isDraft}
+                  workItemId={data?.id ?? data?.sourceIssueId}
+                  projectId={projectId}
+                  workspaceSlug={workspaceSlug?.toString()}
+                />
+              </div>
 
-            {/* ── Inline metadata row: Status | Assignee | Priority | Labels etc. ── */}
-            <div className="flyers-soft-ticket-modal-meta border-t border-subtle px-4 py-2.5">
-              <IssueDefaultProperties
-                control={control}
-                id={data?.id}
-                projectId={projectId}
-                workspaceSlug={workspaceSlug?.toString()}
-                selectedParentIssue={selectedParentIssue}
-                startDate={watch("start_date")}
-                targetDate={watch("target_date")}
-                parentId={watch("parent_id")}
-                isDraft={isDraft}
-                handleFormChange={handleFormChange}
-                setSelectedParentIssue={setSelectedParentIssue}
-              />
+              {/* ── Properties grid: Project | Status | Priority | Assignee | Labels | Due date | Start date etc. ── */}
+              <div className="flyers-soft-create-ticket-fields-grid border-t border-subtle px-5 py-4">
+                <div className="flyers-soft-ticket-modal-field flyers-soft-ticket-field-project">
+                  <span className="flyers-soft-ticket-modal-field-label">Project</span>
+                  <div className="flyers-soft-ticket-modal-field-control">
+                    <IssueProjectSelect
+                      control={control}
+                      buttonClassName="flyers-soft-field-button"
+                      buttonContainerClassName="flyers-soft-field-trigger"
+                      disabled={!!data?.id || !!data?.sourceIssueId || isProjectSelectionDisabled}
+                      dropdownArrow
+                      dropdownArrowClassName="flyers-soft-field-caret"
+                      emptyIcon={<Users className="flyers-soft-field-icon flyers-soft-field-icon-project" />}
+                      handleFormChange={handleFormChange}
+                      placeholder="Select project"
+                    />
+                  </div>
+                </div>
+                <IssueDefaultProperties
+                  control={control}
+                  id={data?.id}
+                  projectId={projectId}
+                  workspaceSlug={workspaceSlug?.toString()}
+                  selectedParentIssue={selectedParentIssue}
+                  startDate={watch("start_date")}
+                  targetDate={watch("target_date")}
+                  parentId={watch("parent_id")}
+                  isDraft={isDraft}
+                  handleFormChange={handleFormChange}
+                  setSelectedParentIssue={setSelectedParentIssue}
+                  layout="grid"
+                />
+              </div>
             </div>
 
             {/* ── Footer: create-more toggle + Cancel + Save ── */}
