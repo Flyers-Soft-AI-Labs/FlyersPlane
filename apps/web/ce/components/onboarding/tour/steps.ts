@@ -51,7 +51,7 @@ export const TOUR_STEPS: TTourStep[] = [
   },
   {
     key: "templates",
-    label: "Templates",
+    label: "To Do List",
     title: "Reusable Templates",
     description: "Create and reuse ticket templates to save time and maintain consistency.",
     Icon: FileText,
