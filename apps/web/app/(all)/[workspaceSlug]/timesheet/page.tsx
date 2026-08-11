@@ -7,7 +7,6 @@
 import { useState } from "react";
 import { observer } from "mobx-react";
 // components
-import { AppHeader } from "@/components/core/app-header";
 import { ContentWrapper } from "@/components/core/content-wrapper";
 import { PageHead } from "@/components/core/page-title";
 import {
@@ -18,8 +17,6 @@ import {
 } from "@/components/workspace/time-sheet-page";
 // hooks
 import { useWorkspace } from "@/hooks/store/use-workspace";
-// local components
-import { TimeSheetFilterHeader } from "./header";
 
 function WorkspaceTimeSheetPage() {
   const { currentWorkspace } = useWorkspace();
@@ -40,35 +37,22 @@ function WorkspaceTimeSheetPage() {
   };
 
   return (
-    <>
-      <AppHeader
-        header={
-          <TimeSheetFilterHeader
-            dateRange={dateRange}
-            onDateRangeChange={setDateRange}
-            employeeFilter={employeeFilter}
-            onEmployeeFilterChange={setEmployeeFilter}
-            projectFilter={projectFilter}
-            onProjectFilterChange={setProjectFilter}
-            statusFilter={statusFilter}
-            onStatusFilterChange={setStatusFilter}
-            searchText={searchText}
-            onSearchTextChange={setSearchText}
-            onClearFilters={clearFilters}
-          />
-        }
+    <ContentWrapper>
+      <PageHead title={pageTitle} />
+      <TimeSheetPage
+        dateRange={dateRange}
+        onDateRangeChange={setDateRange}
+        employeeFilter={employeeFilter}
+        onEmployeeFilterChange={setEmployeeFilter}
+        projectFilter={projectFilter}
+        onProjectFilterChange={setProjectFilter}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+        searchText={searchText}
+        onSearchTextChange={setSearchText}
+        onClearFilters={clearFilters}
       />
-      <ContentWrapper>
-        <PageHead title={pageTitle} />
-        <TimeSheetPage
-          dateRange={dateRange}
-          employeeFilter={employeeFilter}
-          projectFilter={projectFilter}
-          statusFilter={statusFilter}
-          searchText={searchText}
-        />
-      </ContentWrapper>
-    </>
+    </ContentWrapper>
   );
 }
 

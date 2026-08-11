@@ -95,6 +95,11 @@ export const MemberListFiltersDropdown = observer(function MemberListFiltersDrop
   const { appliedFilters, handleUpdate, memberType } = props;
 
   const appliedFiltersCount = appliedFilters?.length ?? 0;
+  // This dropdown lives inside SettingsContentWrapper's outer @container + overflow-hidden
+  // shell, which becomes the containing block for CustomMenu's position:fixed popover and
+  // clips it. Portal to document.body to escape that ancestor, same fix already used for the
+  // sidebar's header-variant user menu (user-menu-root.tsx's profileMenuPortalElement).
+  const menuPortalElement = typeof document === "undefined" ? null : document.body;
 
   return (
     <CustomMenu
@@ -107,6 +112,7 @@ export const MemberListFiltersDropdown = observer(function MemberListFiltersDrop
       }
       customButtonClassName="flyers-soft-member-filter-button flex h-8 items-center gap-2 rounded border border-subtle bg-surface-1 px-3 text-12 font-medium text-secondary outline-none hover:bg-surface-2"
       placement="bottom-start"
+      portalElement={menuPortalElement}
     >
       <MemberListFilters appliedFilters={appliedFilters} handleUpdate={handleUpdate} memberType={memberType} />
     </CustomMenu>

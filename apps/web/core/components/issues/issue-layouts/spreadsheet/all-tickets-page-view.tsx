@@ -30,6 +30,7 @@ import { calculateTimeAgoShort, cn, generateWorkItemLink } from "@plane/utils";
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
+import { useLabel } from "@/hooks/store/use-label";
 import { useMember } from "@/hooks/store/use-member";
 import { useProject } from "@/hooks/store/use-project";
 import { useProjectState } from "@/hooks/store/use-project-state";
@@ -58,7 +59,7 @@ const UNASSIGNED_FILTER_VALUE = "__unassigned__";
 
 type FilterTab = "all" | "mine" | "unassigned" | "starred";
 type InlineMenuState = { issueId: string; field: InlineMenuField } | null;
-type ToolbarMenuField = "filter" | "status" | "priority" | "assignee";
+type ToolbarMenuField = "label" | "status" | "priority" | "assignee";
 type TicketPriority = NonNullable<TIssue["priority"]>;
 type AssigneeFilter = string | typeof UNASSIGNED_FILTER_VALUE | null;
 
@@ -85,6 +86,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [priorityFilter, setPriorityFilter] = useState<TicketPriority | null>(null);
   const [assigneeFilter, setAssigneeFilter] = useState<AssigneeFilter>(null);
+  const [labelFilter, setLabelFilter] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [starredIds, setStarredIds] = useState<Set<string>>(new Set());
   const [activeToolbarMenu, setActiveToolbarMenu] = useState<ToolbarMenuField | null>(null);
@@ -102,6 +104,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
   } = useIssues(EIssuesStoreType.GLOBAL);
   const { getStateById } = useProjectState();
   const { getProjectById, getProjectIdentifierById } = useProject();
+  const { getLabelById } = useLabel();
   const memberStore = useMember();
   const { data: currentUser } = useUser();
   const { toggleCreateIssueModal } = useCommandPalette();
@@ -137,6 +140,22 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
       .sort((a, b) => a.display_name.localeCompare(b.display_name));
   }, [issueIds, issueMap, memberStore]);
 
+  // Real, distinct filter criteria - not already covered by the Status/Priority/Assignee
+  // dropdowns next to it or by the "All/Mine/Unassigned/Starred" tab row below.
+  const labelOptions = useMemo(() => {
+    const labelIds = new Set<string>();
+
+    for (const id of issueIds) {
+      const issue = issueMap[id];
+      issue?.label_ids?.forEach((labelId) => labelIds.add(labelId));
+    }
+
+    return [...labelIds]
+      .map((labelId) => getLabelById(labelId))
+      .filter((label): label is NonNullable<typeof label> => !!label)
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [getLabelById, issueIds, issueMap]);
+
   const selectedStatus = statusFilter ? statusOptions.find((state) => state.id === statusFilter) : undefined;
   const selectedAssignee =
     assigneeFilter && assigneeFilter !== UNASSIGNED_FILTER_VALUE
@@ -144,7 +163,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
       : undefined;
   const selectedAssigneeLabel =
     assigneeFilter === UNASSIGNED_FILTER_VALUE ? "Unassigned" : selectedAssignee?.display_name;
-  const hasToolbarFilters = !!statusFilter || !!priorityFilter || !!assigneeFilter;
+  const selectedLabel = labelFilter ? getLabelById(labelFilter) : null;
 
   const filteredIds = useMemo(() => {
     const query = searchText.trim().toLowerCase();
@@ -158,6 +177,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
       const ticketKey = projectIdentifier && issue.sequence_id ? `${projectIdentifier}-${issue.sequence_id}` : "";
       const assigneeNames =
         issue.assignee_ids?.map((assigneeId) => memberStore.getUserDetails(assigneeId)?.display_name).join(" ") ?? "";
+      const labelNames = issue.label_ids?.map((labelId) => getLabelById(labelId)?.name).join(" ") ?? "";
       const searchableText = [
         issue.name,
         ticketKey,
@@ -166,6 +186,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
         state?.name,
         getPriorityLabel(issue.priority),
         assigneeNames,
+        labelNames,
       ]
         .filter(Boolean)
         .join(" ")
@@ -181,6 +202,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
         !(issue.assignee_ids?.includes(assigneeFilter) ?? false)
       )
         return false;
+      if (labelFilter && !(issue.label_ids?.includes(labelFilter) ?? false)) return false;
       if (activeFilter === "mine") return issue.assignee_ids?.includes(currentUserId ?? "") ?? false;
       if (activeFilter === "unassigned") return !issue.assignee_ids?.length;
       if (activeFilter === "starred") return starredIds.has(id);
@@ -190,11 +212,13 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
     activeFilter,
     assigneeFilter,
     currentUserId,
+    getLabelById,
     getProjectById,
     getProjectIdentifierById,
     getStateById,
     issueIds,
     issueMap,
+    labelFilter,
     memberStore,
     priorityFilter,
     searchText,
@@ -211,7 +235,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeFilter, assigneeFilter, priorityFilter, searchText, statusFilter]);
+  }, [activeFilter, assigneeFilter, labelFilter, priorityFilter, searchText, statusFilter]);
 
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(totalPages);
@@ -247,6 +271,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
     setStatusFilter(null);
     setPriorityFilter(null);
     setAssigneeFilter(null);
+    setLabelFilter(null);
     setActiveToolbarMenu(null);
   };
 
@@ -325,45 +350,36 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
 
           <div className="flex flex-wrap items-center justify-end gap-2">
             <ToolbarFilterDropdown
-              active={hasToolbarFilters || activeFilter !== "all"}
+              active={!!labelFilter}
               icon={Filter}
-              isOpen={activeToolbarMenu === "filter"}
-              label="Filter"
+              isOpen={activeToolbarMenu === "label"}
+              label={selectedLabel?.name ?? "Label"}
               onClose={() => setActiveToolbarMenu(null)}
-              onOpen={() => setActiveToolbarMenu("filter")}
+              onOpen={() => setActiveToolbarMenu("label")}
             >
               <ToolbarMenuOption
-                label="All tickets"
-                selected={activeFilter === "all"}
+                label="Any label"
+                selected={!labelFilter}
                 onClick={() => {
-                  setActiveFilter("all");
+                  setLabelFilter(null);
                   setActiveToolbarMenu(null);
                 }}
               />
-              <ToolbarMenuOption
-                label="My tickets"
-                selected={activeFilter === "mine"}
-                onClick={() => {
-                  setActiveFilter("mine");
-                  setActiveToolbarMenu(null);
-                }}
-              />
-              <ToolbarMenuOption
-                label="Unassigned"
-                selected={activeFilter === "unassigned"}
-                onClick={() => {
-                  setActiveFilter("unassigned");
-                  setActiveToolbarMenu(null);
-                }}
-              />
-              <ToolbarMenuOption
-                label="Starred"
-                selected={activeFilter === "starred"}
-                onClick={() => {
-                  setActiveFilter("starred");
-                  setActiveToolbarMenu(null);
-                }}
-              />
+              {labelOptions.length ? (
+                labelOptions.map((label) => (
+                  <ToolbarMenuOption
+                    key={label.id}
+                    label={label.name}
+                    selected={labelFilter === label.id}
+                    onClick={() => {
+                      setLabelFilter(label.id);
+                      setActiveToolbarMenu(null);
+                    }}
+                  />
+                ))
+              ) : (
+                <span className="block px-3 py-2 text-13 text-tertiary">No labels found</span>
+              )}
             </ToolbarFilterDropdown>
 
             <ToolbarFilterDropdown
