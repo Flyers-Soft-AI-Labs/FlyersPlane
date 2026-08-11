@@ -5037,8 +5037,8 @@ body .flyers-soft-dashboard-inline-menu [data-headlessui-state~="active"] {
   height: 100%;
   width: 100%;
   overflow: hidden;
-  background: #ffffff;
-  color: #111827;
+  background: var(--fs-bg-canvas);
+  color: var(--fs-text-primary);
 }
 
 .flyers-soft-create-workspace-layout #main-sidebar.flyers-soft-resizable-sidebar,
@@ -5055,7 +5055,7 @@ body .flyers-soft-dashboard-inline-menu [data-headlessui-state~="active"] {
   flex: 1 1 auto;
   flex-direction: column;
   overflow: hidden;
-  background: #ffffff;
+  background: var(--bg-surface-1);
 }
 
 .flyers-soft-create-workspace-email {
@@ -5065,7 +5065,7 @@ body .flyers-soft-dashboard-inline-menu [data-headlessui-state~="active"] {
   z-index: 2;
   max-width: min(320px, calc(100% - 88px));
   overflow: hidden;
-  color: #374151;
+  color: var(--fs-text-secondary);
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0;
@@ -5095,7 +5095,7 @@ body .flyers-soft-dashboard-inline-menu [data-headlessui-state~="active"] {
 
 .flyers-soft-create-workspace-heading h1 {
   margin: 0;
-  color: #111827;
+  color: var(--fs-text-primary);
   font-size: 28px;
   font-weight: 750;
   letter-spacing: 0;
@@ -5104,7 +5104,7 @@ body .flyers-soft-dashboard-inline-menu [data-headlessui-state~="active"] {
 
 .flyers-soft-create-workspace-heading p {
   margin-top: 7px;
-  color: #4b5563;
+  color: var(--fs-text-secondary);
   font-size: 15px;
   font-weight: 450;
   letter-spacing: 0;
@@ -5129,7 +5129,7 @@ body .flyers-soft-dashboard-inline-menu [data-headlessui-state~="active"] {
 
 .flyers-soft-create-workspace-field label,
 .flyers-soft-create-workspace-label {
-  color: #111827;
+  color: var(--fs-text-primary);
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0;
@@ -5333,7 +5333,7 @@ body .flyers-soft-dashboard-inline-menu [data-headlessui-state~="active"] {
 }
 
 .flyers-soft-create-workspace-disabled-copy h1 {
-  color: #111827;
+  color: var(--fs-text-primary);
   font-size: 28px;
   font-weight: 720;
   line-height: 1.2;
@@ -5342,7 +5342,7 @@ body .flyers-soft-dashboard-inline-menu [data-headlessui-state~="active"] {
 .flyers-soft-create-workspace-disabled-copy p {
   margin-top: 10px;
   max-width: 520px;
-  color: #4b5563;
+  color: var(--fs-text-secondary);
   font-size: 15px;
   line-height: 1.55;
 }

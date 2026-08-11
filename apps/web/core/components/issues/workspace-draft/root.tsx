@@ -109,6 +109,11 @@ export const WorkspaceDraftIssuesRoot = observer(function WorkspaceDraftIssuesRo
 
   return (
     <div className="flyers-soft-all-issues-view-body relative px-6 py-6">
+      <div className="mb-5 min-w-0">
+        <h1 className="tracking-normal truncate text-[30px] leading-9 font-semibold text-primary">Drafts</h1>
+        <p className="mt-1 text-14 leading-5 text-secondary">Ideas and unfinished tickets saved for later</p>
+      </div>
+
       <div className="flyers-soft-all-issues-table-card relative overflow-visible rounded-[10px] border border-strong bg-surface-1">
         <div className="overflow-x-auto">
           <div className="min-w-[900px]">
