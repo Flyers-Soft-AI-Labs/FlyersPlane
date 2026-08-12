@@ -19,7 +19,6 @@ import {
   Settings,
   Ticket,
   Trash2,
-  Users,
   ListTodo,
   X,
 } from "lucide-react";
@@ -100,11 +99,11 @@ export const SidebarMenuItems = observer(function SidebarMenuItems() {
       isActive: pathname?.startsWith(`${workspaceRoot}/notifications`),
     },
     {
-      key: "settings-members",
-      label: "Settings & members",
-      href: `${workspaceRoot}/settings/members`,
+      key: "settings",
+      label: "Settings",
+      href: `${workspaceRoot}/settings`,
       icon: Settings,
-      isActive: pathname?.startsWith(`${workspaceRoot}/settings/members`),
+      isActive: pathname?.startsWith(`${workspaceRoot}/settings`),
     },
   ];
 
@@ -156,13 +155,6 @@ export const SidebarMenuItems = observer(function SidebarMenuItems() {
         pathname?.includes("/issues") ||
         pathname?.includes("/workspace-views/all-issues") ||
         pathname?.includes("/browse/"),
-    },
-    {
-      key: "teams",
-      label: "Teams",
-      href: `${workspaceRoot}/settings/members`,
-      icon: Users,
-      isActive: pathname?.startsWith(`${workspaceRoot}/settings/members`),
     },
     {
       key: "reports",

@@ -28,7 +28,7 @@ export const MembersWorkspaceSettingsHeader = observer(function MembersWorkspace
   return (
     <div className="flyers-soft-teams-page-header flex w-full items-center justify-between">
       <div className="flex flex-col gap-1">
-        <h1 className="flyers-soft-teams-page-title">Teams</h1>
+        <h1 className="flyers-soft-teams-page-title">Members</h1>
         <p className="flyers-soft-teams-page-subtitle">Manage members, roles, and invites</p>
       </div>
       <div className="flyers-soft-teams-header-actions flex items-center gap-2">

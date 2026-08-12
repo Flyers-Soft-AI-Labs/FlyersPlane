@@ -11,7 +11,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { createPortal } from "react-dom";
 import { usePopper } from "react-popper";
-import { ArchiveRestoreIcon, ChevronDown, FileText, MoreHorizontal, Settings, UserPlus } from "lucide-react";
+import { Archive, ArchiveRestoreIcon, ChevronDown, FileText, MoreHorizontal, Settings, UserPlus } from "lucide-react";
 import { Combobox } from "@headlessui/react";
 // plane imports
 import { EUserPermissions, ISSUE_PRIORITIES } from "@plane/constants";
@@ -341,6 +341,7 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
   const [deleteProjectModalOpen, setDeleteProjectModal] = useState(false);
   const [joinProjectModalOpen, setJoinProjectModal] = useState(false);
   const [restoreProjectModalOpen, setRestoreProjectModalOpen] = useState(false);
+  const [archiveProjectModalOpen, setArchiveProjectModalOpen] = useState(false);
   // refs
   const projectCardRef = useRef<HTMLDivElement | null>(null);
   // router
@@ -475,6 +476,13 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
       shouldRender: !isArchived,
     },
     {
+      key: "archive",
+      action: () => setArchiveProjectModalOpen(true),
+      title: "Archive",
+      icon: Archive,
+      shouldRender: !isArchived && hasAdminRole,
+    },
+    {
       key: "restore",
       action: () => setRestoreProjectModalOpen(true),
       title: "Restore",
@@ -535,6 +543,15 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
           isOpen={restoreProjectModalOpen}
           onClose={() => setRestoreProjectModalOpen(false)}
           archive={false}
+        />
+      )}
+      {workspaceSlug && project && (
+        <ArchiveRestoreProjectModal
+          workspaceSlug={workspaceSlug.toString()}
+          projectId={project.id}
+          isOpen={archiveProjectModalOpen}
+          onClose={() => setArchiveProjectModalOpen(false)}
+          archive
         />
       )}
       <div className="flyers-soft-projects-row-wrap">
@@ -660,7 +677,9 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
                 }
                 ariaLabel="Project actions"
                 placement="bottom-end"
+                portalElement={typeof document !== "undefined" ? document.body : undefined}
                 closeOnSelect
+                optionsClassName="min-w-[15rem]"
               >
                 {visibleMenuItems.map((item) => {
                   const Icon = item.icon;

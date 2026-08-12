@@ -11,6 +11,7 @@ import { usePathname } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import type { LucideIcon } from "lucide-react";
 import {
+  ArrowDownToLine,
   ArrowUpToLine,
   Building2,
   Clock3,
@@ -53,6 +54,7 @@ const SETTINGS_NAV_ITEMS = [
   { key: "general", label: "General", href: WORKSPACE_SETTINGS.general.href, icon: Settings2 },
   { key: "members", label: "Members", href: WORKSPACE_SETTINGS.members.href, icon: UsersRound },
   { key: "export", label: "Exports", href: WORKSPACE_SETTINGS.export.href, icon: ArrowUpToLine },
+  { key: "imports", label: "Imports", href: WORKSPACE_SETTINGS.imports.href, icon: ArrowDownToLine },
   { key: "webhooks", label: "Webhooks", href: WORKSPACE_SETTINGS.webhooks.href, icon: Webhook },
 ] as const;
 
@@ -208,9 +210,9 @@ export const WorkspaceDetails = observer(function WorkspaceDetails() {
             <p className="text-14 leading-6 text-secondary">Manage your workspace preferences and configuration</p>
           </div>
 
-          <div className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
-            <aside className="flex flex-col gap-5">
-              <nav className="flyers-soft-settings-side-card flex flex-col gap-2 p-5" aria-label="Workspace settings">
+          <div className="grid xl:grid-cols-[280px_minmax(0,1fr)]">
+            <aside className="flex flex-col gap-5 border-b border-[#eadfcb] pb-6 xl:border-r xl:border-b-0 xl:pr-6 xl:pb-0">
+              <nav className="flyers-soft-settings-side-card flex flex-col gap-1" aria-label="Workspace settings">
                 {SETTINGS_NAV_ITEMS.map((item) => {
                   const Icon = item.icon;
                   const href = joinUrlPath(currentWorkspace.slug, item.href);
@@ -229,8 +231,8 @@ export const WorkspaceDetails = observer(function WorkspaceDetails() {
                         "is-active": isActive,
                       })}
                     >
-                      <span className="grid size-8 shrink-0 place-items-center rounded-lg">
-                        <Icon className="h-4 w-4" strokeWidth={2} />
+                      <span className="grid size-4 shrink-0 place-items-center">
+                        <Icon className="h-3.5 w-3.5" strokeWidth={2} />
                       </span>
                       <span className="truncate">{item.label}</span>
                     </Link>
@@ -238,7 +240,7 @@ export const WorkspaceDetails = observer(function WorkspaceDetails() {
                 })}
               </nav>
 
-              <div className="flyers-soft-settings-side-card p-5">
+              <div className="flyers-soft-settings-side-card flex flex-col gap-3 border-t border-[#eadfcb] pt-5">
                 <div className="flex items-start gap-3">
                   <span className="grid size-8 shrink-0 place-items-center rounded-full border border-[#eadfcb] bg-surface-1 text-secondary">
                     <HelpCircle className="h-4 w-4" strokeWidth={2} />
@@ -254,7 +256,7 @@ export const WorkspaceDetails = observer(function WorkspaceDetails() {
                   href="https://docs.plane.so/"
                   target="_blank"
                   rel="noreferrer"
-                  className="flyers-soft-settings-docs-link mt-5"
+                  className="flyers-soft-settings-docs-link mt-2"
                 >
                   <span>View documentation</span>
                   <ExternalLink className="h-4 w-4" strokeWidth={2} />
@@ -262,7 +264,7 @@ export const WorkspaceDetails = observer(function WorkspaceDetails() {
               </div>
             </aside>
 
-            <div className="flex min-w-0 flex-col gap-6">
+            <div className="flex min-w-0 flex-col gap-6 xl:pl-8">
               <form
                 className={cn("flyers-soft-settings-main-card", {
                   "opacity-70": !isAdmin,

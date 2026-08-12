@@ -7485,33 +7485,19 @@ div[role="row"]:hover {
   pointer-events: none;
 }
 
-.flyers-soft-settings-side-card,
-.flyers-soft-settings-main-card {
-  border: 1px solid #ebebeb;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: 0 20px 48px rgba(17, 24, 39, 0.08);
-  backdrop-filter: blur(12px);
-}
-
-.flyers-soft-settings-main-card {
-  overflow: hidden;
-}
-
 .flyers-soft-settings-nav-item {
   display: flex;
-  min-height: 48px;
+  min-height: 34px;
   align-items: center;
-  gap: 12px;
-  border-radius: 8px;
-  padding: 0 12px;
+  gap: 10px;
+  border-radius: 6px;
+  padding: 0 8px;
   color: #3f4857;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 550;
   transition:
     background-color 160ms ease,
-    color 160ms ease,
-    box-shadow 160ms ease;
+    color 160ms ease;
 }
 
 .flyers-soft-settings-nav-item:hover {
@@ -7520,9 +7506,8 @@ div[role="row"]:hover {
 }
 
 .flyers-soft-settings-nav-item.is-active {
-  background: linear-gradient(90deg, #f1f1ef 0%, #fbfbfa 100%);
+  background: #f1f1ef;
   color: #171b22;
-  box-shadow: inset 3px 0 0 #d1d5db;
 }
 
 .flyers-soft-settings-nav-item span:first-child {
@@ -7648,8 +7633,6 @@ div[role="row"]:hover {
     linear-gradient(180deg, #151820 0%, #111318 100%);
 }
 
-[data-theme*="dark"] .flyers-soft-settings-side-card,
-[data-theme*="dark"] .flyers-soft-settings-main-card,
 [data-theme*="dark"] .flyers-soft-settings-danger-zone {
   border-color: rgba(255, 255, 255, 0.08);
   background: rgba(24, 28, 36, 0.88);

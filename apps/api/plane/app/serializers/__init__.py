@@ -124,6 +124,8 @@ from .notification import NotificationSerializer, UserNotificationPreferenceSeri
 
 from .exporter import ExporterHistorySerializer
 
+from .csv_importer import CSVImportHistorySerializer
+
 from .webhook import WebhookSerializer, WebhookLogSerializer
 
 from .favorite import UserFavoriteSerializer

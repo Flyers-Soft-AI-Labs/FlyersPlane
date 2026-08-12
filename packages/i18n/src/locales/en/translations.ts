@@ -1514,6 +1514,11 @@ export default {
           },
         },
       },
+      imports: {
+        heading: "Imports",
+        description: "Import tickets into your projects from a CSV file.",
+        title: "Imports",
+      },
       webhooks: {
         heading: "Webhooks",
         description: "Automate notifications to external services when project events occur.",

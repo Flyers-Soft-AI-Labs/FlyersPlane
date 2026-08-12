@@ -88,7 +88,7 @@ const WorkspaceMembersSettingsPage = observer(function WorkspaceMembersSettingsP
   };
 
   // derived values
-  const pageTitle = currentWorkspace?.name ? `${currentWorkspace.name} - Teams` : undefined;
+  const pageTitle = currentWorkspace?.name ? `${currentWorkspace.name} - Members` : undefined;
   const appliedRoleFilters = filtersStore.filters?.roles || [];
 
   // if user is not authorized to view this page

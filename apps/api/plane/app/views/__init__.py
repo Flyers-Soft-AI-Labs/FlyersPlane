@@ -226,6 +226,8 @@ from .notification.base import (
 
 from .exporter.base import ExportIssuesEndpoint
 
+from .csv_importer.base import CSVImportEndpoint
+
 
 from .webhook.base import (
     WebhookEndpoint,
