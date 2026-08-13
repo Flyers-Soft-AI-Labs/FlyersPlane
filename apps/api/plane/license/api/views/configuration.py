@@ -3,19 +3,14 @@
 # See the LICENSE file for details.
 
 # Python imports
-from smtplib import (
-    SMTPAuthenticationError,
-    SMTPConnectError,
-    SMTPRecipientsRefused,
-    SMTPSenderRefused,
-    SMTPServerDisconnected,
-)
+import os
+from email.utils import parseaddr
 
 # Django imports
-from django.core.mail import BadHeaderError, EmailMultiAlternatives, get_connection
 from django.db.models import Q, Case, When, Value
 
 # Third party imports
+import requests
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -27,6 +22,55 @@ from plane.license.api.serializers import InstanceConfigurationSerializer
 from plane.license.utils.encryption import encrypt_data
 from plane.utils.cache import cache_response, invalidate_cache
 from plane.license.utils.instance_value import get_email_configuration
+
+
+BREVO_TRANSACTIONAL_EMAIL_URL = "https://api.brevo.com/v3/smtp/email"
+
+
+def _get_brevo_api_key():
+    api_key = os.environ.get("BREVO_API_KEY")
+    if not api_key:
+        raise ValueError("BREVO_API_KEY is not configured")
+    return api_key
+
+
+def _get_brevo_sender(from_email):
+    sender_name, sender_email = parseaddr(from_email)
+    sender_email = sender_email or from_email
+    if not sender_email:
+        raise ValueError("EMAIL_FROM is not configured")
+
+    sender = {"email": sender_email}
+    if sender_name:
+        sender["name"] = sender_name
+    return sender
+
+
+def _get_brevo_error(response):
+    try:
+        response_data = response.json()
+        return response_data.get("message") or response_data.get("error") or "Brevo API rejected the email."
+    except ValueError:
+        return response.text or "Brevo API rejected the email."
+
+
+def _send_brevo_email(from_email, to_email, subject, html_content, text_content):
+    response = requests.post(
+        BREVO_TRANSACTIONAL_EMAIL_URL,
+        headers={
+            "api-key": _get_brevo_api_key(),
+            "Content-Type": "application/json",
+        },
+        json={
+            "sender": _get_brevo_sender(from_email),
+            "to": [{"email": to_email}],
+            "subject": subject,
+            "htmlContent": html_content,
+            "textContent": text_content,
+        },
+        timeout=10,
+    )
+    response.raise_for_status()
 
 
 class InstanceConfigurationEndpoint(BaseAPIView):
@@ -94,78 +138,38 @@ class EmailCredentialCheckEndpoint(BaseAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        (
-            EMAIL_HOST,
-            EMAIL_HOST_USER,
-            EMAIL_HOST_PASSWORD,
-            EMAIL_PORT,
-            EMAIL_USE_TLS,
-            EMAIL_USE_SSL,
-            EMAIL_FROM,
-        ) = get_email_configuration()
+        *_, EMAIL_FROM = get_email_configuration()
 
-        # Configure all the connections
-        connection = get_connection(
-            host=EMAIL_HOST,
-            port=int(EMAIL_PORT),
-            username=EMAIL_HOST_USER,
-            password=EMAIL_HOST_PASSWORD,
-            use_tls=EMAIL_USE_TLS == "1",
-            use_ssl=EMAIL_USE_SSL == "1",
-        )
         # Prepare email details
         subject = "Email Notification from Plane"
         message = "This is a sample email notification sent from Plane application."
+        html_message = f"<p>{message}</p>"
         # Send the email
         try:
-            msg = EmailMultiAlternatives(
-                subject=subject,
-                body=message,
-                from_email=EMAIL_FROM,
-                to=[receiver_email],
-                connection=connection,
-            )
-            msg.send(fail_silently=False)
+            _send_brevo_email(EMAIL_FROM, receiver_email, subject, html_message, message)
             return Response({"message": "Email successfully sent."}, status=status.HTTP_200_OK)
-        except BadHeaderError:
-            return Response({"error": "Invalid email header."}, status=status.HTTP_400_BAD_REQUEST)
-        except SMTPAuthenticationError:
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except requests.exceptions.HTTPError as e:
+            error_message = (
+                _get_brevo_error(e.response) if e.response is not None else "Brevo API rejected the email."
+            )
             return Response(
-                {"error": "Invalid credentials provided"},
+                {"error": error_message},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        except SMTPConnectError:
+        except requests.exceptions.Timeout:
             return Response(
-                {"error": "Could not connect with the SMTP server."},
+                {"error": "Timeout error while trying to connect to Brevo."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        except SMTPSenderRefused:
-            return Response(
-                {"error": "From address is invalid."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        except SMTPServerDisconnected:
-            return Response(
-                {"error": "SMTP server disconnected unexpectedly."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        except SMTPRecipientsRefused:
-            return Response(
-                {"error": "All recipient addresses were refused."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        except TimeoutError:
-            return Response(
-                {"error": "Timeout error while trying to connect to the SMTP server."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        except ConnectionError:
+        except requests.exceptions.ConnectionError:
             return Response(
                 {"error": "Network connection error. Please check your internet connection."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        except Exception:
+        except requests.exceptions.RequestException:
             return Response(
-                {"error": "Could not send email. Please check your configuration"},
+                {"error": "Could not send email through Brevo. Please check your configuration."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
