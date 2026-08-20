@@ -17,6 +17,7 @@ from zxcvbn import zxcvbn
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.utils.encoding import DjangoUnicodeDecodeError, smart_bytes, smart_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
@@ -89,14 +90,16 @@ class ForgotPasswordSpaceEndpoint(APIView):
             )
             return Response(exc.get_error_dict(), status=status.HTTP_400_BAD_REQUEST)
 
-        # Get the user
-        user = User.objects.filter(email=email).first()
+        # Get the user - match either the primary email or a secondary login email (e.g. Gmail)
+        user = User.objects.filter(Q(email=email) | Q(secondary_email=email)).first()
         if user:
             # Get the reset token for user
             uidb64, token = generate_password_token(user=user)
             current_site = base_host(request=request, is_space=True)
-            # send the forgot password email
-            forgot_password.delay(user.first_name, user.email, uidb64, token, current_site)
+            # Deliver to whichever address was submitted - already confirmed to belong
+            # to this account by the lookup above; the reset link stays tied to the
+            # account regardless (uidb64/token are derived from user.id).
+            forgot_password.delay(user.first_name, email, uidb64, token, current_site)
             return Response(
                 {"message": "Check your email to reset your password"},
                 status=status.HTTP_200_OK,

@@ -5,6 +5,9 @@
 # Python imports
 import os
 
+# Django imports
+from django.db.models import Q
+
 # Module imports
 from plane.authentication.adapter.credential import CredentialAdapter
 from plane.authentication.adapter.error import (
@@ -39,8 +42,8 @@ class EmailProvider(CredentialAdapter):
 
     def set_user_data(self):
         if self.is_signup:
-            # Check if the user already exists
-            if User.objects.filter(email=self.key).exists():
+            # Check if the user already exists (as a primary or secondary login email)
+            if User.objects.filter(Q(email=self.key) | Q(secondary_email=self.key)).exists():
                 self.logger.warning("User already exists")
                 raise AuthenticationException(
                     error_message="USER_ALREADY_EXIST",
@@ -59,7 +62,8 @@ class EmailProvider(CredentialAdapter):
             })
             return
         else:
-            user = User.objects.filter(email=self.key).first()
+            # Sign in with either the primary email or a secondary login email (e.g. Gmail)
+            user = User.objects.filter(Q(email=self.key) | Q(secondary_email=self.key)).first()
 
             # User does not exists
             if not user:
