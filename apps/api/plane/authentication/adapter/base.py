@@ -12,6 +12,7 @@ import requests
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from django.db.models import Q
 
 # Django imports
 from django.utils import timezone
@@ -293,8 +294,9 @@ class Adapter:
         # Sanitize email
         email = self.sanitize_email(email)
 
-        # Check if the user is present
-        user = User.objects.filter(email=email).first()
+        # Check if the user is present - either as their primary email or their
+        # secondary login email (e.g. a personal Gmail), both resolve to the same account
+        user = User.objects.filter(Q(email=email) | Q(secondary_email=email)).first()
         # Check if sign up case or login
         is_signup = bool(user)
         # If user is not present, create a new user
