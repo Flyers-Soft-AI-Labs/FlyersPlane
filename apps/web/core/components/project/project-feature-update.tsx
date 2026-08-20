@@ -49,7 +49,7 @@ export const ProjectFeatureUpdate = observer(function ProjectFeatureUpdate(props
             {t("close")}
           </Button>
           <Link
-            href={`/${workspaceSlug}/projects/${projectId}/issues`}
+            href={`/${workspaceSlug}/workspace-views/all-issues/?project=${projectId}`}
             onClick={onClose}
             className={getButtonStyling("primary", "lg")}
             tabIndex={2}

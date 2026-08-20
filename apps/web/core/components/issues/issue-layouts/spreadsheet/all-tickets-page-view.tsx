@@ -8,7 +8,7 @@ import type { MutableRefObject, ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import {
   BarChart3,
   CheckCircle2,
@@ -59,7 +59,7 @@ const UNASSIGNED_FILTER_VALUE = "__unassigned__";
 
 type FilterTab = "all" | "mine" | "unassigned" | "starred";
 type InlineMenuState = { issueId: string; field: InlineMenuField } | null;
-type ToolbarMenuField = "label" | "status" | "priority" | "assignee";
+type ToolbarMenuField = "project" | "label" | "status" | "priority" | "assignee";
 type TicketPriority = NonNullable<TIssue["priority"]>;
 type AssigneeFilter = string | typeof UNASSIGNED_FILTER_VALUE | null;
 
@@ -80,9 +80,12 @@ function getPriorityLabel(priority: TIssue["priority"]) {
 export const AllTicketsPageView = observer(function AllTicketsPageView(props: AllTicketsPageViewProps) {
   const { issueIds, quickActions, canEditProperties, canLoadMoreIssues, loadMoreIssues } = props;
 
+  const searchParams = useSearchParams();
+
   const [activeFilter, setActiveFilter] = useState<FilterTab>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchText, setSearchText] = useState("");
+  const [projectFilter, setProjectFilter] = useState<string | null>(() => searchParams.get("project"));
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [priorityFilter, setPriorityFilter] = useState<TicketPriority | null>(null);
   const [assigneeFilter, setAssigneeFilter] = useState<AssigneeFilter>(null);
@@ -126,6 +129,20 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
     );
   }, [getStateById, issueIds, issueMap]);
 
+  const projectOptions = useMemo(() => {
+    const projectIds = new Set<string>();
+
+    for (const id of issueIds) {
+      const issue = issueMap[id];
+      if (issue?.project_id) projectIds.add(issue.project_id);
+    }
+
+    return [...projectIds]
+      .map((projectId) => getProjectById(projectId))
+      .filter((project): project is NonNullable<typeof project> => !!project)
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [getProjectById, issueIds, issueMap]);
+
   const assigneeOptions = useMemo(() => {
     const assigneeIds = new Set<string>();
 
@@ -156,6 +173,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [getLabelById, issueIds, issueMap]);
 
+  const selectedProject = projectFilter ? getProjectById(projectFilter) : undefined;
   const selectedStatus = statusFilter ? statusOptions.find((state) => state.id === statusFilter) : undefined;
   const selectedAssignee =
     assigneeFilter && assigneeFilter !== UNASSIGNED_FILTER_VALUE
@@ -193,6 +211,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
         .toLowerCase();
 
       if (query && !searchableText.includes(query)) return false;
+      if (projectFilter && issue.project_id !== projectFilter) return false;
       if (statusFilter && issue.state_id !== statusFilter) return false;
       if (priorityFilter && (issue.priority ?? "none") !== priorityFilter) return false;
       if (assigneeFilter === UNASSIGNED_FILTER_VALUE && issue.assignee_ids?.length) return false;
@@ -221,6 +240,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
     labelFilter,
     memberStore,
     priorityFilter,
+    projectFilter,
     searchText,
     starredIds,
     statusFilter,
@@ -235,7 +255,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeFilter, assigneeFilter, labelFilter, priorityFilter, searchText, statusFilter]);
+  }, [activeFilter, assigneeFilter, labelFilter, priorityFilter, projectFilter, searchText, statusFilter]);
 
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(totalPages);
@@ -268,6 +288,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
   const clearFilters = () => {
     setActiveFilter("all");
     setSearchText("");
+    setProjectFilter(null);
     setStatusFilter(null);
     setPriorityFilter(null);
     setAssigneeFilter(null);
@@ -340,15 +361,46 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
             <Search className="size-4 flex-shrink-0 text-secondary" strokeWidth={2} />
             <input
               type="text"
-              placeholder="Search tickets, projects, teams..."
+              placeholder="Search tickets..."
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               className="min-w-0 flex-1 bg-transparent text-13 text-primary outline-none placeholder:text-tertiary"
             />
-            <span className="rounded-md bg-surface-3 px-2 py-0.5 text-11 font-medium text-tertiary">Ctrl K</span>
           </div>
 
           <div className="flex flex-wrap items-center justify-end gap-2">
+            <ToolbarFilterDropdown
+              active={!!projectFilter}
+              isOpen={activeToolbarMenu === "project"}
+              label={selectedProject?.name ?? "Project"}
+              onClose={() => setActiveToolbarMenu(null)}
+              onOpen={() => setActiveToolbarMenu("project")}
+            >
+              <ToolbarMenuOption
+                label="Any project"
+                selected={!projectFilter}
+                onClick={() => {
+                  setProjectFilter(null);
+                  setActiveToolbarMenu(null);
+                }}
+              />
+              {projectOptions.length ? (
+                projectOptions.map((project) => (
+                  <ToolbarMenuOption
+                    key={project.id}
+                    label={project.name}
+                    selected={projectFilter === project.id}
+                    onClick={() => {
+                      setProjectFilter(project.id);
+                      setActiveToolbarMenu(null);
+                    }}
+                  />
+                ))
+              ) : (
+                <span className="block px-3 py-2 text-13 text-tertiary">No projects found</span>
+              )}
+            </ToolbarFilterDropdown>
+
             <ToolbarFilterDropdown
               active={!!labelFilter}
               icon={Filter}

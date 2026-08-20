@@ -196,52 +196,56 @@ export function ProjectDetailsForm(props: IProjectDetailsForm) {
         <CoverImage src={coverImage} alt="Project cover image" className="h-44 w-full rounded-md" />
         <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/70 to-transparent" />
         <div className="absolute bottom-4 z-[5] flex w-full items-end justify-between gap-3 px-4">
-          <div className="flex flex-grow gap-3 truncate">
-            <Controller
-              control={control}
-              name="logo_props"
-              render={({ field: { value, onChange } }) => (
-                <EmojiPicker
-                  iconType="material"
-                  closeOnSelect={false}
-                  isOpen={isOpen}
-                  handleToggle={(val: boolean) => setIsOpen(val)}
-                  className="flex items-center justify-center"
-                  buttonClassName="flex h-[52px] w-[52px] flex-shrink-0 items-center justify-center rounded-lg bg-surface-1/10"
-                  label={<Logo logo={value} size={28} />}
-                  // TODO: fix types
-                  onChange={(val: any) => {
-                    let logoValue = {};
+          <div className="flex flex-grow truncate">
+            <div className="flex min-w-0 items-center gap-3 truncate rounded-lg bg-black/75 py-1.5 pr-3 pl-1.5 backdrop-blur-sm">
+              <Controller
+                control={control}
+                name="logo_props"
+                render={({ field: { value, onChange } }) => (
+                  <EmojiPicker
+                    iconType="material"
+                    closeOnSelect={false}
+                    isOpen={isOpen}
+                    handleToggle={(val: boolean) => setIsOpen(val)}
+                    className="flex items-center justify-center"
+                    buttonClassName="flex h-[52px] w-[52px] flex-shrink-0 items-center justify-center rounded-lg bg-surface-1/10"
+                    label={<Logo logo={value} size={28} />}
+                    // TODO: fix types
+                    onChange={(val: any) => {
+                      let logoValue = {};
 
-                    if (val?.type === "emoji")
-                      logoValue = {
-                        value: val.value,
-                      };
-                    else if (val?.type === "icon") logoValue = val.value;
+                      if (val?.type === "emoji")
+                        logoValue = {
+                          value: val.value,
+                        };
+                      else if (val?.type === "icon") logoValue = val.value;
 
-                    onChange({
-                      in_use: val?.type,
-                      [val?.type]: logoValue,
-                    });
-                    setIsOpen(false);
-                  }}
-                  defaultIconColor={value?.in_use && value.in_use === "icon" ? value?.icon?.color : undefined}
-                  defaultOpen={
-                    value.in_use && value.in_use === "emoji" ? EmojiIconPickerTypes.EMOJI : EmojiIconPickerTypes.ICON
-                  }
-                  disabled={!isAdmin}
-                />
-              )}
-            />
-            <div className="flex flex-col gap-1 truncate text-on-color">
-              <span className="truncate text-16 font-semibold">{watch("name")}</span>
-              <span className="flex items-center gap-2 text-13">
-                <span>{watch("identifier")} .</span>
-                <span className="flex items-center gap-1.5">
-                  {project.network === 0 && <LockIcon className="h-2.5 w-2.5 text-on-color" />}
-                  {currentNetwork && t(currentNetwork?.i18n_label)}
+                      onChange({
+                        in_use: val?.type,
+                        [val?.type]: logoValue,
+                      });
+                      setIsOpen(false);
+                    }}
+                    defaultIconColor={value?.in_use && value.in_use === "icon" ? value?.icon?.color : undefined}
+                    defaultOpen={
+                      value.in_use && value.in_use === "emoji"
+                        ? EmojiIconPickerTypes.EMOJI
+                        : EmojiIconPickerTypes.ICON
+                    }
+                    disabled={!isAdmin}
+                  />
+                )}
+              />
+              <div className="flex min-w-0 flex-col gap-1 truncate text-on-color">
+                <span className="truncate text-16 font-semibold">{watch("name")}</span>
+                <span className="flex items-center gap-2 text-13">
+                  <span>{watch("identifier")} .</span>
+                  <span className="flex items-center gap-1.5">
+                    {project.network === 0 && <LockIcon className="h-2.5 w-2.5 text-on-color" />}
+                    {currentNetwork && t(currentNetwork?.i18n_label)}
+                  </span>
                 </span>
-              </span>
+              </div>
             </div>
           </div>
           <div className="flex flex-shrink-0 justify-center">

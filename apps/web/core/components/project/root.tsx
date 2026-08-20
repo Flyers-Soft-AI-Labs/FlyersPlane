@@ -9,7 +9,7 @@ import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import useSWR from "swr";
-import { Archive, ChevronDown, Folder, PanelsTopLeft, Plus, SquareCheckBig, Zap } from "lucide-react";
+import { Archive, ChevronDown, Folder, PanelsTopLeft, Plus, SquareCheckBig } from "lucide-react";
 // plane imports
 import { EUserPermissions, EUserPermissionsLevel, PROJECT_TRACKER_ELEMENTS } from "@plane/constants";
 import { useTranslation } from "@plane/i18n";
@@ -205,15 +205,6 @@ export const ProjectRoot = observer(function ProjectRoot() {
 
             <div className="flyers-soft-projects-toolbar-actions">
               <HeaderFilters classname="flyers-soft-projects-toolbar-filters" />
-              <button
-                type="button"
-                title="Quick actions"
-                aria-label="Quick actions"
-                className="flyers-soft-projects-toolbar-icon-button"
-                onClick={() => toggleCreateProjectModal(true)}
-              >
-                <Zap className="h-4 w-4" strokeWidth={1.8} />
-              </button>
               <ProjectSearch />
               {isAuthorizedUser && !isArchived && (
                 <Button

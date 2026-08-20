@@ -28,7 +28,7 @@ export function RecentProject(props: BlockProps) {
 
   if (!projectDetails) return <></>;
 
-  const projectLink = `/${workspaceSlug}/projects/${projectDetails?.id}/issues`;
+  const projectLink = `/${workspaceSlug}/workspace-views/all-issues/?project=${projectDetails?.id}`;
 
   return (
     <ListItem

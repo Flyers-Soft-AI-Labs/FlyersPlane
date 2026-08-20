@@ -3647,7 +3647,7 @@
   --text-color-placeholder: #9ca3af;
   --text-color-on-color: #1a1a1a;
   --border-color-subtle: #ebebeb;
-  --border-color-strong: #e7cf73;
+  --border-color-strong: var(--fs-border-strong);
   --border-color-accent-subtle: #e5e7eb;
   --border-color-accent-strong: #6b7280;
   --brand-default: #e5e7eb;
@@ -3847,8 +3847,6 @@ textarea,
 .flyers-soft-project-ticket-search:hover,
 .flyers-soft-top-search:hover,
 .flyers-soft-teams-search:hover,
-input:hover,
-textarea:hover,
 input:focus,
 textarea:focus {
   border-color: var(--fs-border-strong) !important;

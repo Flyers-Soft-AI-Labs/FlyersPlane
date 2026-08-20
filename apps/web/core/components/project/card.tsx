@@ -380,7 +380,7 @@ export const ProjectCard = observer(function ProjectCard(props: Props) {
     (teamMemberIds.length || memberCount) === 1 ? "member" : "members"
   }`;
 
-  const projectLink = `${workspaceSlug}/projects/${project.id}/issues`;
+  const projectLink = `${workspaceSlug}/workspace-views/all-issues/?project=${project.id}`;
   const workspaceSlugString = workspaceSlug?.toString();
 
   const handleUpdateError = () =>
