@@ -45,6 +45,26 @@ Getting started with Plane is simple. Choose the setup that works best for you:
 
 `Instance admins` can configure instance settings with [God mode](https://developers.plane.so/self-hosting/govern/instance-admin).
 
+### ✉️ Email setup (self-hosted)
+
+Transactional email (forgot password, invitations, magic links, notifications) is
+sent over [Brevo's](https://www.brevo.com/) HTTPS API rather than SMTP, since several
+hosts block outbound SMTP ports. To enable it:
+
+1. Set `BREVO_API_KEY` in `apps/api/.env` to your Brevo **API key** (starts with
+   `xkeysib-`, found under Brevo → SMTP & API → API Keys). This is a different
+   credential from your Brevo SMTP key/password - the SMTP key will not work here.
+2. In **God mode → Instance settings → Email**, set:
+   - **Sender's email address** — the verified sender Brevo will send as (this is the
+     only field from that form actually used for sending).
+   - **Host** — any non-empty value (e.g. `api.brevo.com`) just to mark email as
+     configured; it is not used to connect anywhere.
+   - Port/Username/Password/TLS/SSL on that form are unused leftovers from the old
+     SMTP path and can be left blank.
+3. Remember that `SKIP_ENV_VAR` defaults to `"1"`, so `EMAIL_FROM` and other email
+   settings are read from the God mode DB config, **not** from `apps/api/.env`, once
+   the instance is set up - only `BREVO_API_KEY` is read from the environment.
+
 ## 🌟 Features
 
 - **Work Items**
