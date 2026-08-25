@@ -19,7 +19,7 @@ from plane.db.models import Workspace
 from plane.license.api.permissions import InstanceAdminPermission
 from plane.license.api.serializers import InstanceSerializer
 from plane.license.models import Instance
-from plane.license.utils.instance_value import get_configuration_value
+from plane.license.utils.instance_value import get_configuration_value, is_email_provider_configured
 from plane.utils.cache import cache_response, invalidate_cache
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_control
@@ -155,8 +155,8 @@ class InstanceEndpoint(BaseAPIView):
         # File size settings
         data["file_size_limit"] = float(os.environ.get("FILE_SIZE_LIMIT", 5242880))
 
-        # is smtp configured
-        data["is_smtp_configured"] = bool(EMAIL_HOST)
+        # Whether an email provider is configured. Keep the existing field for client compatibility.
+        data["is_smtp_configured"] = is_email_provider_configured(EMAIL_HOST)
 
         # Base URL
         data["admin_base_url"] = settings.ADMIN_BASE_URL

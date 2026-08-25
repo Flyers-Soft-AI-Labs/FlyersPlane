@@ -4,22 +4,18 @@
  * See the LICENSE file for details.
  */
 
-import type { CSSProperties, MutableRefObject, ReactNode } from "react";
+import type { MutableRefObject, ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { createPortal } from "react-dom";
 import {
-  ArrowDown,
-  ArrowUp,
   BarChart3,
   CheckCircle2,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   Filter,
-  Minus,
   MoreHorizontal,
   Plus,
   Search,
@@ -29,12 +25,12 @@ import {
 import { EIssueFilterType, ISSUE_DISPLAY_FILTERS_BY_PAGE, ISSUE_PRIORITIES } from "@plane/constants";
 import type { IIssueDisplayFilterOptions, IIssueDisplayProperties, IState, IUserLite, TIssue } from "@plane/types";
 import { EIssueLayoutTypes, EIssueServiceType, EIssuesStoreType } from "@plane/types";
-import { Avatar } from "@plane/ui";
-import { calculateTimeAgoShort, cn, generateWorkItemLink, getFileURL } from "@plane/utils";
+import { calculateTimeAgoShort, cn, generateWorkItemLink } from "@plane/utils";
 // hooks
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useIssues } from "@/hooks/store/use-issues";
+import { useLabel } from "@/hooks/store/use-label";
 import { useMember } from "@/hooks/store/use-member";
 import { useProject } from "@/hooks/store/use-project";
 import { useProjectState } from "@/hooks/store/use-project-state";
@@ -45,6 +41,16 @@ import { usePlatformOS } from "@/hooks/use-platform-os";
 // local imports
 import { DisplayFiltersSelection, FiltersDropdown } from "../filters";
 import type { TRenderQuickActions } from "../list/list-view-types";
+import {
+  getPriorityTone,
+  getStateOrderIndex,
+  InlineAssigneeEditor,
+  InlineDropdownMenu,
+  InlinePriorityEditor,
+  InlineStatusEditor,
+  PRIORITY_ORDER,
+} from "./ticket-inline-editors";
+import type { InlineMenuField } from "./ticket-inline-editors";
 
 const COL_TEMPLATE = "40px 40px 112px minmax(320px,1fr) 150px 140px 156px 112px 48px";
 const PAGE_SIZE = 5;
@@ -52,14 +58,10 @@ const SKELETON_ROW_KEYS = ["loading-row-1", "loading-row-2", "loading-row-3"];
 const UNASSIGNED_FILTER_VALUE = "__unassigned__";
 
 type FilterTab = "all" | "mine" | "unassigned" | "starred";
-type InlineMenuField = "status" | "priority" | "assignee";
 type InlineMenuState = { issueId: string; field: InlineMenuField } | null;
-type ToolbarMenuField = "filter" | "status" | "priority" | "assignee";
+type ToolbarMenuField = "label" | "status" | "priority" | "assignee";
 type TicketPriority = NonNullable<TIssue["priority"]>;
 type AssigneeFilter = string | typeof UNASSIGNED_FILTER_VALUE | null;
-
-const PRIORITY_ORDER: TicketPriority[] = ["none", "low", "medium", "high", "urgent"];
-const STATUS_ORDER = ["todo", "in progress", "in review", "done", "blocked"];
 
 interface AllTicketsPageViewProps {
   issueIds: string[];
@@ -70,57 +72,9 @@ interface AllTicketsPageViewProps {
   loadMoreIssues: () => void;
 }
 
-function getStateAccent(state: IState | undefined) {
-  const name = state?.name?.toLowerCase() ?? "";
-  const group = state?.group;
-
-  if (name.includes("review")) return "#6b7280";
-  if (group === "completed") return "#6b7280";
-  if (group === "started") return "#6b7280";
-  if (group === "cancelled" || name.includes("blocked")) return "#6b7280";
-  return "#6b7280";
-}
-
-function getPriorityTone(priority: TIssue["priority"]) {
-  switch (priority) {
-    case "urgent":
-    case "high":
-      return {
-        className: "text-tertiary",
-        icon: ArrowUp,
-        label: priority,
-      };
-    case "medium":
-      return {
-        className: "text-tertiary",
-        icon: Minus,
-        label: priority,
-      };
-    case "low":
-      return {
-        className: "text-tertiary",
-        icon: ArrowDown,
-        label: priority,
-      };
-    default:
-      return {
-        className: "text-tertiary",
-        icon: Minus,
-        label: "None",
-      };
-  }
-}
-
 function getPriorityLabel(priority: TIssue["priority"]) {
   if (!priority || priority === "none") return "None";
   return ISSUE_PRIORITIES.find((item) => item.key === priority)?.title ?? priority;
-}
-
-function getStateOrderIndex(state: IState) {
-  const name = state.name.toLowerCase();
-  const orderIndex = STATUS_ORDER.findIndex((status) => name === status || name.includes(status));
-
-  return orderIndex === -1 ? STATUS_ORDER.length : orderIndex;
 }
 
 export const AllTicketsPageView = observer(function AllTicketsPageView(props: AllTicketsPageViewProps) {
@@ -132,6 +86,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [priorityFilter, setPriorityFilter] = useState<TicketPriority | null>(null);
   const [assigneeFilter, setAssigneeFilter] = useState<AssigneeFilter>(null);
+  const [labelFilter, setLabelFilter] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [starredIds, setStarredIds] = useState<Set<string>>(new Set());
   const [activeToolbarMenu, setActiveToolbarMenu] = useState<ToolbarMenuField | null>(null);
@@ -149,6 +104,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
   } = useIssues(EIssuesStoreType.GLOBAL);
   const { getStateById } = useProjectState();
   const { getProjectById, getProjectIdentifierById } = useProject();
+  const { getLabelById } = useLabel();
   const memberStore = useMember();
   const { data: currentUser } = useUser();
   const { toggleCreateIssueModal } = useCommandPalette();
@@ -184,6 +140,22 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
       .sort((a, b) => a.display_name.localeCompare(b.display_name));
   }, [issueIds, issueMap, memberStore]);
 
+  // Real, distinct filter criteria - not already covered by the Status/Priority/Assignee
+  // dropdowns next to it or by the "All/Mine/Unassigned/Starred" tab row below.
+  const labelOptions = useMemo(() => {
+    const labelIds = new Set<string>();
+
+    for (const id of issueIds) {
+      const issue = issueMap[id];
+      issue?.label_ids?.forEach((labelId) => labelIds.add(labelId));
+    }
+
+    return [...labelIds]
+      .map((labelId) => getLabelById(labelId))
+      .filter((label): label is NonNullable<typeof label> => !!label)
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [getLabelById, issueIds, issueMap]);
+
   const selectedStatus = statusFilter ? statusOptions.find((state) => state.id === statusFilter) : undefined;
   const selectedAssignee =
     assigneeFilter && assigneeFilter !== UNASSIGNED_FILTER_VALUE
@@ -191,7 +163,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
       : undefined;
   const selectedAssigneeLabel =
     assigneeFilter === UNASSIGNED_FILTER_VALUE ? "Unassigned" : selectedAssignee?.display_name;
-  const hasToolbarFilters = !!statusFilter || !!priorityFilter || !!assigneeFilter;
+  const selectedLabel = labelFilter ? getLabelById(labelFilter) : null;
 
   const filteredIds = useMemo(() => {
     const query = searchText.trim().toLowerCase();
@@ -205,6 +177,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
       const ticketKey = projectIdentifier && issue.sequence_id ? `${projectIdentifier}-${issue.sequence_id}` : "";
       const assigneeNames =
         issue.assignee_ids?.map((assigneeId) => memberStore.getUserDetails(assigneeId)?.display_name).join(" ") ?? "";
+      const labelNames = issue.label_ids?.map((labelId) => getLabelById(labelId)?.name).join(" ") ?? "";
       const searchableText = [
         issue.name,
         ticketKey,
@@ -213,6 +186,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
         state?.name,
         getPriorityLabel(issue.priority),
         assigneeNames,
+        labelNames,
       ]
         .filter(Boolean)
         .join(" ")
@@ -228,6 +202,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
         !(issue.assignee_ids?.includes(assigneeFilter) ?? false)
       )
         return false;
+      if (labelFilter && !(issue.label_ids?.includes(labelFilter) ?? false)) return false;
       if (activeFilter === "mine") return issue.assignee_ids?.includes(currentUserId ?? "") ?? false;
       if (activeFilter === "unassigned") return !issue.assignee_ids?.length;
       if (activeFilter === "starred") return starredIds.has(id);
@@ -237,11 +212,13 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
     activeFilter,
     assigneeFilter,
     currentUserId,
+    getLabelById,
     getProjectById,
     getProjectIdentifierById,
     getStateById,
     issueIds,
     issueMap,
+    labelFilter,
     memberStore,
     priorityFilter,
     searchText,
@@ -258,7 +235,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeFilter, assigneeFilter, priorityFilter, searchText, statusFilter]);
+  }, [activeFilter, assigneeFilter, labelFilter, priorityFilter, searchText, statusFilter]);
 
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(totalPages);
@@ -294,6 +271,7 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
     setStatusFilter(null);
     setPriorityFilter(null);
     setAssigneeFilter(null);
+    setLabelFilter(null);
     setActiveToolbarMenu(null);
   };
 
@@ -372,45 +350,36 @@ export const AllTicketsPageView = observer(function AllTicketsPageView(props: Al
 
           <div className="flex flex-wrap items-center justify-end gap-2">
             <ToolbarFilterDropdown
-              active={hasToolbarFilters || activeFilter !== "all"}
+              active={!!labelFilter}
               icon={Filter}
-              isOpen={activeToolbarMenu === "filter"}
-              label="Filter"
+              isOpen={activeToolbarMenu === "label"}
+              label={selectedLabel?.name ?? "Label"}
               onClose={() => setActiveToolbarMenu(null)}
-              onOpen={() => setActiveToolbarMenu("filter")}
+              onOpen={() => setActiveToolbarMenu("label")}
             >
               <ToolbarMenuOption
-                label="All tickets"
-                selected={activeFilter === "all"}
+                label="Any label"
+                selected={!labelFilter}
                 onClick={() => {
-                  setActiveFilter("all");
+                  setLabelFilter(null);
                   setActiveToolbarMenu(null);
                 }}
               />
-              <ToolbarMenuOption
-                label="My tickets"
-                selected={activeFilter === "mine"}
-                onClick={() => {
-                  setActiveFilter("mine");
-                  setActiveToolbarMenu(null);
-                }}
-              />
-              <ToolbarMenuOption
-                label="Unassigned"
-                selected={activeFilter === "unassigned"}
-                onClick={() => {
-                  setActiveFilter("unassigned");
-                  setActiveToolbarMenu(null);
-                }}
-              />
-              <ToolbarMenuOption
-                label="Starred"
-                selected={activeFilter === "starred"}
-                onClick={() => {
-                  setActiveFilter("starred");
-                  setActiveToolbarMenu(null);
-                }}
-              />
+              {labelOptions.length ? (
+                labelOptions.map((label) => (
+                  <ToolbarMenuOption
+                    key={label.id}
+                    label={label.name}
+                    selected={labelFilter === label.id}
+                    onClick={() => {
+                      setLabelFilter(label.id);
+                      setActiveToolbarMenu(null);
+                    }}
+                  />
+                ))
+              ) : (
+                <span className="block px-3 py-2 text-13 text-tertiary">No labels found</span>
+              )}
             </ToolbarFilterDropdown>
 
             <ToolbarFilterDropdown
@@ -908,7 +877,7 @@ const TicketTableRow = observer(function TicketTableRow(props: TicketTableRowPro
       <InlineStatusEditor
         isOpen={activeInlineMenu?.issueId === issueId && activeInlineMenu.field === "status"}
         disabled={!canInlineEdit}
-        issue={issueDetail}
+        selectedStateId={issueDetail.state_id}
         states={projectStates}
         state={state}
         onOpen={handleStatusMenuOpen}
@@ -922,7 +891,7 @@ const TicketTableRow = observer(function TicketTableRow(props: TicketTableRowPro
       <InlinePriorityEditor
         isOpen={activeInlineMenu?.issueId === issueId && activeInlineMenu.field === "priority"}
         disabled={!canInlineEdit}
-        issue={issueDetail}
+        selectedPriority={issueDetail.priority}
         priorityTone={priorityTone}
         PriorityToneIcon={PriorityToneIcon}
         onOpen={() => onOpenInlineMenu("priority")}
@@ -938,7 +907,7 @@ const TicketTableRow = observer(function TicketTableRow(props: TicketTableRowPro
         assignee={assignee}
         disabled={!canInlineEdit}
         getUserDetails={memberStore.getUserDetails}
-        issue={issueDetail}
+        selectedAssigneeId={issueDetail.assignee_ids?.[0]}
         memberIds={memberStore.workspace.workspaceMemberIds ?? undefined}
         onOpen={handleAssigneeMenuOpen}
         onClose={onCloseInlineMenu}
@@ -962,372 +931,6 @@ const TicketTableRow = observer(function TicketTableRow(props: TicketTableRowPro
     </div>
   );
 });
-
-function InlineStatusEditor({
-  disabled,
-  issue,
-  isOpen,
-  onChange,
-  onClose,
-  onOpen,
-  state,
-  states,
-}: {
-  disabled: boolean;
-  issue: TIssue;
-  isOpen: boolean;
-  onChange: (stateId: string) => void;
-  onClose: () => void;
-  onOpen: () => void;
-  state: IState | undefined;
-  states: IState[];
-}) {
-  const statusStyle = { "--flyers-status-color": getStateAccent(state) } as CSSProperties;
-
-  return (
-    <div className="flyers-soft-inline-field min-w-0">
-      <InlineDropdownMenu
-        disabled={disabled}
-        isOpen={isOpen}
-        menuWidth={190}
-        onClose={onClose}
-        onOpen={onOpen}
-        trigger={
-          <span
-            className={cn(
-              "flyers-soft-status-pill inline-flex max-w-full items-center gap-2",
-              disabled && "cursor-not-allowed opacity-70"
-            )}
-            style={statusStyle}
-          >
-            <span className="min-w-0 truncate">{state?.name ?? "No status"}</span>
-            {!disabled && <ChevronDown className="size-3.5 flex-shrink-0 opacity-70" />}
-          </span>
-        }
-      >
-        {states.length ? (
-          states.map((stateOption) => {
-            const isSelected = stateOption.id === issue.state_id;
-
-            return (
-              <button
-                key={stateOption.id}
-                type="button"
-                className="flyers-soft-inline-menu-option"
-                data-selected={isSelected ? "true" : undefined}
-                onClick={() => onChange(stateOption.id)}
-              >
-                <span
-                  className="size-2.5 flex-shrink-0 rounded-full"
-                  style={{ backgroundColor: getStateAccent(stateOption) }}
-                />
-                <span className="min-w-0 flex-1 truncate text-left">{stateOption.name}</span>
-                {isSelected && <CheckCircle2 className="size-3.5 flex-shrink-0 text-tertiary" strokeWidth={2.4} />}
-              </button>
-            );
-          })
-        ) : (
-          <span className="block px-3 py-2 text-13 text-tertiary">No statuses found</span>
-        )}
-      </InlineDropdownMenu>
-    </div>
-  );
-}
-
-function InlinePriorityEditor({
-  disabled,
-  issue,
-  isOpen,
-  onChange,
-  onClose,
-  onOpen,
-  PriorityToneIcon,
-  priorityTone,
-}: {
-  disabled: boolean;
-  issue: TIssue;
-  isOpen: boolean;
-  onChange: (priority: TIssue["priority"]) => void;
-  onClose: () => void;
-  onOpen: () => void;
-  PriorityToneIcon: typeof ArrowUp;
-  priorityTone: ReturnType<typeof getPriorityTone>;
-}) {
-  const priorityKey = `${issue.priority ?? "none"}`.toLowerCase();
-  const priorityOptions = PRIORITY_ORDER.map((priority) => {
-    const priorityDetails = ISSUE_PRIORITIES.find((item) => item.key === priority);
-    return { key: priority, title: priorityDetails?.title ?? priority };
-  });
-
-  return (
-    <div className="flyers-soft-inline-field min-w-0">
-      <InlineDropdownMenu
-        disabled={disabled}
-        isOpen={isOpen}
-        menuWidth={190}
-        onClose={onClose}
-        onOpen={onOpen}
-        trigger={
-          <span
-            className={cn(
-              "flyers-soft-priority-pill inline-flex max-w-full items-center gap-2 capitalize",
-              `flyers-soft-priority-${priorityKey}`,
-              disabled && "cursor-not-allowed opacity-70"
-            )}
-          >
-            <PriorityToneIcon className={cn("size-3.5 flex-shrink-0", priorityTone.className)} strokeWidth={2.2} />
-            <span className="min-w-0 truncate">{priorityTone.label}</span>
-            {!disabled && <ChevronDown className="size-3.5 flex-shrink-0 opacity-70" />}
-          </span>
-        }
-      >
-        {priorityOptions.map((priority) => {
-          const optionTone = getPriorityTone(priority.key);
-          const OptionIcon = optionTone.icon;
-          const isSelected = priority.key === (issue.priority ?? "none");
-
-          return (
-            <button
-              key={priority.key}
-              type="button"
-              className="flyers-soft-inline-menu-option"
-              data-selected={isSelected ? "true" : undefined}
-              onClick={() => onChange(priority.key)}
-            >
-              <OptionIcon className={cn("size-3.5 flex-shrink-0", optionTone.className)} strokeWidth={2.2} />
-              <span className="min-w-0 flex-1 truncate text-left">{priority.title}</span>
-              {isSelected && <CheckCircle2 className="size-3.5 flex-shrink-0 text-tertiary" strokeWidth={2.4} />}
-            </button>
-          );
-        })}
-      </InlineDropdownMenu>
-    </div>
-  );
-}
-
-function InlineAssigneeEditor({
-  assignee,
-  disabled,
-  getUserDetails,
-  isOpen,
-  issue,
-  memberIds,
-  onChange,
-  onClose,
-  onOpen,
-}: {
-  assignee: IUserLite | undefined;
-  disabled: boolean;
-  getUserDetails: (userId: string) => IUserLite | undefined;
-  isOpen: boolean;
-  issue: TIssue;
-  memberIds: string[] | undefined;
-  onChange: (assigneeIds: string[]) => void;
-  onClose: () => void;
-  onOpen: () => void;
-}) {
-  const [query, setQuery] = useState("");
-  const selectedAssigneeId = issue.assignee_ids?.[0];
-  const members = (memberIds ?? [])
-    .map((memberId) => getUserDetails(memberId))
-    .filter((member): member is IUserLite => !!member);
-  const filteredMembers = members.filter((member) => {
-    const searchableText = `${member.display_name} ${member.first_name} ${member.last_name} ${member.email ?? ""}`;
-    return searchableText.toLowerCase().includes(query.trim().toLowerCase());
-  });
-
-  useEffect(() => {
-    if (!isOpen) setQuery("");
-  }, [isOpen]);
-
-  return (
-    <div className="flyers-soft-inline-field min-w-0">
-      <InlineDropdownMenu
-        disabled={disabled}
-        isOpen={isOpen}
-        menuWidth={240}
-        onClose={onClose}
-        onOpen={onOpen}
-        trigger={
-          <span
-            className={cn(
-              "flyers-soft-assignee-pill inline-flex max-w-full items-center gap-2 rounded-full border border-strong bg-surface-1 px-2 py-1 text-13 font-medium text-secondary",
-              disabled && "cursor-not-allowed opacity-70"
-            )}
-          >
-            {assignee ? (
-              <>
-                <Avatar
-                  name={assignee.display_name}
-                  src={getFileURL(assignee.avatar_url ?? "")}
-                  size={20}
-                  shape="circle"
-                  className="flex-shrink-0"
-                />
-                <span className="min-w-0 truncate">{assignee.display_name}</span>
-              </>
-            ) : (
-              <>
-                <span className="size-5 flex-shrink-0 rounded-full border border-dashed border-strong" />
-                <span className="min-w-0 truncate text-tertiary">Unassigned</span>
-              </>
-            )}
-            {!disabled && <ChevronDown className="size-3.5 flex-shrink-0 text-tertiary" />}
-          </span>
-        }
-      >
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search members..."
-          className="flyers-soft-inline-menu-search"
-          onClick={(e) => e.stopPropagation()}
-        />
-        <button
-          type="button"
-          className="flyers-soft-inline-menu-option"
-          data-selected={!selectedAssigneeId ? "true" : undefined}
-          onClick={() => onChange([])}
-        >
-          <span className="size-5 flex-shrink-0 rounded-full border border-dashed border-strong" />
-          <span className="min-w-0 flex-1 truncate text-left">Unassigned</span>
-          {!selectedAssigneeId && <CheckCircle2 className="size-3.5 flex-shrink-0 text-tertiary" strokeWidth={2.4} />}
-        </button>
-        {filteredMembers.length ? (
-          filteredMembers.map((member) => {
-            const isSelected = member.id === selectedAssigneeId;
-
-            return (
-              <button
-                key={member.id}
-                type="button"
-                className="flyers-soft-inline-menu-option"
-                data-selected={isSelected ? "true" : undefined}
-                onClick={() => onChange([member.id])}
-              >
-                <Avatar
-                  name={member.display_name}
-                  src={getFileURL(member.avatar_url ?? "")}
-                  size={20}
-                  shape="circle"
-                  className="flex-shrink-0"
-                />
-                <span className="min-w-0 flex-1 truncate text-left">{member.display_name}</span>
-                {isSelected && <CheckCircle2 className="size-3.5 flex-shrink-0 text-tertiary" strokeWidth={2.4} />}
-              </button>
-            );
-          })
-        ) : (
-          <span className="block px-3 py-2 text-13 text-tertiary">No members found</span>
-        )}
-      </InlineDropdownMenu>
-    </div>
-  );
-}
-
-function InlineDropdownMenu({
-  children,
-  disabled,
-  isOpen,
-  menuWidth = 190,
-  onClose,
-  onOpen,
-  trigger,
-}: {
-  children: ReactNode;
-  disabled: boolean;
-  isOpen: boolean;
-  menuWidth?: number;
-  onClose: () => void;
-  onOpen: () => void;
-  trigger: ReactNode;
-}) {
-  const menuRef = useRef<HTMLDivElement | null>(null);
-  const panelRef = useRef<HTMLDivElement | null>(null);
-  const triggerRef = useRef<HTMLButtonElement | null>(null);
-  const [panelStyle, setPanelStyle] = useState<CSSProperties>({});
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handlePointerDown = (event: MouseEvent) => {
-      const target = event.target as Node;
-      if (!menuRef.current?.contains(target) && !panelRef.current?.contains(target)) onClose();
-    };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-
-    document.addEventListener("mousedown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen, onClose]);
-
-  useEffect(() => {
-    if (!isOpen || !triggerRef.current) return;
-
-    const updatePosition = () => {
-      const triggerRect = triggerRef.current?.getBoundingClientRect();
-      if (!triggerRect) return;
-
-      const left = Math.min(Math.max(12, triggerRect.left), window.innerWidth - menuWidth - 12);
-      const top = Math.min(triggerRect.bottom + 6, window.innerHeight - 260);
-
-      setPanelStyle({
-        left,
-        minWidth: Math.max(triggerRect.width, 148),
-        top: Math.max(12, top),
-        width: menuWidth,
-      });
-    };
-
-    updatePosition();
-    window.addEventListener("resize", updatePosition);
-    window.addEventListener("scroll", updatePosition, true);
-
-    return () => {
-      window.removeEventListener("resize", updatePosition);
-      window.removeEventListener("scroll", updatePosition, true);
-    };
-  }, [isOpen, menuWidth]);
-
-  return (
-    <div ref={menuRef} className="flyers-soft-inline-menu">
-      <button
-        ref={triggerRef}
-        type="button"
-        disabled={disabled}
-        aria-expanded={isOpen}
-        className="flyers-soft-inline-trigger"
-        onClick={(event) => {
-          event.stopPropagation();
-          if (disabled) return;
-          isOpen ? onClose() : onOpen();
-        }}
-      >
-        {trigger}
-      </button>
-      {isOpen &&
-        typeof document !== "undefined" &&
-        createPortal(
-          <div
-            ref={panelRef}
-            className="flyers-soft-inline-menu-panel"
-            style={panelStyle}
-            onClick={(event) => event.stopPropagation()}
-          >
-            {children}
-          </div>,
-          document.body
-        )}
-    </div>
-  );
-}
 
 function PaginationButton({
   icon: Icon,

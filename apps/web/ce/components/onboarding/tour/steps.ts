@@ -19,7 +19,7 @@ export type TTourStep = {
   description: string;
   Icon: LucideIcon;
   secondaryIcon?: LucideIcon;
-  /** Served from apps/web/public/onboarding/<file> — drop a screenshot in with this filename and it appears automatically. */
+  /** Served from apps/web/public/onboarding/<file>; use 16:9 screenshots, ideally 1600x900 or 1920x1080. */
   screenshot: string;
   buttonLabel?: string;
 };
@@ -51,7 +51,7 @@ export const TOUR_STEPS: TTourStep[] = [
   },
   {
     key: "templates",
-    label: "Templates",
+    label: "To Do List",
     title: "Reusable Templates",
     description: "Create and reuse ticket templates to save time and maintain consistency.",
     Icon: FileText,

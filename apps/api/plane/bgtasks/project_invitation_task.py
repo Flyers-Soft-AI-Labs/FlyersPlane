@@ -9,14 +9,12 @@ import logging
 from celery import shared_task
 
 # Django imports
-# Third party imports
-from django.core.mail import EmailMultiAlternatives, get_connection
 from django.template.loader import render_to_string
 
 # Module imports
 from plane.db.models import Project, ProjectMemberInvite, User
-from plane.license.utils.instance_value import get_email_configuration
 from plane.utils.email import generate_plain_text_from_html
+from plane.utils.email_provider import send_email
 from plane.utils.exception_logger import log_exception
 
 
@@ -47,36 +45,7 @@ def project_invitation(email, project_id, token, current_site, invitor):
         project_member_invite.message = text_content
         project_member_invite.save()
 
-        # Configure email connection from the database
-        (
-            EMAIL_HOST,
-            EMAIL_HOST_USER,
-            EMAIL_HOST_PASSWORD,
-            EMAIL_PORT,
-            EMAIL_USE_TLS,
-            EMAIL_USE_SSL,
-            EMAIL_FROM,
-        ) = get_email_configuration()
-
-        connection = get_connection(
-            host=EMAIL_HOST,
-            port=int(EMAIL_PORT),
-            username=EMAIL_HOST_USER,
-            password=EMAIL_HOST_PASSWORD,
-            use_tls=EMAIL_USE_TLS == "1",
-            use_ssl=EMAIL_USE_SSL == "1",
-        )
-
-        msg = EmailMultiAlternatives(
-            subject=subject,
-            body=text_content,
-            from_email=EMAIL_FROM,
-            to=[email],
-            connection=connection,
-        )
-
-        msg.attach_alternative(html_content, "text/html")
-        msg.send()
+        send_email(email, subject, html_content, text_content)
         logging.getLogger("plane.worker").info("Email sent successfully.")
         return
     except (Project.DoesNotExist, ProjectMemberInvite.DoesNotExist):

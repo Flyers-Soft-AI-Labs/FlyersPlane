@@ -59,6 +59,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     # user fields
     mobile_number = models.CharField(max_length=255, blank=True, null=True)
     email = models.CharField(max_length=255, null=True, blank=True, unique=True)
+    # alternate login email (e.g. a personal Gmail) that resolves to this same account
+    secondary_email = models.CharField(max_length=255, null=True, blank=True, unique=True)
 
     # identity
     display_name = models.CharField(max_length=255, default="")
@@ -168,6 +170,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def save(self, *args, **kwargs):
         self.email = self.email.lower().strip()
+        if self.secondary_email:
+            self.secondary_email = self.secondary_email.lower().strip()
         self.mobile_number = self.mobile_number
 
         if self.token_updated_at is not None:

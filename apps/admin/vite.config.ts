@@ -26,6 +26,54 @@ export default defineConfig(() => ({
     assetsInlineLimit: 0,
   },
   plugins: [reactRouter(), tsconfigPaths({ projects: [path.resolve(__dirname, "tsconfig.json")] })],
+  optimizeDeps: {
+    // admin depends on several workspace:* packages (@plane/ui, @plane/propel, @plane/utils,
+    // @plane/services, @plane/hooks, @plane/types, @plane/constants). Vite doesn't pre-bundle
+    // linked workspace packages - it crawls them as source, and discovers their transitive
+    // dependencies in batches as different routes are visited. Each batch triggers a
+    // re-optimize *and* a full page reload, which crawls deeper and finds more, producing a
+    // slow chain of "new dependencies optimized ... reloading" cycles on a cold Vite cache.
+    // This list is the full set of those transitive deps, gathered by clearing
+    // node_modules/.vite and visiting every admin route until no more were discovered. It is
+    // NOT redundant with package.json: most of these are not direct dependencies of admin at
+    // all, they only exist so Vite can pre-bundle them up front instead of finding them one
+    // reload at a time. If you add a new workspace-package import that pulls in a fresh
+    // dependency, clear node_modules/.vite and re-run this same process to extend the list.
+    include: [
+      "next-themes",
+      "swr",
+      "mobx-react",
+      "@bprogress/core",
+      "react-hook-form",
+      "lucide-react",
+      "lodash-es",
+      "uuid",
+      "mobx",
+      "axios",
+      "file-type",
+      "date-fns",
+      "date-fns/differenceInCalendarDays",
+      "clsx",
+      "tailwind-merge",
+      "rehype-parse",
+      "rehype-remark",
+      "remark-gfm",
+      "remark-stringify",
+      "unified",
+      "chroma-js",
+      "react-popper",
+      "@headlessui/react",
+      "react-color",
+      "@radix-ui/react-scroll-area",
+      "@atlaskit/pragmatic-drag-and-drop/dist/cjs/entry-point/element/adapter.js",
+      "@atlaskit/pragmatic-drag-and-drop/dist/cjs/entry-point/combine.js",
+      "@atlaskit/pragmatic-drag-and-drop-hitbox/dist/cjs/closest-edge.js",
+      "@blueprintjs/popover2",
+      "class-variance-authority",
+      "@base-ui-components/react/tooltip",
+      "@base-ui-components/react/toast",
+    ],
+  },
   resolve: {
     alias: {
       // Next.js compatibility shims used within admin

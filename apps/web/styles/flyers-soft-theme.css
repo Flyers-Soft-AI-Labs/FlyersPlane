@@ -1868,8 +1868,7 @@
 .flyers-soft-sidebar-peek .flyers-soft-main-sidebar-panel,
 .flyers-soft-sidebar-peek {
   background:
-    radial-gradient(circle at 30px 18px, rgba(17, 24, 39, 0.18), transparent 150px),
-    var(--fs-bg-sidebar) !important;
+    radial-gradient(circle at 30px 18px, rgba(17, 24, 39, 0.18), transparent 150px), var(--fs-bg-sidebar) !important;
 }
 
 #main-sidebar .text-primary,
@@ -2193,7 +2192,6 @@
 .flyers-soft-home-content-wrapper {
   background: var(--fs-surface-1) !important;
 }
-
 
 .flyers-soft-dashboard-shell {
   display: flex;
@@ -5674,7 +5672,12 @@ body,
 
 #main-sidebar .flyers-soft-main-sidebar-panel,
 .flyers-soft-sidebar-peek .flyers-soft-main-sidebar-panel {
-  background: linear-gradient(180deg, var(--fs-bg-sidebar) 0%, var(--fs-bg-sidebar) 46%, var(--bg-layer-1-active) 100%) !important;
+  background: linear-gradient(
+    180deg,
+    var(--fs-bg-sidebar) 0%,
+    var(--fs-bg-sidebar) 46%,
+    var(--bg-layer-1-active) 100%
+  ) !important;
 }
 
 .flyers-soft-sidebar-brand {
@@ -6689,7 +6692,12 @@ div[role="row"]:hover {
 .flyers-soft-teams-settings-sidebar {
   width: 250px !important;
   border-right-color: var(--fs-border-subtle) !important;
-  background: linear-gradient(180deg, var(--fs-bg-sidebar) 0%, var(--fs-bg-sidebar) 52%, var(--fs-bg-sidebar) 100%) !important;
+  background: linear-gradient(
+    180deg,
+    var(--fs-bg-sidebar) 0%,
+    var(--fs-bg-sidebar) 52%,
+    var(--fs-bg-sidebar) 100%
+  ) !important;
   color: var(--fs-text-primary) !important;
   box-shadow: 12px 0 24px rgba(17, 24, 39, 0.05);
   --background-color-surface-1: var(--fs-surface-1);
@@ -7704,6 +7712,21 @@ body.flyers-soft-create-ticket-modal-open .fixed.inset-0.bg-backdrop {
   box-shadow: 0 24px 70px rgba(17, 24, 39, 0.18) !important;
 }
 
+/* Edit/draft modal (form.tsx non-grid branch) reuses flyers-soft-create-ticket-modal
+   on an inner wrapper purely to inherit the field-control input/dropdown styling
+   below, which is scoped to this class. It is nested inside the existing
+   .flyers-soft-ticket-modal shell there, so the modal-shell box styles above
+   (border/shadow/rounded corners/max-height) are neutralized here - only the
+   field styling should leak through, not a second modal card. */
+.flyers-soft-ticket-modal .flyers-soft-create-ticket-modal {
+  max-height: none !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
 .flyers-soft-create-ticket-modal-header {
   display: flex;
   min-height: 78px;
@@ -7912,7 +7935,9 @@ body.flyers-soft-create-ticket-modal-open .fixed.inset-0.bg-backdrop {
   padding: 0 !important;
   box-shadow: none !important;
   color: var(--fs-text-tertiary) !important;
-  transition: background-color 0.15s ease, color 0.15s ease !important;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease !important;
 }
 
 .flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control button.flyers-soft-voice-ticket-trigger:hover,
@@ -7925,10 +7950,7 @@ body.flyers-soft-create-ticket-modal-open .fixed.inset-0.bg-backdrop {
   color: var(--fs-text-primary) !important;
 }
 
-.flyers-soft-create-ticket-modal
-  .flyers-soft-ticket-modal-field-control
-  button.flyers-soft-voice-ticket-trigger
-  svg {
+.flyers-soft-create-ticket-modal .flyers-soft-ticket-modal-field-control button.flyers-soft-voice-ticket-trigger svg {
   width: 18px !important;
   height: 18px !important;
 }
@@ -12156,13 +12178,24 @@ body:has(.flyers-soft-notifications-layout) .flyers-soft-sidebar-simple-item:has
 }
 
 .flyers-tour-screenshot-area {
-  background: linear-gradient(180deg, color-mix(in srgb, #8b5cf6 10%, var(--background-color-surface-2)) 0%, var(--background-color-surface-2) 100%);
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #8b5cf6 10%, var(--background-color-surface-2)) 0%,
+    var(--background-color-surface-2) 100%
+  );
 }
 
 .flyers-tour-screenshot-fallback {
   background:
     radial-gradient(60% 80% at 50% 20%, rgba(139, 92, 246, 0.16) 0%, rgba(139, 92, 246, 0) 70%),
-    repeating-linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0px, rgba(139, 92, 246, 0.05) 1px, transparent 1px, transparent 14px);
+    repeating-linear-gradient(
+      135deg,
+      rgba(139, 92, 246, 0.05) 0px,
+      rgba(139, 92, 246, 0.05) 1px,
+      transparent 1px,
+      transparent 14px
+    );
 }
 
 .flyers-tour-rail-item-active {
@@ -12181,24 +12214,29 @@ body:has(.flyers-soft-notifications-layout) .flyers-soft-sidebar-simple-item:has
   color: #ffffff;
 }
 
-.flyers-tour-slide-enter {
-  animation: flyers-tour-fade-slide-in 280ms ease;
+.flyers-tour-slide-transition {
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
+  will-change: opacity, transform;
 }
 
-@keyframes flyers-tour-fade-slide-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.flyers-tour-slide-transition-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.flyers-tour-slide-transition-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .flyers-tour-slide-enter {
-    animation: none;
+  .flyers-tour-slide-transition {
+    transition: none;
   }
   .flyers-tour-progress-fill {
     transition: none;

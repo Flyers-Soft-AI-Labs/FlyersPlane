@@ -4,6 +4,7 @@
  * See the LICENSE file for details.
  */
 
+import type { ReactNode } from "react";
 import { observer } from "mobx-react";
 import { useTranslation } from "@plane/i18n";
 // ui
@@ -15,10 +16,12 @@ import { cn } from "@plane/utils";
 export interface Props {
   parentRef: React.RefObject<HTMLElement>;
   MENU_ITEMS: TContextMenuItem[];
+  customActionButton?: ReactNode;
+  customActionButtonClassName?: string;
 }
 
 export const WorkspaceDraftIssueQuickActions = observer(function WorkspaceDraftIssueQuickActions(props: Props) {
-  const { parentRef, MENU_ITEMS } = props;
+  const { parentRef, MENU_ITEMS, customActionButton, customActionButtonClassName } = props;
 
   const { t } = useTranslation();
 
@@ -26,7 +29,9 @@ export const WorkspaceDraftIssueQuickActions = observer(function WorkspaceDraftI
     <>
       <ContextMenu parentRef={parentRef} items={MENU_ITEMS} />
       <CustomMenu
-        ellipsis
+        customButton={customActionButton}
+        customButtonClassName={customActionButtonClassName}
+        ellipsis={!customActionButton}
         placement="bottom-end"
         menuItemsClassName="z-[14]"
         maxHeight="lg"

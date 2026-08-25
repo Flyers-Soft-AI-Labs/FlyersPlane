@@ -39,6 +39,10 @@ def get_configuration_value(keys):
     return tuple(environment_list)
 
 
+def is_email_provider_configured(email_host: str | None) -> bool:
+    return bool(email_host or os.environ.get("BREVO_API_KEY"))
+
+
 def get_email_configuration():
     return get_configuration_value(
         [
